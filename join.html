@@ -260,16 +260,10 @@
 
     <div class="card">
       <p class="section-label">Your info</p>
-      <div class="row2">
-        <div class="field">
-          <label for="fname">First name</label>
-          <input type="text" id="fname" placeholder="Keith" />
+      <div class="field">
+          <label for="fname">Family name</label>
+          <input type="text" id="fname" placeholder="D'Amico-Herman" />
         </div>
-        <div class="field">
-          <label for="lname">Last name</label>
-          <input type="text" id="lname" placeholder="Herman" />
-        </div>
-      </div>
       <div class="field">
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="you@example.com" />
@@ -363,7 +357,7 @@
 <script>
   // ── CONFIG ──────────────────────────────────────────────────────
   const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
   // ── PLATFORM INSTRUCTIONS ───────────────────────────────────────
   const INSTRUCTIONS = {
@@ -451,7 +445,6 @@
   // ── SUBMIT ──────────────────────────────────────────────────────
   async function submitForm() {
     const fname = document.getElementById('fname').value.trim();
-    const lname = document.getElementById('lname').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
     const icalUrl = document.getElementById('ical-url').value.trim();
@@ -459,7 +452,7 @@
 
     errEl.style.display = 'none';
 
-    if (!fname) return showError('Please enter your first name.');
+    if (!fname) return showError('Please enter your family name.');
     if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
     if (!phone) return showError('Please enter your mobile number for SMS alerts.');
     if (!icalUrl) return showError('Please paste your calendar link so we can sync your schedule.');
@@ -478,7 +471,7 @@
     try {
       // Save to Supabase feeds table
       const payload = {
-        family_name: `${fname} ${lname}`.trim(),
+        family_name: fname,
         email: email,
         phone: normalizePhone(phone),
         kid_name: kids.length > 0 ? kids[0].name : fname + "'s kid",
@@ -520,10 +513,8 @@
         throw new Error(err.message || 'Signup failed');
       }
 
-      // Show success
-      document.getElementById('form-wrap').style.display = 'none';
-      document.getElementById('success').style.display = 'block';
-      window.scrollTo(0, 0);
+      // Redirect to their personal calendar
+      window.location.href = 'https://venuewise.net/calendar.html?email=' + encodeURIComponent(email);
 
     } catch (err) {
       showError('Something went wrong. Please try again or text us at +1 (716) 671-1814.');
