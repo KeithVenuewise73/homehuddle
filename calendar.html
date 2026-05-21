@@ -569,6 +569,13 @@ function renderMonth() {
 }
 
 // ── RENDER + NAV ─────────────────────────────────────────────────
+function scrollToToday() {
+  const todayEls = document.querySelectorAll('.list-day-today');
+  if (todayEls.length > 0) {
+    todayEls[0].closest('.list-day').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 function render() {
   if (currentView === 'list') renderList();
   else renderMonth();
@@ -588,7 +595,11 @@ function navigate(dir) {
 
 function goToday() {
   currentDate = new Date();
+  currentView = 'list';
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view-btn')[0].classList.add('active');
   render();
+  setTimeout(scrollToToday, 100);
 }
 
 function goToDate(ts) {
@@ -663,7 +674,7 @@ function showToast(msg) {
 
 // ── INIT ─────────────────────────────────────────────────────────
 loadTheme();
-loadEvents();
+loadEvents().then(() => setTimeout(scrollToToday, 300));
 setInterval(()=>loadEvents(false), 5*60*1000);
 </script>
 </body>
