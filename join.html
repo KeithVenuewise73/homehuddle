@@ -248,14 +248,14 @@
 
   <!-- Form -->
   <div id="form-wrap">
-    <div class="badge">✦ Free for families</div>
+    <div class="badge">✦ Free 30-day trial</div>
     <h1>Your family's schedule,<br><em>finally organized.</em></h1>
-    <p class="sub">Real-time SMS alerts when practice times change, games are added, or there's a conflict. No app needed.</p>
+    <p class="sub">Real-time SMS alerts when practice times change, games are added, or there's a conflict. Try free for 30 days, then just $4.95/month.</p>
 
     <div class="perks">
       <div class="perk"><div class="perk-icon">📲</div><span>SMS alerts</span></div>
       <div class="perk"><div class="perk-icon">📅</div><span>Live sync</span></div>
-      <div class="perk"><div class="perk-icon">$0</div><span>Always free</span></div>
+      <div class="perk"><div class="perk-icon">30</div><span>Day free trial</span></div>
     </div>
 
     <div class="card">
@@ -336,10 +336,10 @@
     <div class="error-msg" id="error-msg"></div>
 
     <button class="btn-primary" id="submit-btn" onclick="submitForm()">
-      <span id="btn-text">Join HomeHuddle — it's free</span>
+      <span id="btn-text">Start your free 30-day trial</span>
       <div class="spinner" id="spinner"></div>
     </button>
-    <p class="legal">No credit card. No spam. Unsubscribe anytime.<br>
+    <p class="legal">Free for 30 days, then $4.95/month. No contracts. Cancel anytime.<br>
       <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
   </div>
 
@@ -357,7 +357,7 @@
 <script>
   // ── CONFIG ──────────────────────────────────────────────────────
   const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
   // ── PLATFORM INSTRUCTIONS ───────────────────────────────────────
   const INSTRUCTIONS = {
@@ -540,7 +540,7 @@
 
   function setLoading(on) {
     document.getElementById('submit-btn').disabled = on;
-    document.getElementById('btn-text').textContent = on ? 'Setting up your account...' : 'Join HomeHuddle — it\'s free';
+    document.getElementById('btn-text').textContent = on ? 'Setting up your account...' : 'Start your free 30-day trial';
     document.getElementById('spinner').style.display = on ? 'block' : 'none';
   }
 
