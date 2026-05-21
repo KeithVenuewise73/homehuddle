@@ -469,7 +469,16 @@ function navigate(dir) {
 
 function goToday() {
   currentDate = new Date();
-  render();
+  currentView = 'list';
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view-btn')[0].classList.add('active');
+  function scrollToToday() {
+  const todayEls = document.querySelectorAll('.list-day-today');
+  if (todayEls.length > 0) {
+    todayEls[0].closest('.list-day').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}render();
+  loadEvents().then(() => setTimeout(scrollToToday, 300));
 }
 
 function goToDate(ts) {
