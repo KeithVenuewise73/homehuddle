@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join HomeHuddle — Free Family Sports Calendar</title>
+  <meta name="description" content="Get real-time SMS alerts when your kid's game times change. Free for families, powered by Venuewise." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-light: #E1F5EE;
+      --green-text: #085041;
+      --blue-light: #E6F1FB;
+      --blue-text: #0C447C;
+      --gray-50: #F9F9F7;
+      --gray-100: #F1EFE8;
+      --gray-200: #D3D1C7;
+      --gray-400: #888780;
+      --gray-700: #444441;
+      --gray-900: #1a1a18;
+      --red: #E24B4A;
+      --red-light: #FCEBEB;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .wrap { max-width: 520px; margin: 0 auto; }
+
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 2rem;
+    }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--green); display: flex; align-items: center;
+      justify-content: center;
+    }
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+    .logo-name { font-size: 16px; font-weight: 500; color: var(--gray-900); }
+    .logo-by { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--green-light); color: var(--green-text);
+      font-size: 12px; font-weight: 500; padding: 4px 12px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 5vw, 34px);
+      line-height: 1.15; color: var(--gray-900);
+      margin-bottom: .5rem;
+    }
+    h1 em { font-style: italic; color: var(--green); }
+
+    .sub {
+      font-size: 15px; color: var(--gray-400);
+      line-height: 1.6; margin-bottom: 1.75rem;
+    }
+
+    .perks {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; margin-bottom: 1.75rem;
+    }
+    .perk {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm); padding: .75rem;
+      text-align: center;
+    }
+    .perk-icon { font-size: 20px; margin-bottom: 4px; }
+    .perk span { font-size: 11px; color: var(--gray-400); line-height: 1.4; display: block; }
+
+    .card {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 500; color: var(--gray-400);
+      letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .field { margin-bottom: 12px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
+
+    input[type=text], input[type=email], input[type=tel], input[type=url], select {
+      width: 100%; padding: 9px 12px; font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm); color: var(--gray-900);
+      outline: none; transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(29,158,117,.1);
+    }
+    input::placeholder { color: var(--gray-400); }
+    input.error { border-color: var(--red); }
+
+    .divider { border: none; border-top: 1px solid var(--gray-100); margin: 1.25rem 0; }
+
+    .kids-list { display: flex; flex-direction: column; gap: 10px; }
+    .kid-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+    .kid-num { font-size: 11px; font-weight: 500; color: var(--gray-400); margin-bottom: 4px; }
+    .btn-remove {
+      width: 36px; height: 36px; display: flex; align-items: center;
+      justify-content: center; border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm); background: none; cursor: pointer;
+      color: var(--gray-400); font-size: 18px; transition: all .15s;
+      flex-shrink: 0;
+    }
+    .btn-remove:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+    .btn-add-kid {
+      display: flex; align-items: center; gap: 6px; width: 100%;
+      padding: 9px; background: none;
+      border: 1px dashed var(--gray-200); border-radius: var(--radius-sm);
+      font-size: 13px; color: var(--gray-400); cursor: pointer;
+      justify-content: center; margin-top: 10px;
+      font-family: 'DM Sans', sans-serif; transition: all .15s;
+    }
+    .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
+
+    .sports-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sport-btn {
+      padding: 6px 14px; border: 1px solid var(--gray-200);
+      border-radius: 20px; font-size: 13px; color: var(--gray-700);
+      cursor: pointer; transition: all .15s; background: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .sport-btn.active {
+      background: var(--green-light); border-color: var(--green);
+      color: var(--green-text); font-weight: 500;
+    }
+
+    .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .plat-btn {
+      border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
+      padding: .875rem 1rem; cursor: pointer; transition: all .15s;
+      background: white; text-align: left;
+    }
+    .plat-btn:hover { border-color: var(--green); background: var(--green-light); }
+    .plat-btn.active { border: 2px solid var(--green); background: var(--green-light); }
+    .plat-btn-name { font-size: 13px; font-weight: 500; color: var(--gray-900); }
+    .plat-btn-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    .instructions {
+      background: var(--blue-light); border-radius: var(--radius-sm);
+      padding: 1rem; margin: 1rem 0;
+    }
+    .instructions-title { font-size: 13px; font-weight: 500; color: var(--blue-text); margin-bottom: .5rem; }
+    .instructions ol { padding-left: 1.25rem; }
+    .instructions li { font-size: 13px; color: var(--blue-text); line-height: 1.7; }
+    .instructions strong { font-weight: 500; }
+
+    .btn-primary {
+      width: 100%; padding: 13px; background: var(--green);
+      color: white; font-size: 15px; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; border: none;
+      border-radius: var(--radius-sm); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-top: 1.25rem; transition: background .15s;
+    }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
+
+    .legal {
+      font-size: 12px; color: var(--gray-400); text-align: center;
+      margin-top: .75rem; line-height: 1.6;
+    }
+    .legal a { color: var(--green); text-decoration: none; }
+
+    .error-msg {
+      background: var(--red-light); color: var(--red);
+      font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm);
+      margin-top: 1rem; display: none;
+    }
+
+    /* Success screen */
+    .success {
+      display: none; text-align: center; padding: 3rem 1rem;
+    }
+    .success-icon {
+      width: 64px; height: 64px; background: var(--green-light);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 1.5rem;
+    }
+    .success-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .success h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px;
+      color: var(--gray-900); margin-bottom: .5rem;
+    }
+    .success p { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; }
+    .success a {
+      display: inline-block; padding: 12px 24px; background: var(--green);
+      color: white; border-radius: var(--radius-sm); text-decoration: none;
+      font-weight: 500; font-size: 14px;
+    }
+
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .row2 { grid-template-columns: 1fr; }
+      .perks { grid-template-columns: 1fr 1fr 1fr; }
+      .platform-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">HomeHuddle</div>
+      <div class="logo-by">powered by Venuewise</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div id="form-wrap">
+    <div class="badge">✦ Free for families</div>
+    <h1>Your family's schedule,<br><em>finally organized.</em></h1>
+    <p class="sub">Real-time SMS alerts when practice times change, games are added, or there's a conflict. No app needed.</p>
+
+    <div class="perks">
+      <div class="perk"><div class="perk-icon">📲</div><span>SMS alerts</span></div>
+      <div class="perk"><div class="perk-icon">📅</div><span>Live sync</span></div>
+      <div class="perk"><div class="perk-icon">$0</div><span>Always free</span></div>
+    </div>
+
+    <div class="card">
+      <p class="section-label">Your info</p>
+      <div class="row2">
+        <div class="field">
+          <label for="fname">First name</label>
+          <input type="text" id="fname" placeholder="Keith" />
+        </div>
+        <div class="field">
+          <label for="lname">Last name</label>
+          <input type="text" id="lname" placeholder="Herman" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="phone">Mobile number <span style="font-weight:400;color:var(--gray-400)">(for SMS alerts)</span></label>
+        <input type="tel" id="phone" placeholder="+1 (716) 555-0100" />
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-label">Your kids</p>
+      <div class="kids-list" id="kids-list"></div>
+      <button class="btn-add-kid" onclick="addKid()">+ Add another kid</button>
+    </div>
+
+    <div class="card">
+      <p class="section-label">Sports your family plays</p>
+      <div class="sports-grid">
+        <button class="sport-btn" onclick="toggleSport(this)">Baseball</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Hockey</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Soccer</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Basketball</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Lacrosse</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Football</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Wrestling</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Swimming</button>
+        <button class="sport-btn" onclick="toggleSport(this)">Other</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-label">Connect your team schedule</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Which app does your coach use to post the schedule?</p>
+      <div class="platform-grid" id="platform-grid">
+        <button class="plat-btn" onclick="selectPlatform(this,'gamechanger')">
+          <div class="plat-btn-name">GameChanger</div>
+          <div class="plat-btn-desc">Baseball, softball</div>
+        </button>
+        <button class="plat-btn" onclick="selectPlatform(this,'teamsnap')">
+          <div class="plat-btn-name">TeamSnap</div>
+          <div class="plat-btn-desc">Hockey, soccer, more</div>
+        </button>
+        <button class="plat-btn" onclick="selectPlatform(this,'leagueapps')">
+          <div class="plat-btn-name">LeagueApps</div>
+          <div class="plat-btn-desc">Rec leagues</div>
+        </button>
+        <button class="plat-btn" onclick="selectPlatform(this,'google')">
+          <div class="plat-btn-name">Google Calendar</div>
+          <div class="plat-btn-desc">Any Google cal</div>
+        </button>
+        <button class="plat-btn" onclick="selectPlatform(this,'apple')">
+          <div class="plat-btn-name">Apple Calendar</div>
+          <div class="plat-btn-desc">iPhone / iCloud</div>
+        </button>
+        <button class="plat-btn" onclick="selectPlatform(this,'other')">
+          <div class="plat-btn-name">Other / iCal link</div>
+          <div class="plat-btn-desc">I have a webcal URL</div>
+        </button>
+      </div>
+
+      <div class="instructions" id="instructions" style="display:none"></div>
+
+      <div class="field" id="ical-field" style="display:none;margin-top:1rem">
+        <label for="ical-url">Paste your calendar link here</label>
+        <input type="url" id="ical-url" placeholder="webcal:// or https://" />
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <button class="btn-primary" id="submit-btn" onclick="submitForm()">
+      <span id="btn-text">Join HomeHuddle — it's free</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+    <p class="legal">No credit card. No spam. Unsubscribe anytime.<br>
+      <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
+  </div>
+
+  <!-- Success -->
+  <div class="success" id="success">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h2>You're in!</h2>
+    <p>Watch for a confirmation text shortly.<br>Your family's schedule is now live on HomeHuddle.</p>
+    <a href="https://venuewise.net">View your calendar →</a>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+  // ── PLATFORM INSTRUCTIONS ───────────────────────────────────────
+  const INSTRUCTIONS = {
+    gamechanger: {
+      title: 'Get your GameChanger calendar link',
+      steps: ['Open the <strong>GameChanger app</strong>', 'Tap your team → <strong>Schedule tab</strong>', 'Tap the share/calendar icon (top right)', 'Tap <strong>"Subscribe to Calendar"</strong>', 'Tap Copy — then paste the link below']
+    },
+    teamsnap: {
+      title: 'Get your TeamSnap calendar link',
+      steps: ['Open <strong>TeamSnap</strong>', 'Go to your team → <strong>Schedule</strong>', 'Tap <strong>"Export Schedule"</strong> or the "..." menu', 'Select <strong>iCal / Webcal</strong>', 'Copy the link and paste it below']
+    },
+    leagueapps: {
+      title: 'Get your LeagueApps calendar link',
+      steps: ['Log into <strong>LeagueApps</strong>', 'Go to your team or program page', 'Find the <strong>Calendar</strong> section', 'Click <strong>Export</strong> or <strong>Subscribe</strong>', 'Copy the iCal link and paste it below']
+    },
+    google: {
+      title: 'Get your Google Calendar link',
+      steps: ['Go to <strong>calendar.google.com</strong> on desktop', 'Hover over the calendar name → click the 3 dots → <strong>Settings</strong>', 'Scroll to <strong>"Integrate calendar"</strong>', 'Copy the <strong>Secret address in iCal format</strong>', 'Paste it below']
+    },
+    apple: {
+      title: 'Get your Apple Calendar link',
+      steps: ['Open <strong>Calendar</strong> on your iPhone', 'Tap <strong>Calendars</strong> at the bottom', 'Tap the ⓘ next to the calendar you want', 'Tap <strong>Share Calendar</strong> → turn on <strong>Public Calendar</strong>', 'Copy the link and paste it below']
+    },
+    other: {
+      title: 'Paste your iCal / webcal link',
+      steps: ['Find the <strong>Export</strong> or <strong>Subscribe</strong> option in your app', 'Copy the link — it starts with <strong>webcal://</strong> or <strong>https://</strong>', 'Paste it in the field below']
+    }
+  };
+
+  let kidCount = 0;
+  let selectedPlatform = null;
+  let selectedSports = [];
+
+  // ── KIDS ────────────────────────────────────────────────────────
+  function addKid() {
+    kidCount++;
+    const list = document.getElementById('kids-list');
+    const div = document.createElement('div');
+    div.className = 'kid-row';
+    div.id = 'kid-' + kidCount;
+    div.innerHTML = `
+      <div>
+        <div class="kid-num">Kid ${kidCount}</div>
+        <input type="text" placeholder="Name" />
+      </div>
+      <div>
+        <div class="kid-num">Age / grade</div>
+        <input type="text" placeholder="e.g. 13 / 8th" />
+      </div>
+      <button class="btn-remove" onclick="removeKid('kid-${kidCount}')" aria-label="Remove">×</button>`;
+    list.appendChild(div);
+  }
+
+  function removeKid(id) {
+    document.getElementById(id)?.remove();
+  }
+
+  // ── SPORTS ──────────────────────────────────────────────────────
+  function toggleSport(el) {
+    el.classList.toggle('active');
+    const sport = el.textContent.trim();
+    if (el.classList.contains('active')) {
+      selectedSports.push(sport);
+    } else {
+      selectedSports = selectedSports.filter(s => s !== sport);
+    }
+  }
+
+  // ── PLATFORM ────────────────────────────────────────────────────
+  function selectPlatform(el, platform) {
+    document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedPlatform = platform;
+
+    const info = INSTRUCTIONS[platform];
+    const instrEl = document.getElementById('instructions');
+    instrEl.style.display = 'block';
+    instrEl.innerHTML = `
+      <div class="instructions-title">${info.title}</div>
+      <ol>${info.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+
+    document.getElementById('ical-field').style.display = 'block';
+  }
+
+  // ── SUBMIT ──────────────────────────────────────────────────────
+  async function submitForm() {
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const icalUrl = document.getElementById('ical-url').value.trim();
+    const errEl = document.getElementById('error-msg');
+
+    errEl.style.display = 'none';
+
+    if (!fname) return showError('Please enter your first name.');
+    if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
+    if (!phone) return showError('Please enter your mobile number for SMS alerts.');
+    if (!icalUrl) return showError('Please paste your calendar link so we can sync your schedule.');
+
+    // Collect kids
+    const kids = [];
+    document.querySelectorAll('.kid-row').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const name = inputs[0]?.value.trim();
+      const age = inputs[1]?.value.trim();
+      if (name) kids.push({ name, age });
+    });
+
+    setLoading(true);
+
+    try {
+      // Save to Supabase feeds table
+      const payload = {
+        family_name: `${fname} ${lname}`.trim(),
+        email: email,
+        phone: normalizePhone(phone),
+        kid_name: kids.length > 0 ? kids[0].name : fname + "'s kid",
+        sport: selectedSports.length > 0 ? selectedSports.join(', ') : 'Sport',
+        platform: selectedPlatform || 'other',
+        ical_url: icalUrl.replace(/^webcal:\/\//i, 'https://'),
+        is_active: true,
+      };
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/feeds`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // If more than one kid, insert additional rows
+      if (kids.length > 1) {
+        for (let i = 1; i < kids.length; i++) {
+          await fetch(`${SUPABASE_URL}/rest/v1/feeds`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({ ...payload, kid_name: kids[i].name }),
+          });
+        }
+      }
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Signup failed');
+      }
+
+      // Show success
+      document.getElementById('form-wrap').style.display = 'none';
+      document.getElementById('success').style.display = 'block';
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      showError('Something went wrong. Please try again or text us at +1 (716) 671-1814.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function normalizePhone(p) {
+    const digits = p.replace(/\D/g, '');
+    if (digits.length === 10) return '+1' + digits;
+    if (digits.length === 11 && digits[0] === '1') return '+' + digits;
+    return p;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function setLoading(on) {
+    document.getElementById('submit-btn').disabled = on;
+    document.getElementById('btn-text').textContent = on ? 'Setting up your account...' : 'Join HomeHuddle — it\'s free';
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  }
+
+  // Start with one kid row
+  addKid();
+</script>
+</body>
+</html>
