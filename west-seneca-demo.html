@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Venuewise — Town of West Seneca Recreation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#F0F2F7;color:#0A1628;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* HEADER */
+.header{background:#0A1F5C;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(10,31,92,0.3)}
+.header-left{display:flex;align-items:center;gap:10px}
+.ws-seal{width:36px;height:36px;background:#F5C518;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#0A1F5C;flex-shrink:0;font-family:'Instrument Serif',serif}
+.header-title{font-size:13px;font-weight:600;color:#fff;line-height:1.2}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.55)}
+.live-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);border-radius:100px;padding:4px 10px;font-size:11px;color:#fff;font-weight:600}
+.live-dot{width:6px;height:6px;background:#22C55E;border-radius:50%;animation:pulse 1.5s ease-in-out infinite}
+
+/* TOP TABS */
+.top-tabs{background:#fff;border-bottom:2px solid #E2E6F0;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:56px;z-index:190}
+.top-tabs::-webkit-scrollbar{display:none}
+.top-tab{padding:12px 14px;font-size:12px;font-weight:600;color:#6B7A99;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.2s;margin-bottom:-2px;user-select:none}
+.top-tab.active{color:#0A1F5C;border-bottom-color:#F5C518}
+
+/* FACILITY SUBTABS */
+.fac-tabs{background:#F8F9FC;border-bottom:1px solid #E2E6F0;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:98px;z-index:180;padding:0 12px;gap:6px}
+.fac-tabs::-webkit-scrollbar{display:none}
+.fac-tab{padding:7px 12px;font-size:11px;font-weight:600;border-radius:100px;cursor:pointer;white-space:nowrap;transition:all 0.2s;margin:5px 0;user-select:none;border:1.5px solid #E2E6F0;color:#6B7A99;background:#fff}
+.fac-tab.active{color:#fff;border-color:transparent}
+.fac-tab.t-ice.active{background:#0A1F5C}
+.fac-tab.t-soccer.active{background:#15803D}
+.fac-tab.t-baseball.active{background:#B45309}
+.fac-tab.t-courts.active{background:#EA580C}
+.fac-tab.t-rooms.active{background:#7C3AED}
+
+/* VIEWS */
+.view{display:none;padding:14px 14px 90px;max-width:500px;margin:0 auto}
+.view.active{display:block}
+.fac-view{display:none}
+.fac-view.active{display:block}
+
+/* CARDS */
+.card{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(10,22,56,0.07);border:1px solid #E8ECF5;margin-bottom:12px;overflow:hidden}
+.card-header{padding:13px 15px;border-bottom:1px solid #F0F2F7;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700;color:#0A1628}
+.card-body{padding:15px}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.kpi{background:#fff;border-radius:14px;padding:13px;box-shadow:0 1px 4px rgba(10,22,56,0.07);border:1px solid #E8ECF5}
+.kpi.navy{background:#0A1F5C;border-color:#0A1F5C}
+.kpi.gold{background:linear-gradient(135deg,#FFF8E7,#FFF0CC);border-color:#F5C518}
+.kpi.green{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-color:#86EFAC}
+.kpi.red{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border-color:#FCA5A5}
+.kpi.purple{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-color:#C4B5FD}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:5px}
+.kpi.navy .kpi-label{color:rgba(255,255,255,0.5)}
+.kpi.gold .kpi-label{color:#92600A}
+.kpi.green .kpi-label{color:#166534}
+.kpi.red .kpi-label{color:#991B1B}
+.kpi.purple .kpi-label{color:#5B21B6}
+.kpi-val{font-family:'Instrument Serif',serif;font-size:28px;color:#0A1628;letter-spacing:-0.5px;line-height:1;margin-bottom:2px}
+.kpi.navy .kpi-val{color:#fff}
+.kpi-sub{font-size:11px;color:#9AAABF;font-weight:500}
+.kpi.navy .kpi-sub{color:rgba(255,255,255,0.5)}
+.kpi.gold .kpi-sub{color:#92600A}
+.kpi.green .kpi-sub{color:#166534}
+.kpi.red .kpi-sub{color:#991B1B}
+.kpi.purple .kpi-sub{color:#5B21B6}
+
+/* ALERT BANNER */
+.alert-banner{border-radius:14px;padding:13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:all 0.2s;border:1.5px solid}
+.ab-yellow{background:#FFF8E7;border-color:#F5C518}
+.ab-red{background:#FEF2F2;border-color:#EF4444}
+.ab-blue{background:#EFF6FF;border-color:#3B82F6}
+.ab-green{background:#F0FDF4;border-color:#22C55E}
+.alert-banner:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.aicon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ab-title{font-size:13px;font-weight:700;color:#0A1628;margin-bottom:2px}
+.ab-sub{font-size:12px;color:#6B7A99;line-height:1.4}
+.ab-action{font-size:12px;font-weight:700;color:#0A1F5C;margin-top:4px}
+
+/* SECTION */
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:4px}
+.sec-title{font-size:13px;font-weight:700;color:#0A1628}
+.sec-link{font-size:12px;color:#0A1F5C;font-weight:600;cursor:pointer}
+
+/* SCHEDULE ITEMS */
+.si{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid #F0F2F7;gap:9px;cursor:pointer;transition:background 0.15s}
+.si:last-child{border-bottom:none}
+.si:hover{background:#F8F9FC}
+.si-time{min-width:38px;text-align:right}
+.si-tm{font-size:12px;font-weight:700;color:#0A1628;line-height:1}
+.si-dur{font-size:10px;color:#9AAABF;font-weight:500;margin-top:1px}
+.si-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.d-navy{background:#0A1F5C}
+.d-green{background:#22C55E}
+.d-red{background:#EF4444}
+.d-gold{background:#F5C518}
+.d-purple{background:#7C3AED}
+.d-orange{background:#EA580C}
+.d-brown{background:#B45309}
+.si-info{flex:1;min-width:0}
+.si-name{font-size:13px;font-weight:600;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-detail{font-size:11px;color:#6B7A99}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;white-space:nowrap}
+.b-navy{background:#EEF1FB;color:#0A1F5C}
+.b-green{background:#DCFCE7;color:#15803D}
+.b-gold{background:#FFF8E7;color:#8B6F00}
+.b-red{background:#FEE2E2;color:#DC2626}
+.b-purple{background:#F3E8FF;color:#7C3AED}
+.b-orange{background:#FFF7ED;color:#EA580C}
+.b-brown{background:#FEF3C7;color:#B45309}
+.price-tag{font-size:11px;font-weight:700;color:#15803D;background:#DCFCE7;padding:2px 7px;border-radius:100px;white-space:nowrap}
+.price-tag.can{color:#DC2626;background:#FEE2E2}
+.price-tag.open{color:#0A1F5C;background:#EEF1FB}
+
+/* INFO BOX */
+.info-box{border-radius:12px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.ib-blue{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.ib-gold{background:#FFF8E7;color:#92600A;border:1px solid #FDE68A}
+.ib-green{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.ib-navy{background:#EEF1FB;color:#0A1F5C;border:1px solid #C7D2FE}
+
+/* FIELD MAP */
+.field-map{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
+.fc{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px solid transparent;transition:all 0.2s}
+.fc.open{background:#DCFCE7;color:#15803D;border-color:#86EFAC}
+.fc.booked{background:#EEF1FB;color:#0A1F5C;border-color:#C7D2FE}
+.fc.conflict{background:#FEE2E2;color:#DC2626;border-color:#FCA5A5}
+.fc:hover{transform:scale(1.05)}
+.fc-num{font-size:14px;font-weight:800}
+.fc-status{font-size:9px;font-weight:600;margin-top:1px}
+
+/* TOGGLE */
+.toggle{display:flex;background:#F0F2F7;border-radius:10px;padding:3px;margin-bottom:12px;gap:2px}
+.tbtn{flex:1;padding:7px;border-radius:7px;border:none;background:transparent;font-size:11px;font-weight:600;color:#6B7A99;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.tbtn.active{background:#fff;color:#0A1F5C;box-shadow:0 1px 4px rgba(10,22,56,0.1)}
+
+/* ── FAMILY APP STYLES ── */
+.app-frame{background:#F8F9FC;border-radius:24px;overflow:hidden;border:1px solid #E2E6F0;box-shadow:0 8px 32px rgba(10,22,56,0.12);margin-bottom:12px}
+.app-header{background:#0A1F5C;padding:14px 16px 10px}
+.app-greeting{font-size:11px;color:rgba(255,255,255,0.55);font-weight:500;margin-bottom:2px}
+.app-name{font-family:'Instrument Serif',serif;font-size:20px;color:#fff;letter-spacing:-0.3px}
+.app-name em{font-style:italic;color:#F5C518}
+.app-stats{display:flex;gap:8px;margin-top:10px}
+.app-stat{background:rgba(255,255,255,0.1);border-radius:8px;padding:6px 10px;text-align:center;flex:1}
+.app-stat-val{font-size:16px;font-weight:700;color:#fff;line-height:1}
+.app-stat-lbl{font-size:9px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+.app-tabs{display:flex;background:#fff;border-bottom:1px solid #E2E6F0}
+.app-tab{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:600;color:#9AAABF;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;user-select:none}
+.app-tab.active{color:#0A1F5C;border-bottom-color:#F5C518}
+.app-content{padding:14px;min-height:400px;background:#F8F9FC}
+
+/* MY SCHEDULE */
+.next-up{background:#0A1F5C;border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.next-up::before{content:'NEXT UP';position:absolute;top:10px;right:12px;font-size:9px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.3)}
+.nu-sport{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#F5C518;margin-bottom:4px}
+.nu-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.nu-detail{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px}
+.nu-btns{display:flex;gap:8px}
+.nu-btn{flex:1;background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
+.nu-btn:hover{background:rgba(255,255,255,0.2)}
+.nu-btn.gold{background:#F5C518;color:#0A1628}
+
+.week-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E8ECF5;margin-bottom:8px}
+.week-item{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid #F0F2F7;gap:8px}
+.week-item:last-child{border-bottom:none}
+.wi-day{min-width:28px;text-align:center;font-size:10px;font-weight:700;color:#9AAABF;text-transform:uppercase}
+.wi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.wi-name{font-size:12px;font-weight:600;color:#0A1628;flex:1}
+.wi-time{font-size:11px;color:#6B7A99}
+.wi-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
+
+.add-program{background:#fff;border:1.5px dashed #C7D2FE;border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:8px}
+.add-program:hover{border-color:#0A1F5C;background:#F0F4FF}
+.add-program-text{font-size:13px;font-weight:600;color:#0A1F5C}
+.add-program-sub{font-size:11px;color:#9AAABF;margin-top:2px}
+
+/* WHAT'S ON */
+.tonight-header{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px;margin-top:4px}
+.event-card{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #E8ECF5;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:all 0.2s}
+.event-card:hover{border-color:#C7D2FE;transform:translateY(-1px)}
+.event-sport-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.event-info{flex:1;min-width:0}
+.event-name{font-size:13px;font-weight:700;color:#0A1628;margin-bottom:2px}
+.event-detail{font-size:11px;color:#6B7A99;line-height:1.4}
+.event-pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;margin-top:5px;display:inline-block}
+.ep-watch{background:#EEF1FB;color:#0A1F5C}
+.ep-open{background:#DCFCE7;color:#15803D}
+.ep-book{background:#FFF8E7;color:#8B6F00}
+.ep-your{background:#0A1F5C;color:#fff}
+.event-time{font-size:11px;font-weight:700;color:#0A1628;white-space:nowrap;text-align:right}
+.event-time-sub{font-size:10px;color:#9AAABF;text-align:right;margin-top:1px}
+
+/* DEALS */
+.deal-card{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:8px;border:1px solid #E8ECF5}
+.deal-header{padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #F0F2F7}
+.deal-logo{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.deal-biz{font-size:13px;font-weight:700;color:#0A1628}
+.deal-cat{font-size:11px;color:#6B7A99}
+.deal-body{padding:10px 12px}
+.deal-offer{font-size:14px;font-weight:700;color:#0A1628;margin-bottom:4px}
+.deal-terms{font-size:11px;color:#6B7A99;line-height:1.4;margin-bottom:8px}
+.deal-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;display:inline-block;margin-right:4px}
+.dt-sport{background:#EEF1FB;color:#0A1F5C}
+.dt-expires{background:#FEE2E2;color:#DC2626}
+.dt-miles{background:#F0FDF4;color:#15803D}
+.show-btn{width:100%;background:#0A1F5C;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;transition:all 0.2s}
+.show-btn:hover{background:#0d2870}
+
+/* ALERT DEMO */
+.demo-label{background:#0A1F5C;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-align:center;padding:8px;border-radius:8px;margin-bottom:12px}
+.scenario-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(10,22,56,0.07);border:1px solid #E8ECF5;margin-bottom:12px}
+.sc-title{font-size:14px;font-weight:700;color:#0A1628;margin-bottom:6px}
+.sc-desc{font-size:13px;color:#6B7A99;line-height:1.6}
+.sim-btn{width:100%;background:linear-gradient(135deg,#F5C518,#e6ab00);color:#0A1628;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;box-shadow:0 4px 16px rgba(245,197,24,0.3)}
+.sim-btn:disabled{opacity:0.6;cursor:not-allowed}
+.step-ind{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:12px}
+.sdot{width:8px;height:8px;border-radius:50%;background:#E2E6F0;transition:all 0.3s}
+.sdot.active{background:#0A1F5C;width:22px;border-radius:4px}
+.sdot.done{background:#22C55E}
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:10px;position:relative;opacity:0.2;transition:opacity 0.5s}
+.tl-item.lit{opacity:1}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:17px;top:36px;bottom:-8px;width:2px;background:#E2E6F0}
+.tl-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1;margin-bottom:14px}
+.tdc-red{background:#FEE2E2}
+.tdc-blue{background:#EEF1FB}
+.tdc-gold{background:#FFF8E7}
+.tdc-green{background:#DCFCE7}
+.tl-title{font-size:13px;font-weight:700;color:#0A1628;margin-bottom:2px}
+.tl-detail{font-size:12px;color:#6B7A99;line-height:1.4}
+.tl-time{font-size:11px;color:#9AAABF;font-weight:600;margin-top:2px}
+.phone-mock{background:#1A1A2E;border-radius:22px;padding:16px 13px;margin:12px 0}
+.phone-notch{width:70px;height:5px;background:rgba(255,255,255,0.12);border-radius:3px;margin:0 auto 12px}
+.sms-hdr{font-size:10px;color:rgba(255,255,255,0.35);text-align:center;margin-bottom:8px;font-weight:500}
+.sms-feed{display:flex;flex-direction:column;gap:7px}
+.sms-out{background:#0A1F5C;border-radius:16px 16px 3px 16px;padding:10px 12px;max-width:85%;align-self:flex-end}
+.sms-in{background:#2C2C44;border-radius:16px 16px 16px 3px;padding:10px 12px;max-width:85%;align-self:flex-start}
+.sms-text{font-size:12px;color:#fff;line-height:1.5}
+.sms-time{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;text-align:right}
+.typing{background:#2C2C44;border-radius:16px;padding:11px 14px;width:56px;display:flex;align-items:center;gap:3px;align-self:flex-start}
+.tdot{width:5px;height:5px;background:rgba(255,255,255,0.35);border-radius:50%;animation:typeBounce 1.2s ease-in-out infinite}
+.tdot:nth-child(2){animation-delay:0.2s}
+.tdot:nth-child(3){animation-delay:0.4s}
+.rev-card{background:linear-gradient(135deg,#0A1F5C,#1a3a8f);border-radius:14px;padding:18px;color:#fff;margin-bottom:12px}
+.rev-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#F5C518;margin-bottom:12px}
+.rev-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:13px}
+.rev-row:last-child{border-bottom:none}
+.rev-lbl{color:rgba(255,255,255,0.65)}
+.rev-val{font-weight:700;color:#fff}
+.rev-val.gold{color:#F5C518}
+.rev-val.red{color:#FCA5A5}
+.rev-total{display:flex;align-items:center;justify-content:space-between;padding-top:10px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.15)}
+.rev-total-lbl{font-size:13px;font-weight:700;color:#fff}
+.rev-total-val{font-family:'Instrument Serif',serif;font-size:26px;color:#F5C518;letter-spacing:-0.5px}
+
+/* BOOK VIEW */
+.fac-opt{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #F0F2F7;cursor:pointer;gap:10px;transition:background 0.15s}
+.fac-opt:last-child{border-bottom:none}
+.fac-opt:hover{background:#F8F9FC}
+.fac-opt.sel{background:#EEF1FB}
+.fac-emoji{font-size:20px;width:32px;text-align:center}
+.fac-name{font-size:14px;font-weight:600;color:#0A1628}
+.fac-avail{font-size:11px;color:#6B7A99}
+.fac-chk{margin-left:auto;width:20px;height:20px;border-radius:50%;background:#0A1F5C;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;opacity:0;transition:opacity 0.2s}
+.fac-opt.sel .fac-chk{opacity:1}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.slot-btn{padding:10px 4px;border-radius:10px;border:1.5px solid #E2E6F0;background:#fff;cursor:pointer;text-align:center;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.slot-btn:hover{border-color:#0A1F5C;background:#F0F4FF}
+.slot-btn.sel{border-color:#0A1F5C;background:#0A1F5C;color:#fff}
+.slot-btn.taken{background:#F0F2F7;border-color:#E2E6F0;cursor:not-allowed;opacity:0.5}
+.slot-btn.waitlisted{border-color:#F5C518;background:#FFF8E7}
+.s-time{font-size:12px;font-weight:600}
+.s-price{font-size:10px;color:#9AAABF;margin-top:1px}
+.slot-btn.sel .s-price{color:rgba(255,255,255,0.6)}
+.book-btn{width:100%;background:#0A1F5C;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:12px}
+.book-btn:hover{background:#0d2870;transform:translateY(-1px)}
+.book-btn:disabled{background:#C5CEDF;cursor:not-allowed;transform:none}
+.waitlist-btn{width:100%;background:#fff;color:#0A1F5C;border:1.5px solid #0A1F5C;border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:8px}
+.waitlist-btn:hover{background:#EEF1FB}
+
+/* BOTTOM CTA */
+.bottom-cta{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E2E6F0;padding:10px 14px;display:flex;align-items:center;gap:10px;z-index:100;box-shadow:0 -4px 20px rgba(10,22,56,0.08)}
+.cta-text{flex:1}
+.cta-t{font-size:13px;font-weight:700;color:#0A1628}
+.cta-s{font-size:11px;color:#6B7A99}
+.cta-btn{background:#F5C518;color:#0A1628;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s}
+.cta-btn:hover{background:#e6b800}
+
+/* TOAST */
+.toast{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-16px);background:#0A1628;color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:1000;opacity:0;transition:all 0.3s;white-space:nowrap;box-shadow:0 8px 24px rgba(10,22,56,0.3);pointer-events:none;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* IMPORT MODAL */
+.prog-result{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #F0F2F7;cursor:pointer;transition:background 0.15s}
+.prog-result:last-child{border-bottom:none}
+.prog-result:hover{background:#F8F9FC;border-radius:8px}
+
+/* COMMUNITY HUB */
+.hub-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.hub-filter::-webkit-scrollbar{display:none}
+.hf-btn{padding:6px 12px;border-radius:100px;border:1.5px solid #E2E6F0;background:#fff;font-size:11px;font-weight:600;color:#6B7A99;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.hf-btn.active{background:#0A1F5C;color:#fff;border-color:#0A1F5C}
+.hub-card{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E8ECF5;margin-bottom:10px;box-shadow:0 1px 4px rgba(10,22,56,0.06)}
+.hub-banner{padding:14px;position:relative;overflow:hidden}
+.hub-banner.beer{background:linear-gradient(135deg,#1a3a8f,#0A1F5C)}
+.hub-banner.meat{background:linear-gradient(135deg,#7C2D12,#B45309)}
+.hub-banner.fund{background:linear-gradient(135deg,#065F46,#059669)}
+.hub-banner.raffle{background:linear-gradient(135deg,#4C1D95,#7C3AED)}
+.hub-banner.golf{background:linear-gradient(135deg,#14532D,#15803D)}
+.hub-event-type{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:3px}
+.hub-event-name{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.2}
+.hub-event-org{font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:8px}
+.hub-event-meta{display:flex;flex-wrap:wrap;gap:6px}
+.hub-meta-pill{background:rgba(255,255,255,0.15);border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff}
+.hub-meta-pill.gold{background:#F5C518;color:#0A1628}
+.hub-body{padding:12px 14px}
+.hub-progress-label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#0A1628;margin-bottom:5px}
+.hub-progress-sub{font-size:11px;color:#6B7A99}
+.progress-bar{height:8px;background:#F0F2F7;border-radius:100px;overflow:hidden;margin-bottom:4px}
+.progress-fill{height:100%;border-radius:100px;transition:width 1s ease}
+.pf-blue{background:linear-gradient(90deg,#0A1F5C,#1E6FFF)}
+.pf-green{background:linear-gradient(90deg,#059669,#22C55E)}
+.pf-gold{background:linear-gradient(90deg,#B45309,#F5C518)}
+.pf-purple{background:linear-gradient(90deg,#6D28D9,#A78BFA)}
+.hub-donors{display:flex;flex-direction:column;gap:4px;margin:8px 0}
+.donor-row{display:flex;align-items:center;gap:6px;font-size:12px;color:#6B7A99}
+.donor-heart{color:#EF4444;font-size:11px}
+.donor-name{font-weight:600;color:#0A1628}
+.hub-raffle-items{margin:8px 0}
+.raffle-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F0F2F7;font-size:12px}
+.raffle-item:last-child{border-bottom:none}
+.raffle-prize{color:#0A1628;font-weight:600}
+.raffle-val{color:#6B7A99}
+.hub-ticket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.ticket-btn{padding:9px 4px;border-radius:10px;border:1.5px solid #E2E6F0;background:#fff;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.ticket-btn:hover{border-color:#0A1F5C;background:#EEF1FB}
+.ticket-btn.sel{border-color:#0A1F5C;background:#0A1F5C;color:#fff}
+.t-count{font-size:13px;font-weight:700}
+.t-price{font-size:10px;color:#9AAABF;margin-top:1px}
+.ticket-btn.sel .t-price{color:rgba(255,255,255,0.6)}
+.hub-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.hub-btn-primary{background:#0A1F5C;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
+.hub-btn-primary:hover{background:#0d2870}
+.hub-btn-secondary{background:#fff;color:#0A1F5C;border:1.5px solid #0A1F5C;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
+.hub-btn-secondary:hover{background:#EEF1FB}
+.hub-sponsors{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid #F0F2F7}
+.hub-sponsor-tag{font-size:10px;font-weight:600;background:#F0F2F7;color:#6B7A99;padding:3px 8px;border-radius:100px}
+.sold-out-badge{background:#FEE2E2;color:#DC2626;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;margin-left:auto}
+.hub-notify{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 12px;font-size:12px;color:#166534;margin-top:8px;cursor:pointer}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes typeBounce{0%,80%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-4px);opacity:1}}
+.fade-in{animation:fadeUp 0.35s ease both}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="ws-seal">WS</div>
+    <div>
+      <div class="header-title">West Seneca Recreation</div>
+      <div class="header-sub">Powered by Venuewise</div>
+    </div>
+  </div>
+  <div class="live-pill"><span class="live-dot"></span>Demo</div>
+</div>
+
+<!-- TOP TABS -->
+<div class="top-tabs">
+  <div class="top-tab active" onclick="showTop('admin')">Admin View</div>
+  <div class="top-tab" onclick="showTop('family')">📱 Family App</div>
+  <div class="top-tab" onclick="showTop('public')">Public View</div>
+  <div class="top-tab" onclick="showTop('alert')">🔴 Alert Demo</div>
+  <div class="top-tab" onclick="showTop('book')">Book Online</div>
+</div>
+
+<!-- FACILITY SUBTABS -->
+<div class="fac-tabs" id="facTabs">
+  <div class="fac-tab t-ice active" onclick="showFac('ice',this)">🏒 Ice Rink</div>
+  <div class="fac-tab t-soccer" onclick="showFac('soccer',this)">⚽ Soccer</div>
+  <div class="fac-tab t-baseball" onclick="showFac('baseball',this)">⚾ Baseball</div>
+  <div class="fac-tab t-courts" onclick="showFac('courts',this)">🎾 Courts</div>
+  <div class="fac-tab t-rooms" onclick="showFac('rooms',this)">🏛 Rooms</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ ADMIN VIEW ══ -->
+<div class="view active" id="view-admin">
+
+  <!-- ICE -->
+  <div class="fac-view active" id="fac-ice">
+    <div class="kpi-grid fade-in">
+      <div class="kpi navy"><div class="kpi-label">Monthly Slots</div><div class="kpi-val">480</div><div class="kpi-sub">practice + game slots</div></div>
+      <div class="kpi gold"><div class="kpi-label">Cancellations/Mo</div><div class="kpi-val">72</div><div class="kpi-sub">avg 15% of all slots</div></div>
+      <div class="kpi green"><div class="kpi-label">Recovered This Mo</div><div class="kpi-val">$9,280</div><div class="kpi-sub">64 of 72 slots filled</div></div>
+      <div class="kpi red"><div class="kpi-label">At Risk Right Now</div><div class="kpi-val">$145</div><div class="kpi-sub">1 open slot today</div></div>
+    </div>
+    <div class="alert-banner ab-yellow fade-in" onclick="showTop('alert')">
+      <div class="aicon" style="background:#F5C518">⚠️</div>
+      <div><div class="ab-title">Cancellation — Saturday 6 PM</div><div class="ab-sub">Wings Bantams cancelled 1-hr practice · $145 slot · 14 families waitlisted · Tap to watch Venuewise recover this automatically</div><div class="ab-action">Watch the demo →</div></div>
+    </div>
+    <div class="sec-row fade-in"><div class="sec-title">Today's Ice Schedule — Admin View</div><div class="sec-link">480 slots/mo</div></div>
+    <div class="card fade-in">
+      <div class="si"><div class="si-time"><div class="si-tm">6 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Wings Squirts — Practice</div><div class="si-detail">Rink A · Booked 3 wks ago</div></div><div class="price-tag">$130</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">7 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Wings Peewees — Practice</div><div class="si-detail">Rink A · Booked 2 wks ago</div></div><div class="price-tag">$130</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Learn to Skate — Session 4</div><div class="si-detail">18 registered · Rink A</div></div><div class="price-tag">$100</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">10 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Figure Skating Club</div><div class="si-detail">WS Figure Skating · Rink A</div></div><div class="price-tag">$120</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">12 PM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">Public Skate</div><div class="si-detail">Walk-in · $5/person · Rink A</div></div><div class="price-tag open">Open</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">2 PM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Wings Bantams — Practice</div><div class="si-detail">Rink A · Confirmed</div></div><div class="price-tag">$130</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">4 PM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Wings Midgets — Practice</div><div class="si-detail">Rink A · Confirmed</div></div><div class="price-tag">$130</div></div>
+      <div class="si" style="background:#FEF9F9"><div class="si-time"><div class="si-tm">6 PM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-red"></div><div class="si-info"><div class="si-name">Wings Bantams — CANCELLED</div><div class="si-detail">14 on waitlist · Tap Alert Demo</div></div><div class="price-tag can">$145</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 PM</div><div class="si-dur">2 hrs</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Adult League — WS Thunder</div><div class="si-detail">vs. Orchard Park · Game</div></div><div class="price-tag">$240</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">10 PM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">Available — Late Stick &amp; Puck</div><div class="si-detail">Open for booking</div></div><div class="price-tag open">Open</div></div>
+    </div>
+    <div class="info-box ib-navy fade-in">💡 <strong>Monthly ice revenue snapshot:</strong> 480 slots · 300 practice (1hr avg $130) · 80 games (2hr $240) · 100 programs (1hr $110 avg) · Total monthly at-risk from cancellations: <strong>$10,440.</strong> Venuewise recovers ~89% automatically. Net gain after $299 fee: <strong>+$9,633/month.</strong></div>
+  </div>
+
+  <!-- SOCCER -->
+  <div class="fac-view" id="fac-soccer">
+    <div class="kpi-grid fade-in">
+      <div class="kpi navy"><div class="kpi-label">Total Fields</div><div class="kpi-val">13</div><div class="kpi-sub">all booked by phone today</div></div>
+      <div class="kpi red"><div class="kpi-label">Calls to Rec Office</div><div class="kpi-val">60+</div><div class="kpi-sub">every Saturday morning</div></div>
+      <div class="kpi gold"><div class="kpi-label">Fields Open Now</div><div class="kpi-val">4</div><div class="kpi-sub">of 13 available today</div></div>
+      <div class="kpi green"><div class="kpi-label">Online Bookings</div><div class="kpi-val">$0</div><div class="kpi-sub">all phone · none online yet</div></div>
+    </div>
+    <div class="alert-banner ab-red fade-in">
+      <div class="aicon" style="background:#FEE2E2">📞</div>
+      <div><div class="ab-title" style="color:#DC2626">13 Fields. One Phone Number. All on You.</div><div class="ab-sub">Every Saturday morning in April the Recreation office gets 60+ calls. With Venuewise — coaches book online in 90 seconds. Your phone stops ringing.</div></div>
+    </div>
+    <div class="sec-title fade-in" style="margin-bottom:8px">Field Availability Map — Saturday May 15</div>
+    <div class="field-map fade-in" id="fieldMap"></div>
+    <div class="card fade-in">
+      <div class="card-header"><div class="card-title">Today's Field Bookings</div><div class="sec-link">13 fields</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">WS Wildcats U10 — Field 3</div><div class="si-detail">Practice · 22 kids</div></div><div class="price-tag">$45</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div><div class="si-dur">2 hrs</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">WS Storm U12 vs. Hamburg</div><div class="si-detail">Game · Field 7</div></div><div class="price-tag">$65</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">10 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">WS Lightning U8 — Field 1</div><div class="si-detail">Practice · First season</div></div><div class="price-tag">$35</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">12 PM</div><div class="si-dur">—</div></div><div class="si-dot d-orange"></div><div class="si-info"><div class="si-name">4 fields open — no bookings</div><div class="si-detail">Fields 2, 5, 9, 11 available</div></div><div class="price-tag open">Open</div></div>
+    </div>
+    <div class="info-box ib-gold fade-in">💡 <strong>The phone call problem:</strong> Moving 13 field reservations online eliminates 60+ weekly calls to the Recreation office and adds an estimated <strong>$2,800/month</strong> in recovered bookings from coaches who couldn't get through on the phone.</div>
+  </div>
+
+  <!-- BASEBALL -->
+  <div class="fac-view" id="fac-baseball">
+    <div class="kpi-grid fade-in">
+      <div class="kpi navy"><div class="kpi-label">Diamonds</div><div class="kpi-val">4</div><div class="kpi-sub">across WS parks</div></div>
+      <div class="kpi gold"><div class="kpi-label">Summer Tournaments</div><div class="kpi-val">8+</div><div class="kpi-sub">per season</div></div>
+      <div class="kpi green"><div class="kpi-label">Families / Tournament</div><div class="kpi-val">300+</div><div class="kpi-sub">spectators + players</div></div>
+      <div class="kpi red"><div class="kpi-label">Public Schedule</div><div class="kpi-val">None</div><div class="kpi-sub">no online calendar yet</div></div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-header"><div class="card-title">Diamond Schedule — This Weekend</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">9 AM</div><div class="si-dur">2 hrs</div></div><div class="si-dot d-brown"></div><div class="si-info"><div class="si-name">WS Yankees U10 vs. Hamburg</div><div class="si-detail">Diamond 1 · Town Park · Game</div></div><div class="price-tag" style="background:#FEF3C7;color:#B45309">Game</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">9 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-brown"></div><div class="si-info"><div class="si-name">WS Red Sox U12 Practice</div><div class="si-detail">Diamond 2 · Town Park</div></div><div class="price-tag" style="background:#FEF3C7;color:#B45309">Practice</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">11 AM</div><div class="si-dur">2 hrs</div></div><div class="si-dot d-brown"></div><div class="si-info"><div class="si-name">WS Cubs U14 vs. Cheektowaga</div><div class="si-detail">Diamond 1 · Town Park · Game</div></div><div class="price-tag" style="background:#FEF3C7;color:#B45309">Game</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">1 PM</div><div class="si-dur">—</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">Diamonds 3 &amp; 4 — Available</div><div class="si-detail">Open for booking online</div></div><div class="price-tag open">Open</div></div>
+    </div>
+    <div class="info-box ib-navy fade-in">💡 <strong>Tournament spectator engine:</strong> When WS hosts a tournament, Venuewise sends a "This Weekend in West Seneca" alert to every family in the rec network. 300+ families get notified. Concession stand revenue goes up. Community shows up.</div>
+  </div>
+
+  <!-- COURTS -->
+  <div class="fac-view" id="fac-courts">
+    <div class="kpi-grid fade-in">
+      <div class="kpi navy"><div class="kpi-label">Tennis Courts</div><div class="kpi-val">6</div><div class="kpi-sub">at WS parks</div></div>
+      <div class="kpi navy"><div class="kpi-label">Pickleball Courts</div><div class="kpi-val">4</div><div class="kpi-sub">dedicated + converted</div></div>
+      <div class="kpi red"><div class="kpi-label">Reservation System</div><div class="kpi-val">None</div><div class="kpi-sub">walk-up only today</div></div>
+      <div class="kpi gold"><div class="kpi-label">Peak Conflicts</div><div class="kpi-val">Daily</div><div class="kpi-sub">two groups, one court</div></div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-header"><div class="card-title">Courts — Saturday Morning</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-orange"></div><div class="si-info"><div class="si-name">Pickleball Courts 1–4</div><div class="si-detail">Walk-up · No reservation · First come first served</div></div><div class="badge b-orange">Walk-up</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div><div class="si-dur">1 hr</div></div><div class="si-dot d-orange"></div><div class="si-info"><div class="si-name">Tennis Courts 1–6 — Open</div><div class="si-detail">No reservation system · Conflicts happen weekly</div></div><div class="badge b-orange">Walk-up</div></div>
+      <div class="si" style="background:#FEF9F9"><div class="si-time"><div class="si-tm">10 AM</div><div class="si-dur">—</div></div><div class="si-dot d-red"></div><div class="si-info"><div class="si-name">Court 2 — Double booking</div><div class="si-detail">Two groups showed up · No system caught it</div></div><div class="badge b-red">Conflict</div></div>
+    </div>
+    <div class="info-box ib-gold fade-in">💡 <strong>Pickleball is exploding.</strong> WNY pickleball participation up 40% since 2023. Your courts are in demand. A simple online reservation eliminates conflicts and lets residents plan their day without driving to find a court already taken.</div>
+  </div>
+
+  <!-- ROOMS -->
+  <div class="fac-view" id="fac-rooms">
+    <div class="kpi-grid fade-in">
+      <div class="kpi navy"><div class="kpi-label">Community Rooms</div><div class="kpi-val">4</div><div class="kpi-sub">bookable spaces</div></div>
+      <div class="kpi red"><div class="kpi-label">Current Booking</div><div class="kpi-val">Paper</div><div class="kpi-sub">forms + phone calls</div></div>
+      <div class="kpi gold"><div class="kpi-label">Weekend Bookings</div><div class="kpi-val">12</div><div class="kpi-sub">parties, meetings, events</div></div>
+      <div class="kpi green"><div class="kpi-label">Avg Room Rate</div><div class="kpi-val">$75</div><div class="kpi-sub">per 2-hour session</div></div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-header"><div class="card-title">Community Room A — Today</div><div class="badge b-navy">3 bookings</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">9 AM</div><div class="si-dur">3 hrs</div></div><div class="si-dot d-purple"></div><div class="si-info"><div class="si-name">WS Soccer Coaches Meeting</div><div class="si-detail">35 attendees · Setup needed</div></div><div class="price-tag" style="background:#F3E8FF;color:#7C3AED">$112</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">1 PM</div><div class="si-dur">3 hrs</div></div><div class="si-dot d-purple"></div><div class="si-info"><div class="si-name">Birthday Party — Thompson</div><div class="si-detail">25 kids · Decorations allowed</div></div><div class="price-tag" style="background:#F3E8FF;color:#7C3AED">$112</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">5 PM</div><div class="si-dur">2 hrs</div></div><div class="si-dot d-green"></div><div class="si-info"><div class="si-name">Available — Evening slot</div><div class="si-detail">Open for online booking now</div></div><div class="price-tag open">$75</div></div>
+    </div>
+    <div class="info-box ib-navy fade-in">💡 Currently residents fill out a paper form and call to check availability. Venuewise gives each room a real-time online calendar — residents self-serve, your time is freed up.</div>
+  </div>
+</div>
+
+<!-- ══ FAMILY APP VIEW ══ -->
+<div class="view" id="view-family">
+  <div class="scenario-card fade-in" style="border-color:#22C55E;border-width:1.5px;background:#F0FDF4">
+    <div class="sc-title" style="color:#15803D">📱 What Every West Seneca Resident Gets</div>
+    <div class="sc-desc">Every family that registers for <strong>any</strong> West Seneca Recreation program — hockey, soccer, baseball, pickleball, tennis, learn to skate, summer camp, community rooms — automatically gets access to this app. One link. No download required. ~2,920 West Seneca residents in week one.</div>
+  </div>
+
+  <!-- APP FRAME -->
+  <div class="app-frame fade-in">
+    <!-- APP HEADER -->
+    <div class="app-header">
+      <div class="app-greeting">Good evening, West Seneca Rec</div>
+      <div class="app-name">Herman <em>Family</em></div>
+      <div class="app-stats">
+        <div class="app-stat"><div class="app-stat-val">3</div><div class="app-stat-lbl">Programs</div></div>
+        <div class="app-stat"><div class="app-stat-val">5</div><div class="app-stat-lbl">This week</div></div>
+        <div class="app-stat"><div class="app-stat-val">2</div><div class="app-stat-lbl">Deals</div></div>
+        <div class="app-stat"><div class="app-stat-val">3</div><div class="app-stat-lbl">Fundraisers</div></div>
+      </div>
+    </div>
+
+    <!-- APP TABS -->
+    <div class="app-tabs">
+      <div class="app-tab active" onclick="showAppTab('myschedule',this)">My Schedule</div>
+      <div class="app-tab" onclick="showAppTab('whatson',this)">What's On</div>
+      <div class="app-tab" onclick="showAppTab('mydeals',this)">My Deals</div>
+      <div class="app-tab" onclick="showAppTab('community',this)">🍺 Community</div>
+    </div>
+
+    <!-- MY SCHEDULE -->
+    <div class="app-content" id="app-myschedule">
+
+      <!-- FAMILY KIDS SELECTOR -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none">
+        <div onclick="showKid('all',this)" style="padding:6px 14px;border-radius:100px;background:#0A1F5C;color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">All Kids</div>
+        <div onclick="showKid('tyler',this)" style="padding:6px 14px;border-radius:100px;background:#fff;color:#0A1F5C;border:1.5px solid #C7D2FE;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Tyler · Age 13</div>
+        <div onclick="showKid('emma',this)" style="padding:6px 14px;border-radius:100px;background:#fff;color:#0A1F5C;border:1.5px solid #C7D2FE;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Emma · Age 10</div>
+      </div>
+
+      <!-- KID PROGRAM CARDS -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+        <!-- TYLER -->
+        <div style="background:#EEF1FB;border-radius:12px;padding:10px 13px;border:1px solid #C7D2FE">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="width:28px;height:28px;background:#0A1F5C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#F5C518;flex-shrink:0">T</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#0A1628">Tyler Kowalski · Age 13</div>
+              <div style="font-size:11px;color:#6B7A99">🏒 WS Wings Bantams · West Seneca</div>
+            </div>
+          </div>
+        </div>
+        <!-- EMMA -->
+        <div style="background:#F0FDF4;border-radius:12px;padding:10px 13px;border:1px solid #BBF7D0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="width:28px;height:28px;background:#15803D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">E</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#0A1628">Emma Kowalski · Age 10</div>
+              <div style="font-size:11px;color:#6B7A99">🏒 Lockport Regals · Cornerstone CFCU &nbsp;·&nbsp; ⚽ WS Storm U10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEXT UP -->
+      <div class="next-up">
+        <div class="nu-sport">🏒 Tyler — WS Wings Bantams</div>
+        <div class="nu-name">Practice Tonight</div>
+        <div class="nu-detail">Holiday/Leisure Rinks · Rink 3 · 6 PM · 1 hour · 4901 Southwestern Blvd</div>
+        <div class="nu-btns">
+          <div class="nu-btn" onclick="showToast('Directions to Holiday/Leisure Rinks opened in Maps')">📍 Directions</div>
+          <div class="nu-btn" onclick="showToast('Added to your calendar!')">📅 Add to Cal</div>
+          <div class="nu-btn gold" onclick="showToast('Carpool request sent to Wings Bantams families!')">🚗 Carpool</div>
+        </div>
+      </div>
+
+      <!-- THIS WEEK — ALL KIDS ALL FACILITIES -->
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:7px">Full Family Week — All Kids · All Facilities</div>
+      <div class="week-card">
+
+        <!-- SAT -->
+        <div class="week-item" onclick="showToast('Tyler — Wings practice at Holiday/Leisure Rink 3 · 6 PM')">
+          <div class="wi-day">SAT</div>
+          <div style="width:3px;height:32px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Tyler — Wings Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">Holiday/Leisure · Rink 3</div>
+          </div>
+          <div class="wi-time">6 PM</div>
+        </div>
+
+        <!-- SUN -->
+        <div class="week-item" onclick="showToast('Emma — Regals practice at Cornerstone CFCU Arena · 7 PM')">
+          <div class="wi-day">SUN</div>
+          <div style="width:3px;height:32px;background:#DC2626;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Emma — Regals Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">Cornerstone CFCU Arena · Lockport</div>
+          </div>
+          <div class="wi-time">7 PM</div>
+        </div>
+
+        <!-- MON -->
+        <div class="week-item" onclick="showToast('Emma — Storm soccer practice at Field 7 · 5 PM')">
+          <div class="wi-day">MON</div>
+          <div style="width:3px;height:32px;background:#15803D;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">⚽ Emma — Storm U10 Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">West Seneca · Field 7</div>
+          </div>
+          <div class="wi-time">5 PM</div>
+        </div>
+
+        <!-- TUE -->
+        <div class="week-item" onclick="showToast('Tyler — Wings practice at West Seneca Town Rink · 6 PM')">
+          <div class="wi-day">TUE</div>
+          <div style="width:3px;height:32px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Tyler — Wings Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">West Seneca Town Rink · Rink A</div>
+          </div>
+          <div class="wi-time">6 PM</div>
+        </div>
+
+        <!-- WED -->
+        <div class="week-item" onclick="showToast('Emma — Regals practice at Cornerstone · 7 PM')">
+          <div class="wi-day">WED</div>
+          <div style="width:3px;height:32px;background:#DC2626;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Emma — Regals Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">Cornerstone CFCU Arena · Lockport</div>
+          </div>
+          <div class="wi-time">7 PM</div>
+        </div>
+
+        <!-- THU -->
+        <div class="week-item" onclick="showToast('Emma — Storm soccer practice at Field 4 · 5 PM')">
+          <div class="wi-day">THU</div>
+          <div style="width:3px;height:32px;background:#15803D;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">⚽ Emma — Storm U10 Practice</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">West Seneca · Field 4</div>
+          </div>
+          <div class="wi-time">5 PM</div>
+        </div>
+
+        <!-- FRI -->
+        <div class="week-item" style="background:#F0FDF4" onclick="showToast('Emma — Regals game vs. Niagara at Cornerstone · 7 PM · Free to watch!')">
+          <div class="wi-day">FRI</div>
+          <div style="width:3px;height:32px;background:#DC2626;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Emma — Regals vs. Niagara</div>
+            <div style="font-size:10px;color:#15803D;font-weight:600">Cornerstone CFCU · Game night 🎉</div>
+          </div>
+          <div class="wi-time" style="color:#15803D;font-weight:700">7 PM</div>
+        </div>
+
+        <!-- SAT NEXT -->
+        <div class="week-item" onclick="showToast('Tyler — Wings game vs. Cheektowaga at Paddock Chevrolet · 8 AM')">
+          <div class="wi-day">SAT</div>
+          <div style="width:3px;height:32px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏒 Tyler — Wings vs. Cheektowaga</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">Paddock Chevrolet Ice Arena · Tonawanda</div>
+          </div>
+          <div class="wi-time">8 AM</div>
+        </div>
+
+        <div class="week-item" onclick="showToast('Emma — Storm vs. Hamburg at Field 7 · 10 AM · Game day!')">
+          <div class="wi-day">SAT</div>
+          <div style="width:3px;height:32px;background:#15803D;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">⚽ Emma — Storm vs. Hamburg</div>
+            <div style="font-size:10px;color:#9AAABF;font-weight:600">West Seneca · Field 7 · Game</div>
+          </div>
+          <div class="wi-time">10 AM</div>
+        </div>
+
+        <!-- SUN TOURNAMENT -->
+        <div class="week-item" style="background:#FEF9F9" onclick="showToast('Emma — Regals tournament at Northtown Center · 9 AM')">
+          <div class="wi-day">SUN</div>
+          <div style="width:3px;height:32px;background:#DC2626;border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-name">🏆 Emma — Regals Tournament</div>
+            <div style="font-size:10px;color:#DC2626;font-weight:600">Northtown Center · Amherst · TBD bracket</div>
+          </div>
+          <div class="wi-time">9 AM</div>
+        </div>
+
+      </div>
+
+      <!-- RINK LEGEND -->
+      <div style="background:#fff;border-radius:12px;padding:11px 13px;border:1px solid #E8ECF5;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">This Week's Facilities</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#0A1F5C;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">West Seneca Town Rink</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">1250 Union Rd</div></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#0A1F5C;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">Holiday/Leisure Rinks</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">4901 Southwestern</div></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#0A1F5C;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">Paddock Chevrolet Arena</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">1 Aqua Lane</div></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#DC2626;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">Cornerstone CFCU Arena</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">Lockport</div></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#DC2626;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">Northtown Center</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">Amherst</div></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;border-radius:50%;background:#15803D;flex-shrink:0"></div><div style="color:#0A1628;font-weight:600">West Seneca Soccer Fields</div><div style="color:#9AAABF;font-size:11px;margin-left:auto">Fields 4 & 7</div></div>
+        </div>
+      </div>
+
+      <!-- INVITE MISSING ORG -->
+      <div style="background:#FEF3C7;border:1.5px dashed #F5C518;border-radius:12px;padding:12px 13px;margin-bottom:10px;cursor:pointer" onclick="showToast('Invite sent to Lockport Regals — join Venuewise to auto-sync Emma\'s schedule!')">
+        <div style="font-size:12px;font-weight:700;color:#92600A;margin-bottom:2px">⚠️ Northtown Center not yet on Venuewise</div>
+        <div style="font-size:11px;color:#92600A;line-height:1.4">Emma's tournament bracket at Northtown will auto-sync once they join. <strong>Tap to invite them →</strong></div>
+      </div>
+
+      <!-- ADD PROGRAM / IMPORT -->
+      <div class="add-program" onclick="showImport()" style="border-color:#0A1F5C;background:#F0F4FF">
+        <div class="add-program-text" style="color:#0A1F5C">+ Add Another Kid or Program</div>
+        <div class="add-program-sub">Search WNY programs · Import from LeagueApps, SportsEngine, TeamSnap or any iCal link</div>
+      </div>
+
+      <!-- IMPORT MODAL -->
+      <div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(10,22,56,0.6);z-index:500;backdrop-filter:blur(4px)" onclick="if(event.target===this)hideImport()">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 40px;max-height:85vh;overflow-y:auto;max-width:500px;margin:0 auto">
+
+          <!-- HANDLE -->
+          <div style="width:40px;height:4px;background:#E2E6F0;border-radius:2px;margin:0 auto 16px"></div>
+
+          <div style="font-size:16px;font-weight:700;color:#0A1628;margin-bottom:4px">Add a Kid or Program</div>
+          <div style="font-size:13px;color:#6B7A99;margin-bottom:16px">Search West Seneca programs or import from any sports platform</div>
+
+          <!-- SEARCH WNY PROGRAMS -->
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">West Seneca Rec Programs</div>
+          <div style="background:#F0F2F7;border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:16px">🔍</span>
+            <input type="text" placeholder="Search hockey, soccer, baseball..." style="border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#0A1628;outline:none;width:100%" oninput="filterPrograms(this.value)" id="programSearch">
+          </div>
+
+          <!-- PROGRAM RESULTS -->
+          <div id="programResults">
+            <div class="prog-result" onclick="addProgram('Wings Squirts','🏒','Ice Hockey')"><div style="font-size:17px">🏒</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">Wings Squirts</div><div style="font-size:11px;color:#6B7A99">Ice Hockey · West Seneca Town Rink</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+            <div class="prog-result" onclick="addProgram('Wings Peewees','🏒','Ice Hockey')"><div style="font-size:17px">🏒</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">Wings Peewees</div><div style="font-size:11px;color:#6B7A99">Ice Hockey · West Seneca Town Rink</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+            <div class="prog-result" onclick="addProgram('Wings Bantams','🏒','Ice Hockey')"><div style="font-size:17px">🏒</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">Wings Bantams</div><div style="font-size:11px;color:#6B7A99">Ice Hockey · West Seneca Town Rink</div></div><div style="font-size:11px;font-weight:700;color:#0A1F5C">✓ Added</div></div>
+            <div class="prog-result" onclick="addProgram('WS Storm U10','⚽','Soccer')"><div style="font-size:17px">⚽</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">WS Storm U10</div><div style="font-size:11px;color:#6B7A99">Soccer · West Seneca Fields</div></div><div style="font-size:11px;font-weight:700;color:#0A1F5C">✓ Added</div></div>
+            <div class="prog-result" onclick="addProgram('WS Wildcats U8','⚽','Soccer')"><div style="font-size:17px">⚽</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">WS Wildcats U8</div><div style="font-size:11px;color:#6B7A99">Soccer · West Seneca Fields</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+            <div class="prog-result" onclick="addProgram('WS Yankees U10','⚾','Baseball')"><div style="font-size:17px">⚾</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">WS Yankees U10</div><div style="font-size:11px;color:#6B7A99">Baseball · Town Park Diamond 1</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+            <div class="prog-result" onclick="addProgram('Learn to Skate','⛸️','Skating')"><div style="font-size:17px">⛸️</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">Learn to Skate</div><div style="font-size:11px;color:#6B7A99">Skating Program · Town Ice Rink</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+            <div class="prog-result" onclick="addProgram('Tennis Lessons','🎾','Tennis')"><div style="font-size:17px">🎾</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0A1628">Tennis Lessons</div><div style="font-size:11px;color:#6B7A99">Tennis · WS Courts</div></div><div style="font-size:11px;font-weight:700;color:#22C55E">+ Add</div></div>
+          </div>
+
+          <!-- DIVIDER -->
+          <div style="display:flex;align-items:center;gap:8px;margin:14px 0">
+            <div style="flex:1;height:1px;background:#E2E6F0"></div>
+            <div style="font-size:11px;font-weight:600;color:#9AAABF">or import from another platform</div>
+            <div style="flex:1;height:1px;background:#E2E6F0"></div>
+          </div>
+
+          <!-- IMPORT OPTIONS -->
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">Import From</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div onclick="doImport('LeagueApps')" style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🟢</div>
+              <div style="font-size:13px;font-weight:700;color:#15803D">LeagueApps</div>
+              <div style="font-size:10px;color:#166534;margin-top:2px">Live sync · Auto-update</div>
+            </div>
+            <div onclick="doImport('SportsEngine')" style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🔵</div>
+              <div style="font-size:13px;font-weight:700;color:#1D4ED8">SportsEngine</div>
+              <div style="font-size:10px;color:#1E40AF;margin-top:2px">USA Hockey · Live sync</div>
+            </div>
+            <div onclick="doImport('TeamSnap')" style="background:#FEF3C7;border:1.5px solid #FDE68A;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🟡</div>
+              <div style="font-size:13px;font-weight:700;color:#B45309">TeamSnap</div>
+              <div style="font-size:10px;color:#92600A;margin-top:2px">iCal sync · Hourly update</div>
+            </div>
+            <div onclick="doImport('GameTime')" style="background:#F5F3FF;border:1.5px solid #C4B5FD;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🟣</div>
+              <div style="font-size:13px;font-weight:700;color:#6D28D9">GameTime</div>
+              <div style="font-size:10px;color:#5B21B6;margin-top:2px">iCal sync · Hourly update</div>
+            </div>
+            <div onclick="doImport('MyRec')" style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🔴</div>
+              <div style="font-size:13px;font-weight:700;color:#DC2626">MyRec</div>
+              <div style="font-size:10px;color:#991B1B;margin-top:2px">WNY municipalities · Sync</div>
+            </div>
+            <div onclick="doImport('ActiveCommunities')" style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center">
+              <div style="font-size:22px;margin-bottom:4px">🟠</div>
+              <div style="font-size:13px;font-weight:700;color:#EA580C">Active Communities</div>
+              <div style="font-size:10px;color:#C2410C;margin-top:2px">Cheektowaga · Lancaster · OP</div>
+            </div>
+          </div>
+
+          <!-- ICAL PASTE -->
+          <div style="background:#F8F9FC;border:1.5px solid #E2E6F0;border-radius:12px;padding:13px;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:#0A1628;margin-bottom:4px">📅 Paste any iCal link</div>
+            <div style="font-size:11px;color:#6B7A99;margin-bottom:8px;line-height:1.4">Works with HockeyShift, Arbiter, Google Calendar, or any platform that exports iCal (.ics) feeds. Your team schedule stays in sync automatically.</div>
+            <div style="background:#fff;border:1.5px solid #E2E6F0;border-radius:8px;padding:9px 11px;font-size:12px;color:#9AAABF;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="doImport('iCal')">
+              <span>🔗</span>
+              <span>Paste your team calendar link here...</span>
+            </div>
+          </div>
+
+          <!-- HOW IT WORKS -->
+          <div style="background:#EEF1FB;border-radius:10px;padding:11px 13px;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:#0A1F5C;margin-bottom:6px">⚡ How import sync works</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="font-size:11px;color:#0A1F5C;display:flex;align-items:flex-start;gap:6px"><span>1.</span><span>Connect once — paste your team's iCal link or log in to LeagueApps/SportsEngine</span></div>
+              <div style="font-size:11px;color:#0A1F5C;display:flex;align-items:flex-start;gap:6px"><span>2.</span><span>Venuewise checks for updates hourly — schedule changes appear automatically</span></div>
+              <div style="font-size:11px;color:#0A1F5C;display:flex;align-items:flex-start;gap:6px"><span>3.</span><span>When that facility joins Venuewise, sync becomes real-time and your schedule is already there</span></div>
+            </div>
+          </div>
+
+          <button onclick="hideImport()" style="width:100%;background:#F0F2F7;color:#6B7A99;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Done</button>
+        </div>
+      </div>
+
+      <div class="info-box ib-blue" style="font-size:12px">🔔 <strong>One app. Every rink. Every sport.</strong> Tyler's Wings schedule across West Seneca, Holiday/Leisure, and Paddock Chevrolet. Emma's Regals schedule at Cornerstone. All in one place — no group texts asking where practice is tonight.</div>
+    </div>
+
+    <!-- WHAT'S ON -->
+    <div class="app-content" id="app-whatson" style="display:none">
+      <div class="tonight-header">Tonight at West Seneca Rec</div>
+
+      <div class="event-card" onclick="showToast('Your team — tap for directions and team info')">
+        <div class="event-sport-icon" style="background:#EEF1FB">🏒</div>
+        <div class="event-info">
+          <div class="event-name">Wings Bantams Practice</div>
+          <div class="event-detail">Town Ice Rink · Rink A</div>
+          <span class="event-pill ep-your">Your team</span>
+        </div>
+        <div><div class="event-time">6 PM</div><div class="event-time-sub">1 hour</div></div>
+      </div>
+
+      <div class="event-card" onclick="showToast('Free to watch — great game tonight!')">
+        <div class="event-sport-icon" style="background:#EEF1FB">🏒</div>
+        <div class="event-info">
+          <div class="event-name">Thunder vs. Orchard Park</div>
+          <div class="event-detail">Adult League · Town Ice Rink · Free to watch</div>
+          <span class="event-pill ep-watch">Free to watch ⭐</span>
+        </div>
+        <div><div class="event-time">8 PM</div><div class="event-time-sub">2 hours</div></div>
+      </div>
+
+      <div class="event-card" onclick="showToast('WS Storm game — cheer them on!')">
+        <div class="event-sport-icon" style="background:#DCFCE7">⚽</div>
+        <div class="event-info">
+          <div class="event-name">WS Storm vs. Hamburg</div>
+          <div class="event-detail">Soccer · Field 7 · U12 game</div>
+          <span class="event-pill ep-watch">Free to watch</span>
+        </div>
+        <div><div class="event-time">4 PM</div><div class="event-time-sub">2 hours</div></div>
+      </div>
+
+      <div class="event-card" onclick="showToast('Public skate — all ages welcome!')">
+        <div class="event-sport-icon" style="background:#EEF1FB">⛸️</div>
+        <div class="event-info">
+          <div class="event-name">Public Skate</div>
+          <div class="event-detail">Town Ice Rink · All ages welcome</div>
+          <span class="event-pill ep-open">$5/person · Book →</span>
+        </div>
+        <div><div class="event-time">12 PM</div><div class="event-time-sub">1 hour</div></div>
+      </div>
+
+      <div class="event-card" onclick="showToast('Pickleball courts open — walk-up welcome')">
+        <div class="event-sport-icon" style="background:#FFF7ED">🏓</div>
+        <div class="event-info">
+          <div class="event-name">Pickleball Open Play</div>
+          <div class="event-detail">Courts 1–4 · All levels welcome</div>
+          <span class="event-pill ep-open">Reserve a court →</span>
+        </div>
+        <div><div class="event-time">All day</div><div class="event-time-sub">Walk-up</div></div>
+      </div>
+
+      <div class="event-card" onclick="showToast('Community Room B available — book online!')">
+        <div class="event-sport-icon" style="background:#F3E8FF">🏛</div>
+        <div class="event-info">
+          <div class="event-name">Community Room B — Available</div>
+          <div class="event-detail">Capacity 30 · Great for small events</div>
+          <span class="event-pill ep-book">Book tonight → $75</span>
+        </div>
+        <div><div class="event-time">5 PM+</div><div class="event-time-sub">Open</div></div>
+      </div>
+
+      <div class="info-box ib-green" style="font-size:12px;margin-top:4px">🔔 <strong>Get Friday alerts.</strong> Every Friday morning we text you what's happening in West Seneca Rec this weekend — games worth watching, open skates, courts available, local deals.</div>
+    </div>
+
+    <!-- MY DEALS -->
+    <div class="app-content" id="app-mydeals" style="display:none">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">Tonight's Deals for WS Rec Families</div>
+
+      <div class="deal-card">
+        <div class="deal-header"><div class="deal-logo" style="background:#FFF0CC">🍕</div><div><div class="deal-biz">Duff's Famous Wings</div><div class="deal-cat">Transit Road · 1.2 miles away</div></div></div>
+        <div class="deal-body">
+          <div class="deal-offer">10% off after any WS game tonight</div>
+          <div class="deal-terms">Show this screen at checkout. Valid Sat–Sun after any West Seneca Recreation event. All locations on Transit Rd.</div>
+          <span class="deal-tag dt-sport">🏒 Hockey families</span>
+          <span class="deal-tag dt-sport">⚽ Soccer families</span>
+          <span class="deal-tag dt-expires">Expires 11 PM tonight</span>
+          <button class="show-btn" onclick="showToast('Deal screen shown — enjoy Duff\'s! 🍕')">Show at Checkout</button>
+        </div>
+      </div>
+
+      <div class="deal-card">
+        <div class="deal-header"><div class="deal-logo" style="background:#FEE2E2">🏒</div><div><div class="deal-biz">ProSkate WNY</div><div class="deal-cat">Skate sharpening + equipment</div></div></div>
+        <div class="deal-body">
+          <div class="deal-offer">Free skate sharpening this week</div>
+          <div class="deal-terms">With any equipment purchase. For all West Seneca Wings families. Mention WS Rec at the counter.</div>
+          <span class="deal-tag dt-sport">🏒 Hockey families</span>
+          <span class="deal-tag dt-expires">This week only</span>
+          <button class="show-btn" onclick="showToast('Deal saved — show at ProSkate WNY')">Show in Store</button>
+        </div>
+      </div>
+
+      <div class="deal-card">
+        <div class="deal-header"><div class="deal-logo" style="background:#DCFCE7">⚽</div><div><div class="deal-biz">Dick's Sporting Goods</div><div class="deal-cat">Cheektowaga · 3.4 miles away</div></div></div>
+        <div class="deal-body">
+          <div class="deal-offer">15% off soccer gear — all season</div>
+          <div class="deal-terms">For WS Soccer families. Show this screen. Valid on cleats, shin guards, balls, and bags. Excludes sale items.</div>
+          <span class="deal-tag dt-sport">⚽ Soccer families</span>
+          <span class="deal-tag dt-sport">⚾ Baseball families</span>
+          <span class="deal-tag dt-miles">3.4 miles</span>
+          <button class="show-btn" onclick="showToast('Deal screen shown — enjoy the discount!')">Show at Checkout</button>
+        </div>
+      </div>
+
+      <div class="deal-card">
+        <div class="deal-header"><div class="deal-logo" style="background:#EFF6FF">🏥</div><div><div class="deal-biz">Concentra Urgent Care</div><div class="deal-cat">Sports injuries · Walk-in · No wait</div></div></div>
+        <div class="deal-body">
+          <div class="deal-offer">Sports injury walk-in — no appointment</div>
+          <div class="deal-terms">Mention West Seneca Recreation for priority sports injury walk-in care. 3 locations near you in Erie County.</div>
+          <span class="deal-tag dt-sport">All WS Rec families</span>
+          <button class="show-btn" onclick="showToast('3 Concentra locations near West Seneca →')">Find Nearest Location</button>
+        </div>
+      </div>
+
+      <div class="info-box ib-gold" style="font-size:12px;margin-top:4px">💡 <strong>For Dave Cox:</strong> Local businesses pay $199–$499/month to reach West Seneca's ~2,920 recreation families through these deals. That sponsor revenue offsets your entire Venuewise platform cost — and then some.</div>
+    </div>
+
+    <!-- COMMUNITY HUB -->
+    <div class="app-content" id="app-community" style="display:none">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">West Seneca Rec — Community Hub</div>
+
+      <!-- FILTER -->
+      <div class="hub-filter">
+        <button class="hf-btn active" onclick="filterHub('all',this)">All Events</button>
+        <button class="hf-btn" onclick="filterHub('events',this)">🍺 Events</button>
+        <button class="hf-btn" onclick="filterHub('fundraisers',this)">💰 Fundraisers</button>
+        <button class="hf-btn" onclick="filterHub('raffles',this)">🥩 Raffles</button>
+      </div>
+
+      <!-- BEER BLAST -->
+      <div class="hub-card hub-item-events">
+        <div class="hub-banner beer">
+          <div class="hub-event-type">🍺 Beer Blast · Tickets on Sale</div>
+          <div class="hub-event-name">WS Wings Bantams Beer Blast</div>
+          <div class="hub-event-org">Hosted by WS Wings Bantams Booster Club</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">📅 Sat June 14 · 7–11 PM</div>
+            <div class="hub-meta-pill">📍 Sgt. Pepperoni's · Union Rd</div>
+            <div class="hub-meta-pill gold">$35/person</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div class="hub-progress-label">
+            <span>127 of 200 tickets sold</span>
+            <span style="color:#0A1F5C;font-weight:700">64%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill pf-blue" style="width:64%"></div></div>
+          <div class="hub-progress-sub">73 tickets remaining · Sells out every year</div>
+
+          <div style="font-size:12px;color:#6B7A99;margin:8px 0;line-height:1.5">Unlimited domestic beer · Pulled pork buffet · DJ · Live raffles · 50/50 drawing · Silent auction. All proceeds benefit Wings Bantams tournament travel fund.</div>
+
+          <div class="hub-raffle-items">
+            <div style="font-size:11px;font-weight:700;color:#9AAABF;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px">Tonight's Raffle Prizes</div>
+            <div class="raffle-item"><span class="raffle-prize">🥩 Grand Prize Meat Package</span><span class="raffle-val">~$200 value</span></div>
+            <div class="raffle-item"><span class="raffle-prize">🏒 Signed Sabres Jersey</span><span class="raffle-val">~$150 value</span></div>
+            <div class="raffle-item"><span class="raffle-prize">⛳ Golf for 4 — Hamburg Golf</span><span class="raffle-val">~$220 value</span></div>
+            <div class="raffle-item"><span class="raffle-prize">🍕 Duff's Wings $100 Gift Card</span><span class="raffle-val">$100 value</span></div>
+          </div>
+
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" onclick="showToast('🍺 2 tickets added! $70 charged to card on file.')">Buy 2 Tickets — $70</button>
+            <button class="hub-btn-secondary" onclick="showToast('Shared! Your friends will love this 🍺')">📤 Share Event</button>
+          </div>
+          <div class="hub-sponsors">
+            <span style="font-size:10px;font-weight:600;color:#9AAABF;margin-right:2px">Sponsors:</span>
+            <span class="hub-sponsor-tag">Duff's Wings</span>
+            <span class="hub-sponsor-tag">ProSkate WNY</span>
+            <span class="hub-sponsor-tag">Northtown Auto</span>
+            <span class="hub-sponsor-tag">UBMD Ortho</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEAT RAFFLE -->
+      <div class="hub-card hub-item-raffles">
+        <div class="hub-banner meat">
+          <div class="hub-event-type">🥩 Weekly Meat Raffle · Every Sunday</div>
+          <div class="hub-event-name">WS Soccer Booster Meat Raffle</div>
+          <div class="hub-event-org">WS Youth Soccer Booster Club</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">📅 Every Sunday · 2–5 PM</div>
+            <div class="hub-meta-pill">📍 WS American Legion Post 8237</div>
+            <div class="hub-meta-pill gold">$2/ticket · 6 for $10</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div class="hub-progress-label">
+            <span>This Sunday's tickets</span>
+            <span style="color:#B45309;font-weight:700">Buy now</span>
+          </div>
+          <div class="hub-ticket-grid">
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">1</div><div class="t-price">$2</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">3</div><div class="t-price">$6</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">6</div><div class="t-price">$10 🔥</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">12</div><div class="t-price">$20</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">25</div><div class="t-price">$40</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">50</div><div class="t-price">$75</div></div>
+          </div>
+
+          <div class="hub-raffle-items">
+            <div style="font-size:11px;font-weight:700;color:#9AAABF;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px">This Sunday's Prizes</div>
+            <div class="raffle-item"><span class="raffle-prize">Round 1: Full Pork Loin</span><span class="raffle-val">~$45 value</span></div>
+            <div class="raffle-item"><span class="raffle-prize">Round 2: Rib Eye Steaks (4)</span><span class="raffle-val">~$80 value</span></div>
+            <div class="raffle-item"><span class="raffle-prize">🏆 Grand Prize: Turkey + Holiday Basket</span><span class="raffle-val">~$120 value</span></div>
+          </div>
+
+          <div style="font-size:12px;color:#6B7A99;margin-bottom:8px">Buy tickets online · Pick up at the door · Drawing live at 4 PM · Winner notified by text if not present</div>
+
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" onclick="showToast('🥩 Tickets purchased! Show confirmation at the door.')">Buy Tickets</button>
+            <button class="hub-btn-secondary" onclick="showToast('📅 Added to your calendar — see you Sunday!')">Add to Cal</button>
+          </div>
+          <div class="hub-notify" onclick="showToast('🔔 You\'ll get a text every Thursday when raffle tickets go on sale!')">🔔 Notify me every week when tickets go on sale</div>
+        </div>
+      </div>
+
+      <!-- FUNDRAISER — WINGS TRAVEL -->
+      <div class="hub-card hub-item-fundraisers">
+        <div class="hub-banner fund">
+          <div class="hub-event-type">💰 Fundraiser · Active Now</div>
+          <div class="hub-event-name">Wings Bantams Tournament Travel Fund</div>
+          <div class="hub-event-org">WS Wings Bantams · Rochester Invitational 2027</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">🎯 Goal: $3,500</div>
+            <div class="hub-meta-pill">📅 Deadline: Feb 28</div>
+            <div class="hub-meta-pill gold">53% funded</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div class="hub-progress-label">
+            <span>$1,847 raised</span>
+            <span style="color:#059669;font-weight:700">$1,653 to go</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill pf-green" style="width:53%"></div></div>
+          <div class="hub-progress-sub">38 donors · 27 days remaining</div>
+
+          <div style="font-size:12px;color:#6B7A99;margin:8px 0;line-height:1.5">"Help our Bantams compete at the Rochester Invitational this March. Every dollar goes directly to tournament fees and travel costs for 20 kids from West Seneca."</div>
+
+          <div class="hub-donors">
+            <div class="donor-row"><span class="donor-heart">❤️</span><span class="donor-name">The Johnson Family</span><span style="margin-left:auto;color:#059669;font-weight:600">$50</span></div>
+            <div class="donor-row"><span class="donor-heart">❤️</span><span class="donor-name">Coach Pierino</span><span style="margin-left:auto;color:#059669;font-weight:600">$100</span></div>
+            <div class="donor-row"><span class="donor-heart">❤️</span><span class="donor-name">Northtown Auto</span><span style="margin-left:auto;color:#059669;font-weight:600">$200</span></div>
+            <div class="donor-row"><span class="donor-heart">❤️</span><span class="donor-name">Anonymous</span><span style="margin-left:auto;color:#059669;font-weight:600">$25</span></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0">
+            <button class="ticket-btn" onclick="selDonate(this,'$25')"><div class="t-count">$25</div><div class="t-price">Supporter</div></button>
+            <button class="ticket-btn" onclick="selDonate(this,'$50')"><div class="t-count">$50</div><div class="t-price">Booster</div></button>
+            <button class="ticket-btn" onclick="selDonate(this,'$100')"><div class="t-count">$100</div><div class="t-price">Champion ⭐</div></button>
+          </div>
+
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" id="donateBtn" onclick="showToast('❤️ Thank you! Your donation goes directly to the kids.')">Donate Now</button>
+            <button class="hub-btn-secondary" onclick="showToast('📤 Fundraiser link copied — share with friends and family!')">📤 Share</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 50/50 RAFFLE -->
+      <div class="hub-card hub-item-raffles">
+        <div class="hub-banner raffle">
+          <div class="hub-event-type">🎟 50/50 Raffle · Drawing Tonight</div>
+          <div class="hub-event-name">Wings Hockey 50/50</div>
+          <div class="hub-event-org">WS Wings Hockey — All Levels</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">🏆 Current pot: $412</div>
+            <div class="hub-meta-pill">📅 Drawing: Tonight 9 PM</div>
+            <div class="hub-meta-pill gold">Winner gets $206</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div class="hub-progress-label">
+            <span>$412 in the pot — and growing</span>
+            <span style="color:#7C3AED;font-weight:700">Live</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill pf-purple" style="width:72%"></div></div>
+          <div class="hub-progress-sub">Drawing tonight at 9 PM · Winner notified by text</div>
+
+          <div class="hub-ticket-grid" style="margin:8px 0">
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">1</div><div class="t-price">$5</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">3</div><div class="t-price">$10</div></div>
+            <div class="ticket-btn" onclick="selTicket(this)"><div class="t-count">5</div><div class="t-price">$20 🔥</div></div>
+          </div>
+
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" onclick="showToast('🎟 Tickets purchased! Good luck tonight — drawing at 9 PM!')">Buy Tickets</button>
+            <button class="hub-btn-secondary" onclick="showToast('Live results posted here at 9 PM tonight')">🔴 Watch Live</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOD TRUCKS -->
+      <div class="hub-card hub-item-events">
+        <div class="hub-banner" style="background:linear-gradient(135deg,#7C2D12,#DC2626)">
+          <div class="hub-event-type">🚚 Food Trucks · This Weekend at Soccer Fields</div>
+          <div class="hub-event-name">WS Soccer Weekend Food Truck Rally</div>
+          <div class="hub-event-org">West Seneca Recreation · Soccer Complex</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">📅 Sat & Sun · 8 AM – 3 PM</div>
+            <div class="hub-meta-pill">📍 West Seneca Soccer Fields</div>
+            <div class="hub-meta-pill gold">Free to attend</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div style="font-size:12px;color:#6B7A99;margin-bottom:10px;line-height:1.5">Four food trucks serving the soccer complex all weekend. 40+ games across 13 fields — fuel up between matches or come just to eat!</div>
+
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">Trucks On Site This Weekend</div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+
+            <div style="background:#FFF8E7;border-radius:10px;padding:11px;border:1px solid #FDE68A;cursor:pointer" onclick="showToast('Lloyd Taco Truck — follow them @LloydTaco for daily location updates!')">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-size:22px">🌮</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:#0A1628">Lloyd Taco Truck</div>
+                  <div style="font-size:11px;color:#6B7A99">WNY's most loved taco truck · Both days 8 AM–2 PM</div>
+                  <div style="font-size:11px;color:#8B6F00;font-weight:600;margin-top:2px">⭐ Tournament special: $1 off any order — show this screen</div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#15803D;background:#DCFCE7;padding:3px 8px;border-radius:100px">Sat + Sun</div>
+              </div>
+            </div>
+
+            <div style="background:#EFF6FF;border-radius:10px;padding:11px;border:1px solid #BFDBFE;cursor:pointer" onclick="showToast('Frankie\'s Hot Dogs — cash and card accepted, best dogs in WNY!')">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-size:22px">🌭</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:#0A1628">Frankie's Hot Dogs</div>
+                  <div style="font-size:11px;color:#6B7A99">WNY staple · Char dogs + Texas hots · Sat only</div>
+                  <div style="font-size:11px;color:#1D4ED8;font-weight:600;margin-top:2px">Kids meal $4 — players eat free with team jersey</div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#1D4ED8;background:#EFF6FF;padding:3px 8px;border-radius:100px;border:1px solid #93C5FD">Sat only</div>
+              </div>
+            </div>
+
+            <div style="background:#F0FDF4;border-radius:10px;padding:11px;border:1px solid #BBF7D0;cursor:pointer" onclick="showToast('The Saucy Truck — WNY BBQ at its finest. See you Sunday!')">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-size:22px">🍖</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:#0A1628">The Saucy Truck</div>
+                  <div style="font-size:11px;color:#6B7A99">BBQ brisket · pulled pork · mac & cheese · Sun only</div>
+                  <div style="font-size:11px;color:#15803D;font-weight:600;margin-top:2px">Pre-order a family platter → ready when your game ends</div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#15803D;background:#DCFCE7;padding:3px 8px;border-radius:100px">Sun only</div>
+              </div>
+            </div>
+
+            <div style="background:#F5F3FF;border-radius:10px;padding:11px;border:1px solid #C4B5FD;cursor:pointer" onclick="showToast('Sweet Spot Ice Cream — perfect post-game treat! Both days.')">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-size:22px">🍦</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:#0A1628">Sweet Spot Ice Cream</div>
+                  <div style="font-size:11px;color:#6B7A99">Soft serve · sundaes · shakes · Both days 10 AM–3 PM</div>
+                  <div style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:2px">Post-game tradition — WS Soccer families get 10% off</div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#7C3AED;background:#F5F3FF;padding:3px 8px;border-radius:100px;border:1px solid #C4B5FD">Sat + Sun</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:10px;padding:10px 12px;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:700;color:#DC2626;margin-bottom:3px">🚚 Are you a food truck? Advertise here.</div>
+            <div style="font-size:11px;color:#6B7A99;line-height:1.4">Reach every family attending West Seneca soccer this weekend. $49 to be featured in this listing + Friday notification sent to 2,920 WNY rec families.</div>
+            <button onclick="showToast('Contact keith@venuewise.net to list your food truck at WS Soccer!')" style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-top:8px">List My Food Truck — $49</button>
+          </div>
+
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" onclick="showToast('📅 Soccer weekend + food trucks added to your calendar!')">📅 Add to Calendar</button>
+            <button class="hub-btn-secondary" onclick="showToast('📤 Shared with your team families!')">📤 Share with Team</button>
+          </div>
+          <div class="hub-sponsors">
+            <span style="font-size:10px;font-weight:600;color:#9AAABF;margin-right:2px">Presenting:</span>
+            <span class="hub-sponsor-tag">WS Soccer Booster Club</span>
+            <span class="hub-sponsor-tag">West Seneca Rec</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GOLF OUTING -->
+      <div class="hub-card hub-item-events">
+        <div class="hub-banner golf">
+          <div class="hub-event-type">⛳ Golf Outing · Early Bird Pricing</div>
+          <div class="hub-event-name">WS Adult Hockey Annual Golf Classic</div>
+          <div class="hub-event-org">WS Thunder Adult Hockey League</div>
+          <div class="hub-event-meta">
+            <div class="hub-meta-pill">📅 Sat July 19 · Shotgun 8 AM</div>
+            <div class="hub-meta-pill">📍 18 Mile Creek Golf · Hamburg</div>
+            <div class="hub-meta-pill gold">$85/person · $320/foursome</div>
+          </div>
+        </div>
+        <div class="hub-body">
+          <div class="hub-progress-label">
+            <span>18 of 32 foursomes registered</span>
+            <span style="color:#15803D;font-weight:700">56%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill pf-green" style="width:56%"></div></div>
+          <div class="hub-progress-sub">14 foursomes remaining · Early bird ends June 1</div>
+          <div style="font-size:12px;color:#6B7A99;margin:8px 0;line-height:1.5">18 holes · Cart included · Lunch · Longest drive + closest to pin contests · Silent auction · Open bar at the turn. All proceeds support adult league equipment and ice fees.</div>
+          <div class="hub-action-row">
+            <button class="hub-btn-primary" onclick="showToast('⛳ Foursome reserved! Confirmation sent to your phone.')">Register Foursome</button>
+            <button class="hub-btn-secondary" onclick="showToast('📤 Golf outing shared with your crew!')">📤 Share</button>
+          </div>
+          <div class="hub-sponsors">
+            <span style="font-size:10px;font-weight:600;color:#9AAABF;margin-right:2px">Title sponsor:</span>
+            <span class="hub-sponsor-tag">Northtown Auto</span>
+            <span class="hub-sponsor-tag">Hamburg Golf</span>
+            <span class="hub-sponsor-tag">Ted's Hot Dogs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box ib-navy" style="font-size:12px">💡 <strong>For Dave Cox:</strong> Every beer blast, meat raffle, fundraiser, and golf outing gets automatically promoted to all 2,920 West Seneca Rec families. Beer blasts that drew 60 people draw 200. Meat raffles that raised $300 raise $900. Same events — three times the community showing up because three times the people knew about it.</div>
+    </div>
+  </div>
+
+  <!-- NETWORK GROWTH -->
+  <div class="card fade-in">
+    <div class="card-header"><div class="card-title">West Seneca Rec Network — Week 1</div></div>
+    <div class="si"><div class="si-dot d-navy" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Wings Hockey — all levels</div><div class="si-detail">~300 families · Coach distributes link</div></div><div class="badge b-navy">Auto-invite</div></div>
+    <div class="si"><div class="si-dot d-green" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Youth Soccer — all teams</div><div class="si-detail">~600 families · Registration email</div></div><div class="badge b-green">Auto-invite</div></div>
+    <div class="si"><div class="si-dot d-brown" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Youth Baseball &amp; Softball</div><div class="si-detail">~400 families · Registration email</div></div><div class="badge b-brown">Auto-invite</div></div>
+    <div class="si"><div class="si-dot d-orange" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Tennis + Pickleball programs</div><div class="si-detail">~210 players · Registration email</div></div><div class="badge b-orange">Auto-invite</div></div>
+    <div class="si"><div class="si-dot d-purple" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Learn to Skate + Figure Skating</div><div class="si-detail">~230 families · Checkout prompt</div></div><div class="badge b-purple">Auto-invite</div></div>
+    <div class="si"><div class="si-dot d-green" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name">Adult leagues + community rooms</div><div class="si-detail">~480 residents · Booking confirmation</div></div><div class="badge b-green">Auto-invite</div></div>
+    <div class="si" style="background:#EEF1FB"><div class="si-dot d-navy" style="width:10px;height:10px"></div><div class="si-info"><div class="si-name" style="color:#0A1F5C">Total WS Rec network — Week 1</div><div class="si-detail" style="color:#0A1F5C">~2,920 West Seneca residents on the platform</div></div><div class="badge" style="background:#0A1F5C;color:#F5C518">2,920</div></div>
+  </div>
+
+  <div class="info-box ib-navy fade-in">💡 <strong>Why this matters for sponsors:</strong> You're not selling Duff's Wings access to 300 hockey families. You're selling access to <strong>2,920 West Seneca recreation families</strong> across every sport. That changes the sponsor conversation from $199/month to $499/month.</div>
+</div>
+
+<!-- ══ PUBLIC VIEW ══ -->
+<div class="view" id="view-public">
+  <div class="toggle fade-in">
+    <button class="tbtn active" onclick="showPub('today',this)">Today</button>
+    <button class="tbtn" onclick="showPub('week',this)">This Week</button>
+    <button class="tbtn" onclick="showPub('whatson',this)">Friday Alert</button>
+  </div>
+
+  <div id="pub-today">
+    <div class="sec-title fade-in" style="margin-bottom:10px">Saturday May 15 — All West Seneca Facilities</div>
+    <div class="card fade-in">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid #F0F2F7">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#6B7A99"><span style="width:8px;height:8px;border-radius:50%;background:#0A1F5C;display:inline-block"></span>Ice</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#6B7A99"><span style="width:8px;height:8px;border-radius:50%;background:#15803D;display:inline-block"></span>Soccer</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#6B7A99"><span style="width:8px;height:8px;border-radius:50%;background:#B45309;display:inline-block"></span>Baseball</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#6B7A99"><span style="width:8px;height:8px;border-radius:50%;background:#EA580C;display:inline-block"></span>Courts</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#6B7A99"><span style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:inline-block"></span>Rooms</span>
+      </div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div></div><div style="width:4px;height:36px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">Learn to Skate</div><div class="si-detail">Ice Rink · Register online</div></div><div class="badge b-green">Register →</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 AM</div></div><div style="width:4px;height:36px;background:#15803D;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">WS Storm vs. Hamburg</div><div class="si-detail">Soccer · Field 7 · U12</div></div><div class="badge b-green">Free to watch</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">9 AM</div></div><div style="width:4px;height:36px;background:#B45309;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">WS Yankees vs. Hamburg</div><div class="si-detail">Baseball · Diamond 1</div></div><div class="badge b-brown">Free to watch</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">12 PM</div></div><div style="width:4px;height:36px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">Public Skate</div><div class="si-detail">Ice Rink · All welcome</div></div><div class="badge b-green">$5/person</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">All day</div></div><div style="width:4px;height:36px;background:#EA580C;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">Pickleball Courts 1–4</div><div class="si-detail">Walk-up or reserve online</div></div><div class="badge b-orange">Reserve →</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">8 PM</div></div><div style="width:4px;height:36px;background:#0A1F5C;border-radius:2px;flex-shrink:0"></div><div class="si-info"><div class="si-name">Thunder vs. Orchard Park</div><div class="si-detail">Adult Hockey · Ice Rink</div></div><div class="badge b-navy">Free to watch</div></div>
+    </div>
+    <div class="info-box ib-green fade-in">🔔 <strong>Get WS Rec alerts on your phone.</strong> Every Friday morning we text you what's happening this weekend across all West Seneca facilities. Tap to sign up.</div>
+  </div>
+
+  <div id="pub-week" style="display:none">
+    <div class="card fade-in">
+      <div class="card-header"><div class="card-title">May 15–21 — What's Coming Up</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Sat</div><div class="si-dur">12 PM</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Public Skate</div><div class="si-detail">Ice Rink · All welcome</div></div><div class="badge b-green">$5</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Sat</div><div class="si-dur">8 PM</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Thunder vs. Orchard Park</div><div class="si-detail">Adult Hockey · Free</div></div><div class="badge b-navy">Watch</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Sun</div><div class="si-dur">9 AM</div></div><div class="si-dot d-brown"></div><div class="si-info"><div class="si-name">Baseball Doubleheader</div><div class="si-detail">Diamonds 1 &amp; 2 · Free</div></div><div class="badge b-brown">Watch</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Tue</div><div class="si-dur">6 PM</div></div><div class="si-dot d-orange"></div><div class="si-info"><div class="si-name">Pickleball Open Play</div><div class="si-detail">Courts · All levels</div></div><div class="badge b-orange">Free</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Wed</div><div class="si-dur">6 PM</div></div><div class="si-dot d-navy"></div><div class="si-info"><div class="si-name">Learn to Skate — Session 5</div><div class="si-detail">Ice Rink · Register online</div></div><div class="badge b-green">Register</div></div>
+      <div class="si"><div class="si-time"><div class="si-tm">Next Sat</div><div class="si-dur">All Day</div></div><div class="si-dot d-brown"></div><div class="si-info"><div class="si-name">🏆 Spring Baseball Tournament</div><div class="si-detail">All 4 diamonds · 20 teams</div></div><div class="badge b-gold">Big weekend</div></div>
+    </div>
+  </div>
+
+  <div id="pub-whatson" style="display:none">
+    <div class="scenario-card fade-in" style="border-color:#F5C518;border-width:1.5px;background:#FFF8E7">
+      <div class="sc-title">📲 The Friday Morning Text</div>
+      <div class="sc-desc">Every Friday, Venuewise sends this automatically to every West Seneca resident who has opted in. Built from your facility calendars. Zero staff time. ~2,920 recipients from day one.</div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-body" style="background:linear-gradient(135deg,#0A1F5C,#1a3a8f);border-radius:12px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#F5C518;margin-bottom:8px">📍 This Weekend in West Seneca Rec</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">3 games · tournament · public skate · courts open</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:12px">
+          🏒 Public Skate Sat 12 PM — $5 · Town Rink<br>
+          🏒 Thunder vs. Orchard Park Sat 8 PM — Free<br>
+          ⚽ WS Storm vs. Hamburg Sat 8 AM — Free<br>
+          ⚾ Yankees vs. Hamburg Sun 9 AM — Free<br>
+          🎾 Pickleball open all weekend — reserve online<br>
+          🏆 Baseball Tournament next weekend — 20 teams
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:10px;font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:8px">
+          🍕 <strong style="color:#F5C518">Duff's Wings</strong> — 10% off for WS Rec families after any game this weekend · Show text at checkout
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:10px;font-size:12px;color:rgba(255,255,255,0.65)">
+          🏒 <strong style="color:#F5C518">ProSkate WNY</strong> — Free skate sharpening this week with any equipment purchase
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px">West Seneca Recreation · Powered by Venuewise · Unsubscribe</div>
+      </div>
+    </div>
+    <div class="info-box ib-gold fade-in">💡 <strong>Sponsor revenue:</strong> Duff's Wings and ProSkate WNY each pay $199–$299/month for placement in this Friday alert. Two sponsors alone cover your entire $299 Venuewise platform fee — and you still have room for 4 more sponsor slots.</div>
+  </div>
+</div>
+
+<!-- ══ ALERT DEMO VIEW ══ -->
+<div class="view" id="view-alert">
+  <div class="demo-label fade-in">🎬 5-Tier Exposure Engine — Maximum Slot Recovery</div>
+
+  <div class="scenario-card fade-in">
+    <div class="sc-title">The Situation — Saturday 9:14 AM</div>
+    <div class="sc-desc" style="margin-bottom:8px">Wings Bantams just cancelled their 6 PM 1-hour practice. <strong>$145 slot. Empty.</strong> Without Venuewise you spend the next hour on the phone. Maybe you fill it. Maybe you don't.</div>
+    <div class="sc-desc"><strong>With Venuewise:</strong> Five tiers fire automatically — honoring contractual relationships first, then opening to the broader WNY network, then the public marketplace. The slot fills itself at the best possible price.</div>
+  </div>
+
+  <!-- TIER CARDS -->
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px" class="fade-in">
+
+    <!-- TIER 1 -->
+    <div id="tier1card" style="background:#EEF1FB;border:1.5px solid #C7D2FE;border-radius:14px;padding:14px;opacity:1;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#0A1F5C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#F5C518;flex-shrink:0">1</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Org Waitlist — Exclusive 15-Min Window</div>
+          <div style="font-size:11px;color:#6B7A99">Immediate · Wings families specifically waitlisted for this slot · Full price $145 · No discount</div>
+        </div>
+        <div id="tier1badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#0A1F5C;color:#F5C518;white-space:nowrap">🔴 Active</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5;border-left:3px solid #0A1F5C">
+        🏒 <strong>WS Rec — Priority Alert:</strong> Ice just opened Sat 6–7 PM · Rink A · $145. You're #1 on the waitlist — 15 min exclusive hold. Book now: venuewise.net/ws →
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px;display:flex;justify-content:space-between">
+        <span>📱 14 Wings families notified</span>
+        <span style="color:#0A1F5C;font-weight:600">Included in $299 subscription</span>
+      </div>
+    </div>
+
+    <!-- TIER 2 -->
+    <div id="tier2card" style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;padding:14px;opacity:0.35;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#15803D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">2</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Facility Organizations — 15 Min Later</div>
+          <div style="font-size:11px;color:#6B7A99">All orgs holding contracts at West Seneca · Wings all levels · Adult league · Figure skating · LTS · Full price</div>
+        </div>
+        <div id="tier2badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF;white-space:nowrap">Standby</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5;border-left:3px solid #15803D">
+        🏒 <strong>WS Rec — Ice Available:</strong> Sat 6–7 PM · Rink A · $145/hr. Open to West Seneca org members. First to book gets it: venuewise.net/ws →
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px;display:flex;justify-content:space-between">
+        <span>📱 62 coaches + org contacts notified</span>
+        <span style="color:#15803D;font-weight:600">Included in $299 subscription</span>
+      </div>
+    </div>
+
+    <!-- TIER 3 -->
+    <div id="tier3card" style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:14px;opacity:0.35;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#EA580C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">3</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#0A1628">WNY Organization Network — 30 Min Later</div>
+          <div style="font-size:11px;color:#6B7A99">Outside orgs on Venuewise · Cheektowaga Warriors · Lockport Regals · Prospects Baseball · Full price</div>
+        </div>
+        <div id="tier3badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF;white-space:nowrap">Standby</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5;border-left:3px solid #EA580C">
+        🏒 <strong>Venuewise WNY — Open Ice:</strong> West Seneca Town Rink · Sat 6–7 PM · $145/hr. Available now to WNY org members. Book instantly: venuewise.net/open →
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px;display:flex;justify-content:space-between">
+        <span>📱 340 coaches across WNY org network</span>
+        <span style="color:#EA580C;font-weight:600">3% booking fee applies</span>
+      </div>
+    </div>
+
+    <!-- TIER 4 -->
+    <div id="tier4card" style="background:#FFF8E7;border:1.5px solid #FDE68A;border-radius:14px;padding:14px;opacity:0.35;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#F5C518;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0A1628;flex-shrink:0">4</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#0A1628">WNY Platform Families — 45 Min Later</div>
+          <div style="font-size:11px;color:#6B7A99">All 2,920 opted-in WNY families · Individual bookings · 15% last-minute discount</div>
+        </div>
+        <div id="tier4badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF;white-space:nowrap">Standby</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5;border-left:3px solid #F5C518">
+        ⚡ <strong>Last-minute deal — WS Rink:</strong> Ice tonight 6–7 PM · $123 (reg $145 · 15% off). Grab it before it's gone → venuewise.net/deals
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px;display:flex;justify-content:space-between">
+        <span>📱 2,920 WNY rec families notified</span>
+        <span style="color:#8B6F00;font-weight:600">5% booking fee applies</span>
+      </div>
+    </div>
+
+    <!-- TIER 5 -->
+    <div id="tier5card" style="background:linear-gradient(135deg,#F0F4FF,#EEF1FB);border:1.5px solid #C7D2FE;border-radius:14px;padding:14px;opacity:0.35;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#0A1F5C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#F5C518;flex-shrink:0">5</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Open Marketplace — Public · Always Live</div>
+          <div style="font-size:11px;color:#6B7A99">Anyone searching venuewise.net · Google · No account needed · 30% last-minute discount</div>
+        </div>
+        <div id="tier5badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#0A1F5C;color:#F5C518;white-space:nowrap">🌐 Always On</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5;border-left:3px solid #0A1F5C">
+        🏒 <strong>West Seneca Town Rink</strong> — 1 slot available · Sat 6–7 PM · <span style="color:#DC2626;font-weight:700">$101</span> <span style="color:#9AAABF;text-decoration:line-through">$145</span> · Book instantly · No account needed
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px;display:flex;justify-content:space-between">
+        <span>🌐 Anyone on venuewise.net or Google</span>
+        <span style="color:#DC2626;font-weight:600">8% booking fee applies</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP INDICATOR — 5 dots -->
+  <div class="step-ind" id="stepInd">
+    <div class="sdot active" id="s0"></div>
+    <div class="sdot" id="s1"></div>
+    <div class="sdot" id="s2"></div>
+    <div class="sdot" id="s3"></div>
+    <div class="sdot" id="s4"></div>
+    <div class="sdot" id="s5"></div>
+  </div>
+
+  <button class="sim-btn fade-in" id="simBtn" onclick="runSim()">⚡ Run the 5-Tier Cascade</button>
+
+  <!-- PHONE MOCKUP -->
+  <div id="phoneMock" style="display:none">
+    <div class="phone-mock fade-in">
+      <div class="phone-notch"></div>
+      <div class="sms-hdr">West Seneca Rec · Powered by Venuewise</div>
+      <div class="sms-feed" id="smsFeed">
+        <div class="sms-out"><div class="sms-text">🏒 WS Rec — Priority Alert: Ice just opened Sat 6–7 PM · Rink A · $145. You're #1 on the waitlist — 15 min exclusive hold. Book now: venuewise.net/ws →</div><div class="sms-time">9:14 AM · Tier 1 — Org Waitlist</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC SEARCH -->
+  <div id="publicSearch" style="display:none" class="fade-in">
+    <div class="scenario-card" style="border-color:#C7D2FE;background:#F0F4FF">
+      <div class="sc-title" style="color:#0A1F5C">🌐 Tier 5 — Open Marketplace · Visible to Everyone</div>
+      <div class="sc-desc">From the moment of cancellation, the slot appears on the public marketplace. A flag football team searching Google finds it at 30% off. No account needed. Books in 90 seconds.</div>
+    </div>
+    <div class="card" style="border-color:#C7D2FE">
+      <div style="background:#0A1F5C;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;font-size:11px;color:#fff;flex:1">🔍 &nbsp;indoor sports facility Buffalo Saturday</div>
+        <div style="font-size:11px;font-weight:700;color:#F5C518">Search</div>
+      </div>
+      <div style="padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">Available Near Buffalo · Today</div>
+        <div style="background:#FEF2F2;border-radius:10px;padding:11px;border:1.5px solid #FCA5A5;margin-bottom:8px">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="font-size:20px">🏒</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#0A1628">West Seneca Town Rink</div>
+              <div style="font-size:11px;color:#6B7A99">Indoor ice · 8 miles · Available now</div>
+              <span style="font-size:10px;font-weight:600;background:#FFF8E7;color:#8B6F00;padding:2px 7px;border-radius:100px">⚡ Last-minute deal</span>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:#DC2626">$101/hr</div>
+              <div style="font-size:10px;color:#9AAABF;text-decoration:line-through">$145</div>
+            </div>
+          </div>
+          <button onclick="showToast('West Seneca Rink booked! $101 charged. Confirmation sent. Slot filled!')" style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-top:8px">Book Last-Minute Deal — $101</button>
+        </div>
+        <div style="background:#F8F9FC;border-radius:10px;padding:11px;border:1px solid #E8ECF5;margin-bottom:8px">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="font-size:20px">🏟️</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#0A1628">Sahlen's Sports Park — Field #45</div>
+              <div style="font-size:11px;color:#6B7A99">110yd × 70yd indoor turf · Elma · 14 miles</div>
+              <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:100px">Football ✓</span>
+                <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:100px">Soccer ✓</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:#0A1628">$180/hr</div>
+              <div style="font-size:10px;color:#22C55E;font-weight:600">3 slots open</div>
+            </div>
+          </div>
+          <button onclick="showToast('Sahlen\'s Field #45 booked! Confirmation sent. No account needed.')" style="width:100%;background:#0A1F5C;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-top:8px">Book Now — No Account Needed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE IMPACT -->
+  <div id="revImpact" style="display:none">
+    <div class="rev-card fade-in">
+      <div class="rev-title">West Seneca — 5-Tier Recovery Math</div>
+      <div class="rev-row"><span class="rev-lbl">Tier 1 — Org waitlist (14 families)</span><span class="rev-val">Full $145 · ~65% fill rate · subscription</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 2 — Facility orgs (62 contacts)</span><span class="rev-val">Full $145 · ~15% more · subscription</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 3 — WNY org network (340)</span><span class="rev-val">Full $145 · ~7% more · 3% fee</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 4 — WNY families (2,920)</span><span class="rev-val">$123 · ~5% more · 5% fee</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 5 — Public marketplace</span><span class="rev-val">$101 · ~3% more · 8% fee</span></div>
+      <div class="rev-row"><span class="rev-lbl">Combined recovery rate</span><span class="rev-val gold">~95% of all cancelled slots</span></div>
+      <div class="rev-row"><span class="rev-lbl">Monthly revenue at risk ($10,440)</span><span class="rev-val red">$10,440</span></div>
+      <div class="rev-total"><span class="rev-total-lbl">Monthly recovered</span><span class="rev-total-val">+$9,918</span></div>
+    </div>
+    <div class="scenario-card fade-in" style="border-color:#22C55E;border-width:1.5px">
+      <div class="sc-title" style="color:#15803D">✅ Filled by a Cheektowaga flag football team — Tier 5</div>
+      <div class="sc-desc">Tiers 1–4 didn't fill it this time. A flag football coach found it on venuewise.net searching for indoor space. Booked in 90 seconds at $101. Never heard of West Seneca Rec before. Now they're on the platform — next time they need indoor space, Venuewise is where they look first.</div>
+    </div>
+    <div class="scenario-card fade-in" style="background:#EEF1FB;border-color:#C7D2FE">
+      <div class="sc-title">The Contractual Hierarchy Is Always Honored</div>
+      <div class="sc-desc">Locked-in organizations always get first access. Their contractual relationship with West Seneca Recreation is respected in every cancellation. Outside orgs and the public only see the slot after the facility's own community has had its window. Dave Cox controls every timing and discount setting.</div>
+    </div>
+  </div>
+</div>
+
+    <!-- TIER 1 -->
+    <div id="tier1card" style="background:#EEF1FB;border:1.5px solid #C7D2FE;border-radius:14px;padding:14px;opacity:0.4;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#0A1F5C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#F5C518;flex-shrink:0">1</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Waitlist Alert — Exclusive 15-Min Window</div>
+          <div style="font-size:11px;color:#6B7A99">Fires immediately · 14 waitlisted families · Full price $145</div>
+        </div>
+        <div id="tier1badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF">Waiting</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5">
+        🏒 <strong>WS Rec Alert</strong> — Ice just opened: Sat 6–7 PM · Rink A · $145. You're #1 on the waitlist. Book now — 15 min hold: venuewise.net/ws →
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px">📱 14 families notified · If unfilled in 15 min → Tier 2 fires automatically</div>
+    </div>
+
+    <!-- TIER 2 -->
+    <div id="tier2card" style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;padding:14px;opacity:0.4;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#15803D;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">2</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Organization Network — 15 Min Later</div>
+          <div style="font-size:11px;color:#6B7A99">All WNY registered coaches & org contacts · Full price $145</div>
+        </div>
+        <div id="tier2badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF">Standby</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5">
+        🏒 <strong>WS Rec — Last-minute ice:</strong> Sat 6–7 PM · Town Rink · $145/hr. First coach to book gets it: venuewise.net/ws →
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px">📱 47 coaches notified (Wings, Warriors, Regals, adult league captains) · If unfilled → Tier 3</div>
+    </div>
+
+    <!-- TIER 3 -->
+    <div id="tier3card" style="background:#FFF8E7;border:1.5px solid #FDE68A;border-radius:14px;padding:14px;opacity:0.4;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#F5C518;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0A1628;flex-shrink:0">3</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0A1628">WNY Platform Network — 30 Min Later</div>
+          <div style="font-size:11px;color:#6B7A99">All 2,920 opted-in WNY Rec families · Discounted to $123</div>
+        </div>
+        <div id="tier3badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF">Standby</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5">
+        ⚡ <strong>Last-minute deal — West Seneca:</strong> Ice Sat 6–7 PM · $123 (reg $145) · Limited time offer. Book before it's gone → venuewise.net/ws
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px">📱 2,920 WNY families who opted into last-minute alerts · If still unfilled → Tier 4</div>
+    </div>
+
+    <!-- TIER 4 -->
+    <div id="tier4card" style="background:linear-gradient(135deg,#F0F4FF,#EEF1FB);border:1.5px solid #C7D2FE;border-radius:14px;padding:14px;opacity:0.4;transition:all 0.5s">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:32px;height:32px;background:#0A1F5C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#F5C518;flex-shrink:0">4</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0A1628">Public Marketplace — Instant & Ongoing</div>
+          <div style="font-size:11px;color:#6B7A99">Anyone searching venuewise.net or Google · $101 (30% off) · No account needed</div>
+        </div>
+        <div id="tier4badge" style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:#E2E6F0;color:#9AAABF">Live Always</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:10px;font-size:12px;color:#0A1628;line-height:1.5">
+        <div style="font-size:10px;font-weight:700;color:#9AAABF;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">venuewise.net — Public Search Result</div>
+        🏒 <strong>West Seneca Town Rink</strong> — 1 slot available today<br>
+        Saturday 6–7 PM · Indoor ice · $101 · Book instantly · No account needed
+      </div>
+      <div style="font-size:11px;color:#6B7A99;margin-top:6px">🌐 Visible to anyone on venuewise.net · Google-indexed · A flag football team needing indoor space finds this</div>
+    </div>
+  </div>
+
+  <!-- STEP INDICATOR -->
+  <div class="step-ind" id="stepInd">
+    <div class="sdot active" id="s0"></div>
+    <div class="sdot" id="s1"></div>
+    <div class="sdot" id="s2"></div>
+    <div class="sdot" id="s3"></div>
+    <div class="sdot" id="s4"></div>
+  </div>
+
+  <button class="sim-btn fade-in" id="simBtn" onclick="runSim()">⚡ Run the 4-Tier Cascade</button>
+
+  <!-- PHONE MOCKUP -->
+  <div id="phoneMock" style="display:none">
+    <div class="phone-mock fade-in">
+      <div class="phone-notch"></div>
+      <div class="sms-hdr">West Seneca Rec · Powered by Venuewise</div>
+      <div class="sms-feed" id="smsFeed">
+        <div class="sms-out"><div class="sms-text">🏒 WS Rec Alert — Practice ice just opened: Sat 6–7 PM · Town Rink · Rink A · $145. You're #1 on the waitlist. Book now (15 min hold): venuewise.net/ws →</div><div class="sms-time">9:14 AM · Tier 1 — Waitlist</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC SEARCH PREVIEW -->
+  <div id="publicSearch" style="display:none" class="fade-in">
+    <div class="scenario-card" style="border-color:#C7D2FE;background:#F0F4FF">
+      <div class="sc-title" style="color:#0A1F5C">🌐 Public Marketplace — Anyone Can Find This</div>
+      <div class="sc-desc" style="margin-bottom:8px">A flag football team Googles "indoor sports facility Buffalo Saturday." They find Venuewise. They see the open slot. They book it in 90 seconds without ever creating an account.</div>
+    </div>
+    <div class="card" style="border-color:#C7D2FE">
+      <div style="background:#0A1F5C;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;font-size:11px;color:#fff;flex:1">🔍 &nbsp;indoor sports facility Buffalo Saturday</div>
+        <div style="font-size:11px;font-weight:700;color:#F5C518">Search</div>
+      </div>
+      <div style="padding:12px 14px;border-bottom:1px solid #F0F2F7">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#9AAABF;margin-bottom:8px">Available Near Buffalo · Saturday May 17</div>
+
+        <div style="background:#F8F9FC;border-radius:10px;padding:11px;margin-bottom:8px;border:1.5px solid #C7D2FE">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="font-size:20px">🏟️</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#0A1628">Sahlen's Sports Park — Field #45</div>
+              <div style="font-size:11px;color:#6B7A99">110yd × 70yd indoor turf · Elma NY · 14 miles</div>
+              <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:100px">Football ✓</span>
+                <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:100px">Soccer ✓</span>
+                <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:100px">Lacrosse ✓</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:#0A1628">$180/hr</div>
+              <div style="font-size:10px;color:#22C55E;font-weight:600">3 slots open</div>
+            </div>
+          </div>
+          <button onclick="showToast('Sahlen\'s Field #45 booked! Confirmation sent. No account needed.')" style="width:100%;background:#0A1F5C;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-top:8px">Book Now — No Account Needed</button>
+        </div>
+
+        <div style="background:#FEF9F9;border-radius:10px;padding:11px;margin-bottom:8px;border:1.5px solid #FCA5A5">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="font-size:20px">🏒</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#0A1628">West Seneca Town Rink</div>
+              <div style="font-size:11px;color:#6B7A99">Indoor ice · West Seneca · 8 miles</div>
+              <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:600;background:#EEF1FB;color:#0A1F5C;padding:2px 7px;border-radius:100px">Hockey ✓</span>
+                <span style="font-size:10px;font-weight:600;background:#EEF1FB;color:#0A1F5C;padding:2px 7px;border-radius:100px">Figure Skating ✓</span>
+                <span style="font-size:10px;font-weight:600;background:#FFF8E7;color:#8B6F00;padding:2px 7px;border-radius:100px">⚡ Last-minute deal</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:#DC2626">$101/hr</div>
+              <div style="font-size:10px;color:#DC2626;font-weight:600">Reg $145 · 30% off</div>
+            </div>
+          </div>
+          <button onclick="showToast('West Seneca Rink booked! $101 charged. Confirmation sent to your phone.')" style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-top:8px">Book Last-Minute Deal</button>
+        </div>
+
+        <div style="background:#F8F9FC;border-radius:10px;padding:11px;border:1px solid #E8ECF5">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="font-size:20px">🏛️</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#0A1628">Paddock Park — Indoor Courts</div>
+              <div style="font-size:11px;color:#6B7A99">Volleyball · Pickleball · Tonawanda · 6 miles</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:#0A1628">$45/hr</div>
+              <div style="font-size:10px;color:#22C55E;font-weight:600">2 courts open</div>
+            </div>
+          </div>
+          <button onclick="showToast('Paddock Park court reserved! See you Saturday.')" style="width:100%;background:#0A1F5C;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-top:8px">Book Court</button>
+        </div>
+      </div>
+      <div style="padding:10px 14px;font-size:11px;color:#6B7A99;text-align:center">Powered by <strong style="color:#0A1F5C">Venuewise</strong> · Real-time availability · Book any facility instantly</div>
+    </div>
+  </div>
+
+  <!-- REVENUE IMPACT -->
+  <div id="revImpact" style="display:none">
+    <div class="rev-card fade-in">
+      <div class="rev-title">West Seneca — 4-Tier Recovery Math</div>
+      <div class="rev-row"><span class="rev-lbl">Tier 1 — Waitlist (14 families)</span><span class="rev-val">Full price $145 · fills ~65% of slots</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 2 — Org network (47 coaches)</span><span class="rev-val">Full price $145 · fills ~15% more</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 3 — WNY platform (2,920)</span><span class="rev-val">$123 discounted · fills ~7% more</span></div>
+      <div class="rev-row"><span class="rev-lbl">Tier 4 — Public marketplace</span><span class="rev-val">$101 last-minute · fills ~3% more</span></div>
+      <div class="rev-row"><span class="rev-lbl">Combined recovery rate</span><span class="rev-val gold">~90% of all cancelled slots</span></div>
+      <div class="rev-row"><span class="rev-lbl">Monthly revenue at risk</span><span class="rev-val red">$10,440</span></div>
+      <div class="rev-total"><span class="rev-total-lbl">Monthly recovered</span><span class="rev-total-val">+$9,396</span></div>
+    </div>
+
+    <div class="scenario-card fade-in" style="border-color:#22C55E;border-width:1.5px">
+      <div class="sc-title" style="color:#15803D">✅ The slot filled — from a flag football team in Cheektowaga</div>
+      <div class="sc-desc">They found the open slot on venuewise.net searching for indoor space before a snowstorm. Never heard of West Seneca Rec. Booked in 90 seconds. No phone call. No account. $101 charged. Now they're on the Venuewise platform — next time they need indoor space, they come back first.</div>
+    </div>
+
+    <div class="scenario-card fade-in" style="background:#EEF1FB;border-color:#C7D2FE">
+      <div class="sc-title">The Public Marketplace Changes Everything</div>
+      <div class="sc-desc">Organizations don't need to be onboarded first. Any team, any coach, any family can search venuewise.net and book available space instantly. The platform is public. The inventory is live. The booking takes 90 seconds. West Seneca fills slots from people they never would have reached.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOK ONLINE VIEW ══ -->
+<div class="view" id="view-book">
+  <div class="sec-title fade-in" style="margin-bottom:12px">Book a West Seneca Facility</div>
+  <div class="card fade-in">
+    <div class="fac-opt sel" onclick="selFac(this,'ice')"><div class="fac-emoji">🏒</div><div><div class="fac-name">Town Ice Rink</div><div class="fac-avail">2 slots open today · 14 waitlisted for 6 PM</div></div><div class="fac-chk">✓</div></div>
+    <div class="fac-opt" onclick="selFac(this,'soccer')"><div class="fac-emoji">⚽</div><div><div class="fac-name">Soccer Fields (1–13)</div><div class="fac-avail">4 fields open this weekend</div></div><div class="fac-chk">✓</div></div>
+    <div class="fac-opt" onclick="selFac(this,'baseball')"><div class="fac-emoji">⚾</div><div><div class="fac-name">Baseball Diamonds (1–4)</div><div class="fac-avail">2 diamonds open Sunday</div></div><div class="fac-chk">✓</div></div>
+    <div class="fac-opt" onclick="selFac(this,'courts')"><div class="fac-emoji">🎾</div><div><div class="fac-name">Tennis &amp; Pickleball Courts</div><div class="fac-avail">Reserve your court · No walk-up conflicts</div></div><div class="fac-chk">✓</div></div>
+    <div class="fac-opt" onclick="selFac(this,'rooms')"><div class="fac-emoji">🏛</div><div><div class="fac-name">Community Rooms A–D</div><div class="fac-avail">Room B available Saturday evening</div></div><div class="fac-chk">✓</div></div>
+  </div>
+  <div class="card fade-in" style="padding:14px" id="slotSection">
+    <div class="card-title" style="margin-bottom:10px" id="slotTitle">Available Slots — Ice Rink · Saturday May 15</div>
+    <div class="slot-grid" id="slotGrid">
+      <div class="slot-btn taken"><div class="s-time">6 AM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn taken"><div class="s-time">7 AM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn taken"><div class="s-time">8 AM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn taken"><div class="s-time">10 AM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn" onclick="selSlot(this)"><div class="s-time">12 PM</div><div class="s-price">$100 · 1hr</div></div>
+      <div class="slot-btn taken"><div class="s-time">2 PM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn taken"><div class="s-time">4 PM</div><div class="s-price">Booked</div></div>
+      <div class="slot-btn waitlisted" onclick="selSlot(this)"><div class="s-time" style="color:#8B6F00">6 PM</div><div class="s-price" style="color:#8B6F00">14 waitlisted</div></div>
+      <div class="slot-btn taken"><div class="s-time">8 PM</div><div class="s-price">Game · 2hr</div></div>
+      <div class="slot-btn" onclick="selSlot(this)"><div class="s-time">10 PM</div><div class="s-price">$130 · 1hr</div></div>
+    </div>
+  </div>
+  <button class="book-btn fade-in" id="bookBtn" disabled onclick="doBook()">Select a time to book</button>
+  <button class="waitlist-btn fade-in" onclick="showToast('✅ Added to waitlist! Text alert when any slot opens.')">+ Join Waitlist for Any Slot</button>
+  <div class="info-box ib-blue fade-in" style="margin-top:10px">⚡ <strong>14 families</strong> are already waiting for the 6 PM slot. When it opens, Venuewise texts all 14 simultaneously. First to respond books it. Average fill time: 5 minutes.</div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta">
+  <div class="cta-text">
+    <div class="cta-t">Ready for West Seneca?</div>
+    <div class="cta-s">All facilities · ~2,920 residents · Live in 1 week · $299/mo</div>
+  </div>
+  <button class="cta-btn" onclick="showToast('Keith Herman will follow up — keith@venuewise.net')">Get Started</button>
+</div>
+
+<script>
+function showImport(){document.getElementById('importModal').style.display='block';document.body.style.overflow='hidden';}
+function hideImport(){document.getElementById('importModal').style.display='none';document.body.style.overflow='';}
+function doImport(platform){
+  hideImport();
+  const msgs={
+    'LeagueApps':'✅ Connected to LeagueApps! Emma\'s Regals schedule syncing now — updates every hour automatically.',
+    'SportsEngine':'✅ Connected to SportsEngine! USA Hockey schedule syncing now — real-time updates.',
+    'TeamSnap':'✅ TeamSnap iCal connected! Schedule syncing hourly — any changes your coach makes appear automatically.',
+    'GameTime':'✅ GameTime connected! Schedule will sync hourly.',
+    'MyRec':'✅ MyRec connected! West Seneca Rec schedule syncing — programs and facility bookings updating hourly.',
+    'ActiveCommunities':'✅ Active Communities connected! Cheektowaga, Lancaster & Orchard Park schedules syncing hourly.',
+    'iCal':'✅ iCal feed connected! Paste your link and we\'ll keep it in sync automatically.'
+  };
+  showToast(msgs[platform]||'✅ Schedule imported successfully!');
+}
+function filterPrograms(val){
+  const rows=document.querySelectorAll('.prog-result');
+  rows.forEach(r=>{
+    const text=r.textContent.toLowerCase();
+    r.style.display=text.includes(val.toLowerCase())||val===''?'flex':'none';
+  });
+}
+function addProgram(name,emoji,sport){
+  showToast('✅ '+name+' added to your family schedule!');
+  hideImport();
+}
+function showKid(kid,el){
+  document.querySelectorAll('#app-myschedule > div:first-child > div').forEach(b=>{
+    b.style.background='#fff';b.style.color='#0A1F5C';b.style.border='1.5px solid #C7D2FE';
+  });
+  el.style.background='#0A1F5C';el.style.color='#fff';el.style.border='1.5px solid #0A1F5C';
+  const msg={all:'Showing full family week — Tyler + Emma across all facilities',tyler:'Showing Tyler\'s schedule only — Wings Bantams',emma:'Showing Emma\'s schedule only — Regals + Storm Soccer'};
+  showToast(msg[kid]);
+}
+function showTop(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const map={admin:0,family:1,public:2,alert:3,book:4};
+  document.querySelectorAll('.top-tab')[map[id]].classList.add('active');
+  document.getElementById('facTabs').style.display=(id==='admin')?'flex':'none';
+  window.scrollTo(0,0);
+}
+function showFac(fac,el){
+  document.querySelectorAll('.fac-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.fac-tab').forEach(t=>t.classList.remove('active'));
+  const t=document.getElementById('fac-'+fac);
+  if(t)t.classList.add('active');
+  el.classList.add('active');
+}
+function showPub(id,el){
+  ['pub-today','pub-week','pub-whatson'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display='none';});
+  const t=document.getElementById('pub-'+id);
+  if(t)t.style.display='block';
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function showAppTab(id,el){
+  ['app-myschedule','app-whatson','app-mydeals','app-community'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display='none';});
+  const t=document.getElementById('app-'+id);
+  if(t)t.style.display='block';
+  document.querySelectorAll('.app-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+function filterHub(type,el){
+  document.querySelectorAll('.hf-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.hub-card').forEach(c=>{
+    c.style.display=(type==='all'||c.classList.contains('hub-item-'+type))?'block':'none';
+  });
+}
+function selTicket(el){
+  const grid=el.closest('.hub-ticket-grid');
+  if(grid)grid.querySelectorAll('.ticket-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function selDonate(el,amt){
+  el.closest('div').querySelectorAll('.ticket-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  const btn=document.getElementById('donateBtn');
+  if(btn)btn.textContent='Donate '+amt+' →';
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+// FIELD MAP
+const states=['booked','booked','open','booked','open','booked','booked','open','booked','conflict','booked','open','booked'];
+const fm=document.getElementById('fieldMap');
+if(fm){states.forEach((s,i)=>{const d=document.createElement('div');d.className='fc '+s;d.innerHTML=`<div class="fc-num">${i+1}</div><div class="fc-status">${s==='open'?'Open':s==='conflict'?'Conflict!':'Booked'}</div>`;d.onclick=()=>showToast(s==='open'?`Field ${i+1} — available! Book online in 60 seconds.`:s==='conflict'?`⚠️ Field ${i+1} — double booking! Venuewise prevents this.`:`Field ${i+1} — booked by WS Youth Soccer.`);fm.appendChild(d);});}
+// FACILITY SELECTOR
+function selFac(el,fac){
+  document.querySelectorAll('.fac-opt').forEach(f=>f.classList.remove('sel'));
+  el.classList.add('sel');
+  const names={ice:'Ice Rink · Saturday May 15',soccer:'Soccer Fields · Saturday May 15',baseball:'Baseball Diamonds · Sunday May 16',courts:'Tennis & Pickleball · Saturday May 15',rooms:'Community Rooms · Saturday May 15'};
+  document.getElementById('slotTitle').textContent='Available Slots — '+names[fac];
+  document.getElementById('bookBtn').textContent='Select a time to book';
+  document.getElementById('bookBtn').disabled=true;
+  document.querySelectorAll('.slot-btn:not(.taken)').forEach(b=>b.classList.remove('sel'));
+}
+// SLOT
+let selSlotEl=null;
+function selSlot(el){
+  document.querySelectorAll('.slot-btn:not(.taken)').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');selSlotEl=el;
+  const t=el.querySelector('.s-time').textContent;
+  const p=el.querySelector('.s-price').textContent;
+  const btn=document.getElementById('bookBtn');
+  btn.textContent=p.includes('waitlisted')?`Join Waitlist for ${t} slot`:`Book ${t} — ${p}`;
+  btn.disabled=false;
+}
+function doBook(){
+  if(!selSlotEl)return;
+  const p=selSlotEl.querySelector('.s-price').textContent;
+  if(p.includes('waitlisted')){showToast('✅ Added to waitlist! Text alert the moment this opens.');}
+  else{selSlotEl.classList.remove('sel');selSlotEl.classList.add('taken');selSlotEl.querySelector('.s-price').textContent='Booked';showToast('✅ Booking confirmed! Confirmation sent to your phone.');}
+  selSlotEl=null;document.getElementById('bookBtn').textContent='Select a time to book';document.getElementById('bookBtn').disabled=true;
+}
+// SIMULATION — 5-TIER CASCADE
+let simRunning=false,simStep=0;
+const tierIds=['tier1card','tier2card','tier3card','tier4card','tier5card'];
+const badgeIds=['tier1badge','tier2badge','tier3badge','tier4badge','tier5badge'];
+
+function activateTier(n,status,bg,color){
+  const card=document.getElementById('tier'+n+'card');
+  const badge=document.getElementById('tier'+n+'badge');
+  if(card){card.style.opacity='1';}
+  if(badge){badge.textContent=status;badge.style.background=bg;badge.style.color=color;}
+}
+
+function dimTier(n){
+  const card=document.getElementById('tier'+n+'card');
+  const badge=document.getElementById('tier'+n+'badge');
+  if(card) card.style.opacity='0.35';
+  if(badge){badge.style.background='#E2E6F0';badge.style.color='#9AAABF';}
+}
+
+function runSim(){
+  if(simRunning)return;
+  simRunning=true;simStep=1;
+  document.getElementById('simBtn').disabled=true;
+  document.getElementById('simBtn').textContent='⏳ Cascade running...';
+  // reset
+  for(let i=2;i<=5;i++) dimTier(i);
+  document.getElementById('tier1badge').textContent='🔴 Active';
+  document.getElementById('tier1badge').style.background='#0A1F5C';
+  document.getElementById('tier1badge').style.color='#F5C518';
+  document.getElementById('tier1card').style.opacity='1';
+  document.getElementById('tier5badge').textContent='🌐 Always On';
+  document.getElementById('tier5badge').style.background='#0A1F5C';
+  document.getElementById('tier5badge').style.color='#F5C518';
+  document.getElementById('phoneMock').style.display='none';
+  document.getElementById('revImpact').style.display='none';
+  if(document.getElementById('publicSearch')) document.getElementById('publicSearch').style.display='none';
+  document.getElementById('smsFeed').innerHTML='<div class="sms-out"><div class="sms-text">🏒 WS Rec — Priority Alert: Ice just opened Sat 6–7 PM · Rink A · $145. You\'re #1 on the waitlist — 15 min exclusive hold. Book now: venuewise.net/ws →</div><div class="sms-time">9:14 AM · Tier 1 — Org Waitlist</div></div>';
+  setDots(1);
+  document.getElementById('phoneMock').style.display='block';
+  setTimeout(doStep,2000);
+}
+
+function doStep(){
+  const feed=document.getElementById('smsFeed');
+  if(simStep===1){
+    // T1 no fill — reply comes in
+    const typing=document.createElement('div');
+    typing.className='typing';
+    typing.innerHTML='<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';
+    feed.appendChild(typing);
+    setTimeout(()=>{
+      feed.removeChild(typing);
+      const r=document.createElement('div');
+      r.className='sms-in';
+      r.innerHTML='<div class="sms-text">Sorry — can\'t make it tonight. Please keep me on the list for next time!</div><div class="sms-time">Mike Reilly · 9:16 AM · Tier 1 — no fill</div>';
+      feed.appendChild(r);
+      activateTier(1,'❌ Unfilled','#EF4444','#fff');
+      setTimeout(()=>{simStep=2;doStep();},1200);
+    },2000);
+
+  } else if(simStep===2){
+    // T2 fires
+    activateTier(2,'🟢 Firing','#15803D','#fff');
+    setDots(2);
+    const t2=document.createElement('div');
+    t2.className='sms-out';
+    t2.innerHTML='<div class="sms-text">🏒 WS Rec — Ice available: Sat 6–7 PM · Rink A · $145/hr. Open to West Seneca org members first. Book now → venuewise.net/ws</div><div class="sms-time">9:29 AM · Tier 2 — 62 Facility Org Contacts</div>';
+    feed.appendChild(t2);
+    setTimeout(()=>{
+      activateTier(2,'❌ Unfilled','#EF4444','#fff');
+      simStep=3;doStep();
+    },2200);
+
+  } else if(simStep===3){
+    // T3 fires — WNY org network
+    activateTier(3,'🟠 Firing','#EA580C','#fff');
+    setDots(3);
+    const t3=document.createElement('div');
+    t3.className='sms-out';
+    t3.innerHTML='<div class="sms-text">🏒 Venuewise WNY — Open ice: West Seneca Town Rink · Sat 6–7 PM · $145/hr. Available to WNY org members → venuewise.net/open</div><div class="sms-time">9:44 AM · Tier 3 — 340 WNY Org Coaches</div>';
+    feed.appendChild(t3);
+    setTimeout(()=>{
+      activateTier(3,'❌ Unfilled','#EF4444','#fff');
+      simStep=4;doStep();
+    },2200);
+
+  } else if(simStep===4){
+    // T4 fires — WNY families, discounted
+    activateTier(4,'🟡 Firing','#F5C518','#0A1628');
+    setDots(4);
+    const t4=document.createElement('div');
+    t4.className='sms-out';
+    t4.innerHTML='<div class="sms-text">⚡ Last-minute deal — WS Rink: Ice tonight 6–7 PM · $123 (reg $145 · 15% off). Grab it → venuewise.net/deals</div><div class="sms-time">9:59 AM · Tier 4 — 2,920 WNY Families</div>';
+    feed.appendChild(t4);
+    setTimeout(()=>{
+      activateTier(4,'❌ Unfilled','#EF4444','#fff');
+      simStep=5;doStep();
+    },2200);
+
+  } else if(simStep===5){
+    // T5 — public marketplace fills it
+    activateTier(5,'🌐 Booked!','#22C55E','#fff');
+    setDots(5);
+    if(document.getElementById('publicSearch')) document.getElementById('publicSearch').style.display='block';
+    const t5=document.createElement('div');
+    t5.className='sms-in';
+    t5.style.background='#DCFCE7';
+    t5.innerHTML='<div class="sms-text" style="color:#15803D">✅ Marketplace booking — Cheektowaga Flag Football · Sat 6–7 PM · $101 charged (8% fee $8.08) · Slot filled! Zero phone calls.</div><div class="sms-time">10:06 AM · Tier 5 — Public Marketplace</div>';
+    feed.appendChild(t5);
+    setTimeout(()=>{
+      document.getElementById('revImpact').style.display='block';
+      document.getElementById('simBtn').textContent='🔄 Run Again';
+      document.getElementById('simBtn').disabled=false;
+      simRunning=false;simStep=-1;
+      showToast('🎉 Slot filled by public marketplace — $101 recovered, $8.08 Venuewise fee!');
+    },1500);
+
+  } else if(simStep===-1){
+    // Full reset
+    document.getElementById('phoneMock').style.display='none';
+    document.getElementById('revImpact').style.display='none';
+    if(document.getElementById('publicSearch')) document.getElementById('publicSearch').style.display='none';
+    document.getElementById('smsFeed').innerHTML='<div class="sms-out"><div class="sms-text">🏒 WS Rec — Priority Alert: Ice just opened Sat 6–7 PM · Rink A · $145. You\'re #1 on the waitlist — 15 min exclusive hold. Book now: venuewise.net/ws →</div><div class="sms-time">9:14 AM · Tier 1 — Org Waitlist</div></div>';
+    for(let i=2;i<=4;i++) dimTier(i);
+    document.getElementById('tier1badge').textContent='🔴 Active';
+    document.getElementById('tier1badge').style.background='#0A1F5C';
+    document.getElementById('tier1badge').style.color='#F5C518';
+    document.getElementById('tier1card').style.opacity='1';
+    document.getElementById('tier5badge').textContent='🌐 Always On';
+    document.getElementById('tier5badge').style.background='#0A1F5C';
+    document.getElementById('tier5badge').style.color='#F5C518';
+    document.getElementById('tier5card').style.opacity='0.35';
+    setDots(0);
+    document.getElementById('simBtn').textContent='⚡ Run the 5-Tier Cascade';
+    document.getElementById('simBtn').disabled=false;
+    simRunning=false;
+  }
+}
+
+function lit(id){const e=document.getElementById(id);if(e)e.classList.add('lit')}
+
+function setDots(active){
+  for(let i=0;i<6;i++){
+    const d=document.getElementById('s'+i);
+    if(!d)continue;
+    d.classList.remove('active','done');
+    if(i<active)d.classList.add('done');
+    else if(i===active)d.classList.add('active');
+  }
+}
+</script>
+</body>
+</html>
