@@ -421,14 +421,17 @@ function setPlatform(key, el) {
 // ── STATS ────────────────────────────────────────────────────────
 function updateStats() {
   const now = new Date();
-  const w7  = new Date(now.getTime() + 7*864e5);
+  // This Week = today through end of this Saturday (current calendar week)
+  const dow     = now.getDay(); // 0=Sun … 6=Sat
+  const daysLeft = 6 - dow;
+  const weekEnd  = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysLeft, 23, 59, 59);
   const evts = filtered();
   const future = evts.filter(e => e.start >= now);
   const past   = evts.filter(e => e.start < now);
   document.getElementById('stFuture').textContent = future.length;
   document.getElementById('stPast').textContent   = past.length;
   document.getElementById('stConfl').textContent  = evts.filter(e=>e.conflict).length;
-  document.getElementById('stWeek').textContent   = evts.filter(e=>e.start>=now&&e.start<=w7).length;
+  document.getElementById('stWeek').textContent   = evts.filter(e=>e.start>=now&&e.start<=weekEnd).length;
   if (lastLoad) {
     document.getElementById('syncUpdated').textContent =
       'Updated ' + lastLoad.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -451,16 +454,20 @@ function navigate(dir) {
 
 function goToday() {
   currentDate = new Date();
-  // Always land in list view so the Today label is visible and scrollable
+  // Always land in list view
   if (currentView !== 'list') {
     currentView = 'list';
     document.getElementById('btnList').classList.add('active');
     document.getElementById('btnMonth').classList.remove('active');
   }
   render();
-  // Give the DOM a tick to paint, then scroll today into view
   setTimeout(() => {
-    const el = document.querySelector('.dlabel.today');
+    // Try to scroll to today's label first
+    let el = document.querySelector('.dlabel.today');
+    if (!el) {
+      // No events today — find the first upcoming event label and scroll there
+      el = document.querySelector('.dgroup:not([style*="opacity"]) .dlabel');
+    }
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 80);
 }
@@ -620,8 +627,9 @@ applySticky();
 loadEvents().then(()=>{
   applySticky();
   setTimeout(()=>{
-    const el=document.querySelector('.dlabel.today');
-    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    let el = document.querySelector('.dlabel.today');
+    if (!el) el = document.querySelector('.dgroup:not([style*="opacity"]) .dlabel');
+    if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
   },200);
 });
 setInterval(()=>loadEvents(false), REFRESH);
