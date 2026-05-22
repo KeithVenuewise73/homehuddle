@@ -40,6 +40,8 @@
       transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0;
     }
     .sync-btn:hover{border-color:var(--gold)}
+    .sync-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+    .sync-updated{font-size:0.58rem;color:var(--muted);letter-spacing:0.03em;padding-right:2px}
     .sdot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:pdot 1.5s ease-in-out infinite}
     .sdot.err{background:#EF4444;animation:none}
     .sdot.spin{background:var(--gold)}
@@ -55,6 +57,7 @@
     .stat{text-align:center;padding:5px 2px}
     .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);line-height:1}
     .stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px}
+    .stat-val.past{color:var(--muted)}
 
     /* ── CONTROLS ── */
     #controls{
@@ -196,18 +199,21 @@
     <div class="hlogo">Home<em>Huddle</em></div>
     <div class="hsub">Dominic's schedule · powered by <b>Venuewise</b></div>
   </div>
-  <button class="sync-btn" onclick="loadEvents(true)">
-    <div class="sdot" id="sdot"></div>
-    <span id="stext">Synced</span>
-  </button>
+  <div class="sync-wrap">
+    <button class="sync-btn" onclick="loadEvents(true)">
+      <div class="sdot" id="sdot"></div>
+      <span id="stext">Synced</span>
+    </button>
+    <div class="sync-updated" id="syncUpdated">—</div>
+  </div>
 </header>
 
 <!-- STATS BAR -->
 <div id="statsBar">
-  <div class="stat"><div class="stat-val" id="stTotal">—</div><div class="stat-lbl">Events</div></div>
-  <div class="stat"><div class="stat-val" id="stWeek">—</div><div class="stat-lbl">This Week</div></div>
+  <div class="stat"><div class="stat-val" id="stFuture">—</div><div class="stat-lbl">Upcoming</div></div>
+  <div class="stat"><div class="stat-val past" id="stPast">—</div><div class="stat-lbl">Past</div></div>
   <div class="stat"><div class="stat-val" id="stConfl">—</div><div class="stat-lbl">Conflicts</div></div>
-  <div class="stat"><div class="stat-val" id="stTime">—</div><div class="stat-lbl">Updated</div></div>
+  <div class="stat"><div class="stat-val" id="stWeek">—</div><div class="stat-lbl">This Week</div></div>
 </div>
 
 <!-- CONTROLS -->
@@ -369,11 +375,16 @@ function updateStats() {
   const now = new Date();
   const w7  = new Date(now.getTime() + 7*864e5);
   const evts = filtered();
-  document.getElementById('stTotal').textContent = evts.length;
-  document.getElementById('stWeek').textContent  = evts.filter(e=>e.start>=now&&e.start<=w7).length;
-  document.getElementById('stConfl').textContent = evts.filter(e=>e.conflict).length;
-  document.getElementById('stTime').textContent  = lastLoad
-    ? lastLoad.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+  const future = evts.filter(e => e.start >= now);
+  const past   = evts.filter(e => e.start < now);
+  document.getElementById('stFuture').textContent = future.length;
+  document.getElementById('stPast').textContent   = past.length;
+  document.getElementById('stConfl').textContent  = evts.filter(e=>e.conflict).length;
+  document.getElementById('stWeek').textContent   = evts.filter(e=>e.start>=now&&e.start<=w7).length;
+  if (lastLoad) {
+    document.getElementById('syncUpdated').textContent =
+      'Updated ' + lastLoad.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }
 }
 
 // ── VIEW ─────────────────────────────────────────────────────────
