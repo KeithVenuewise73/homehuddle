@@ -270,7 +270,7 @@
 <!-- CONTROLS -->
 <div id="controls">
   <div class="pstrip">
-    <div class="pchip active" data-key="all"  onclick="setPlatform('all',this)"><span class="cdot" style="background:var(--gold)"></span>All Sports</div>
+    <div class="pchip active" data-key="all"  onclick="setPlatform('all',this)"><span class="cdot" style="background:var(--gold)"></span>All Events</div>
     <div class="pchip"        data-key="west" onclick="setPlatform('west',this)"><span class="cdot" style="background:var(--orange)"></span>West Modified</div>
     <div class="pchip"        data-key="caz"  onclick="setPlatform('caz',this)"><span class="cdot" style="background:var(--blue)"></span>Caz Chiefs</div>
     <div class="pchip"        data-key="fcp"  onclick="setPlatform('fcp',this)"><span class="cdot" style="background:var(--green)"></span>FCP Baseball</div>
@@ -391,7 +391,7 @@ async function loadEvents(manual=false) {
     const { data, error } = await sb
       .from('events')
       .select('uid,name,kid,platform,sport,start,end,location,description,conflict,is_duplicate')
-      .eq('kid','dominic')
+      .eq('kid','Dominic')
       .gte('start', past.toISOString())
       .lte('start', ahead.toISOString())
       .order('start',{ascending:true});
