@@ -1,655 +1,561 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>HomeHuddle · Dominic's Schedule</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy:      #0A1628;
-      --navy-mid:  #0F1F3D;
-      --navy-light:#162444;
-      --gold:      #F5C518;
-      --gold-dim:  #c49e10;
-      --white:     #F0F4FF;
-      --muted:     #7A8FAD;
-      --card-bg:   #111D35;
-      --border:    rgba(245,197,24,0.12);
-      --radius:    10px;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0A1628;--navy-mid:#0F1F3D;--navy-light:#162444;
+      --gold:#F5C518;--gold-dim:#c49e10;
+      --white:#F0F4FF;--muted:#7A8FAD;
+      --card-bg:#111D35;--border:rgba(245,197,24,0.12);--radius:10px;
+      --orange:#E8721C;--blue:#1E6FD9;--green:#1EA85A;
+      --header-h:73px;--statsbar-h:90px;
     }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
-    body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; max-width: 100vw; }
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
 
-    /* HEADER */
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--navy);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    /* ── HEADER ── */
+    #siteHeader{
+      position:sticky;top:0;z-index:300;
+      background:var(--navy);border-bottom:1px solid var(--border);
+      padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+      box-shadow:0 4px 24px rgba(0,0,0,0.5);
     }
-    .header-brand { display: flex; flex-direction: column; line-height: 1; }
-    .header-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.04em; color: var(--white); line-height: 1; }
-    .header-logo .ig { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); font-size: 2rem; letter-spacing: 0; }
-    .header-sub { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
-    .header-sub span { color: var(--gold); font-weight: 600; }
-    .sync-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.07); border: 1px solid var(--border);
-      border-radius: 20px; padding: 7px 13px;
-      color: var(--white); font-size: 0.75rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    .hlogo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.04em;color:var(--white);line-height:1}
+    .hlogo em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:2rem;letter-spacing:0}
+    .hsub{font-size:0.7rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px}
+    .hsub b{color:var(--gold);font-weight:600}
+    .sync-btn{
+      display:flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,0.07);border:1px solid var(--border);
+      border-radius:20px;padding:7px 13px;color:var(--white);
+      font-size:0.75rem;font-weight:600;cursor:pointer;
+      transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0;
     }
-    .sync-btn:hover { background: rgba(255,255,255,0.13); border-color: var(--gold); }
-    .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; flex-shrink: 0; animation: pdot 1.5s ease-in-out infinite; }
-    .sync-dot.err { background: #EF4444; animation: none; }
-    .sync-dot.loading { background: var(--gold); }
-    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sync-btn:hover{border-color:var(--gold)}
+    .sdot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:pdot 1.5s ease-in-out infinite}
+    .sdot.err{background:#EF4444;animation:none}
+    .sdot.spin{background:var(--gold)}
+    @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
 
-    /* STATS BAR */
-    .stats-bar {
-      position: sticky; top: var(--header-h, 73px); z-index: 95;
-      background: var(--navy-mid); border-bottom: 1px solid var(--border);
-      padding: 10px 20px;
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    /* ── STATS BAR ── */
+    #statsBar{
+      position:sticky;top:var(--header-h);z-index:200;
+      background:var(--navy-mid);border-bottom:1px solid var(--border);
+      padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.4);
     }
-    .stat { text-align: center; padding: 6px 2px; }
-    .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--gold); line-height: 1; }
-    .stat-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+    .stat{text-align:center;padding:5px 2px}
+    .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);line-height:1}
+    .stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px}
 
-    /* CONTROLS */
-    .controls {
-      position: sticky; top: var(--controls-top, 160px); z-index: 90;
-      background: var(--navy); border-bottom: 1px solid var(--border);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    /* ── CONTROLS ── */
+    #controls{
+      position:sticky;top:calc(var(--header-h) + var(--statsbar-h));z-index:100;
+      background:var(--navy);border-bottom:1px solid var(--border);
+      box-shadow:0 4px 16px rgba(0,0,0,0.4);
     }
-    .platform-strip {
-      padding: 10px 20px 0;
-      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap;
+    .pstrip{
+      padding:10px 20px 0;
+      display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
     }
-    .platform-strip::-webkit-scrollbar { display: none; }
-    .platform-chip {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 0; border-bottom: 2.5px solid transparent;
-      cursor: pointer; white-space: nowrap; font-size: 0.78rem; font-weight: 600;
-      color: var(--muted); user-select: none; flex-shrink: 0; transition: all 0.2s;
+    .pstrip::-webkit-scrollbar{display:none}
+    .pchip{
+      display:flex;align-items:center;gap:6px;
+      padding:8px 14px;border-bottom:2.5px solid transparent;
+      cursor:pointer;white-space:nowrap;font-size:0.76rem;font-weight:600;
+      color:var(--muted);flex-shrink:0;transition:all 0.18s;
     }
-    .platform-chip.active { color: var(--white); border-bottom-color: var(--gold); }
-    .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .view-row {
-      padding: 8px 20px 10px;
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    .pchip.active{color:var(--white)}
+    .pchip[data-key="all"].active{border-bottom-color:var(--gold)}
+    .pchip[data-key="west"].active{border-bottom-color:var(--orange);color:var(--orange)}
+    .pchip[data-key="caz"].active{border-bottom-color:var(--blue);color:var(--blue)}
+    .pchip[data-key="fcp"].active{border-bottom-color:var(--green);color:var(--green)}
+    .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .vrow{
+      padding:8px 20px 10px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
     }
-    .view-btns { display: flex; background: var(--card-bg); border-radius: 8px; padding: 3px; gap: 2px; }
-    .view-btn {
-      padding: 5px 14px; border-radius: 6px; border: none; background: transparent;
-      font-size: 0.75rem; font-weight: 600; color: var(--muted);
-      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    .vbtns{display:flex;background:var(--card-bg);border-radius:8px;padding:3px;gap:2px}
+    .vbtn{
+      padding:5px 16px;border-radius:6px;border:none;background:transparent;
+      font-size:0.75rem;font-weight:600;color:var(--muted);
+      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
     }
-    .view-btn.active { background: var(--navy-light); color: var(--gold); }
-    .month-nav-row { display: flex; align-items: center; gap: 8px; }
-    .mnav-btn {
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    .vbtn.active{background:var(--navy-light);color:var(--gold)}
+    .mnav{display:flex;align-items:center;gap:6px}
+    .mnav-arr{
+      background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
+      border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:1.1rem;
+      display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+      font-family:'DM Sans',sans-serif;
     }
-    .mnav-btn:hover { border-color: var(--gold); color: var(--gold); }
-    .mnav-today {
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 6px; padding: 0 10px; height: 30px;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    .mnav-arr:hover{border-color:var(--gold);color:var(--gold)}
+    .mnav-today{
+      background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
+      border-radius:6px;padding:0 10px;height:30px;
+      font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
+      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
     }
-    .mnav-today:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
-    .mnav-period { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.07em; color: var(--white); min-width: 130px; text-align: center; }
+    .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+    #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.07em;color:var(--white);min-width:130px;text-align:center}
 
-    /* MAIN */
-    main { padding: 14px 20px 80px; }
+    /* ── MAIN ── */
+    main{padding:14px 20px 80px}
 
-    /* LIST */
-    .day-group { margin-bottom: 20px; }
-    .day-label {
-      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--muted); margin-bottom: 8px;
-      display: flex; align-items: center; gap: 8px;
+    /* ── LIST ── */
+    .dgroup{margin-bottom:20px}
+    .dlabel{
+      font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;
+      color:var(--muted);margin-bottom:8px;
+      display:flex;align-items:center;gap:8px;
     }
-    .day-label::after { content:''; flex:1; height:1px; background:var(--border); }
-    .day-label.is-today { color: var(--gold); }
-    .today-pill {
-      font-size: 0.6rem; font-weight: 700; background: var(--gold); color: var(--navy);
-      padding: 2px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+    .dlabel::after{content:'';flex:1;height:1px;background:var(--border)}
+    .dlabel.today{color:var(--gold)}
+    .tpill{font-size:0.58rem;font-weight:700;background:var(--gold);color:var(--navy);padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:0.06em}
+    .ecard{
+      background:var(--card-bg);border:1px solid var(--border);
+      border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;
+      display:flex;align-items:flex-start;gap:10px;
+      transition:border-color 0.2s,transform 0.15s;cursor:pointer;
     }
-    .event-card {
-      background: var(--card-bg); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
-      display: flex; align-items: flex-start; gap: 10px;
-      transition: border-color 0.2s, transform 0.15s; cursor: pointer;
-    }
-    .event-card:hover { border-color: rgba(245,197,24,0.35); transform: translateX(2px); }
-    .ev-time {
-      min-width: 48px; text-align: right; font-family: 'DM Mono', monospace;
-      font-size: 0.7rem; font-weight: 600; color: var(--muted); padding-top: 2px; line-height: 1.5; flex-shrink: 0;
-    }
-    .ev-time small { font-weight: 400; display: block; }
-    .ev-stripe { width: 3px; border-radius: 3px; align-self: stretch; flex-shrink: 0; }
-    .ev-body { flex: 1; min-width: 0; }
-    .ev-title { font-weight: 700; font-size: 0.88rem; color: var(--white); margin-bottom: 3px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ev-loc {
-      display: flex; align-items: center; gap: 4px;
-      color: var(--gold-dim); font-size: 0.72rem; text-decoration: none; margin-top: 4px; transition: color 0.15s;
-    }
-    .ev-loc:hover { color: var(--gold); }
-    .ev-tags { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
-    .ev-tag { font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.04em; }
-    .conflict-banner {
-      background: rgba(220,38,38,0.12); border-left: 3px solid #DC2626;
-      border-radius: 8px; padding: 9px 12px; margin-bottom: 8px;
-      font-size: 0.75rem; font-weight: 600; color: #FCA5A5;
-      display: flex; align-items: center; gap: 7px;
-    }
+    .ecard:hover{border-color:rgba(245,197,24,0.3);transform:translateX(2px)}
+    .etime{min-width:46px;text-align:right;font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:600;color:var(--muted);padding-top:2px;line-height:1.5;flex-shrink:0}
+    .etime small{font-weight:400;display:block}
+    .estripe{width:3px;border-radius:3px;align-self:stretch;flex-shrink:0}
+    .ebody{flex:1;min-width:0}
+    .etitle{font-weight:700;font-size:0.88rem;color:var(--white);margin-bottom:3px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .eloc{display:flex;align-items:center;gap:4px;color:var(--gold-dim);font-size:0.7rem;text-decoration:none;margin-top:4px;transition:color 0.15s}
+    .eloc:hover{color:var(--gold)}
+    .etag{font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.04em;margin-top:5px;display:inline-block}
+    .cbanner{background:rgba(220,38,38,0.1);border-left:3px solid #DC2626;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:0.74rem;font-weight:600;color:#FCA5A5;display:flex;align-items:center;gap:7px}
 
-    /* MONTH */
-    .cal-grid-hdr { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
-    .cal-dow { text-align: center; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 8px 0; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
-    .cal-cell {
-      border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      min-height: 80px; padding: 5px; cursor: pointer; transition: background 0.15s;
-    }
-    .cal-cell:nth-child(7n) { border-right: none; }
-    .cal-cell:hover { background: rgba(245,197,24,0.05); }
-    .cal-cell.other-month { opacity: 0.3; }
-    .cal-cell.today-cell { background: rgba(245,197,24,0.07); }
-    .cal-num { font-size: 0.72rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    .cal-cell.today-cell .cal-num { background: var(--gold); color: var(--navy); font-weight: 800; }
-    .cal-ev { font-size: 0.62rem; font-weight: 600; border-radius: 3px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-    .cal-more { font-size: 0.6rem; color: var(--muted); font-weight: 600; padding: 1px 5px; }
+    /* ── MONTH ── */
+    .cghdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
+    .cgdow{text-align:center;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);padding:7px 0}
+    .cg{display:grid;grid-template-columns:repeat(7,1fr)}
+    .ccell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:76px;padding:4px;cursor:pointer;transition:background 0.15s}
+    .ccell:nth-child(7n){border-right:none}
+    .ccell:hover{background:rgba(245,197,24,0.05)}
+    .ccell.om{opacity:0.3}
+    .ccell.tc{background:rgba(245,197,24,0.07)}
+    .cnum{font-size:0.7rem;font-weight:600;color:var(--muted);margin-bottom:3px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+    .ccell.tc .cnum{background:var(--gold);color:var(--navy);font-weight:800}
+    .cev{font-size:0.58rem;font-weight:600;border-radius:3px;padding:2px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    .cmore{font-size:0.58rem;color:var(--muted);font-weight:600;padding:1px 4px}
 
-    /* MODAL */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 500;
-      display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px);
-    }
-    .modal-overlay.show { display: flex; }
-    .modal-sheet {
-      background: var(--navy-mid); border-radius: 20px 20px 0 0;
-      padding: 16px 20px 40px; width: 100%; max-width: 520px;
-      max-height: 80vh; overflow-y: auto; border: 1px solid var(--border);
-    }
-    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
-    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--white); margin-bottom: 3px; }
-    .modal-org { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
-    .modal-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
-    .modal-row:last-of-type { border-bottom: none; }
-    .modal-icon { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
-    .modal-lbl { color: var(--muted); font-size: 0.7rem; font-weight: 500; min-width: 64px; }
-    .modal-val { color: var(--white); font-weight: 600; flex: 1; }
-    .modal-action {
-      width: 100%; background: var(--gold); color: var(--navy); border: none;
-      border-radius: 10px; padding: 13px; font-size: 0.88rem; font-weight: 700;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 7px;
-    }
-    .modal-close {
-      width: 100%; background: var(--card-bg); color: var(--muted);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: 11px; font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 8px;
-    }
+    /* ── MODAL ── */
+    .moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+    .moverlay.show{display:flex}
+    .msheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;max-height:80vh;overflow-y:auto;border:1px solid var(--border)}
+    .mhandle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+    .mtitle{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:3px}
+    .morg{font-size:0.74rem;color:var(--muted);font-weight:500}
+    .mrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+    .mrow:last-of-type{border-bottom:none}
+    .mico{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0}
+    .mlbl{color:var(--muted);font-size:0.7rem;font-weight:500;min-width:64px}
+    .mval{color:var(--white);font-weight:600;flex:1}
+    .mact{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px}
+    .mcls{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
 
-    /* STATES */
-    .state-msg { text-align: center; padding: 52px 20px; color: var(--muted); }
-    .state-msg .icon { font-size: 2.8rem; margin-bottom: 12px; }
-    .state-msg h3 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.3rem; color: var(--white); margin-bottom: 6px; }
-    .state-msg p { font-size: 0.85rem; line-height: 1.6; max-width: 280px; margin: 0 auto; }
-    .loader { display: flex; justify-content: center; align-items: center; gap: 6px; padding: 52px; }
-    .loader span { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: bounce 1s infinite ease-in-out; }
-    .loader span:nth-child(2) { animation-delay: 0.15s; }
-    .loader span:nth-child(3) { animation-delay: 0.3s; }
-    @keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+    /* ── STATES ── */
+    .smsg{text-align:center;padding:52px 20px;color:var(--muted)}
+    .smsg .ico{font-size:2.8rem;margin-bottom:12px}
+    .smsg h3{font-family:'Playfair Display',serif;font-style:italic;font-size:1.3rem;color:var(--white);margin-bottom:6px}
+    .smsg p{font-size:0.85rem;line-height:1.6;max-width:280px;margin:0 auto}
+    .loader{display:flex;justify-content:center;align-items:center;gap:6px;padding:52px}
+    .loader span{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bounce 1s infinite ease-in-out}
+    .loader span:nth-child(2){animation-delay:0.15s}
+    .loader span:nth-child(3){animation-delay:0.3s}
+    @keyframes bounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
 
-    #toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(60px);
-      background: var(--navy-light); border: 1px solid var(--border);
-      color: var(--white); padding: 10px 18px; border-radius: 20px;
-      font-size: 0.8rem; font-weight: 500; transition: transform 0.3s ease;
-      z-index: 600; white-space: nowrap; pointer-events: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy-light);border:1px solid var(--border);color:var(--white);padding:10px 18px;border-radius:20px;font-size:0.8rem;font-weight:500;transition:transform 0.3s ease;z-index:600;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+    #toast.show{transform:translateX(-50%) translateY(0)}
 
-    @media (max-width: 480px) {
-      .stats-bar { grid-template-columns: repeat(2,1fr); }
-      .cal-cell { min-height: 60px; padding: 3px; }
-      .cal-ev { font-size: 0.55rem; }
+    @media(max-width:480px){
+      #statsBar{grid-template-columns:repeat(2,1fr)}
+      .ccell{min-height:58px;padding:3px}
+      .cev{font-size:0.52rem}
     }
   </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header id="siteHeader">
-  <div class="header-brand">
-    <div class="header-logo">Home<span class="ig">Huddle</span></div>
-    <div class="header-sub">Dominic's schedule · powered by <span>Venuewise</span></div>
+  <div>
+    <div class="hlogo">Home<em>Huddle</em></div>
+    <div class="hsub">Dominic's schedule · powered by <b>Venuewise</b></div>
   </div>
-  <button class="sync-btn" id="syncBtn" onclick="loadEvents(true)">
-    <div class="sync-dot" id="syncDot"></div>
-    <span id="syncText">Synced</span>
+  <button class="sync-btn" onclick="loadEvents(true)">
+    <div class="sdot" id="sdot"></div>
+    <span id="stext">Synced</span>
   </button>
 </header>
 
-<div class="stats-bar" id="statsBar">
-  <div class="stat"><div class="stat-val" id="statTotal">—</div><div class="stat-label">Events</div></div>
-  <div class="stat"><div class="stat-val" id="statWeek">—</div><div class="stat-label">This Week</div></div>
-  <div class="stat"><div class="stat-val" id="statConflicts">—</div><div class="stat-label">Conflicts</div></div>
-  <div class="stat"><div class="stat-val" id="statUpdated">—</div><div class="stat-label">Updated</div></div>
+<!-- STATS BAR -->
+<div id="statsBar">
+  <div class="stat"><div class="stat-val" id="stTotal">—</div><div class="stat-lbl">Events</div></div>
+  <div class="stat"><div class="stat-val" id="stWeek">—</div><div class="stat-lbl">This Week</div></div>
+  <div class="stat"><div class="stat-val" id="stConfl">—</div><div class="stat-lbl">Conflicts</div></div>
+  <div class="stat"><div class="stat-val" id="stTime">—</div><div class="stat-lbl">Updated</div></div>
 </div>
 
-<div class="controls" id="controls">
-  <div class="platform-strip" id="platformStrip">
-    <div class="platform-chip active" onclick="filterPlatform('all',this)">
-      <span class="chip-dot" style="background:var(--gold)"></span>All Sports
-    </div>
+<!-- CONTROLS -->
+<div id="controls">
+  <div class="pstrip">
+    <div class="pchip active" data-key="all"  onclick="setPlatform('all',this)"><span class="cdot" style="background:var(--gold)"></span>All Sports</div>
+    <div class="pchip"        data-key="west" onclick="setPlatform('west',this)"><span class="cdot" style="background:var(--orange)"></span>West Modified</div>
+    <div class="pchip"        data-key="caz"  onclick="setPlatform('caz',this)"><span class="cdot" style="background:var(--blue)"></span>Caz Chiefs</div>
+    <div class="pchip"        data-key="fcp"  onclick="setPlatform('fcp',this)"><span class="cdot" style="background:var(--green)"></span>FCP Baseball</div>
   </div>
-  <div class="view-row">
-    <div class="view-btns">
-      <button class="view-btn active" id="btnList"  onclick="setView('list')">List</button>
-      <button class="view-btn"        id="btnMonth" onclick="setView('month')">Month</button>
+  <div class="vrow">
+    <div class="vbtns">
+      <button class="vbtn active" id="btnList"  onclick="setView('list')">List</button>
+      <button class="vbtn"        id="btnMonth" onclick="setView('month')">Month</button>
     </div>
-    <div class="month-nav-row">
-      <button class="mnav-btn" onclick="navigate(-1)">&#8249;</button>
-      <div class="mnav-period" id="calPeriod">—</div>
+    <div class="mnav">
+      <button class="mnav-arr" onclick="navigate(-1)">&#8249;</button>
+      <div id="calPeriod">—</div>
       <button class="mnav-today" onclick="goToday()">Today</button>
-      <button class="mnav-btn" onclick="navigate(1)">&#8250;</button>
+      <button class="mnav-arr" onclick="navigate(1)">&#8250;</button>
     </div>
   </div>
 </div>
 
+<!-- CONTENT -->
 <main id="calContent">
   <div class="loader"><span></span><span></span><span></span></div>
 </main>
 
-<div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-sheet" id="modalContent"></div>
+<!-- MODAL -->
+<div class="moverlay" id="evModal" onclick="if(event.target===this)closeModal()">
+  <div class="msheet" id="mContent"></div>
 </div>
 <div id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
-const REFRESH_MS   = 5 * 60 * 1000;
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const REFRESH = 5 * 60 * 1000;
 
-// Platform colors matching what calendar.html uses
-const PLATFORM_COLORS = {
-  gamechanger: '#E8721C',  // orange  — West Modified / baseball
-  teamsnap:    '#1E6FD9',  // blue    — Caz Chiefs / hockey
-  teamsnap2:   '#1E6FD9',
+// ── PLATFORM DEFINITIONS ─────────────────────────────────────────
+// key → which Supabase 'platform' values belong to it + display info
+const PLATFORMS = {
+  west: { label:'West Modified', color:'#E8721C', match: v => v==='gamechanger' && true  },
+  caz:  { label:'Caz Chiefs',    color:'#1E6FD9', match: v => v==='teamsnap'               },
+  fcp:  { label:'FCP Baseball',  color:'#1EA85A', match: v => false /* set by sport below */ },
 };
-const SPORT_COLORS = ['#E8721C','#1E6FD9','#1EA85A','#A855F7','#F59E0B','#06B6D4'];
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// We distinguish West Modified vs FCP Baseball both using 'gamechanger'
+// by the event name / sport field
+function platformKey(row) {
+  const plat  = (row.platform||'').toLowerCase();
+  const sport = (row.sport||'').toLowerCase();
+  const name  = (row.name||'').toLowerCase();
+  if (plat === 'teamsnap') return 'caz';
+  if (plat === 'gamechanger') {
+    // FCP Baseball events contain "fcp" in name or sport = baseball and name contains "fcp"
+    if (name.includes('fcp') || sport.includes('fcp')) return 'fcp';
+    return 'west';
+  }
+  // fallback by sport
+  if (sport === 'hockey') return 'caz';
+  if (name.includes('fcp')) return 'fcp';
+  return 'west';
+}
 
-let allEvents      = [];
-let platformMap    = {};
-let currentView    = 'list';
-let currentDate    = new Date();
-let activePlatform = 'all';
-let lastLoad       = null;
+function colorFor(key) {
+  return PLATFORMS[key]?.color || '#7A8FAD';
+}
 
-// ── STICKY OFFSETS ───────────────────────────────────────────────
-function setStickyOffsets() {
+const sb = window.supabase.createClient(SURL, SKEY);
+
+let allEvents    = [];
+let activeKey    = 'all';
+let currentView  = 'list';
+let currentDate  = new Date();
+let lastLoad     = null;
+
+// ── STICKY: measure actual heights ──────────────────────────────
+function fixSticky() {
   const hh = document.getElementById('siteHeader').offsetHeight;
   const sh = document.getElementById('statsBar').offsetHeight;
-  document.documentElement.style.setProperty('--header-h',    hh + 'px');
-  document.documentElement.style.setProperty('--controls-top',(hh + sh) + 'px');
+  document.documentElement.style.setProperty('--header-h',   hh + 'px');
+  document.documentElement.style.setProperty('--statsbar-h', sh + 'px');
 }
-window.addEventListener('resize', setStickyOffsets);
+window.addEventListener('resize', fixSticky);
 
 // ── LOAD ─────────────────────────────────────────────────────────
-async function loadEvents(manual = false) {
-  if (manual) setSync('loading', 'Syncing…');
+async function loadEvents(manual=false) {
+  if (manual) setSync('spin','Syncing…');
   try {
     const now   = new Date();
-    const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const end   = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const past  = new Date(now - 30*864e5);
+    const ahead = new Date(now.getTime() + 365*864e5);
 
-    // Query directly — kid = 'dominic', no is_duplicate filter that might mismatch
     const { data, error } = await sb
       .from('events')
-      .select('uid, name, kid, platform, sport, start, end, location, description, conflict, is_duplicate')
-      .eq('kid', 'dominic')
-      .gte('start', start.toISOString())
-      .lte('start', end.toISOString())
-      .order('start', { ascending: true });
+      .select('uid,name,kid,platform,sport,start,end,location,description,conflict,is_duplicate')
+      .eq('kid','dominic')
+      .gte('start', past.toISOString())
+      .lte('start', ahead.toISOString())
+      .order('start',{ascending:true});
 
     if (error) throw error;
 
-    // Build platformMap dynamically from results
-    const platforms = [...new Set((data||[]).map(e => e.platform).filter(Boolean))];
-    platformMap = {};
-    platforms.forEach((p, i) => {
-      platformMap[p] = {
-        color: PLATFORM_COLORS[p.toLowerCase()] || SPORT_COLORS[i % SPORT_COLORS.length],
-        short: p.substring(0,2).toUpperCase(),
-        name:  p,
-      };
-    });
-
-    buildPlatformStrip(platforms);
-
-    lastLoad   = new Date();
-    allEvents  = (data || [])
-      .filter(e => !e.is_duplicate)
-      .map(row => ({
-        id:          row.uid,
-        name:        row.name || 'Event',
-        kid:         row.kid  || 'dominic',
-        platform:    row.platform || '',
-        sport:       row.sport    || '',
-        start:       new Date(row.start),
-        end:         new Date(row.end),
-        location:    row.location    || '',
-        description: row.description || '',
-        conflict:    row.conflict    || false,
-        color:       platformMap[row.platform]?.color || SPORT_COLORS[0],
+    lastLoad  = new Date();
+    allEvents = (data||[])
+      .filter(r => !r.is_duplicate)
+      .map(r => ({
+        id:   r.uid,
+        name: r.name || 'Event',
+        kid:  r.kid  || 'dominic',
+        platform: r.platform || '',
+        sport:    r.sport    || '',
+        start:    new Date(r.start),
+        end:      new Date(r.end),
+        location:    r.location    || '',
+        description: r.description || '',
+        conflict:    r.conflict    || false,
+        pkey:  platformKey(r),
+        color: colorFor(platformKey(r)),
       }))
       .filter(e => !isNaN(e.start));
 
-    setStickyOffsets();
+    fixSticky();
     updateStats();
     render();
-    setSync('ok', 'Synced');
+    setSync('ok','Synced');
     if (manual) showToast('✓ Refreshed — ' + allEvents.length + ' events loaded');
-
   } catch(err) {
-    console.error('loadEvents error:', err);
-    setSync('err', 'Error');
-    document.getElementById('calContent').innerHTML = `
-      <div class="state-msg">
-        <div class="icon">⚠️</div>
-        <h3>Could not load</h3>
-        <p>${esc(err.message)}</p>
-      </div>`;
+    console.error(err);
+    setSync('err','Error');
+    document.getElementById('calContent').innerHTML =
+      `<div class="smsg"><div class="ico">⚠️</div><h3>Could not load</h3><p>${esc(err.message)}</p></div>`;
   }
 }
 
-// ── PLATFORM STRIP ───────────────────────────────────────────────
-function buildPlatformStrip(platforms) {
-  // Sport labels from what we know about this family
-  const sportLabel = {
-    gamechanger: 'West Modified / FCP Baseball',
-    teamsnap:    'Caz Chiefs Hockey',
-  };
-  let html = `<div class="platform-chip active" onclick="filterPlatform('all',this)">
-    <span class="chip-dot" style="background:var(--gold)"></span>All Sports</div>`;
-  platforms.forEach(p => {
-    const pm = platformMap[p];
-    html += `<div class="platform-chip" onclick="filterPlatform('${esc(p)}',this)">
-      <span class="chip-dot" style="background:${pm.color}"></span>${sportLabel[p.toLowerCase()] || pm.name}</div>`;
-  });
-  document.getElementById('platformStrip').innerHTML = html;
+// ── FILTER ───────────────────────────────────────────────────────
+function filtered() {
+  if (activeKey === 'all') return allEvents;
+  return allEvents.filter(e => e.pkey === activeKey);
 }
 
-// ── FILTER ───────────────────────────────────────────────────────
-function filterPlatform(p, el) {
-  activePlatform = p;
-  document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
+function setPlatform(key, el) {
+  activeKey = key;
+  document.querySelectorAll('.pchip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   updateStats();
   render();
-}
-function filtered() {
-  if (activePlatform === 'all') return allEvents;
-  return allEvents.filter(e => e.platform === activePlatform);
 }
 
 // ── STATS ────────────────────────────────────────────────────────
 function updateStats() {
   const now = new Date();
-  const weekEnd = new Date(now.getTime() + 7*24*60*60*1000);
+  const w7  = new Date(now.getTime() + 7*864e5);
   const evts = filtered();
-  document.getElementById('statTotal').textContent     = evts.length;
-  document.getElementById('statWeek').textContent      = evts.filter(e => e.start >= now && e.start <= weekEnd).length;
-  document.getElementById('statConflicts').textContent = evts.filter(e => e.conflict).length;
-  document.getElementById('statUpdated').textContent   = lastLoad
-    ? lastLoad.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-    : '—';
+  document.getElementById('stTotal').textContent = evts.length;
+  document.getElementById('stWeek').textContent  = evts.filter(e=>e.start>=now&&e.start<=w7).length;
+  document.getElementById('stConfl').textContent = evts.filter(e=>e.conflict).length;
+  document.getElementById('stTime').textContent  = lastLoad
+    ? lastLoad.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
 }
 
 // ── VIEW ─────────────────────────────────────────────────────────
 function setView(v) {
   currentView = v;
-  if (v === 'month') currentDate = new Date();
+  if (v==='month') currentDate = new Date();
   document.getElementById('btnList').classList.toggle('active',  v==='list');
   document.getElementById('btnMonth').classList.toggle('active', v==='month');
   render();
 }
+
 function navigate(dir) {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+dir, 1);
   render();
 }
+
 function goToday() {
   currentDate = new Date();
-  if (currentView === 'list') {
+  if (currentView==='list') {
     render();
-    setTimeout(() => {
-      const el = document.querySelector('.day-label.is-today');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
-  } else {
-    render();
-  }
+    setTimeout(()=>{
+      const el=document.querySelector('.dlabel.today');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    },80);
+  } else render();
 }
+
 function render() {
-  if (currentView === 'list') renderList();
-  else renderMonth();
+  currentView==='list' ? renderList() : renderMonth();
 }
 
 // ── LIST ─────────────────────────────────────────────────────────
 function renderList() {
-  const y = currentDate.getFullYear(), m = currentDate.getMonth();
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const MO     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  document.getElementById('calPeriod').textContent = MONTHS[m] + ' ' + y;
+  const y=currentDate.getFullYear(), m=currentDate.getMonth();
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('calPeriod').textContent = MONTHS[m]+' '+y;
 
-  const monthStart = new Date(y, m, 1);
-  const monthEnd   = new Date(y, m+1, 0, 23, 59, 59);
-  const dayMap = {};
+  const ms=new Date(y,m,1), me=new Date(y,m+1,0,23,59,59);
+  const map={};
+  filtered().filter(e=>e.start>=ms&&e.start<=me).forEach(e=>{
+    const k=e.start.toDateString();
+    (map[k]=map[k]||[]).push(e);
+  });
 
-  filtered()
-    .filter(e => e.start >= monthStart && e.start <= monthEnd)
-    .forEach(e => {
-      const k = e.start.toDateString();
-      (dayMap[k] = dayMap[k] || []).push(e);
-    });
+  const tds=new Date().toDateString();
+  let html='';
 
-  const todayStr = new Date().toDateString();
-  let html = '';
+  Object.entries(map).forEach(([ds,evs])=>{
+    const dt=new Date(ds);
+    const isTd=ds===tds;
+    const isPast=dt<new Date()&&!isTd;
+    const pl=PLATFORMS[evs[0]?.pkey];
 
-  Object.entries(dayMap).forEach(([dateStr, dayEvs]) => {
-    const dt      = new Date(dateStr);
-    const isToday = dateStr === todayStr;
-    const isPast  = dt < new Date() && !isToday;
-
-    html += `<div class="day-group"${isPast?' style="opacity:0.6"':''}>
-      <div class="day-label${isToday?' is-today':''}">
-        ${DAYS[dt.getDay()]}, ${MO[dt.getMonth()]} ${dt.getDate()}
-        ${isToday?'<span class="today-pill">Today</span>':''}
+    html+=`<div class="dgroup"${isPast?' style="opacity:0.6"':''}>
+      <div class="dlabel${isTd?' today':''}">
+        ${DN[dt.getDay()]}, ${MO[dt.getMonth()]} ${dt.getDate()}
+        ${isTd?'<span class="tpill">Today</span>':''}
       </div>`;
 
-    const conflicts = dayEvs.filter(e => e.conflict);
-    if (conflicts.length)
-      html += `<div class="conflict-banner">⚠️ ${conflicts.length} scheduling conflict${conflicts.length>1?'s':''} on this day</div>`;
+    const confs=evs.filter(e=>e.conflict);
+    if(confs.length) html+=`<div class="cbanner">⚠️ ${confs.length} scheduling conflict${confs.length>1?'s':''} on this day</div>`;
 
-    dayEvs.forEach(e => {
-      const pm = platformMap[e.platform] || { color:'#7A8FAD', short:'??', name: e.platform };
-      html += `<div class="event-card" onclick='showModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
-        <div class="ev-time">${fmtTime(e.start)}<small>${fmtTime(e.end)}</small></div>
-        <div class="ev-stripe" style="background:${e.color}"></div>
-        <div class="ev-body">
-          <div class="ev-title">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
-          ${e.location ? `<a class="ev-loc"
-            href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}"
-            onclick="event.stopPropagation()" target="_blank" rel="noopener">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-              <circle cx="12" cy="9" r="2.5"/>
-            </svg>${esc(e.location)}</a>` : ''}
-          <div class="ev-tags">
-            <span class="ev-tag" style="background:${e.color}22;color:${e.color}">${esc(pm.short)} · ${esc(e.sport||pm.name)}</span>
-          </div>
+    evs.forEach(e=>{
+      const label=PLATFORMS[e.pkey]?.label||e.platform;
+      html+=`<div class="ecard" onclick='showModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
+        <div class="etime">${fmtT(e.start)}<small>${fmtT(e.end)}</small></div>
+        <div class="estripe" style="background:${e.color}"></div>
+        <div class="ebody">
+          <div class="etitle">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
+          ${e.location?`<a class="eloc" href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}" onclick="event.stopPropagation()" target="_blank" rel="noopener">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            ${esc(e.location)}</a>`:''}
+          <span class="etag" style="background:${e.color}22;color:${e.color}">${esc(label)}</span>
         </div>
       </div>`;
     });
-    html += `</div>`;
+    html+='</div>';
   });
 
-  if (!html) html = `<div class="state-msg"><div class="icon">📅</div><h3>No events this month</h3>
-    <p>No games or practices found for ${MONTHS[m]} ${y}.</p></div>`;
-  document.getElementById('calContent').innerHTML = html;
+  if(!html) html=`<div class="smsg"><div class="ico">📅</div><h3>No events this month</h3><p>No games or practices in ${MONTHS[m]} ${y}.</p></div>`;
+  document.getElementById('calContent').innerHTML=html;
 }
 
 // ── MONTH ────────────────────────────────────────────────────────
 function renderMonth() {
-  const y = currentDate.getFullYear(), m = currentDate.getMonth();
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calPeriod').textContent = MONTHS[m] + ' ' + y;
+  const y=currentDate.getFullYear(), m=currentDate.getMonth();
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calPeriod').textContent=MONTHS[m]+' '+y;
 
-  const firstDow    = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const today       = new Date();
-  const dows        = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const firstDow=new Date(y,m,1).getDay();
+  const dim=new Date(y,m+1,0).getDate();
+  const today=new Date();
+  const dows=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const total=Math.ceil((dim+firstDow)/7)*7;
 
-  let html = `<div class="cal-grid-hdr">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div><div class="cal-grid">`;
-  const total = Math.ceil((daysInMonth + firstDow) / 7) * 7;
+  let html=`<div class="cghdr">${dows.map(d=>`<div class="cgdow">${d}</div>`).join('')}</div><div class="cg">`;
 
-  for (let i = 0, day = 1 - firstDow; i < total; i++, day++) {
-    const cellDate  = new Date(y, m, day);
-    const thisMonth = cellDate.getMonth() === m;
-    const isToday   = cellDate.toDateString() === today.toDateString();
-    const dayEvs    = filtered().filter(e => e.start.toDateString() === cellDate.toDateString());
-    const cls = ['cal-cell', !thisMonth?'other-month':'', isToday?'today-cell':''].filter(Boolean).join(' ');
+  for(let i=0,day=1-firstDow;i<total;i++,day++){
+    const cd=new Date(y,m,day);
+    const tm=cd.getMonth()===m;
+    const isTd=cd.toDateString()===today.toDateString();
+    const evs=filtered().filter(e=>e.start.toDateString()===cd.toDateString());
+    const cls=['ccell',!tm?'om':'',isTd?'tc':''].filter(Boolean).join(' ');
 
-    html += `<div class="${cls}" onclick="goToDate(${cellDate.getTime()})">
-      <div class="cal-num">${cellDate.getDate()}</div>`;
-    dayEvs.slice(0,3).forEach(e => {
-      html += `<div class="cal-ev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}"
+    html+=`<div class="${cls}" onclick="goToDate(${cd.getTime()})"><div class="cnum">${cd.getDate()}</div>`;
+    evs.slice(0,3).forEach(e=>{
+      html+=`<div class="cev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}"
         onclick="event.stopPropagation();showModal(${JSON.stringify(e).replace(/'/g,'&#39;')})">${e.conflict?'⚠️':''}${esc(e.name)}</div>`;
     });
-    if (dayEvs.length > 3) html += `<div class="cal-more">+${dayEvs.length-3} more</div>`;
-    html += `</div>`;
+    if(evs.length>3) html+=`<div class="cmore">+${evs.length-3} more</div>`;
+    html+='</div>';
   }
-  html += `</div>`;
-  document.getElementById('calContent').innerHTML = html;
+  html+='</div>';
+  document.getElementById('calContent').innerHTML=html;
 }
 
-function goToDate(ts) {
-  currentDate = new Date(ts);
+function goToDate(ts){
+  currentDate=new Date(ts);
   setView('list');
 }
 
 // ── MODAL ────────────────────────────────────────────────────────
-function showModal(ev) {
-  if (typeof ev === 'string') ev = JSON.parse(ev);
-  const pm = platformMap[ev.platform] || { color:'#7A8FAD', name: ev.platform||'' };
-  const s  = new Date(ev.start), e = new Date(ev.end);
-  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const MO     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function showModal(ev){
+  if(typeof ev==='string') ev=JSON.parse(ev);
+  const s=new Date(ev.start), e=new Date(ev.end);
+  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const label=PLATFORMS[ev.pkey]?.label||ev.platform;
 
-  document.getElementById('modalContent').innerHTML = `
-    <div class="modal-handle"></div>
-    ${ev.conflict?`<div class="conflict-banner" style="margin-bottom:12px">⚠️ Schedule conflict — overlaps with another event</div>`:''}
+  document.getElementById('mContent').innerHTML=`
+    <div class="mhandle"></div>
+    ${ev.conflict?`<div class="cbanner" style="margin-bottom:12px">⚠️ Schedule conflict — overlaps with another event</div>`:''}
     <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
       <div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:${ev.color}"></div>
-      <div>
-        <div class="modal-title">${esc(ev.name)}</div>
-        <div class="modal-org">${esc(ev.kid)} · ${esc(ev.sport||pm.name)}</div>
-      </div>
+      <div><div class="mtitle">${esc(ev.name)}</div><div class="morg">${esc(ev.kid)} · ${esc(label)}</div></div>
     </div>
-    <div class="modal-row">
-      <div class="modal-icon">📅</div><div class="modal-lbl">Date</div>
-      <div class="modal-val">${DAYS[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div>
-    </div>
-    <div class="modal-row">
-      <div class="modal-icon">🕐</div><div class="modal-lbl">Time</div>
-      <div class="modal-val">${fmtTime(s)} – ${fmtTime(e)}</div>
-    </div>
-    ${ev.location?`<a class="modal-row" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}"
-      target="_blank" rel="noopener" style="text-decoration:none">
-      <div class="modal-icon">📍</div><div class="modal-lbl">Location</div>
-      <div class="modal-val" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div>
-      <span style="color:var(--muted)">›</span></a>`:''}
-    ${ev.description?`<div class="modal-row">
-      <div class="modal-icon">📝</div><div class="modal-lbl">Notes</div>
-      <div class="modal-val" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
-    <button class="modal-action" onclick="downloadICS('${esc(String(ev.id))}')">📲 Add to My Calendar</button>
-    <button class="modal-close" onclick="closeModal()">Close</button>`;
-  document.getElementById('eventModal').classList.add('show');
+    <div class="mrow"><div class="mico">📅</div><div class="mlbl">Date</div><div class="mval">${DN[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div></div>
+    <div class="mrow"><div class="mico">🕐</div><div class="mlbl">Time</div><div class="mval">${fmtT(s)} – ${fmtT(e)}</div></div>
+    ${ev.location?`<a class="mrow" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}" target="_blank" rel="noopener" style="text-decoration:none">
+      <div class="mico">📍</div><div class="mlbl">Location</div>
+      <div class="mval" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div><span style="color:var(--muted)">›</span></a>`:''}
+    ${ev.description?`<div class="mrow"><div class="mico">📝</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
+    <button class="mact" onclick="dlICS('${esc(String(ev.id))}')">📲 Add to My Calendar</button>
+    <button class="mcls" onclick="closeModal()">Close</button>`;
+  document.getElementById('evModal').classList.add('show');
 }
 
-function closeModal() { document.getElementById('eventModal').classList.remove('show'); }
+function closeModal(){ document.getElementById('evModal').classList.remove('show'); }
 
-function downloadICS(evId) {
-  const ev = allEvents.find(e => String(e.id) === String(evId));
-  if (!ev) return;
-  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-  const ics = [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HomeHuddle//EN',
-    'BEGIN:VEVENT',
-    `UID:${ev.id}@homehuddle`,
-    `DTSTART:${fmt(new Date(ev.start))}`,
-    `DTEND:${fmt(new Date(ev.end))}`,
-    `SUMMARY:${ev.name}`,
-    `LOCATION:${ev.location||''}`,
-    `DESCRIPTION:${ev.kid} · ${ev.sport} · via HomeHuddle`,
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([ics],{type:'text/calendar'})),
-    download: (ev.name.replace(/[^a-z0-9]/gi,'_')||'event') + '.ics'
+function dlICS(evId){
+  const ev=allEvents.find(e=>String(e.id)===String(evId));
+  if(!ev) return;
+  const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HomeHuddle//EN','BEGIN:VEVENT',
+    `UID:${ev.id}@homehuddle`,`DTSTART:${fmt(new Date(ev.start))}`,`DTEND:${fmt(new Date(ev.end))}`,
+    `SUMMARY:${ev.name}`,`LOCATION:${ev.location||''}`,
+    `DESCRIPTION:${ev.kid} · ${PLATFORMS[ev.pkey]?.label||ev.platform} · via HomeHuddle`,
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([ics],{type:'text/calendar'})),
+    download:(ev.name.replace(/[^a-z0-9]/gi,'_')||'event')+'.ics'
   });
   a.click();
   showToast('📲 Open the .ics file to add to your calendar');
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────
-function fmtTime(d) {
-  const h = d.getHours(), m = d.getMinutes();
-  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${h>=12?'PM':'AM'}`;
-}
-function esc(s) {
-  return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
-}
-function setSync(state, label) {
-  document.getElementById('syncText').textContent = label;
-  const dot = document.getElementById('syncDot');
-  dot.className = 'sync-dot' + (state==='err'?' err': state==='loading'?' loading':'');
+function fmtT(d){const h=d.getHours(),m=d.getMinutes();return`${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${h>=12?'PM':'AM'}`}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+function setSync(state,label){
+  document.getElementById('stext').textContent=label;
+  const d=document.getElementById('sdot');
+  d.className='sdot'+(state==='err'?' err':state==='spin'?' spin':'');
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
-setStickyOffsets();
-loadEvents().then(() => {
-  setStickyOffsets();
-  setTimeout(() => {
-    const el = document.querySelector('.day-label.is-today');
-    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-  }, 200);
+fixSticky();
+loadEvents().then(()=>{
+  fixSticky();
+  setTimeout(()=>{
+    const el=document.querySelector('.dlabel.today');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
 });
-setInterval(() => loadEvents(false), REFRESH_MS);
+setInterval(()=>loadEvents(false), REFRESH);
 </script>
 </body>
 </html>
