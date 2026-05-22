@@ -107,12 +107,16 @@
 
     /* ── STATS BAR ── */
     .stats-bar {
+      position: sticky;
+      top: 73px; /* sits flush below header */
+      z-index: 95;
       background: var(--navy-mid);
       border-bottom: 1px solid var(--border);
       padding: 10px 20px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
 
     .stat {
@@ -137,12 +141,16 @@
 
     /* ── FILTERS ── */
     .controls {
+      position: sticky;
+      top: 163px; /* header ~73px + stats bar ~90px */
+      z-index: 90;
       padding: 14px 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       border-bottom: 1px solid var(--border);
       background: var(--navy);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
     .filter-row {
@@ -325,6 +333,17 @@
       transition: all 0.2s;
     }
     .month-nav button:hover { border-color: var(--gold); color: var(--gold); }
+
+    .today-btn {
+      width: auto !important;
+      padding: 0 12px !important;
+      font-size: 0.72rem !important;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .today-btn:hover { background: var(--gold) !important; color: var(--navy) !important; border-color: var(--gold) !important; }
 
     .month-title {
       font-family: 'Bebas Neue', sans-serif;
@@ -595,6 +614,7 @@
   // ── VIEW TOGGLE ──
   function setView(v) {
     activeView = v;
+    if (v === 'month') monthOffset = 0; // always open on current month
     document.getElementById('list-view').style.display  = v === 'list'  ? 'block' : 'none';
     document.getElementById('month-view').style.display = v === 'month' ? 'block' : 'none';
     document.getElementById('btnList').classList.toggle('active',  v === 'list');
@@ -699,6 +719,7 @@
       <div class="month-nav">
         <button onclick="shiftMonth(-1)">&#8249;</button>
         <div class="month-title">${monthLabel}</div>
+        <button class="today-btn" onclick="goToday()">Today</button>
         <button onclick="shiftMonth(1)">&#8250;</button>
       </div>
       <div class="cal-grid">
@@ -728,6 +749,11 @@
 
   function shiftMonth(delta) {
     monthOffset += delta;
+    renderMonth();
+  }
+
+  function goToday() {
+    monthOffset = 0;
     renderMonth();
   }
 
