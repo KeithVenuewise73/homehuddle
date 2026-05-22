@@ -541,7 +541,7 @@ function renderList() {
         <div class="estripe" style="background:${e.color}"></div>
         <div class="ebody">
           <div class="etitle">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
-          ${e.location?`<span class="eloc" onclick="event.stopPropagation();openMaps(${JSON.stringify(e.location).replace(/'/g,\"&#39;\")})" style="cursor:pointer">
+          ${e.location?`<span class="eloc" data-loc="${esc(e.location)}" onclick="event.stopPropagation();openMaps(this.dataset.loc)" style="cursor:pointer">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
             ${esc(e.location)}</span>`:''}
           <span class="etag" style="background:${e.color}22;color:${e.color}">${esc(label)}</span>
@@ -610,7 +610,7 @@ function showModal(ev){
     </div>
     <div class="mrow"><div class="mico">📅</div><div class="mlbl">Date</div><div class="mval">${DN[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div></div>
     <div class="mrow"><div class="mico">🕐</div><div class="mlbl">Time</div><div class="mval">${fmtT(s)} – ${fmtT(e)}</div></div>
-    ${ev.location?`<div class="mrow" onclick="openMaps('${esc(ev.location)}')" style="cursor:pointer">
+    ${ev.location?`<div class="mrow" data-loc="${esc(ev.location)}" onclick="openMaps(this.dataset.loc)" style="cursor:pointer">
       <div class="mico">📍</div><div class="mlbl">Location</div>
       <div class="mval" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div><span style="color:var(--muted)">›</span></div>`:''}
     ${ev.description?`<div class="mrow"><div class="mico">📝</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
