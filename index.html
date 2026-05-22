@@ -199,6 +199,26 @@
     .mact{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px}
     .mcls{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
 
+    /* ── MAPS PICKER ── */
+    .moverlay-maps{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:700;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+    .moverlay-maps.show{display:flex}
+    .maps-sheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;border:1px solid var(--border)}
+    .maps-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:center;margin-bottom:14px}
+    .maps-loc{font-size:0.82rem;font-weight:600;color:var(--white);text-align:center;margin-bottom:16px;padding:0 12px;line-height:1.4}
+    .maps-btn{
+      width:100%;display:flex;align-items:center;gap:12px;
+      background:var(--card-bg);border:1px solid var(--border);
+      border-radius:10px;padding:13px 16px;margin-bottom:8px;
+      cursor:pointer;font-family:'DM Sans',sans-serif;
+      text-decoration:none;transition:border-color 0.18s;
+    }
+    .maps-btn:hover{border-color:rgba(245,197,24,0.35)}
+    .maps-btn-ico{font-size:1.4rem;width:28px;text-align:center;flex-shrink:0}
+    .maps-btn-label{flex:1;text-align:left}
+    .maps-btn-name{font-size:0.85rem;font-weight:700;color:var(--white);display:block}
+    .maps-btn-sub{font-size:0.68rem;color:var(--muted);display:block;margin-top:1px}
+    .maps-cls{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+
     /* ── STATES ── */
     .smsg{text-align:center;padding:52px 20px;color:var(--muted)}
     .smsg .ico{font-size:2.8rem;margin-bottom:12px}
@@ -279,6 +299,10 @@
 <!-- MODAL -->
 <div class="moverlay" id="evModal" onclick="if(event.target===this)closeModal()">
   <div class="msheet" id="mContent"></div>
+</div>
+<!-- MAPS PICKER -->
+<div class="moverlay-maps" id="mapsModal" onclick="if(event.target===this)closeMaps()">
+  <div class="maps-sheet" id="mapsContent"></div>
 </div>
 <div id="toast"></div>
 
@@ -517,9 +541,9 @@ function renderList() {
         <div class="estripe" style="background:${e.color}"></div>
         <div class="ebody">
           <div class="etitle">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
-          ${e.location?`<a class="eloc" href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}" onclick="event.stopPropagation()" target="_blank" rel="noopener">
+          ${e.location?`<span class="eloc" onclick="event.stopPropagation();openMaps(${JSON.stringify(e.location).replace(/'/g,\"&#39;\")})" style="cursor:pointer">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-            ${esc(e.location)}</a>`:''}
+            ${esc(e.location)}</span>`:''}
           <span class="etag" style="background:${e.color}22;color:${e.color}">${esc(label)}</span>
         </div>
       </div>`;
@@ -586,9 +610,9 @@ function showModal(ev){
     </div>
     <div class="mrow"><div class="mico">📅</div><div class="mlbl">Date</div><div class="mval">${DN[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div></div>
     <div class="mrow"><div class="mico">🕐</div><div class="mlbl">Time</div><div class="mval">${fmtT(s)} – ${fmtT(e)}</div></div>
-    ${ev.location?`<a class="mrow" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}" target="_blank" rel="noopener" style="text-decoration:none">
+    ${ev.location?`<div class="mrow" onclick="openMaps('${esc(ev.location)}')" style="cursor:pointer">
       <div class="mico">📍</div><div class="mlbl">Location</div>
-      <div class="mval" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div><span style="color:var(--muted)">›</span></a>`:''}
+      <div class="mval" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div><span style="color:var(--muted)">›</span></div>`:''}
     ${ev.description?`<div class="mrow"><div class="mico">📝</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
     <button class="mact" onclick="dlICS('${esc(String(ev.id))}')">📲 Add to My Calendar</button>
     <button class="mcls" onclick="closeModal()">Close</button>`;
@@ -612,6 +636,58 @@ function dlICS(evId){
   });
   a.click();
   showToast('📲 Open the .ics file to add to your calendar');
+}
+
+// ── MAPS PICKER ──────────────────────────────────────────────────
+function openMaps(location) {
+  const enc = encodeURIComponent(location);
+  const options = [
+    {
+      ico: '🍎',
+      name: 'Apple Maps',
+      sub: 'Built-in on iPhone & Mac',
+      url: `https://maps.apple.com/?q=${enc}`
+    },
+    {
+      ico: '🗺️',
+      name: 'Google Maps',
+      sub: 'Works on all devices',
+      url: `https://www.google.com/maps/search/?api=1&query=${enc}`
+    },
+    {
+      ico: '🔵',
+      name: 'Waze',
+      sub: 'Community-based navigation',
+      url: `https://waze.com/ul?q=${enc}&navigate=yes`
+    },
+    {
+      ico: '📍',
+      name: 'Default Maps App',
+      sub: 'Opens your preferred app',
+      url: `geo:0,0?q=${enc}`
+    }
+  ];
+
+  document.getElementById('mapsContent').innerHTML = `
+    <div class="mhandle"></div>
+    <div class="maps-title">Open in Maps</div>
+    <div class="maps-loc">📍 ${esc(location)}</div>
+    ${options.map(o => `
+      <a class="maps-btn" href="${o.url}" target="_blank" rel="noopener" onclick="closeMaps()">
+        <div class="maps-btn-ico">${o.ico}</div>
+        <div class="maps-btn-label">
+          <span class="maps-btn-name">${o.name}</span>
+          <span class="maps-btn-sub">${o.sub}</span>
+        </div>
+        <span style="color:var(--muted);font-size:1rem">›</span>
+      </a>`).join('')}
+    <button class="maps-cls" onclick="closeMaps()">Cancel</button>`;
+
+  document.getElementById('mapsModal').classList.add('show');
+}
+
+function closeMaps() {
+  document.getElementById('mapsModal').classList.remove('show');
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────
