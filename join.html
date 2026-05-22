@@ -41,14 +41,10 @@
 
     .wrap { max-width: 520px; margin: 0 auto; }
 
-    .logo {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 2rem;
-    }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; }
     .logo-mark {
       width: 32px; height: 32px; border-radius: 8px;
-      background: var(--green); display: flex; align-items: center;
-      justify-content: center;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
     }
     .logo-mark svg { width: 18px; height: 18px; fill: white; }
     .logo-name { font-size: 16px; font-weight: 500; color: var(--gray-900); }
@@ -61,47 +57,22 @@
       border-radius: 20px; margin-bottom: 1rem;
     }
 
-    h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(26px, 5vw, 34px);
-      line-height: 1.15; color: var(--gray-900);
-      margin-bottom: .5rem;
-    }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(26px,5vw,34px); line-height: 1.15; color: var(--gray-900); margin-bottom: .5rem; }
     h1 em { font-style: italic; color: var(--green); }
 
-    .sub {
-      font-size: 15px; color: var(--gray-400);
-      line-height: 1.6; margin-bottom: 1.75rem;
-    }
+    .sub { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.75rem; }
 
-    .perks {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 8px; margin-bottom: 1.75rem;
-    }
-    .perk {
-      background: white; border: 1px solid var(--gray-200);
-      border-radius: var(--radius-sm); padding: .75rem;
-      text-align: center;
-    }
+    .perks { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.75rem; }
+    .perk { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .75rem; text-align: center; }
     .perk-icon { font-size: 20px; margin-bottom: 4px; }
     .perk span { font-size: 11px; color: var(--gray-400); line-height: 1.4; display: block; }
 
-    .card {
-      background: white; border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg); padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
+    .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
 
-    .section-label {
-      font-size: 11px; font-weight: 500; color: var(--gray-400);
-      letter-spacing: .08em; text-transform: uppercase;
-      margin-bottom: .75rem;
-    }
+    .section-label { font-size: 11px; font-weight: 500; color: var(--gray-400); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .75rem; }
 
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .field { margin-bottom: 12px; }
     .field:last-child { margin-bottom: 0; }
-
     label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
 
     input[type=text], input[type=email], input[type=tel], input[type=url], select {
@@ -109,56 +80,48 @@
       font-family: 'DM Sans', sans-serif;
       background: var(--gray-50); border: 1px solid var(--gray-200);
       border-radius: var(--radius-sm); color: var(--gray-900);
-      outline: none; transition: border-color .15s, box-shadow .15s;
-      appearance: none;
+      outline: none; transition: border-color .15s, box-shadow .15s; appearance: none;
     }
-    input:focus, select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(29,158,117,.1);
-    }
+    input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
     input::placeholder { color: var(--gray-400); }
     input.error { border-color: var(--red); }
 
     .divider { border: none; border-top: 1px solid var(--gray-100); margin: 1.25rem 0; }
 
-    .kids-list { display: flex; flex-direction: column; gap: 10px; }
-    .kid-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
-    .kid-num { font-size: 11px; font-weight: 500; color: var(--gray-400); margin-bottom: 4px; }
+    /* ── KIDS ── */
+    .kids-list { display: flex; flex-direction: column; gap: 16px; }
+    .kid-block {
+      border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+      padding: 1rem; position: relative; background: var(--gray-50);
+    }
+    .kid-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .kid-num { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
     .btn-remove {
-      width: 36px; height: 36px; display: flex; align-items: center;
-      justify-content: center; border: 1px solid var(--gray-200);
-      border-radius: var(--radius-sm); background: none; cursor: pointer;
-      color: var(--gray-400); font-size: 18px; transition: all .15s;
-      flex-shrink: 0;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--gray-200); border-radius: 6px; background: none;
+      cursor: pointer; color: var(--gray-400); font-size: 16px; transition: all .15s;
     }
     .btn-remove:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+    .kid-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 
-    .btn-add-kid {
-      display: flex; align-items: center; gap: 6px; width: 100%;
-      padding: 9px; background: none;
-      border: 1px dashed var(--gray-200); border-radius: var(--radius-sm);
-      font-size: 13px; color: var(--gray-400); cursor: pointer;
-      justify-content: center; margin-top: 10px;
-      font-family: 'DM Sans', sans-serif; transition: all .15s;
-    }
-    .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
-
-    .sports-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    /* ── SPORTS GRID inside each kid ── */
+    .kid-sports { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .sport-btn {
-      padding: 6px 14px; border: 1px solid var(--gray-200);
-      border-radius: 20px; font-size: 13px; color: var(--gray-700);
-      cursor: pointer; transition: all .15s; background: none;
-      font-family: 'DM Sans', sans-serif;
+      padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 20px;
+      font-size: 12px; color: var(--gray-700); cursor: pointer;
+      transition: all .15s; background: none; font-family: 'DM Sans', sans-serif;
     }
-    .sport-btn.active {
-      background: var(--green-light); border-color: var(--green);
-      color: var(--green-text); font-weight: 500;
-    }
+    .sport-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
 
-    .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    /* ── CALENDAR LINK per kid ── */
+    .kid-cal { margin-top: 10px; }
+    .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
     .plat-btn {
       border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
-      padding: .875rem 1rem; cursor: pointer; transition: all .15s;
+      padding: .75rem 1rem; cursor: pointer; transition: all .15s;
       background: white; text-align: left;
     }
     .plat-btn:hover { border-color: var(--green); background: var(--green-light); }
@@ -166,75 +129,65 @@
     .plat-btn-name { font-size: 13px; font-weight: 500; color: var(--gray-900); }
     .plat-btn-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
 
-    .instructions {
-      background: var(--blue-light); border-radius: var(--radius-sm);
-      padding: 1rem; margin: 1rem 0;
-    }
+    .instructions { background: var(--blue-light); border-radius: var(--radius-sm); padding: 1rem; margin: 8px 0; }
     .instructions-title { font-size: 13px; font-weight: 500; color: var(--blue-text); margin-bottom: .5rem; }
     .instructions ol { padding-left: 1.25rem; }
     .instructions li { font-size: 13px; color: var(--blue-text); line-height: 1.7; }
     .instructions strong { font-weight: 500; }
 
+    .ical-field { margin-top: 8px; display: none; }
+
+    .btn-add-kid {
+      display: flex; align-items: center; gap: 6px; width: 100%;
+      padding: 10px; background: none; border: 1px dashed var(--gray-200);
+      border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400);
+      cursor: pointer; justify-content: center; margin-top: 12px;
+      font-family: 'DM Sans', sans-serif; transition: all .15s;
+    }
+    .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
+
     .btn-primary {
-      width: 100%; padding: 13px; background: var(--green);
-      color: white; font-size: 15px; font-weight: 500;
-      font-family: 'DM Sans', sans-serif; border: none;
-      border-radius: var(--radius-sm); cursor: pointer;
+      width: 100%; padding: 13px; background: var(--green); color: white;
+      font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+      border: none; border-radius: var(--radius-sm); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       gap: 8px; margin-top: 1.25rem; transition: background .15s;
     }
     .btn-primary:hover { background: var(--green-dark); }
     .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
 
-    .legal {
-      font-size: 12px; color: var(--gray-400); text-align: center;
-      margin-top: .75rem; line-height: 1.6;
-    }
+    .legal { font-size: 12px; color: var(--gray-400); text-align: center; margin-top: .75rem; line-height: 1.6; }
     .legal a { color: var(--green); text-decoration: none; }
 
-    .error-msg {
-      background: var(--red-light); color: var(--red);
-      font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm);
-      margin-top: 1rem; display: none;
-    }
+    .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
 
-    /* Success screen */
-    .success {
-      display: none; text-align: center; padding: 3rem 1rem;
+    /* ── SETUP SCREEN ── */
+    .setup { display: none; text-align: center; padding: 3rem 1rem; }
+    .setup-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .setup-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .setup h2 { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gray-900); margin-bottom: .5rem; }
+    .setup p { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; }
+    .setup-link {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--gray-100); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 1rem; cursor: pointer;
+      transition: background .15s; border: 1px solid var(--gray-200);
     }
-    .success-icon {
-      width: 64px; height: 64px; background: var(--green-light);
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 1.5rem;
-    }
-    .success-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
-    .success h2 {
-      font-family: 'DM Serif Display', serif; font-size: 28px;
-      color: var(--gray-900); margin-bottom: .5rem;
-    }
-    .success p { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; }
-    .success a {
-      display: inline-block; padding: 12px 24px; background: var(--green);
-      color: white; border-radius: var(--radius-sm); text-decoration: none;
-      font-weight: 500; font-size: 14px;
-    }
+    .setup-link:hover { background: var(--green-light); border-color: var(--green); }
+    .setup-link-url { font-size: 13px; color: var(--gray-700); flex: 1; text-align: left; word-break: break-all; }
+    .setup-link-copy { font-size: 12px; font-weight: 600; color: var(--green); flex-shrink: 0; }
+    .setup-cta { display: inline-block; padding: 12px 24px; background: var(--green); color: white; border-radius: var(--radius-sm); text-decoration: none; font-weight: 500; font-size: 14px; }
 
-    .spinner {
-      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4);
-      border-top-color: white; border-radius: 50%;
-      animation: spin .7s linear infinite; display: none;
-    }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 480px) {
-      .row2 { grid-template-columns: 1fr; }
-      .perks { grid-template-columns: 1fr 1fr 1fr; }
+      .kid-row2 { grid-template-columns: 1fr; }
       .platform-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
-
 <div class="wrap">
   <div class="logo">
     <div class="logo-mark">
@@ -246,7 +199,7 @@
     </div>
   </div>
 
-  <!-- Form -->
+  <!-- FORM -->
   <div id="form-wrap">
     <div class="badge">✦ Free 30-day trial</div>
     <h1>Your family's schedule,<br><em>finally organized.</em></h1>
@@ -258,12 +211,13 @@
       <div class="perk"><div class="perk-icon">30</div><span>Day free trial</span></div>
     </div>
 
+    <!-- Family info -->
     <div class="card">
       <p class="section-label">Your info</p>
       <div class="field">
-          <label for="fname">Family name</label>
-          <input type="text" id="fname" placeholder="D'Amico-Herman" />
-        </div>
+        <label for="fname">Family name</label>
+        <input type="text" id="fname" placeholder="e.g. Herman Family" />
+      </div>
       <div class="field">
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="you@example.com" />
@@ -274,63 +228,12 @@
       </div>
     </div>
 
+    <!-- Kids -->
     <div class="card">
-      <p class="section-label">Your kids</p>
+      <p class="section-label">Your kids & their calendars</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Add each kid and connect their team calendar. You can add multiple sports per kid.</p>
       <div class="kids-list" id="kids-list"></div>
       <button class="btn-add-kid" onclick="addKid()">+ Add another kid</button>
-    </div>
-
-    <div class="card">
-      <p class="section-label">Sports your family plays</p>
-      <div class="sports-grid">
-        <button class="sport-btn" onclick="toggleSport(this)">Baseball</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Hockey</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Soccer</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Basketball</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Lacrosse</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Football</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Wrestling</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Swimming</button>
-        <button class="sport-btn" onclick="toggleSport(this)">Other</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <p class="section-label">Connect your team schedule</p>
-      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Which app does your coach use to post the schedule?</p>
-      <div class="platform-grid" id="platform-grid">
-        <button class="plat-btn" onclick="selectPlatform(this,'gamechanger')">
-          <div class="plat-btn-name">GameChanger</div>
-          <div class="plat-btn-desc">Baseball, softball</div>
-        </button>
-        <button class="plat-btn" onclick="selectPlatform(this,'teamsnap')">
-          <div class="plat-btn-name">TeamSnap</div>
-          <div class="plat-btn-desc">Hockey, soccer, more</div>
-        </button>
-        <button class="plat-btn" onclick="selectPlatform(this,'leagueapps')">
-          <div class="plat-btn-name">LeagueApps</div>
-          <div class="plat-btn-desc">Rec leagues</div>
-        </button>
-        <button class="plat-btn" onclick="selectPlatform(this,'google')">
-          <div class="plat-btn-name">Google Calendar</div>
-          <div class="plat-btn-desc">Any Google cal</div>
-        </button>
-        <button class="plat-btn" onclick="selectPlatform(this,'apple')">
-          <div class="plat-btn-name">Apple Calendar</div>
-          <div class="plat-btn-desc">iPhone / iCloud</div>
-        </button>
-        <button class="plat-btn" onclick="selectPlatform(this,'other')">
-          <div class="plat-btn-name">Other / iCal link</div>
-          <div class="plat-btn-desc">I have a webcal URL</div>
-        </button>
-      </div>
-
-      <div class="instructions" id="instructions" style="display:none"></div>
-
-      <div class="field" id="ical-field" style="display:none;margin-top:1rem">
-        <label for="ical-url">Paste your calendar link here</label>
-        <input type="url" id="ical-url" placeholder="webcal:// or https://" />
-      </div>
     </div>
 
     <div class="error-msg" id="error-msg"></div>
@@ -343,209 +246,282 @@
       <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
   </div>
 
-  <!-- Success -->
-  <div class="success" id="success">
-    <div class="success-icon">
+  <!-- SETUP / SUCCESS SCREEN -->
+  <div class="setup" id="setup">
+    <div class="setup-icon">
       <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
     </div>
     <h2>You're in!</h2>
-    <p>Watch for a confirmation text shortly.<br>Your family's schedule is now live on HomeHuddle.</p>
-    <a href="https://venuewise.net">View your calendar →</a>
+    <p>Your family's schedule is being set up now — it'll be ready in about a minute.<br><br>
+    Bookmark your personal HomeHuddle link:</p>
+    <div class="setup-link" onclick="copyLink()">
+      <div class="setup-link-url" id="setupLinkUrl">—</div>
+      <div class="setup-link-copy" id="copyLabel">Copy</div>
+    </div>
+    <p style="font-size:13px;color:var(--gray-400);margin-bottom:1.5rem">Watch for a confirmation text shortly. We'll alert you any time a game time changes.</p>
+    <a id="viewCalBtn" href="#" class="setup-cta">View my schedule →</a>
   </div>
 </div>
 
 <script>
-  // ── CONFIG ──────────────────────────────────────────────────────
-  const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 
-  // ── PLATFORM INSTRUCTIONS ───────────────────────────────────────
-  const INSTRUCTIONS = {
-    gamechanger: {
-      title: 'Get your GameChanger calendar link',
-      steps: ['Open the <strong>GameChanger app</strong>', 'Tap your team → <strong>Schedule tab</strong>', 'Tap the share/calendar icon (top right)', 'Tap <strong>"Subscribe to Calendar"</strong>', 'Tap Copy — then paste the link below']
-    },
-    teamsnap: {
-      title: 'Get your TeamSnap calendar link',
-      steps: ['Open <strong>TeamSnap</strong>', 'Go to your team → <strong>Schedule</strong>', 'Tap <strong>"Export Schedule"</strong> or the "..." menu', 'Select <strong>iCal / Webcal</strong>', 'Copy the link and paste it below']
-    },
-    leagueapps: {
-      title: 'Get your LeagueApps calendar link',
-      steps: ['Log into <strong>LeagueApps</strong>', 'Go to your team or program page', 'Find the <strong>Calendar</strong> section', 'Click <strong>Export</strong> or <strong>Subscribe</strong>', 'Copy the iCal link and paste it below']
-    },
-    google: {
-      title: 'Get your Google Calendar link',
-      steps: ['Go to <strong>calendar.google.com</strong> on desktop', 'Hover over the calendar name → click the 3 dots → <strong>Settings</strong>', 'Scroll to <strong>"Integrate calendar"</strong>', 'Copy the <strong>Secret address in iCal format</strong>', 'Paste it below']
-    },
-    apple: {
-      title: 'Get your Apple Calendar link',
-      steps: ['Open <strong>Calendar</strong> on your iPhone', 'Tap <strong>Calendars</strong> at the bottom', 'Tap the ⓘ next to the calendar you want', 'Tap <strong>Share Calendar</strong> → turn on <strong>Public Calendar</strong>', 'Copy the link and paste it below']
-    },
-    other: {
-      title: 'Paste your iCal / webcal link',
-      steps: ['Find the <strong>Export</strong> or <strong>Subscribe</strong> option in your app', 'Copy the link — it starts with <strong>webcal://</strong> or <strong>https://</strong>', 'Paste it in the field below']
-    }
-  };
+const SPORTS = ['Baseball','Hockey','Soccer','Basketball','Lacrosse','Football','Wrestling','Swimming','Volleyball','Softball','Other'];
 
-  let kidCount = 0;
-  let selectedPlatform = null;
-  let selectedSports = [];
+const PLATFORMS = {
+  gamechanger: { name: 'GameChanger',      desc: 'Baseball, softball' },
+  teamsnap:    { name: 'TeamSnap',         desc: 'Hockey, soccer, more' },
+  leagueapps:  { name: 'LeagueApps',       desc: 'Rec leagues' },
+  google:      { name: 'Google Calendar',  desc: 'Any Google cal' },
+  apple:       { name: 'Apple Calendar',   desc: 'iPhone / iCloud' },
+  other:       { name: 'Other / iCal link',desc: 'I have a webcal URL' },
+};
 
-  // ── KIDS ────────────────────────────────────────────────────────
-  function addKid() {
-    kidCount++;
-    const list = document.getElementById('kids-list');
-    const div = document.createElement('div');
-    div.className = 'kid-row';
-    div.id = 'kid-' + kidCount;
-    div.innerHTML = `
+const INSTRUCTIONS = {
+  gamechanger: {
+    title: 'Get your GameChanger calendar link',
+    steps: ['Open the <strong>GameChanger app</strong>','Tap your team → <strong>Schedule tab</strong>','Tap the share/calendar icon (top right)','Tap <strong>"Subscribe to Calendar"</strong>','Tap Copy — then paste the link below']
+  },
+  teamsnap: {
+    title: 'Get your TeamSnap calendar link',
+    steps: ['Open <strong>TeamSnap</strong>','Go to your team → <strong>Schedule</strong>','Tap <strong>"Export Schedule"</strong> or the "..." menu','Select <strong>iCal / Webcal</strong>','Copy the link and paste it below']
+  },
+  leagueapps: {
+    title: 'Get your LeagueApps calendar link',
+    steps: ['Log into <strong>LeagueApps</strong>','Go to your team or program page','Find the <strong>Calendar</strong> section','Click <strong>Export</strong> or <strong>Subscribe</strong>','Copy the iCal link and paste it below']
+  },
+  google: {
+    title: 'Get your Google Calendar link',
+    steps: ['Go to <strong>calendar.google.com</strong> on desktop','Hover over the calendar → click 3 dots → <strong>Settings</strong>','Scroll to <strong>"Integrate calendar"</strong>','Copy the <strong>Secret address in iCal format</strong>','Paste it below']
+  },
+  apple: {
+    title: 'Get your Apple Calendar link',
+    steps: ['Open <strong>Calendar</strong> on your iPhone','Tap <strong>Calendars</strong> at the bottom','Tap the ⓘ next to the calendar','Tap <strong>Share Calendar</strong> → turn on <strong>Public Calendar</strong>','Copy the link and paste it below']
+  },
+  other: {
+    title: 'Paste your iCal / webcal link',
+    steps: ['Find the <strong>Export</strong> or <strong>Subscribe</strong> option in your app','Copy the link — it starts with <strong>webcal://</strong> or <strong>https://</strong>','Paste it in the field below']
+  }
+};
+
+let kidCount = 0;
+let familyCalendarUrl = '';
+
+// ── KIDS ─────────────────────────────────────────────────────────
+function addKid() {
+  kidCount++;
+  const id = kidCount;
+  const list = document.getElementById('kids-list');
+  const div = document.createElement('div');
+  div.className = 'kid-block';
+  div.id = 'kid-block-' + id;
+
+  // Build platform buttons HTML
+  const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
+    `<button class="plat-btn" onclick="selectPlatform(${id},'${key}',this)">`+
+    `<div class="plat-btn-name">${p.name}</div>`+
+    `<div class="plat-btn-desc">${p.desc}</div></button>`
+  ).join('');
+
+  // Build sport buttons HTML
+  const sportBtns = SPORTS.map(s =>
+    `<button class="sport-btn" onclick="toggleSport(this,'${s}')">${s}</button>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="kid-block-header">
+      <div class="kid-num">Kid ${id}</div>
+      ${id > 1 ? `<button class="btn-remove" onclick="removeKid(${id})">×</button>` : ''}
+    </div>
+    <div class="kid-row2">
       <div>
-        <div class="kid-num">Kid ${kidCount}</div>
-        <input type="text" placeholder="Name" />
+        <label>First name</label>
+        <input type="text" id="kid-name-${id}" placeholder="e.g. Dominic" />
       </div>
       <div>
-        <div class="kid-num">Age / grade</div>
-        <input type="text" placeholder="e.g. 13 / 8th" />
+        <label>Age / grade</label>
+        <input type="text" id="kid-age-${id}" placeholder="e.g. 13 / 8th" />
       </div>
-      <button class="btn-remove" onclick="removeKid('kid-${kidCount}')" aria-label="Remove">×</button>`;
-    list.appendChild(div);
-  }
+    </div>
+    <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px;display:block">Sports</label>
+    <div class="kid-sports" id="kid-sports-${id}">${sportBtns}</div>
+    <div class="kid-cal" id="kid-cal-${id}">
+      <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin:12px 0 6px;display:block">Team calendar app</label>
+      <div class="platform-grid">${platBtns}</div>
+      <div class="instructions" id="kid-instr-${id}" style="display:none"></div>
+      <div class="ical-field" id="kid-ical-field-${id}">
+        <label for="kid-ical-${id}">Paste your calendar link</label>
+        <input type="url" id="kid-ical-${id}" placeholder="webcal:// or https://" />
+      </div>
+    </div>`;
 
-  function removeKid(id) {
-    document.getElementById(id)?.remove();
-  }
+  list.appendChild(div);
+}
 
-  // ── SPORTS ──────────────────────────────────────────────────────
-  function toggleSport(el) {
-    el.classList.toggle('active');
-    const sport = el.textContent.trim();
-    if (el.classList.contains('active')) {
-      selectedSports.push(sport);
-    } else {
-      selectedSports = selectedSports.filter(s => s !== sport);
-    }
-  }
+function removeKid(id) {
+  document.getElementById('kid-block-' + id)?.remove();
+}
 
-  // ── PLATFORM ────────────────────────────────────────────────────
-  function selectPlatform(el, platform) {
-    document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    selectedPlatform = platform;
+function toggleSport(el) {
+  el.classList.toggle('active');
+}
 
-    const info = INSTRUCTIONS[platform];
-    const instrEl = document.getElementById('instructions');
-    instrEl.style.display = 'block';
-    instrEl.innerHTML = `
-      <div class="instructions-title">${info.title}</div>
-      <ol>${info.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+function selectPlatform(kidId, platform, el) {
+  // Deselect all platform buttons for this kid
+  const grid = el.closest('.platform-grid');
+  grid.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
 
-    document.getElementById('ical-field').style.display = 'block';
-  }
+  const info = INSTRUCTIONS[platform];
+  const instrEl = document.getElementById('kid-instr-' + kidId);
+  instrEl.style.display = 'block';
+  instrEl.innerHTML = `<div class="instructions-title">${info.title}</div>
+    <ol>${info.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
 
-  // ── SUBMIT ──────────────────────────────────────────────────────
-  async function submitForm() {
-    const fname = document.getElementById('fname').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const icalUrl = document.getElementById('ical-url').value.trim();
-    const errEl = document.getElementById('error-msg');
+  document.getElementById('kid-ical-field-' + kidId).style.display = 'block';
+}
 
-    errEl.style.display = 'none';
+// ── COLLECT FORM DATA ─────────────────────────────────────────────
+function collectKids() {
+  const kids = [];
+  document.querySelectorAll('.kid-block').forEach(block => {
+    const id = block.id.replace('kid-block-', '');
+    const name = document.getElementById('kid-name-' + id)?.value.trim();
+    if (!name) return;
 
-    if (!fname) return showError('Please enter your family name.');
-    if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
-    if (!phone) return showError('Please enter your mobile number for SMS alerts.');
-    if (!icalUrl) return showError('Please paste your calendar link so we can sync your schedule.');
+    const age = document.getElementById('kid-age-' + id)?.value.trim() || '';
 
-    // Collect kids
-    const kids = [];
-    document.querySelectorAll('.kid-row').forEach(row => {
-      const inputs = row.querySelectorAll('input');
-      const name = inputs[0]?.value.trim();
-      const age = inputs[1]?.value.trim();
-      if (name) kids.push({ name, age });
-    });
+    // Collect selected sports
+    const sports = [];
+    block.querySelectorAll('.sport-btn.active').forEach(b => sports.push(b.textContent.trim()));
 
-    setLoading(true);
+    // Collect selected platform
+    const activePlat = block.querySelector('.plat-btn.active');
+    const platKey = activePlat ? Object.keys(PLATFORMS).find(k =>
+      activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name
+    ) : null;
 
-    try {
-      // Save to Supabase feeds table
+    const icalUrl = document.getElementById('kid-ical-' + id)?.value.trim() || '';
+
+    kids.push({ name, age, sports, platform: platKey || 'other', icalUrl });
+  });
+  return kids;
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────
+async function submitForm() {
+  const fname = document.getElementById('fname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  hideError();
+  if (!fname)                    return showError('Please enter your family name.');
+  if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
+  if (!phone)                    return showError('Please enter your mobile number for SMS alerts.');
+
+  const kids = collectKids();
+  if (kids.length === 0)         return showError('Please add at least one kid.');
+
+  const missingCal = kids.find(k => !k.icalUrl);
+  if (missingCal)                return showError(`Please paste a calendar link for ${missingCal.name}.`);
+
+  const normalizedPhone = normalizePhone(phone);
+  setLoading(true);
+
+  try {
+    // Insert one feeds row per kid per sport
+    // If a kid has multiple sports/calendars, each gets its own feed row
+    for (const kid of kids) {
+      const sportList = kid.sports.length > 0 ? kid.sports : ['Sport'];
+
+      // For now one feed row per kid (one iCal URL)
+      // Multiple calendars per kid can be added later
       const payload = {
         family_name: fname,
-        email: email,
-        phone: normalizePhone(phone),
-        kid_name: kids.length > 0 ? kids[0].name : fname + "'s kid",
-        sport: selectedSports.length > 0 ? selectedSports.join(', ') : 'Sport',
-        platform: selectedPlatform || 'other',
-        ical_url: icalUrl.replace(/^webcal:\/\//i, 'https://'),
-        is_active: true,
+        email:       email,
+        phone:       normalizedPhone,
+        kid_name:    kid.name,
+        sport:       sportList.join(', '),
+        platform:    kid.platform,
+        ical_url:    kid.icalUrl.replace(/^webcal:\/\//i, 'https://'),
+        is_active:   true,
       };
 
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/feeds`, {
+      const res = await fetch(`${SURL}/rest/v1/feeds`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SKEY,
+          'Authorization': `Bearer ${SKEY}`,
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify(payload),
       });
 
-      // If more than one kid, insert additional rows
-      if (kids.length > 1) {
-        for (let i = 1; i < kids.length; i++) {
-          await fetch(`${SUPABASE_URL}/rest/v1/feeds`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-              'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify({ ...payload, kid_name: kids[i].name }),
-          });
-        }
-      }
-
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Signup failed');
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Signup failed (${res.status})`);
       }
-
-      // Redirect to their personal calendar
-      window.location.href = 'https://venuewise.net/calendar.html?email=' + encodeURIComponent(email);
-
-    } catch (err) {
-      showError('Something went wrong. Please try again or text us at +1 (716) 671-1814.');
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  }
 
-  function normalizePhone(p) {
-    const digits = p.replace(/\D/g, '');
-    if (digits.length === 10) return '+1' + digits;
-    if (digits.length === 11 && digits[0] === '1') return '+' + digits;
-    return p;
-  }
+    // Build the family calendar URL
+    familyCalendarUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(email)}`;
 
-  function showError(msg) {
-    const el = document.getElementById('error-msg');
-    el.textContent = msg;
-    el.style.display = 'block';
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+    // Show setup screen
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
+    document.getElementById('viewCalBtn').href = familyCalendarUrl;
+    document.getElementById('setup').style.display = 'block';
 
-  function setLoading(on) {
-    document.getElementById('submit-btn').disabled = on;
-    document.getElementById('btn-text').textContent = on ? 'Setting up your account...' : 'Start your free 30-day trial';
-    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  } catch (err) {
+    showError('Something went wrong: ' + err.message + '. Please try again or text us at +1 (716) 671-1814.');
+    console.error(err);
+  } finally {
+    setLoading(false);
   }
+}
 
-  // Start with one kid row
-  addKid();
+// ── COPY LINK ─────────────────────────────────────────────────────
+function copyLink() {
+  if (!familyCalendarUrl) return;
+  navigator.clipboard.writeText(familyCalendarUrl).then(() => {
+    document.getElementById('copyLabel').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('copyLabel').textContent = 'Copy'; }, 2000);
+  }).catch(() => {
+    // Fallback for older Safari
+    const el = document.createElement('textarea');
+    el.value = familyCalendarUrl;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    document.getElementById('copyLabel').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('copyLabel').textContent = 'Copy'; }, 2000);
+  });
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function normalizePhone(p) {
+  const digits = p.replace(/\D/g, '');
+  if (digits.length === 10)                      return '+1' + digits;
+  if (digits.length === 11 && digits[0] === '1') return '+' + digits;
+  return p;
+}
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function hideError() { document.getElementById('error-msg').style.display = 'none'; }
+function setLoading(on) {
+  document.getElementById('submit-btn').disabled = on;
+  document.getElementById('btn-text').textContent = on ? 'Setting up your account…' : 'Start your free 30-day trial';
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+}
+
+// Start with one kid
+addKid();
 </script>
 </body>
 </html>
