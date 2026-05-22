@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>HomeHuddle · Dominic's Schedule</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --navy:      #0A1628;
       --navy-mid:  #0F1F3D;
@@ -19,785 +18,638 @@
       --gold-dim:  #c49e10;
       --white:     #F0F4FF;
       --muted:     #7A8FAD;
-      --orange:    #E8721C;
-      --blue:      #1E6FD9;
-      --green:     #1EA85A;
       --card-bg:   #111D35;
       --border:    rgba(245,197,24,0.12);
       --radius:    10px;
     }
-
     html { scroll-behavior: smooth; }
+    body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
-    body {
-      background: var(--navy);
-      color: var(--white);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-    }
-
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
       background: var(--navy);
       border-bottom: 1px solid var(--border);
       padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.4);
     }
-
     .header-brand { display: flex; flex-direction: column; line-height: 1; }
-
-    .header-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      letter-spacing: 0.04em;
-      color: var(--white);
-      line-height: 1;
+    .header-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.04em; color: var(--white); line-height: 1; }
+    .header-logo .ig { font-family: 'Playfair Display', serif; font-style: italic; color: var(--gold); font-size: 2rem; letter-spacing: 0; }
+    .header-sub { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+    .header-sub span { color: var(--gold); font-weight: 600; }
+    .sync-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+      border-radius: 20px; padding: 7px 13px;
+      color: var(--white); font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
     }
+    .sync-btn:hover { background: rgba(255,255,255,0.13); border-color: var(--gold); }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; flex-shrink: 0; animation: pdot 1.5s ease-in-out infinite; }
+    .sync-dot.err { background: #EF4444; animation: none; }
+    .sync-dot.loading { background: var(--gold); }
+    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .header-logo .italic-gold {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      color: var(--gold);
-      font-size: 2rem;
-      letter-spacing: 0;
-    }
-
-    .header-sub {
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    .header-sub span {
-      color: var(--gold);
-      font-weight: 600;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .refresh-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
-    .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── STATS BAR ── */
+    /* STATS BAR */
     .stats-bar {
-      position: sticky;
-      top: 73px; /* sits flush below header */
-      z-index: 95;
-      background: var(--navy-mid);
-      border-bottom: 1px solid var(--border);
+      position: sticky; top: var(--header-h, 73px); z-index: 95;
+      background: var(--navy-mid); border-bottom: 1px solid var(--border);
       padding: 10px 20px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
+    .stat { text-align: center; padding: 6px 2px; }
+    .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
 
-    .stat {
-      text-align: center;
-      padding: 8px 4px;
-    }
-
-    .stat-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      color: var(--gold);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 0.62rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-top: 2px;
-    }
-
-    /* ── FILTERS ── */
+    /* CONTROLS */
     .controls {
-      position: sticky;
-      top: 163px; /* header ~73px + stats bar ~90px */
-      z-index: 90;
-      padding: 14px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      border-bottom: 1px solid var(--border);
-      background: var(--navy);
+      position: sticky; top: var(--controls-top, 160px); z-index: 90;
+      background: var(--navy); border-bottom: 1px solid var(--border);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
-
-    .filter-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .platform-strip {
+      padding: 10px 20px 0;
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap;
     }
-
-    .filter-btn {
-      border: 1.5px solid transparent;
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.78rem;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: var(--card-bg);
-      color: var(--muted);
-      letter-spacing: 0.02em;
+    .platform-strip::-webkit-scrollbar { display: none; }
+    .platform-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 0; border-bottom: 2.5px solid transparent;
+      cursor: pointer; white-space: nowrap; font-size: 0.78rem; font-weight: 600;
+      color: var(--muted); user-select: none; flex-shrink: 0; transition: all 0.2s;
     }
-
-    .filter-btn[data-platform="all"] { border-color: var(--gold); color: var(--gold); }
-    .filter-btn[data-platform="all"].active { background: var(--gold); color: var(--navy); }
-
-    .filter-btn[data-platform="west"].active { background: var(--orange); color: #fff; border-color: var(--orange); }
-    .filter-btn[data-platform="west"]:hover { border-color: var(--orange); color: var(--orange); }
-
-    .filter-btn[data-platform="caz"].active { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .filter-btn[data-platform="caz"]:hover { border-color: var(--blue); color: var(--blue); }
-
-    .filter-btn[data-platform="fcp"].active { background: var(--green); color: #fff; border-color: var(--green); }
-    .filter-btn[data-platform="fcp"]:hover { border-color: var(--green); color: var(--green); }
-
-    .filter-btn:not(.active):hover { border-color: var(--muted); color: var(--white); }
-
-    .view-toggle {
-      display: flex;
-      gap: 6px;
-      margin-left: auto;
+    .platform-chip.active { color: var(--white); border-bottom-color: var(--gold); }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .view-row {
+      padding: 8px 20px 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
-
+    .view-btns { display: flex; background: var(--card-bg); border-radius: 8px; padding: 3px; gap: 2px; }
     .view-btn {
-      background: var(--card-bg);
-      border: 1.5px solid var(--border);
-      color: var(--muted);
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'DM Sans', sans-serif;
+      padding: 5px 14px; border-radius: 6px; border: none; background: transparent;
+      font-size: 0.75rem; font-weight: 600; color: var(--muted);
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
     }
-    .view-btn.active { background: var(--navy-light); border-color: var(--gold); color: var(--gold); }
+    .view-btn.active { background: var(--navy-light); color: var(--gold); }
+    .month-nav-row { display: flex; align-items: center; gap: 8px; }
+    .mnav-btn {
+      background: var(--card-bg); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .mnav-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .mnav-today {
+      background: var(--card-bg); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 0 10px; height: 30px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    }
+    .mnav-today:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+    .mnav-period { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.07em; color: var(--white); min-width: 130px; text-align: center; }
 
-    /* ── MAIN ── */
-    main { padding: 16px 20px 80px; }
+    /* MAIN */
+    main { padding: 14px 20px 80px; }
 
-    /* ── LIST VIEW ── */
-    #list-view { display: block; }
-    #month-view { display: none; }
-
-    .day-group { margin-bottom: 22px; }
-
+    /* LIST */
+    .day-group { margin-bottom: 20px; }
     .day-label {
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
     }
-    .day-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
+    .day-label::after { content:''; flex:1; height:1px; background:var(--border); }
+    .day-label.is-today { color: var(--gold); }
+    .today-pill {
+      font-size: 0.6rem; font-weight: 700; background: var(--gold); color: var(--navy);
+      padding: 2px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.06em;
     }
-    .day-label.today-label { color: var(--gold); }
-
     .event-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 13px 15px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      transition: border-color 0.2s, transform 0.15s;
-      cursor: default;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
+      display: flex; align-items: flex-start; gap: 10px;
+      transition: border-color 0.2s, transform 0.15s; cursor: pointer;
     }
-    .event-card:hover { border-color: rgba(245,197,24,0.3); transform: translateX(2px); }
-
-    .event-stripe {
-      width: 3px;
-      min-height: 42px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      align-self: stretch;
+    .event-card:hover { border-color: rgba(245,197,24,0.35); transform: translateX(2px); }
+    .ev-time {
+      min-width: 48px; text-align: right; font-family: 'DM Mono', monospace;
+      font-size: 0.7rem; font-weight: 600; color: var(--muted); padding-top: 2px; line-height: 1.5; flex-shrink: 0;
     }
-
-    .event-body { flex: 1; min-width: 0; }
-
-    .event-title {
-      font-weight: 600;
-      font-size: 0.92rem;
-      color: var(--white);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 3px;
+    .ev-time small { font-weight: 400; display: block; }
+    .ev-stripe { width: 3px; border-radius: 3px; align-self: stretch; flex-shrink: 0; }
+    .ev-body { flex: 1; min-width: 0; }
+    .ev-title { font-weight: 700; font-size: 0.88rem; color: var(--white); margin-bottom: 3px; line-height: 1.3; }
+    .ev-loc {
+      display: flex; align-items: center; gap: 4px;
+      color: var(--gold-dim); font-size: 0.72rem; text-decoration: none; margin-top: 4px; transition: color 0.15s;
+    }
+    .ev-loc:hover { color: var(--gold); }
+    .ev-tags { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+    .ev-tag { font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.04em; }
+    .conflict-banner {
+      background: rgba(220,38,38,0.12); border-left: 3px solid #DC2626;
+      border-radius: 8px; padding: 9px 12px; margin-bottom: 8px;
+      font-size: 0.75rem; font-weight: 600; color: #FCA5A5;
+      display: flex; align-items: center; gap: 7px;
     }
 
-    .event-meta {
-      font-size: 0.76rem;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
+    /* MONTH */
+    .cal-grid-hdr { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid var(--border); }
+    .cal-dow { text-align: center; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 8px 0; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+    .cal-cell {
+      border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      min-height: 80px; padding: 5px; cursor: pointer; transition: background 0.15s;
+    }
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell:hover { background: rgba(245,197,24,0.05); }
+    .cal-cell.other-month { opacity: 0.3; }
+    .cal-cell.today-cell { background: rgba(245,197,24,0.07); }
+    .cal-num { font-size: 0.72rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .cal-cell.today-cell .cal-num { background: var(--gold); color: var(--navy); font-weight: 800; }
+    .cal-ev { font-size: 0.62rem; font-weight: 600; border-radius: 3px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+    .cal-more { font-size: 0.6rem; color: var(--muted); font-weight: 600; padding: 1px 5px; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 500;
+      display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-sheet {
+      background: var(--navy-mid); border-radius: 20px 20px 0 0;
+      padding: 16px 20px 40px; width: 100%; max-width: 520px;
+      max-height: 80vh; overflow-y: auto; border: 1px solid var(--border);
+    }
+    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--white); margin-bottom: 3px; }
+    .modal-org { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+    .modal-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+    .modal-row:last-of-type { border-bottom: none; }
+    .modal-icon { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .modal-lbl { color: var(--muted); font-size: 0.7rem; font-weight: 500; min-width: 64px; }
+    .modal-val { color: var(--white); font-weight: 600; flex: 1; }
+    .modal-action {
+      width: 100%; background: var(--gold); color: var(--navy); border: none;
+      border-radius: 10px; padding: 13px; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .modal-close {
+      width: 100%; background: var(--card-bg); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 11px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 8px;
     }
 
-    .event-meta .dot { color: var(--border); }
-
-    .event-location {
-      color: var(--gold-dim);
-      text-decoration: none;
-      font-size: 0.74rem;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: 5px;
-      width: fit-content;
-      transition: color 0.15s;
-    }
-    .event-location:hover { color: var(--gold); }
-
-    .event-badge {
-      font-size: 0.63rem;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      flex-shrink: 0;
-      align-self: flex-start;
-      margin-top: 2px;
-    }
-
-    .conflict-flag {
-      font-size: 0.65rem;
-      color: #FF6B6B;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: 4px;
-    }
-
-    /* ── MONTH VIEW ── */
-    .month-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .month-nav button {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 6px;
-      width: 32px; height: 32px;
-      cursor: pointer;
-      font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .month-nav button:hover { border-color: var(--gold); color: var(--gold); }
-
-    .today-btn {
-      width: auto !important;
-      padding: 0 12px !important;
-      font-size: 0.72rem !important;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .today-btn:hover { background: var(--gold) !important; color: var(--navy) !important; border-color: var(--gold) !important; }
-
-    .month-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 0.08em;
-      color: var(--white);
-    }
-
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
-    }
-
-    .cal-dow {
-      text-align: center;
-      font-size: 0.62rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      padding: 4px 0 8px;
-    }
-
-    .cal-day {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      min-height: 64px;
-      padding: 4px;
-      transition: border-color 0.2s;
-    }
-    .cal-day:hover { border-color: rgba(245,197,24,0.3); }
-    .cal-day.other-month { opacity: 0.3; }
-    .cal-day.today { border-color: var(--gold); }
-
-    .cal-day-num {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-align: right;
-      margin-bottom: 3px;
-    }
-    .cal-day.today .cal-day-num {
-      color: var(--gold);
-      font-weight: 700;
-    }
-
-    .cal-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      display: inline-block;
-      margin: 1px;
-    }
-
-    /* ── EMPTY / LOADING ── */
-    .state-msg {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--muted);
-    }
-    .state-msg .icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .state-msg p { font-size: 0.88rem; }
-
-    .loader {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      padding: 48px;
-    }
-    .loader span {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--gold);
-      animation: bounce 1s infinite ease-in-out;
-    }
+    /* STATES */
+    .state-msg { text-align: center; padding: 52px 20px; color: var(--muted); }
+    .state-msg .icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .state-msg h3 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.3rem; color: var(--white); margin-bottom: 6px; }
+    .state-msg p { font-size: 0.85rem; line-height: 1.6; max-width: 280px; margin: 0 auto; }
+    .loader { display: flex; justify-content: center; align-items: center; gap: 6px; padding: 52px; }
+    .loader span { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: bounce 1s infinite ease-in-out; }
     .loader span:nth-child(2) { animation-delay: 0.15s; }
     .loader span:nth-child(3) { animation-delay: 0.3s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-      40% { transform: scale(1); opacity: 1; }
-    }
+    @keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
 
-    /* ── TOAST ── */
     #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--navy-light);
-      border: 1px solid var(--border);
-      color: var(--white);
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      transition: transform 0.3s ease;
-      z-index: 200;
-      white-space: nowrap;
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--navy-light); border: 1px solid var(--border);
+      color: var(--white); padding: 10px 18px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 500; transition: transform 0.3s ease;
+      z-index: 600; white-space: nowrap; pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
     @media (max-width: 480px) {
-      .stats-bar { grid-template-columns: repeat(2, 1fr); }
-      .cal-day { min-height: 52px; }
+      .stats-bar { grid-template-columns: repeat(2,1fr); }
+      .cal-cell { min-height: 60px; padding: 3px; }
+      .cal-ev { font-size: 0.55rem; }
     }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
+<header id="siteHeader">
   <div class="header-brand">
-    <div class="header-logo">Home<span class="italic-gold">Huddle</span></div>
+    <div class="header-logo">Home<span class="ig">Huddle</span></div>
     <div class="header-sub">Dominic's schedule · powered by <span>Venuewise</span></div>
   </div>
-  <div class="header-right">
-    <button class="refresh-btn" id="refreshBtn" onclick="loadEvents(true)">
-      <svg id="refreshIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
-        <polyline points="1 8 3 8 3 3"/><polyline points="23 16 21 16 21 21"/>
-      </svg>
-      Refresh
-    </button>
-  </div>
+  <button class="sync-btn" id="syncBtn" onclick="loadEvents(true)">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncText">Synced</span>
+  </button>
 </header>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
+<div class="stats-bar" id="statsBar">
   <div class="stat"><div class="stat-val" id="statTotal">—</div><div class="stat-label">Events</div></div>
   <div class="stat"><div class="stat-val" id="statWeek">—</div><div class="stat-label">This Week</div></div>
   <div class="stat"><div class="stat-val" id="statConflicts">—</div><div class="stat-label">Conflicts</div></div>
   <div class="stat"><div class="stat-val" id="statUpdated">—</div><div class="stat-label">Updated</div></div>
 </div>
 
-<!-- CONTROLS -->
-<div class="controls">
-  <div class="filter-row">
-    <button class="filter-btn active" data-platform="all" onclick="setFilter('all', this)">All Sports</button>
-    <button class="filter-btn" data-platform="west" onclick="setFilter('west', this)">West Modified</button>
-    <button class="filter-btn" data-platform="caz" onclick="setFilter('caz', this)">Caz Chiefs</button>
-    <button class="filter-btn" data-platform="fcp" onclick="setFilter('fcp', this)">FCP Baseball</button>
-    <div class="view-toggle">
-      <button class="view-btn active" id="btnList" onclick="setView('list')">List</button>
-      <button class="view-btn" id="btnMonth" onclick="setView('month')">Month</button>
+<div class="controls" id="controls">
+  <div class="platform-strip" id="platformStrip">
+    <div class="platform-chip active" onclick="filterPlatform('all',this)">
+      <span class="chip-dot" style="background:var(--gold)"></span>All Sports
+    </div>
+  </div>
+  <div class="view-row">
+    <div class="view-btns">
+      <button class="view-btn active" id="btnList"  onclick="setView('list')">List</button>
+      <button class="view-btn"        id="btnMonth" onclick="setView('month')">Month</button>
+    </div>
+    <div class="month-nav-row">
+      <button class="mnav-btn" onclick="navigate(-1)">&#8249;</button>
+      <div class="mnav-period" id="calPeriod">—</div>
+      <button class="mnav-today" onclick="goToday()">Today</button>
+      <button class="mnav-btn" onclick="navigate(1)">&#8250;</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<main>
-  <div id="list-view"></div>
-  <div id="month-view"></div>
+<main id="calContent">
+  <div class="loader"><span></span><span></span><span></span></div>
 </main>
 
+<div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet" id="modalContent"></div>
+</div>
 <div id="toast"></div>
 
 <script>
-  // ── CONFIG ──
-  const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT';
-  const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
+const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const REFRESH_MS   = 5 * 60 * 1000;
 
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Platform colors matching what calendar.html uses
+const PLATFORM_COLORS = {
+  gamechanger: '#E8721C',  // orange  — West Modified / baseball
+  teamsnap:    '#1E6FD9',  // blue    — Caz Chiefs / hockey
+  teamsnap2:   '#1E6FD9',
+};
+const SPORT_COLORS = ['#E8721C','#1E6FD9','#1EA85A','#A855F7','#F59E0B','#06B6D4'];
 
-  // ── STATE ──
-  let allEvents = [];
-  let activeFilter = 'all';
-  let activeView = 'list';
-  let monthOffset = 0; // for month view navigation
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Platform mapping
-  const PLATFORM_MAP = {
-    west: { label: 'West Modified', color: '#E8721C' },
-    caz:  { label: 'Caz Chiefs',    color: '#1E6FD9' },
-    fcp:  { label: 'FCP Baseball',  color: '#1EA85A' },
-  };
+let allEvents      = [];
+let platformMap    = {};
+let currentView    = 'list';
+let currentDate    = new Date();
+let activePlatform = 'all';
+let lastLoad       = null;
 
-  function platformKey(event) {
-    const src = (event.platform || event.team || event.source || event.calendar || '').toLowerCase();
-    if (src.includes('west')) return 'west';
-    if (src.includes('caz') || src.includes('chief')) return 'caz';
-    if (src.includes('fcp') || src.includes('baseball')) return 'fcp';
-    // fallback: cycle by id
-    const keys = ['west','caz','fcp'];
-    return keys[event.id % 3] || 'west';
-  }
+// ── STICKY OFFSETS ───────────────────────────────────────────────
+function setStickyOffsets() {
+  const hh = document.getElementById('siteHeader').offsetHeight;
+  const sh = document.getElementById('statsBar').offsetHeight;
+  document.documentElement.style.setProperty('--header-h',    hh + 'px');
+  document.documentElement.style.setProperty('--controls-top',(hh + sh) + 'px');
+}
+window.addEventListener('resize', setStickyOffsets);
 
-  // ── LOAD ──
-  async function loadEvents(manual = false) {
-    const btn = document.getElementById('refreshBtn');
-    const icon = document.getElementById('refreshIcon');
-    btn.classList.add('spinning');
+// ── LOAD ─────────────────────────────────────────────────────────
+async function loadEvents(manual = false) {
+  if (manual) setSync('loading', 'Syncing…');
+  try {
+    const now   = new Date();
+    const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const end   = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
-    try {
-      // Try common table names; adjust if yours differs
-      let data, error;
-      const attempt = async (table) => db.from(table).select('*').order('start_time', { ascending: true });
+    // Query directly — kid = 'dominic', no is_duplicate filter that might mismatch
+    const { data, error } = await sb
+      .from('events')
+      .select('uid, name, kid, platform, sport, start, end, location, description, conflict, is_duplicate')
+      .eq('kid', 'dominic')
+      .gte('start', start.toISOString())
+      .lte('start', end.toISOString())
+      .order('start', { ascending: true });
 
-      ({ data, error } = await attempt('events'));
-      if (error || !data?.length) ({ data, error } = await attempt('calendar_events'));
-      if (error || !data?.length) ({ data, error } = await attempt('schedule'));
-      if (error) throw error;
+    if (error) throw error;
 
-      allEvents = (data || []).map(e => ({
-        ...e,
-        _platformKey: platformKey(e),
-        _start: new Date(e.start_time || e.start || e.date || e.event_date),
-      })).filter(e => !isNaN(e._start));
-
-      computeStats();
-      render();
-      if (manual) toast('✓ Updated just now');
-    } catch (err) {
-      console.error(err);
-      showError(err.message || 'Could not load events');
-    } finally {
-      btn.classList.remove('spinning');
-    }
-  }
-
-  // ── STATS ──
-  function computeStats() {
-    const now = new Date();
-    const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay());
-    const weekEnd   = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 7);
-
-    const total = allEvents.length;
-    const thisWeek = allEvents.filter(e => e._start >= weekStart && e._start < weekEnd).length;
-
-    // Detect conflicts: events on same day overlapping time (simple check)
-    const dayBuckets = {};
-    allEvents.forEach(e => {
-      const key = e._start.toDateString();
-      if (!dayBuckets[key]) dayBuckets[key] = [];
-      dayBuckets[key].push(e);
-    });
-    let conflicts = 0;
-    Object.values(dayBuckets).forEach(evts => {
-      if (evts.length > 1) {
-        // crude overlap: same day, different platforms
-        const platforms = new Set(evts.map(e => e._platformKey));
-        if (platforms.size > 1) conflicts++;
-      }
+    // Build platformMap dynamically from results
+    const platforms = [...new Set((data||[]).map(e => e.platform).filter(Boolean))];
+    platformMap = {};
+    platforms.forEach((p, i) => {
+      platformMap[p] = {
+        color: PLATFORM_COLORS[p.toLowerCase()] || SPORT_COLORS[i % SPORT_COLORS.length],
+        short: p.substring(0,2).toUpperCase(),
+        name:  p,
+      };
     });
 
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statWeek').textContent  = thisWeek;
-    document.getElementById('statConflicts').textContent = conflicts;
+    buildPlatformStrip(platforms);
 
-    const mins = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('statUpdated').textContent = mins;
-  }
+    lastLoad   = new Date();
+    allEvents  = (data || [])
+      .filter(e => !e.is_duplicate)
+      .map(row => ({
+        id:          row.uid,
+        name:        row.name || 'Event',
+        kid:         row.kid  || 'dominic',
+        platform:    row.platform || '',
+        sport:       row.sport    || '',
+        start:       new Date(row.start),
+        end:         new Date(row.end),
+        location:    row.location    || '',
+        description: row.description || '',
+        conflict:    row.conflict    || false,
+        color:       platformMap[row.platform]?.color || SPORT_COLORS[0],
+      }))
+      .filter(e => !isNaN(e.start));
 
-  // ── FILTER ──
-  function setFilter(key, btn) {
-    activeFilter = key;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    setStickyOffsets();
+    updateStats();
     render();
-  }
+    setSync('ok', 'Synced');
+    if (manual) showToast('✓ Refreshed — ' + allEvents.length + ' events loaded');
 
-  function filtered() {
-    if (activeFilter === 'all') return allEvents;
-    return allEvents.filter(e => e._platformKey === activeFilter);
-  }
-
-  // ── VIEW TOGGLE ──
-  function setView(v) {
-    activeView = v;
-    if (v === 'month') monthOffset = 0; // always open on current month
-    document.getElementById('list-view').style.display  = v === 'list'  ? 'block' : 'none';
-    document.getElementById('month-view').style.display = v === 'month' ? 'block' : 'none';
-    document.getElementById('btnList').classList.toggle('active',  v === 'list');
-    document.getElementById('btnMonth').classList.toggle('active', v === 'month');
-    render();
-  }
-
-  // ── RENDER ──
-  function render() {
-    if (activeView === 'list') renderList();
-    else renderMonth();
-  }
-
-  function renderList() {
-    const container = document.getElementById('list-view');
-    const evts = filtered();
-
-    if (!evts.length) {
-      container.innerHTML = `<div class="state-msg"><div class="icon">📅</div><p>No events found for this filter.</p></div>`;
-      return;
-    }
-
-    // Group by day
-    const groups = {};
-    evts.forEach(e => {
-      const key = e._start.toDateString();
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(e);
-    });
-
-    const today = new Date().toDateString();
-    let html = '';
-
-    Object.entries(groups).forEach(([dateStr, dayEvts]) => {
-      const d = new Date(dateStr);
-      const isToday = dateStr === today;
-      const label = isToday ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-
-      html += `<div class="day-group">
-        <div class="day-label ${isToday ? 'today-label' : ''}">${label}</div>`;
-
-      dayEvts.forEach(e => {
-        const pk   = e._platformKey;
-        const info = PLATFORM_MAP[pk] || { label: 'Event', color: '#7A8FAD' };
-        const time = e._start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        const loc  = e.location || e.venue || e.address || '';
-        const mapsUrl = loc ? `maps://maps.apple.com/?q=${encodeURIComponent(loc)}` : null;
-
-        // conflict flag: check if another event overlaps on same day
-        const sameDay = dayEvts.filter(x => x.id !== e.id);
-        const hasConflict = sameDay.some(x => x._platformKey !== pk);
-
-        html += `<div class="event-card">
-          <div class="event-stripe" style="background:${info.color}"></div>
-          <div class="event-body">
-            <div class="event-title">${escHtml(e.title || e.name || 'Untitled Event')}</div>
-            <div class="event-meta">
-              <span>${time}</span>
-              ${e.end_time ? `<span class="dot">·</span><span>– ${new Date(e.end_time).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</span>` : ''}
-            </div>
-            ${loc ? `<a class="event-location" href="${mapsUrl}" onclick="openMaps(event, '${escHtml(loc)}')">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-              ${escHtml(loc)}
-            </a>` : ''}
-            ${hasConflict ? `<div class="conflict-flag">⚠ Schedule conflict</div>` : ''}
-          </div>
-          <div class="event-badge" style="background:${info.color}22;color:${info.color}">${info.label}</div>
-        </div>`;
-      });
-
-      html += `</div>`;
-    });
-
-    container.innerHTML = html;
-  }
-
-  function renderMonth() {
-    const container = document.getElementById('month-view');
-    const evts = filtered();
-
-    const now = new Date();
-    const viewDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    const year  = viewDate.getFullYear();
-    const month = viewDate.getMonth();
-
-    const firstDow = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthLabel = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-    // Build dot map
-    const dotMap = {};
-    evts.forEach(e => {
-      if (e._start.getFullYear() === year && e._start.getMonth() === month) {
-        const d = e._start.getDate();
-        if (!dotMap[d]) dotMap[d] = [];
-        dotMap[d].push(e._platformKey);
-      }
-    });
-
-    const dows = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-    let html = `
-      <div class="month-nav">
-        <button onclick="shiftMonth(-1)">&#8249;</button>
-        <div class="month-title">${monthLabel}</div>
-        <button class="today-btn" onclick="goToday()">Today</button>
-        <button onclick="shiftMonth(1)">&#8250;</button>
-      </div>
-      <div class="cal-grid">
-        ${dows.map(d => `<div class="cal-dow">${d}</div>`).join('')}`;
-
-    // leading blanks
-    for (let i = 0; i < firstDow; i++) {
-      html += `<div class="cal-day other-month"></div>`;
-    }
-
-    const todayDate = new Date();
-    for (let d = 1; d <= daysInMonth; d++) {
-      const isToday = todayDate.getFullYear() === year && todayDate.getMonth() === month && todayDate.getDate() === d;
-      const dots = dotMap[d] || [];
-      html += `<div class="cal-day ${isToday ? 'today' : ''}">
-        <div class="cal-day-num">${d}</div>
-        <div>${dots.slice(0,5).map(pk => {
-          const c = PLATFORM_MAP[pk]?.color || '#7A8FAD';
-          return `<span class="cal-dot" style="background:${c}"></span>`;
-        }).join('')}</div>
-      </div>`;
-    }
-
-    html += `</div>`;
-    container.innerHTML = html;
-  }
-
-  function shiftMonth(delta) {
-    monthOffset += delta;
-    renderMonth();
-  }
-
-  function goToday() {
-    monthOffset = 0;
-    renderMonth();
-  }
-
-  // ── MAPS ──
-  function openMaps(event, location) {
-    event.preventDefault();
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const url = isIOS
-      ? `maps://maps.apple.com/?q=${encodeURIComponent(location)}`
-      : `https://maps.apple.com/?q=${encodeURIComponent(location)}`;
-    window.open(url, '_blank');
-  }
-
-  // ── TOAST ──
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2800);
-  }
-
-  // ── ERROR ──
-  function showError(msg) {
-    document.getElementById('list-view').innerHTML = `
+  } catch(err) {
+    console.error('loadEvents error:', err);
+    setSync('err', 'Error');
+    document.getElementById('calContent').innerHTML = `
       <div class="state-msg">
         <div class="icon">⚠️</div>
-        <p>Could not load events.<br><small>${escHtml(msg)}</small></p>
+        <h3>Could not load</h3>
+        <p>${esc(err.message)}</p>
       </div>`;
   }
+}
 
-  // ── UTILS ──
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ── PLATFORM STRIP ───────────────────────────────────────────────
+function buildPlatformStrip(platforms) {
+  // Sport labels from what we know about this family
+  const sportLabel = {
+    gamechanger: 'West Modified / FCP Baseball',
+    teamsnap:    'Caz Chiefs Hockey',
+  };
+  let html = `<div class="platform-chip active" onclick="filterPlatform('all',this)">
+    <span class="chip-dot" style="background:var(--gold)"></span>All Sports</div>`;
+  platforms.forEach(p => {
+    const pm = platformMap[p];
+    html += `<div class="platform-chip" onclick="filterPlatform('${esc(p)}',this)">
+      <span class="chip-dot" style="background:${pm.color}"></span>${sportLabel[p.toLowerCase()] || pm.name}</div>`;
+  });
+  document.getElementById('platformStrip').innerHTML = html;
+}
+
+// ── FILTER ───────────────────────────────────────────────────────
+function filterPlatform(p, el) {
+  activePlatform = p;
+  document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  updateStats();
+  render();
+}
+function filtered() {
+  if (activePlatform === 'all') return allEvents;
+  return allEvents.filter(e => e.platform === activePlatform);
+}
+
+// ── STATS ────────────────────────────────────────────────────────
+function updateStats() {
+  const now = new Date();
+  const weekEnd = new Date(now.getTime() + 7*24*60*60*1000);
+  const evts = filtered();
+  document.getElementById('statTotal').textContent     = evts.length;
+  document.getElementById('statWeek').textContent      = evts.filter(e => e.start >= now && e.start <= weekEnd).length;
+  document.getElementById('statConflicts').textContent = evts.filter(e => e.conflict).length;
+  document.getElementById('statUpdated').textContent   = lastLoad
+    ? lastLoad.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    : '—';
+}
+
+// ── VIEW ─────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  if (v === 'month') currentDate = new Date();
+  document.getElementById('btnList').classList.toggle('active',  v==='list');
+  document.getElementById('btnMonth').classList.toggle('active', v==='month');
+  render();
+}
+function navigate(dir) {
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
+  render();
+}
+function goToday() {
+  currentDate = new Date();
+  if (currentView === 'list') {
+    render();
+    setTimeout(() => {
+      const el = document.querySelector('.day-label.is-today');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  } else {
+    render();
   }
+}
+function render() {
+  if (currentView === 'list') renderList();
+  else renderMonth();
+}
 
-  // ── LOADING PLACEHOLDER ──
-  function showLoader() {
-    document.getElementById('list-view').innerHTML = `<div class="loader"><span></span><span></span><span></span></div>`;
+// ── LIST ─────────────────────────────────────────────────────────
+function renderList() {
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MO     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('calPeriod').textContent = MONTHS[m] + ' ' + y;
+
+  const monthStart = new Date(y, m, 1);
+  const monthEnd   = new Date(y, m+1, 0, 23, 59, 59);
+  const dayMap = {};
+
+  filtered()
+    .filter(e => e.start >= monthStart && e.start <= monthEnd)
+    .forEach(e => {
+      const k = e.start.toDateString();
+      (dayMap[k] = dayMap[k] || []).push(e);
+    });
+
+  const todayStr = new Date().toDateString();
+  let html = '';
+
+  Object.entries(dayMap).forEach(([dateStr, dayEvs]) => {
+    const dt      = new Date(dateStr);
+    const isToday = dateStr === todayStr;
+    const isPast  = dt < new Date() && !isToday;
+
+    html += `<div class="day-group"${isPast?' style="opacity:0.6"':''}>
+      <div class="day-label${isToday?' is-today':''}">
+        ${DAYS[dt.getDay()]}, ${MO[dt.getMonth()]} ${dt.getDate()}
+        ${isToday?'<span class="today-pill">Today</span>':''}
+      </div>`;
+
+    const conflicts = dayEvs.filter(e => e.conflict);
+    if (conflicts.length)
+      html += `<div class="conflict-banner">⚠️ ${conflicts.length} scheduling conflict${conflicts.length>1?'s':''} on this day</div>`;
+
+    dayEvs.forEach(e => {
+      const pm = platformMap[e.platform] || { color:'#7A8FAD', short:'??', name: e.platform };
+      html += `<div class="event-card" onclick='showModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
+        <div class="ev-time">${fmtTime(e.start)}<small>${fmtTime(e.end)}</small></div>
+        <div class="ev-stripe" style="background:${e.color}"></div>
+        <div class="ev-body">
+          <div class="ev-title">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
+          ${e.location ? `<a class="ev-loc"
+            href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}"
+            onclick="event.stopPropagation()" target="_blank" rel="noopener">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              <circle cx="12" cy="9" r="2.5"/>
+            </svg>${esc(e.location)}</a>` : ''}
+          <div class="ev-tags">
+            <span class="ev-tag" style="background:${e.color}22;color:${e.color}">${esc(pm.short)} · ${esc(e.sport||pm.name)}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  if (!html) html = `<div class="state-msg"><div class="icon">📅</div><h3>No events this month</h3>
+    <p>No games or practices found for ${MONTHS[m]} ${y}.</p></div>`;
+  document.getElementById('calContent').innerHTML = html;
+}
+
+// ── MONTH ────────────────────────────────────────────────────────
+function renderMonth() {
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calPeriod').textContent = MONTHS[m] + ' ' + y;
+
+  const firstDow    = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const today       = new Date();
+  const dows        = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  let html = `<div class="cal-grid-hdr">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div><div class="cal-grid">`;
+  const total = Math.ceil((daysInMonth + firstDow) / 7) * 7;
+
+  for (let i = 0, day = 1 - firstDow; i < total; i++, day++) {
+    const cellDate  = new Date(y, m, day);
+    const thisMonth = cellDate.getMonth() === m;
+    const isToday   = cellDate.toDateString() === today.toDateString();
+    const dayEvs    = filtered().filter(e => e.start.toDateString() === cellDate.toDateString());
+    const cls = ['cal-cell', !thisMonth?'other-month':'', isToday?'today-cell':''].filter(Boolean).join(' ');
+
+    html += `<div class="${cls}" onclick="goToDate(${cellDate.getTime()})">
+      <div class="cal-num">${cellDate.getDate()}</div>`;
+    dayEvs.slice(0,3).forEach(e => {
+      html += `<div class="cal-ev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}"
+        onclick="event.stopPropagation();showModal(${JSON.stringify(e).replace(/'/g,'&#39;')})">${e.conflict?'⚠️':''}${esc(e.name)}</div>`;
+    });
+    if (dayEvs.length > 3) html += `<div class="cal-more">+${dayEvs.length-3} more</div>`;
+    html += `</div>`;
   }
+  html += `</div>`;
+  document.getElementById('calContent').innerHTML = html;
+}
 
-  // ── INIT ──
-  showLoader();
-  loadEvents();
-  setInterval(() => loadEvents(), REFRESH_INTERVAL);
+function goToDate(ts) {
+  currentDate = new Date(ts);
+  setView('list');
+}
+
+// ── MODAL ────────────────────────────────────────────────────────
+function showModal(ev) {
+  if (typeof ev === 'string') ev = JSON.parse(ev);
+  const pm = platformMap[ev.platform] || { color:'#7A8FAD', name: ev.platform||'' };
+  const s  = new Date(ev.start), e = new Date(ev.end);
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MO     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-handle"></div>
+    ${ev.conflict?`<div class="conflict-banner" style="margin-bottom:12px">⚠️ Schedule conflict — overlaps with another event</div>`:''}
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+      <div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:${ev.color}"></div>
+      <div>
+        <div class="modal-title">${esc(ev.name)}</div>
+        <div class="modal-org">${esc(ev.kid)} · ${esc(ev.sport||pm.name)}</div>
+      </div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-icon">📅</div><div class="modal-lbl">Date</div>
+      <div class="modal-val">${DAYS[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-icon">🕐</div><div class="modal-lbl">Time</div>
+      <div class="modal-val">${fmtTime(s)} – ${fmtTime(e)}</div>
+    </div>
+    ${ev.location?`<a class="modal-row" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}"
+      target="_blank" rel="noopener" style="text-decoration:none">
+      <div class="modal-icon">📍</div><div class="modal-lbl">Location</div>
+      <div class="modal-val" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div>
+      <span style="color:var(--muted)">›</span></a>`:''}
+    ${ev.description?`<div class="modal-row">
+      <div class="modal-icon">📝</div><div class="modal-lbl">Notes</div>
+      <div class="modal-val" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
+    <button class="modal-action" onclick="downloadICS('${esc(String(ev.id))}')">📲 Add to My Calendar</button>
+    <button class="modal-close" onclick="closeModal()">Close</button>`;
+  document.getElementById('eventModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('eventModal').classList.remove('show'); }
+
+function downloadICS(evId) {
+  const ev = allEvents.find(e => String(e.id) === String(evId));
+  if (!ev) return;
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HomeHuddle//EN',
+    'BEGIN:VEVENT',
+    `UID:${ev.id}@homehuddle`,
+    `DTSTART:${fmt(new Date(ev.start))}`,
+    `DTEND:${fmt(new Date(ev.end))}`,
+    `SUMMARY:${ev.name}`,
+    `LOCATION:${ev.location||''}`,
+    `DESCRIPTION:${ev.kid} · ${ev.sport} · via HomeHuddle`,
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([ics],{type:'text/calendar'})),
+    download: (ev.name.replace(/[^a-z0-9]/gi,'_')||'event') + '.ics'
+  });
+  a.click();
+  showToast('📲 Open the .ics file to add to your calendar');
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function fmtTime(d) {
+  const h = d.getHours(), m = d.getMinutes();
+  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${h>=12?'PM':'AM'}`;
+}
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+function setSync(state, label) {
+  document.getElementById('syncText').textContent = label;
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot' + (state==='err'?' err': state==='loading'?' loading':'');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+setStickyOffsets();
+loadEvents().then(() => {
+  setStickyOffsets();
+  setTimeout(() => {
+    const el = document.querySelector('.day-label.is-today');
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 200);
+});
+setInterval(() => loadEvents(false), REFRESH_MS);
 </script>
 </body>
 </html>
