@@ -18,8 +18,8 @@
       --orange:#E8721C;--blue:#1E6FD9;--green:#1EA85A;
       --header-h:73px;--statsbar-h:90px;
     }
-    html{scroll-behavior:smooth;overflow-x:hidden}
-    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+    html{scroll-behavior:smooth}
+    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
 
     /* ── HEADER ── */
     #siteHeader{
@@ -109,7 +109,7 @@
     #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.07em;color:var(--white);min-width:100px;text-align:center;flex-shrink:1}
 
     /* ── MAIN ── */
-    main{padding:14px 20px 80px}
+    main{padding:14px 20px 80px;overflow-x:clip}
 
     /* ── LIST ── */
     .dgroup{margin-bottom:20px}
@@ -294,6 +294,11 @@ function fixSticky() {
   document.getElementById('controls').style.top  = (hh + sh) + 'px';
 }
 window.addEventListener('resize', fixSticky);
+// Run at multiple points to catch font/layout shifts
+document.addEventListener('DOMContentLoaded', fixSticky);
+window.addEventListener('load', fixSticky);
+setTimeout(fixSticky, 100);
+setTimeout(fixSticky, 500);
 
 // ── LOAD ─────────────────────────────────────────────────────────
 async function loadEvents(manual=false) {
