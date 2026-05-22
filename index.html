@@ -256,14 +256,16 @@
     <div class="pchip"        data-key="fcp"  onclick="setPlatform('fcp',this)"><span class="cdot" style="background:var(--green)"></span>FCP Baseball</div>
   </div>
   <div class="vrow">
-    <div class="vbtns">
-      <button class="vbtn active" id="btnList"  onclick="setView('list')">List</button>
-      <button class="vbtn"        id="btnMonth" onclick="setView('month')">Month</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="vbtns">
+        <button class="vbtn active" id="btnList"  onclick="setView('list')">List</button>
+        <button class="vbtn"        id="btnMonth" onclick="setView('month')">Month</button>
+      </div>
+      <button class="mnav-today" onclick="goToday()">Today</button>
     </div>
     <div class="mnav">
       <button class="mnav-arr" onclick="navigate(-1)">&#8249;</button>
       <div id="calPeriod">—</div>
-      <button class="mnav-today" onclick="goToday()">Today</button>
       <button class="mnav-arr" onclick="navigate(1)">&#8250;</button>
     </div>
   </div>
