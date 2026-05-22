@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>HomeHuddle · Dominic's Schedule</title>
+<title>HomeHuddle · My Schedule</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,19 +12,22 @@
 html{font-size:16px;height:100%}
 body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-font-smoothing:antialiased;min-height:100vh}
 
-.header{background:#0A1628;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3)}
+.header{background:var(--theme-primary,#0A1628);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3)}
 .logo{font-family:'Instrument Serif',serif;font-size:22px;color:#fff;letter-spacing:-0.3px}
-.logo em{font-style:italic;color:#F5C518}
+.logo em{font-style:italic;color:var(--theme-accent,#F5C518)}
 .header-sub{font-size:11px;color:rgba(255,255,255,0.55);font-weight:500;margin-top:2px}
 .sync-status{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border-radius:100px;padding:6px 14px;cursor:pointer;transition:all 0.2s}
 .sync-status:hover{background:rgba(255,255,255,0.15)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;animation:pulse 1.5s ease-in-out infinite;flex-shrink:0}
 .sync-text{font-size:11px;font-weight:600;color:#fff}
 
+/* ── STICKY CONTROLS ── */
+.controls-sticky{position:sticky;top:56px;z-index:99;background:#fff}
+
 .platform-strip{background:#fff;border-bottom:1px solid #E8E6E0;padding:0 20px;overflow-x:auto;display:flex;gap:6px;scrollbar-width:none}
 .platform-strip::-webkit-scrollbar{display:none}
-.platform-chip{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-size:13px;font-weight:600;color:#9AAABF;user-select:none;flex-shrink:0;margin:0}
-.platform-chip.active{color:#0A1628;border-bottom-color:#F5C518}
+.platform-chip{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-size:13px;font-weight:600;color:#9AAABF;user-select:none;flex-shrink:0}
+.platform-chip.active{color:#0A1628;border-bottom-color:var(--theme-accent,#F5C518)}
 .platform-chip .pchip-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 
 .view-switcher{background:#fff;border-bottom:1px solid #E8E6E0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
@@ -36,7 +39,7 @@ body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-f
 .cal-nav-btn:hover{border-color:#0A1628;color:#0A1628}
 .cal-period{font-family:'Instrument Serif',serif;font-size:17px;color:#0A1628;letter-spacing:-0.2px;min-width:170px;text-align:center}
 .today-btn{padding:6px 14px;border-radius:8px;border:1.5px solid #E2E6F0;background:#fff;font-size:12px;font-weight:600;color:#0A1F5C;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
-.today-btn:hover{background:#EEF1FB;border-color:#0A1F5C}
+.today-btn:hover{background:#EEF1FB;border-color:#0A1628}
 
 .list-day{padding:18px 20px 0}
 .list-day-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
@@ -101,7 +104,23 @@ body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-f
 .stat-val{font-weight:800;color:#0A1628;font-family:'DM Mono',monospace;font-size:13px}
 .stat-label{color:#9AAABF;font-weight:600;letter-spacing:0.03em}
 
-.controls-sticky{position:sticky;top:0;z-index:99;background:#fff}  
+/* Theme picker */
+.theme-btn{position:fixed;bottom:24px;right:20px;width:44px;height:44px;border-radius:50%;background:#0A1628;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:200;transition:transform 0.2s}
+.theme-btn:hover{transform:scale(1.1)}
+.theme-panel{position:fixed;bottom:80px;right:20px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(10,22,56,0.15);z-index:200;display:none;width:220px}
+.theme-panel.open{display:block}
+.theme-panel h4{font-size:12px;font-weight:700;color:#0A1628;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em}
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.theme-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s}
+.theme-swatch.active{border-color:#0A1628;transform:scale(1.15)}
+.theme-label{font-size:11px;color:#9AAABF;margin-bottom:6px;font-weight:600}
+
+/* Not found */
+.not-found{padding:60px 20px;text-align:center}
+.not-found h2{font-family:'Instrument Serif',serif;font-size:26px;color:#0A1628;margin-bottom:8px}
+.not-found p{font-size:14px;color:#9AAABF;line-height:1.6;margin-bottom:20px}
+.not-found a{display:inline-block;padding:12px 24px;background:#0A1628;color:#fff;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px}
+
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -118,7 +137,7 @@ body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-f
 <div class="header">
   <div>
     <div class="logo">Home<em>Huddle</em></div>
-    <div class="header-sub">Dominic's schedule · powered by Venuewise</div>
+    <div class="header-sub" id="headerSub">Loading...</div>
   </div>
   <div class="sync-status" id="syncStatus" onclick="loadEvents(true)">
     <div class="sync-dot" id="syncDot"></div>
@@ -126,46 +145,53 @@ body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-f
   </div>
 </div>
 
-<div class="platform-strip">
-  <div class="platform-chip active" onclick="filterPlatform('all',this)">
-    <span class="pchip-dot" style="background:#0A1628"></span>All Sports
-  </div>
-  <div class="platform-chip" onclick="filterPlatform('gamechanger',this)">
-    <span class="pchip-dot" style="background:#F97316"></span>West Modified
-  </div>
-  <div class="platform-chip" onclick="filterPlatform('teamsnap',this)">
-    <span class="pchip-dot" style="background:#0EA5E9"></span>Caz Chiefs
-  </div>
-  <div class="platform-chip" onclick="filterPlatform('sportsyou',this)">
-    <span class="pchip-dot" style="background:#22C55E"></span>FCP Baseball
-  </div>
-</div>
+<!-- ── STICKY CONTROLS WRAPPER ── -->
+<div class="controls-sticky">
 
-<div class="stats-bar" id="statsBar">
-  <div class="stat-item"><span class="stat-val" id="statTotal">—</span><span class="stat-label">events</span></div>
-  <div class="stat-item"><span class="stat-val" id="statThisWeek">—</span><span class="stat-label">this week</span></div>
-  <div class="stat-item"><span class="stat-val" id="statConflicts">—</span><span class="stat-label">conflicts</span></div>
-  <div class="stat-item" style="margin-left:auto"><span class="stat-label" id="lastSyncLabel">Last sync: —</span></div>
-</div>
+  <div class="platform-strip" id="platformStrip">
+    <div class="platform-chip active" onclick="filterPlatform('all',this)">
+      <span class="pchip-dot" style="background:#0A1628"></span>All Sports
+    </div>
+  </div>
 
-<div class="view-switcher">
-  <div class="view-btns">
-    <button class="view-btn active" onclick="setView('list',this)">List</button>
-    <button class="view-btn" onclick="setView('month',this)">Month</button>
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item"><span class="stat-val" id="statTotal">—</span><span class="stat-label">events</span></div>
+    <div class="stat-item"><span class="stat-val" id="statThisWeek">—</span><span class="stat-label">this week</span></div>
+    <div class="stat-item"><span class="stat-val" id="statConflicts">—</span><span class="stat-label">conflicts</span></div>
+    <div class="stat-item" style="margin-left:auto"><span class="stat-label" id="lastSyncLabel">—</span></div>
   </div>
-  <div class="cal-nav">
-    <button class="cal-nav-btn" onclick="navigate(-1)">‹</button>
-    <div class="cal-period" id="calPeriod">—</div>
-    <button class="cal-nav-btn" onclick="navigate(1)">›</button>
+
+  <div class="view-switcher">
+    <div class="view-btns">
+      <button class="view-btn active" onclick="setView('list',this)">List</button>
+      <button class="view-btn" onclick="setView('month',this)">Month</button>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navigate(-1)">‹</button>
+      <div class="cal-period" id="calPeriod">—</div>
+      <button class="cal-nav-btn" onclick="navigate(1)">›</button>
+    </div>
+    <button class="today-btn" onclick="goToday()">Today</button>
   </div>
-  <button class="today-btn" onclick="goToday()">Today</button>
+
 </div>
+<!-- ── END STICKY CONTROLS ── -->
 
 <div id="calContent">
   <div class="loading-state">
     <div class="loading-spinner"></div>
-    <div>Loading HomeHuddle...</div>
+    <div>Loading your schedule...</div>
   </div>
+</div>
+
+<!-- Theme picker -->
+<button class="theme-btn" onclick="toggleThemePanel()" title="Customize colors">🎨</button>
+<div class="theme-panel" id="themePanel">
+  <h4>Your color theme</h4>
+  <div class="theme-label">Header color</div>
+  <div class="theme-grid" id="primarySwatches"></div>
+  <div class="theme-label">Accent color</div>
+  <div class="theme-grid" id="accentSwatches"></div>
 </div>
 
 <div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
@@ -175,99 +201,208 @@ body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#0A1628;-webkit-f
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════
-// SUPABASE CONNECTION — YOUR PROJECT
-// ════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ════════════════════════════════════════════════════
-// PLATFORM CONFIG — Dominic's actual platforms
-// ════════════════════════════════════════════════════
-const PLATFORMS = {
-  gamechanger: { name: 'GameChanger',  team: 'West Modified',  color: '#F97316', short: 'GC' },
-  teamsnap:    { name: 'TeamSnap',     team: 'Caz Chiefs',     color: '#0EA5E9', short: 'TS' },
-  sportsyou:   { name: 'SportsYou',    team: 'FCP Baseball',   color: '#22C55E', short: 'SY' },
-};
+// ── THEME CONFIG ─────────────────────────────────────────────────
+const PRIMARY_COLORS = [
+  { name:'Navy',    val:'#0A1628' },
+  { name:'Forest',  val:'#0F6E56' },
+  { name:'Maroon',  val:'#7F1D1D' },
+  { name:'Purple',  val:'#3730A3' },
+  { name:'Slate',   val:'#334155' },
+  { name:'Black',   val:'#111111' },
+  { name:'Royal',   val:'#1E40AF' },
+  { name:'Teal',    val:'#0F766E' },
+  { name:'Crimson', val:'#9F1239' },
+  { name:'Plum',    val:'#6B21A8' },
+  { name:'Grey',    val:'#6B7280' },
+];
+const ACCENT_COLORS = [
+  { name:'Gold',    val:'#F5C518' },
+  { name:'Green',   val:'#22C55E' },
+  { name:'Orange',  val:'#F97316' },
+  { name:'Sky',     val:'#0EA5E9' },
+  { name:'Pink',    val:'#EC4899' },
+  { name:'Lime',    val:'#84CC16' },
+  { name:'Amber',   val:'#F59E0B' },
+  { name:'Cyan',    val:'#06B6D4' },
+  { name:'Red',     val:'#EF4444' },
+  { name:'White',   val:'#FFFFFF' },
+  { name:'Red',     val:'#DC2626' },
+  { name:'Grey',    val:'#9CA3AF' },
+];
 
-// ════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════
+// Sport colors — one per kid/sport combo
+const SPORT_COLORS = ['#F97316','#0EA5E9','#22C55E','#A855F7','#EF4444','#F59E0B','#06B6D4','#EC4899'];
+
+// ── STATE ────────────────────────────────────────────────────────
 let allEvents = [];
 let currentView = 'list';
 let currentDate = new Date();
 let activePlatform = 'all';
-let lastSyncTime = null;
+let familyName = '';
+let kidName = '';
+let familyPhone = '';
+let platformMap = {};
 let lastLoadTime = null;
 
-// ════════════════════════════════════════════════════
-// LOAD EVENTS FROM SUPABASE
-// ════════════════════════════════════════════════════
+// ── GET FAMILY ID FROM URL ───────────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+const familyEmail = params.get('email');
+const familyId = params.get('id');
+
+// ── THEME ────────────────────────────────────────────────────────
+let theme = { primary: '#0A1628', accent: '#F5C518' };
+
+function loadTheme() {
+  const key = 'hh_theme_' + (familyEmail || familyId || 'default');
+  const saved = localStorage.getItem(key);
+  if (saved) {
+    try { theme = JSON.parse(saved); } catch(e) {}
+  }
+  applyTheme();
+}
+
+function applyTheme() {
+  document.documentElement.style.setProperty('--theme-primary', theme.primary);
+  document.documentElement.style.setProperty('--theme-accent', theme.accent);
+  document.querySelector('.header').style.background = theme.primary;
+}
+
+function saveTheme() {
+  const key = 'hh_theme_' + (familyEmail || familyId || 'default');
+  localStorage.setItem(key, JSON.stringify(theme));
+}
+
+function buildSwatches() {
+  const pg = document.getElementById('primarySwatches');
+  pg.innerHTML = PRIMARY_COLORS.map(c =>
+    `<div class="theme-swatch${theme.primary===c.val?' active':''}" style="background:${c.val}" title="${c.name}" onclick="setThemePrimary('${c.val}',this)"></div>`
+  ).join('');
+
+  const ag = document.getElementById('accentSwatches');
+  ag.innerHTML = ACCENT_COLORS.map(c =>
+    `<div class="theme-swatch${theme.accent===c.val?' active':''}" style="background:${c.val};border:1px solid #E2E6F0" title="${c.name}" onclick="setThemeAccent('${c.val}',this)"></div>`
+  ).join('');
+}
+
+function setThemePrimary(val, el) {
+  theme.primary = val;
+  applyTheme(); saveTheme();
+  document.querySelectorAll('#primarySwatches .theme-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Theme updated!');
+}
+
+function setThemeAccent(val, el) {
+  theme.accent = val;
+  applyTheme(); saveTheme();
+  document.querySelectorAll('#accentSwatches .theme-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.platform-chip.active').forEach(c => c.style.borderBottomColor = val);
+  showToast('Theme updated!');
+}
+
+function toggleThemePanel() {
+  buildSwatches();
+  document.getElementById('themePanel').classList.toggle('open');
+}
+
+// ── LOAD FEEDS + EVENTS ──────────────────────────────────────────
 async function loadEvents(manualRefresh = false) {
+  if (!familyEmail && !familyId) {
+    document.getElementById('calContent').innerHTML = `
+      <div class="not-found">
+        <h2>No family found</h2>
+        <p>This link doesn't include a family identifier.<br>Please use the link that was sent to you.</p>
+        <a href="https://venuewise.net/join">Sign up for HomeHuddle</a>
+      </div>`;
+    document.getElementById('headerSub').textContent = 'powered by Venuewise';
+    return;
+  }
+
   if (manualRefresh) {
     document.getElementById('syncDot').style.background = '#F5C518';
     document.getElementById('syncText').textContent = 'Syncing...';
   }
 
   try {
-    // Load events: 30 days back, 365 days forward
+    let feedQuery = sb.from('feeds').select('*').eq('is_active', true);
+    if (familyEmail) feedQuery = feedQuery.eq('email', familyEmail);
+    else feedQuery = feedQuery.eq('id', familyId);
+
+    const { data: feeds, error: feedErr } = await feedQuery;
+    if (feedErr || !feeds || feeds.length === 0) {
+      document.getElementById('calContent').innerHTML = `
+        <div class="not-found">
+          <h2>No schedule found</h2>
+          <p>We couldn't find a schedule for this family.<br>Make sure you used the correct link.</p>
+          <a href="https://venuewise.net/join">Sign up for HomeHuddle</a>
+        </div>`;
+      return;
+    }
+
+    familyName = feeds[0].family_name || 'Your Family';
+    kidName = feeds[0].kid_name || 'Your Kid';
+    familyPhone = feeds[0].phone || '';
+
+    const uniqueKeys = [...new Set(feeds.map(f => f.kid_name + '_' + f.sport))];
+    platformMap = {};
+    feeds.forEach(f => {
+      const key = f.platform;
+      const colorIdx = uniqueKeys.indexOf(f.kid_name + '_' + f.sport) % SPORT_COLORS.length;
+      if (!platformMap[key]) {
+        platformMap[key] = {
+          name: f.platform,
+          team: f.kid_name + ' · ' + f.sport,
+          color: SPORT_COLORS[colorIdx],
+          short: f.platform.substring(0,2).toUpperCase(),
+          kidName: f.kid_name,
+          sport: f.sport,
+        };
+      }
+    });
+
+    document.getElementById('headerSub').textContent = familyName + "'s schedule · powered by Venuewise";
+    document.title = 'HomeHuddle · ' + familyName + "'s Schedule";
+
+    buildPlatformStrip(feeds);
+
+    const phones = [...new Set(feeds.map(f => f.phone).filter(Boolean))];
     const now = new Date();
     const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const end = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
-    const { data, error } = await sb
-      .from('events')
+    let evQuery = sb.from('events')
       .select('*')
       .gte('start', start.toISOString())
       .lte('start', end.toISOString())
       .eq('is_duplicate', false)
       .order('start', { ascending: true });
 
-    if (error) {
-      console.error('Load error full object:', error);
-      console.error('Error message:', error.message);
-      console.error('Error code:', error.code);
-      console.error('Error details:', error.details);
-      console.error('Error hint:', error.hint);
-      document.getElementById('calContent').innerHTML = `
-        <div style="padding:30px 20px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:12px;margin:20px;font-family:'DM Mono',monospace;font-size:12px">
-          <div style="font-family:'DM Sans';font-size:16px;font-weight:700;color:#991B1B;margin-bottom:12px">⚠️ Connection Error — Diagnostic Info</div>
-          <div style="margin-bottom:8px"><strong>Message:</strong> ${error.message || '(none)'}</div>
-          <div style="margin-bottom:8px"><strong>Code:</strong> ${error.code || '(none)'}</div>
-          <div style="margin-bottom:8px"><strong>Details:</strong> ${error.details || '(none)'}</div>
-          <div style="margin-bottom:8px"><strong>Hint:</strong> ${error.hint || '(none)'}</div>
-          <div style="font-family:'DM Sans';font-size:11px;color:#6B7A99;margin-top:14px">Send this screenshot to Keith for diagnosis.</div>
-        </div>`;
-      return;
+    if (phones.length > 0) {
+      evQuery = evQuery.in('family_phone', phones);
+    } else {
+      const kidNames = [...new Set(feeds.map(f => f.kid_name))];
+      evQuery = evQuery.in('kid', kidNames);
     }
+
+    const { data, error } = await evQuery;
+    if (error) throw error;
 
     lastLoadTime = new Date();
     allEvents = (data || []).map(row => ({
-      id: row.uid,
-      uid: row.uid,
-      name: row.name,
-      kid: row.kid,
-      platform: row.platform,
-      sport: row.sport,
-      start: new Date(row.start),
-      end: new Date(row.end),
+      id: row.uid, uid: row.uid,
+      name: row.name, kid: row.kid,
+      platform: row.platform, sport: row.sport,
+      start: new Date(row.start), end: new Date(row.end),
       location: row.location || '',
       description: row.description || '',
       conflict: row.conflict,
-      color: PLATFORMS[row.platform]?.color || '#9AAABF',
+      color: platformMap[row.platform]?.color || SPORT_COLORS[0],
     }));
-
-    // Also load platform status for "last sync" label
-    const { data: statusData } = await sb.from('platform_status').select('*');
-    if (statusData && statusData.length) {
-      const lastSyncs = statusData
-        .filter(s => s.last_sync)
-        .map(s => new Date(s.last_sync));
-      if (lastSyncs.length) {
-        lastSyncTime = new Date(Math.max(...lastSyncs));
-      }
-    }
 
     updateStats();
     render();
@@ -277,70 +412,66 @@ async function loadEvents(manualRefresh = false) {
       document.getElementById('syncText').textContent = 'Synced';
       showToast('✅ Schedule refreshed — ' + allEvents.length + ' events loaded');
     }
-  } catch (err) {
-    console.error('Caught exception:', err);
-    document.getElementById('calContent').innerHTML = `
-      <div style="padding:30px 20px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:12px;margin:20px;font-family:'DM Mono',monospace;font-size:12px">
-        <div style="font-family:'DM Sans';font-size:16px;font-weight:700;color:#991B1B;margin-bottom:12px">⚠️ JavaScript Exception</div>
-        <div style="margin-bottom:8px"><strong>Name:</strong> ${err.name || '(none)'}</div>
-        <div style="margin-bottom:8px"><strong>Message:</strong> ${err.message || '(none)'}</div>
-        <div style="margin-bottom:8px;white-space:pre-wrap;word-break:break-all"><strong>Stack:</strong> ${(err.stack || '').slice(0,500)}</div>
-        <div style="font-family:'DM Sans';font-size:11px;color:#6B7A99;margin-top:14px">Send this screenshot to Keith for diagnosis.</div>
-      </div>`;
+
+  } catch(err) {
+    console.error(err);
     document.getElementById('syncDot').style.background = '#DC2626';
     document.getElementById('syncText').textContent = 'Error';
+    document.getElementById('calContent').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Something went wrong</div><div class="empty-sub">Tap the sync button to try again.</div></div>`;
   }
 }
 
-// ════════════════════════════════════════════════════
-// STATS BAR
-// ════════════════════════════════════════════════════
+function buildPlatformStrip(feeds) {
+  const strip = document.getElementById('platformStrip');
+  const seen = new Set();
+  let html = `<div class="platform-chip active" onclick="filterPlatform('all',this)"><span class="pchip-dot" style="background:#0A1628"></span>All Sports</div>`;
+
+  feeds.forEach(f => {
+    const key = f.platform + '_' + f.kid_name;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const pm = platformMap[f.platform];
+    html += `<div class="platform-chip" onclick="filterPlatform('${f.platform}_${f.kid_name}',this)">
+      <span class="pchip-dot" style="background:${pm?.color||'#9AAABF'}"></span>${f.kid_name} · ${f.sport}
+    </div>`;
+  });
+  strip.innerHTML = html;
+}
+
+// ── STATS ────────────────────────────────────────────────────────
 function updateStats() {
   const now = new Date();
   const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   const filtered = filteredEvents();
-
   document.getElementById('statTotal').textContent = filtered.length;
   document.getElementById('statThisWeek').textContent = filtered.filter(e => e.start >= now && e.start <= weekEnd).length;
   document.getElementById('statConflicts').textContent = filtered.filter(e => e.conflict).length;
-
-  // Show when page last loaded data
   if (lastLoadTime) {
-    const mins2 = Math.floor((now - lastLoadTime) / 60000);
-    let label2;
-    if (mins2 < 1) label2 = "Updated: just now";
-    else if (mins2 < 60) label2 = `Updated: ${mins2} min ago`;
-    else label2 = `Updated: ${Math.floor(mins2/60)} hr ago`;
-    document.getElementById("lastSyncLabel").textContent = label2;
-  } else if (false && lastSyncTime) {
-    const mins = Math.floor((now - lastSyncTime) / 60000);
-    let label;
-    if (mins < 1) label = 'Last sync: just now';
-    else if (mins < 60) label = `Last sync: ${mins} min ago`;
-    else if (mins < 1440) label = `Last sync: ${Math.floor(mins/60)} hr ago`;
-    else label = `Last sync: ${Math.floor(mins/1440)} days ago`;
-    document.getElementById('lastSyncLabel').textContent = label;
+    const mins = Math.floor((now - lastLoadTime) / 60000);
+    document.getElementById('lastSyncLabel').textContent = mins < 1 ? 'Updated: just now' : `Updated: ${mins} min ago`;
   }
 }
 
-// ════════════════════════════════════════════════════
-// FILTERING
-// ════════════════════════════════════════════════════
+// ── FILTERING ────────────────────────────────────────────────────
 function filteredEvents() {
-  return allEvents.filter(e => activePlatform === 'all' || e.platform === activePlatform);
+  if (activePlatform === 'all') return allEvents;
+  const [plat, kid] = activePlatform.split('_');
+  return allEvents.filter(e => e.platform === plat && e.kid === kid);
 }
 
 function filterPlatform(p, el) {
   activePlatform = p;
-  document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.platform-chip').forEach(c => {
+    c.classList.remove('active');
+    c.style.borderBottomColor = '';
+  });
   el.classList.add('active');
+  el.style.borderBottomColor = theme.accent;
   updateStats();
   render();
 }
 
-// ════════════════════════════════════════════════════
-// LIST VIEW
-// ════════════════════════════════════════════════════
+// ── LIST VIEW ────────────────────────────────────────────────────
 function renderList() {
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const y = currentDate.getFullYear(), m = currentDate.getMonth();
@@ -369,28 +500,26 @@ function renderList() {
     const isToday = dt.toDateString() === today.toDateString();
     const isPast = dt < today && !isToday;
 
-    html += `<div class="list-day"${isPast ? ' style="opacity:0.65"' : ''}>
+    html += `<div class="list-day"${isPast?' style="opacity:0.65"':''}>
       <div class="list-day-header">
         <div class="list-day-name">${dayNames[dt.getDay()]}, ${monthsShort[dt.getMonth()]} ${dt.getDate()}</div>
-        ${isToday ? '<div class="list-day-today">Today</div>' : ''}
+        ${isToday?'<div class="list-day-today">Today</div>':''}
       </div>`;
 
     const conflicts = dayEvs.filter(e => e.conflict);
-    if (conflicts.length > 0) {
-      html += `<div class="le-conflict">⚠️ ${conflicts.length} scheduling conflict${conflicts.length > 1 ? 's' : ''} on this day</div>`;
-    }
+    if (conflicts.length > 0) html += `<div class="le-conflict">⚠️ ${conflicts.length} scheduling conflict${conflicts.length>1?'s':''} on this day</div>`;
 
     dayEvs.forEach(e => {
-      const p = PLATFORMS[e.platform] || { name: e.platform, color: '#9AAABF', short: '??' };
-      html += `<div class="list-event" onclick='showEventDetail(${JSON.stringify(e).replace(/'/g, "&#39;")})'>
+      const p = platformMap[e.platform] || { name: e.platform, color: '#9AAABF', short: '??' };
+      html += `<div class="list-event" onclick='showEventDetail(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
         <div class="le-time">${fmtTime(e.start)}<br><small>${fmtTime(e.end)}</small></div>
         <div class="le-stripe" style="background:${e.color}"></div>
         <div class="le-info">
-          <div class="le-name">${e.conflict ? '⚠️ ' : ''}${escapeHtml(e.name)}</div>
-          ${e.location ? `<a class="le-detail" href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}" target="_blank" onclick="event.stopPropagation()" rel="noopener">📍 ${escapeHtml(e.location)}</a>` : ''}
+          <div class="le-name">${e.conflict?'⚠️ ':''}${escapeHtml(e.name)}</div>
+          ${e.location?`<a class="le-detail" href="https://maps.apple.com/?q=${encodeURIComponent(e.location)}" target="_blank" onclick="event.stopPropagation()" rel="noopener">📍 ${escapeHtml(e.location)}</a>`:''}
           <div class="le-tags">
-            <span class="le-tag" style="background:${p.color}22;color:${p.color}">${p.short} · ${escapeHtml(p.team || p.name)}</span>
-            <span class="le-tag" style="background:#F0F2F7;color:#6B7A99">${e.sport}</span>
+            <span class="le-tag" style="background:${e.color}22;color:${e.color}">${escapeHtml(p.short)} · ${escapeHtml(e.kid||kidName)}</span>
+            <span class="le-tag" style="background:#F0F2F7;color:#6B7A99">${escapeHtml(e.sport)}</span>
           </div>
         </div>
       </div>`;
@@ -398,19 +527,11 @@ function renderList() {
     html += `</div>`;
   });
 
-  if (!html) {
-    html = `<div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">No events this month</div>
-      <div class="empty-sub">No games or practices found for ${months[m]} ${y}.<br>Try navigating to another month.</div>
-    </div>`;
-  }
+  if (!html) html = `<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No events this month</div><div class="empty-sub">No games or practices found for ${months[m]} ${y}.</div></div>`;
   document.getElementById('calContent').innerHTML = html;
 }
 
-// ════════════════════════════════════════════════════
-// MONTH VIEW
-// ════════════════════════════════════════════════════
+// ── MONTH VIEW ───────────────────────────────────────────────────
 function renderMonth() {
   const y = currentDate.getFullYear(), m = currentDate.getMonth();
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -434,23 +555,28 @@ function renderMonth() {
     const isThisMonth = cellDate.getMonth() === m;
     const isToday = cellDate.toDateString() === today.toDateString();
     const dayEvs = filteredEvents().filter(e => e.start.toDateString() === cellDate.toDateString());
-    const classes = ['month-cell', !isThisMonth ? 'other-month' : '', isToday ? 'today-cell' : ''].filter(Boolean).join(' ');
+    const classes = ['month-cell',!isThisMonth?'other-month':'',isToday?'today-cell':''].filter(Boolean).join(' ');
 
     html += `<div class="${classes}" onclick="goToDate(${cellDate.getTime()})">
       <div class="month-num">${cellDate.getDate()}</div>`;
-    dayEvs.slice(0, 3).forEach(e => {
-      html += `<div class="month-ev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}" onclick="event.stopPropagation();showEventDetail(${JSON.stringify(e).replace(/'/g, '&#39;')})">${e.conflict ? '⚠️' : ''}${escapeHtml(e.name)}</div>`;
+    dayEvs.slice(0,3).forEach(e => {
+      html += `<div class="month-ev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}" onclick="event.stopPropagation();showEventDetail(${JSON.stringify(e).replace(/'/g,'&#39;')})">${e.conflict?'⚠️':''}${escapeHtml(e.name)}</div>`;
     });
-    if (dayEvs.length > 3) html += `<div class="month-more">+${dayEvs.length - 3} more</div>`;
+    if (dayEvs.length > 3) html += `<div class="month-more">+${dayEvs.length-3} more</div>`;
     html += `</div>`;
   }
   html += `</div>`;
   document.getElementById('calContent').innerHTML = html;
 }
 
-// ════════════════════════════════════════════════════
-// RENDER + NAV
-// ════════════════════════════════════════════════════
+// ── RENDER + NAV ─────────────────────────────────────────────────
+function scrollToToday() {
+  const todayEls = document.querySelectorAll('.list-day-today');
+  if (todayEls.length > 0) {
+    todayEls[0].closest('.list-day').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 function render() {
   if (currentView === 'list') renderList();
   else renderMonth();
@@ -473,13 +599,8 @@ function goToday() {
   currentView = 'list';
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.view-btn')[0].classList.add('active');
-  function scrollToToday() {
-  const todayEls = document.querySelectorAll('.list-day-today');
-  if (todayEls.length > 0) {
-    todayEls[0].closest('.list-day').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}render();
-  loadEvents().then(() => setTimeout(scrollToToday, 300));
+  render();
+  setTimeout(scrollToToday, 100);
 }
 
 function goToDate(ts) {
@@ -490,108 +611,72 @@ function goToDate(ts) {
   render();
 }
 
-// ════════════════════════════════════════════════════
-// EVENT DETAIL MODAL
-// ════════════════════════════════════════════════════
+// ── EVENT MODAL ──────────────────────────────────────────────────
 function showEventDetail(ev) {
   if (typeof ev === 'string') ev = JSON.parse(ev);
-  const p = PLATFORMS[ev.platform] || { name: ev.platform, color: '#9AAABF', short: '??', team: '' };
+  const p = platformMap[ev.platform] || { name: ev.platform, color: '#9AAABF', short: '??', team: '' };
   const start = new Date(ev.start), end = new Date(ev.end);
   const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   document.getElementById('eventModalContent').innerHTML = `
     <div class="modal-handle"></div>
-    ${ev.conflict ? `<div style="background:#FEE2E2;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;font-weight:600;color:#991B1B;border-left:3px solid #DC2626">⚠️ Schedule conflict — this overlaps with another event</div>` : ''}
+    ${ev.conflict?`<div style="background:#FEE2E2;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;font-weight:600;color:#991B1B;border-left:3px solid #DC2626">⚠️ Schedule conflict — this overlaps with another event</div>`:''}
     <div class="em-header">
       <div class="em-stripe" style="background:${ev.color}"></div>
       <div>
         <div class="em-title">${escapeHtml(ev.name)}</div>
-        <div class="em-org">Dominic · ${escapeHtml(ev.sport)}</div>
+        <div class="em-org">${escapeHtml(ev.kid||kidName)} · ${escapeHtml(ev.sport)}</div>
       </div>
     </div>
     <div class="em-row"><div class="em-icon">📅</div><div class="em-label">Date</div><div class="em-val">${dayNames[start.getDay()]}, ${months[start.getMonth()]} ${start.getDate()}</div></div>
     <div class="em-row"><div class="em-icon">🕐</div><div class="em-label">Time</div><div class="em-val">${fmtTime(start)} – ${fmtTime(end)}</div></div>
-    ${ev.location ? `<a class="em-row" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}" target="_blank" rel="noopener" style="text-decoration:none"><div class="em-icon">📍</div><div class="em-label">Location</div><div class="em-val" style="color:#0A1F5C;text-decoration:underline;cursor:pointer">${escapeHtml(ev.location)}</div><span style="font-size:12px">›</span></a>` : ''}
-    <div class="em-row"><div class="em-icon">📱</div><div class="em-label">Source</div><div class="em-val">${escapeHtml(p.team || p.name)}</div><span class="em-source" style="background:${p.color}22;color:${p.color}">${p.short}</span></div>
-    ${ev.description ? `<div class="em-row"><div class="em-icon">📝</div><div class="em-label">Notes</div><div class="em-val" style="font-weight:500">${escapeHtml(ev.description)}</div></div>` : ''}
+    ${ev.location?`<a class="em-row" href="https://maps.apple.com/?q=${encodeURIComponent(ev.location)}" target="_blank" rel="noopener" style="text-decoration:none"><div class="em-icon">📍</div><div class="em-label">Location</div><div class="em-val" style="color:#0A1F5C;text-decoration:underline">${escapeHtml(ev.location)}</div><span style="font-size:12px">›</span></a>`:''}
+    <div class="em-row"><div class="em-icon">📱</div><div class="em-label">Source</div><div class="em-val">${escapeHtml(p.team||p.name)}</div><span class="em-source" style="background:${p.color}22;color:${p.color}">${p.short}</span></div>
+    ${ev.description?`<div class="em-row"><div class="em-icon">📝</div><div class="em-label">Notes</div><div class="em-val" style="font-weight:500">${escapeHtml(ev.description)}</div></div>`:''}
     <button class="add-cal-btn" onclick="addToDeviceCalendar('${ev.id}')">📲 Add to My Phone's Calendar</button>
-    <button class="btn-close" onclick="closeModal()">Close</button>
-  `;
+    <button class="btn-close" onclick="closeModal()">Close</button>`;
   document.getElementById('eventModal').classList.add('show');
 }
 
 function addToDeviceCalendar(evId) {
   const ev = allEvents.find(e => e.id === evId);
   if (!ev) return;
-  const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  const ics = [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Dominic Calendar//EN','BEGIN:VEVENT',
-    `UID:${ev.id}@dominiccalendar`,
-    `DTSTART:${fmt(new Date(ev.start))}`,
-    `DTEND:${fmt(new Date(ev.end))}`,
-    `SUMMARY:${ev.name}`,
-    `LOCATION:${ev.location || ''}`,
-    `DESCRIPTION:Dominic · ${ev.sport} · via ${PLATFORMS[ev.platform]?.team || ev.platform}${ev.description ? ' · ' + ev.description : ''}`,
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-  const blob = new Blob([ics], { type: 'text/calendar' });
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HomeHuddle//EN','BEGIN:VEVENT',
+    `UID:${ev.id}@homehuddle`,`DTSTART:${fmt(new Date(ev.start))}`,`DTEND:${fmt(new Date(ev.end))}`,
+    `SUMMARY:${ev.name}`,`LOCATION:${ev.location||''}`,
+    `DESCRIPTION:${ev.kid||kidName} · ${ev.sport} · via HomeHuddle`,
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const blob = new Blob([ics],{type:'text/calendar'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `${ev.name.replace(/[^a-z0-9]/gi, '_')}.ics`;
-  a.click();
+  a.href=url; a.download=`${ev.name.replace(/[^a-z0-9]/gi,'_')}.ics`; a.click();
   URL.revokeObjectURL(url);
-  showToast('📲 Event downloaded — open the .ics file to add to your phone');
+  showToast('📲 Event downloaded — open the .ics file to add to your calendar');
 }
 
-function closeModal() {
-  document.getElementById('eventModal').classList.remove('show');
-}
+function closeModal() { document.getElementById('eventModal').classList.remove('show'); }
 
-// ════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════
+// ── HELPERS ──────────────────────────────────────────────────────
 function fmtTime(d) {
-  const h = d.getHours(), m = d.getMinutes();
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hr = h % 12 || 12;
-  return `${hr}${m ? ':' + String(m).padStart(2, '0') : ''}${period}`;
+  const h=d.getHours(),m=d.getMinutes();
+  return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${h>=12?'PM':'AM'}`;
 }
-
 function escapeHtml(s) {
-  if (!s) return '';
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  if(!s)return'';
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// ════════════════════════════════════════════════════
-// MAPS — Opens Apple Maps on iPhone, Google Maps on Android
-// ════════════════════════════════════════════════════
-function openMaps(address) {
-  const encoded = encodeURIComponent(address);
-  const a = document.createElement('a');
-  a.href = `https://maps.apple.com/?q=${encoded}`;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-
-setInterval(() => loadEvents(false), 5 * 60 * 1000);
-
-// ════════════════════════════════════════════════════
-// INITIAL LOAD
-// ════════════════════════════════════════════════════
-loadEvents();
+// ── INIT ─────────────────────────────────────────────────────────
+loadTheme();
+loadEvents().then(() => setTimeout(scrollToToday, 300));
+setInterval(()=>loadEvents(false), 5*60*1000);
 </script>
 </body>
-</html>
+</html>426
