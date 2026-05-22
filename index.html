@@ -1,997 +1,567 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>HomeHuddle · Dominic's Schedule</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --navy:#0A1628;--navy-mid:#0F1F3D;--navy-light:#162444;
-      --gold:#F5C518;--gold-dim:#c49e10;
-      --white:#F0F4FF;--muted:#7A8FAD;
-      --card-bg:#111D35;--border:rgba(245,197,24,0.12);--radius:10px;
-      --orange:#E8721C;--blue:#1E6FD9;--green:#1EA85A;
-    }
-    html{scroll-behavior:smooth}
+// ═══════════════════════════════════════════════════════════════════
+// HomeHuddle — Supabase Edge Function with SMS Alerts
+// Phase 2: reads feeds from database, not hardcoded env vars
+// powered by Venuewise
+// ═══════════════════════════════════════════════════════════════════
 
-    /*
-      FIX 1: Do NOT set overflow on body/html — any overflow:hidden/clip on an
-      ancestor will silently kill position:sticky on Safari.
-      Instead we clip overflow on <main> using a wrapper trick (see below).
-    */
-    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    /* ── HEADER ── */
-    #siteHeader{
-      /* FIX 2: Always include -webkit-sticky — required on Safari */
-      position:-webkit-sticky;
-      position:sticky;
-      top:0;z-index:300;
-      background:var(--navy);border-bottom:1px solid var(--border);
-      padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-      box-shadow:0 4px 24px rgba(0,0,0,0.5);
-    }
-    .hlogo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.04em;color:var(--white);line-height:1}
-    .hlogo em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:2rem;letter-spacing:0}
-    .hsub{font-size:0.7rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px}
-    .hsub b{color:var(--gold);font-weight:600}
-    .sync-btn{
-      display:flex;align-items:center;gap:6px;
-      background:rgba(255,255,255,0.07);border:1px solid var(--border);
-      border-radius:20px;padding:7px 13px;color:var(--white);
-      font-size:0.75rem;font-weight:600;cursor:pointer;
-      transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0;
-    }
-    .sync-btn:hover{border-color:var(--gold)}
-    .sync-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
-    .sync-updated{font-size:0.58rem;color:var(--muted);letter-spacing:0.03em;padding-right:2px}
-    .sdot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:pdot 1.5s ease-in-out infinite}
-    .sdot.err{background:#EF4444;animation:none}
-    .sdot.spin{background:var(--gold)}
-    @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
+interface CalEvent {
+  uid: string;
+  name: string;
+  start: Date;
+  end: Date;
+  location: string;
+  description: string;
+  platform: string;
+  kid: string;
+  sport: string;
+  familyPhone?: string;
+}
 
-    /* ── STATS BAR ──
-       FIX 3: top is set dynamically via JS (ResizeObserver),
-       so we use a CSS custom property as the source of truth.
-       The initial value keeps layout correct before JS fires.
-    */
-    #statsBar{
-      position:-webkit-sticky;
-      position:sticky;
-      top:var(--header-h, 73px);
-      z-index:200;
-      background:var(--navy-mid);border-bottom:1px solid var(--border);
-      padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
-      box-shadow:0 2px 12px rgba(0,0,0,0.4);
-    }
-    .stat{text-align:center;padding:5px 2px}
-    .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);line-height:1}
-    .stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px}
-    .stat-val.past{color:var(--muted)}
+interface FeedRecord {
+  id: string;
+  family_name: string;
+  email: string;
+  phone: string;
+  kid_name: string;
+  sport: string;
+  platform: string;
+  ical_url: string;
+  is_active: boolean;
+}
 
-    /* ── CONTROLS ── */
-    #controls{
-      position:-webkit-sticky;
-      position:sticky;
-      top:var(--header-stats-h, 163px);
-      z-index:100;
-      background:var(--navy);border-bottom:1px solid var(--border);
-      box-shadow:0 4px 16px rgba(0,0,0,0.4);
-    }
-    .pstrip{
-      padding:10px 20px 0;
-      display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
-    }
-    .pstrip::-webkit-scrollbar{display:none}
-    .pchip{
-      display:flex;align-items:center;gap:6px;
-      padding:8px 14px;border-bottom:2.5px solid transparent;
-      cursor:pointer;white-space:nowrap;font-size:0.76rem;font-weight:600;
-      color:var(--muted);flex-shrink:0;transition:all 0.18s;
-    }
-    .pchip.active{color:var(--white)}
-    .pchip[data-key="all"].active{border-bottom-color:var(--gold)}
-    .pchip[data-key="west"].active{border-bottom-color:var(--orange);color:var(--orange)}
-    .pchip[data-key="caz"].active{border-bottom-color:var(--blue);color:var(--blue)}
-    .pchip[data-key="fcp"].active{border-bottom-color:var(--green);color:var(--green)}
-    .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .vrow{
-      padding:8px 12px 10px;
-      display:flex;align-items:center;justify-content:space-between;gap:6px;
-      flex-wrap:nowrap;overflow:hidden;
-    }
-    .vbtns{display:flex;background:var(--card-bg);border-radius:8px;padding:3px;gap:2px;flex-shrink:0}
-    .vbtn{
-      padding:5px 12px;border-radius:6px;border:none;background:transparent;
-      font-size:0.75rem;font-weight:600;color:var(--muted);
-      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
-    }
-    .vbtn.active{background:var(--navy-light);color:var(--gold)}
-    .mnav{display:flex;align-items:center;gap:4px;flex-shrink:0}
-    .mnav-arr{
-      background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
-      border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
-      display:flex;align-items:center;justify-content:center;transition:all 0.2s;
-      font-family:'DM Sans',sans-serif;flex-shrink:0;
-    }
-    .mnav-arr:hover{border-color:var(--gold);color:var(--gold)}
-    .mnav-today{
-      background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
-      border-radius:6px;padding:0 8px;height:28px;
-      font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;
-      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0;
-    }
-    .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-    #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.07em;color:var(--white);min-width:100px;text-align:center;flex-shrink:1}
-
-    /* ── MAIN ──
-       FIX 4: The original used overflow-x:clip which Safari treats like
-       overflow:hidden and kills sticky on descendants.
-       Use clip-path or contain on a wrapper instead.
-       We contain overflow by wrapping content in a div that clips via
-       transform (doesn't create a new stacking context for sticky ancestors).
-       Simplest safe approach: just remove overflow-x clipping from main.
-       Horizontal overflow on list/month views is prevented by:
-       - etitle: text-overflow:ellipsis + overflow:hidden
-       - calendar grid: using percentage columns with no min-width issues
-       So we simply don't need overflow:clip here at all.
-    */
-    main{padding:14px 20px 80px}
-
-    /* ── LIST ── */
-    .dgroup{margin-bottom:20px}
-    .dlabel{
-      font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;
-      color:var(--muted);margin-bottom:8px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .dlabel::after{content:'';flex:1;height:1px;background:var(--border)}
-    .dlabel.today{color:var(--gold)}
-    .tpill{font-size:0.58rem;font-weight:700;background:var(--gold);color:var(--navy);padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:0.06em}
-    .ecard{
-      background:var(--card-bg);border:1px solid var(--border);
-      border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;
-      display:flex;align-items:flex-start;gap:10px;
-      transition:border-color 0.2s,transform 0.15s;cursor:pointer;
-    }
-    .ecard:hover{border-color:rgba(245,197,24,0.3);transform:translateX(2px)}
-    .etime{min-width:46px;text-align:right;font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:600;color:var(--muted);padding-top:2px;line-height:1.5;flex-shrink:0}
-    .etime small{font-weight:400;display:block}
-    .estripe{width:3px;border-radius:3px;align-self:stretch;flex-shrink:0}
-    .ebody{flex:1;min-width:0}
-    .etitle{font-weight:700;font-size:0.88rem;color:var(--white);margin-bottom:3px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .eloc{display:flex;align-items:center;gap:4px;color:var(--gold-dim);font-size:0.7rem;text-decoration:none;margin-top:4px;transition:color 0.15s}
-    .eloc:hover{color:var(--gold)}
-    .etag{font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.04em;margin-top:5px;display:inline-block}
-    .cbanner{background:rgba(220,38,38,0.1);border-left:3px solid #DC2626;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:0.74rem;font-weight:600;color:#FCA5A5;display:flex;align-items:center;gap:7px}
-
-    /* ── MONTH ── */
-    .cghdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)}
-    .cgdow{text-align:center;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);padding:7px 0}
-    .cg{display:grid;grid-template-columns:repeat(7,1fr)}
-    .ccell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:76px;padding:4px;cursor:pointer;transition:background 0.15s}
-    .ccell:nth-child(7n){border-right:none}
-    .ccell:hover{background:rgba(245,197,24,0.05)}
-    .ccell.om{opacity:0.3}
-    .ccell.tc{background:rgba(245,197,24,0.07)}
-    .cnum{font-size:0.7rem;font-weight:600;color:var(--muted);margin-bottom:3px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-    .ccell.tc .cnum{background:var(--gold);color:var(--navy);font-weight:800}
-    .cev{font-size:0.58rem;font-weight:600;border-radius:3px;padding:2px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-    .cmore{font-size:0.58rem;color:var(--muted);font-weight:600;padding:1px 4px}
-
-    /* ── MODAL ── */
-    .moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
-    .moverlay.show{display:flex}
-    .msheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;max-height:80vh;overflow-y:auto;border:1px solid var(--border)}
-    .mhandle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
-    .mtitle{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:3px}
-    .morg{font-size:0.74rem;color:var(--muted);font-weight:500}
-    .mrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
-    .mrow:last-of-type{border-bottom:none}
-    .mico{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0}
-    .mlbl{color:var(--muted);font-size:0.7rem;font-weight:500;min-width:64px}
-    .mval{color:var(--white);font-weight:600;flex:1}
-    .mact{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px}
-    .mcls{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
-
-    /* ── MAPS PICKER ── */
-    .moverlay-maps{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:700;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
-    .moverlay-maps.show{display:flex}
-    .maps-sheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;border:1px solid var(--border)}
-    .maps-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:center;margin-bottom:14px}
-    .maps-loc{font-size:0.82rem;font-weight:600;color:var(--white);text-align:center;margin-bottom:16px;padding:0 12px;line-height:1.4}
-    .maps-btn{
-      width:100%;display:flex;align-items:center;gap:12px;
-      background:var(--card-bg);border:1px solid var(--border);
-      border-radius:10px;padding:13px 16px;margin-bottom:8px;
-      cursor:pointer;font-family:'DM Sans',sans-serif;
-      text-decoration:none;transition:border-color 0.18s;
-    }
-    .maps-btn:hover{border-color:rgba(245,197,24,0.35)}
-    .maps-btn-ico{font-size:1.4rem;width:28px;text-align:center;flex-shrink:0}
-    .maps-btn-label{flex:1;text-align:left}
-    .maps-btn-name{font-size:0.85rem;font-weight:700;color:var(--white);display:block}
-    .maps-btn-sub{font-size:0.68rem;color:var(--muted);display:block;margin-top:1px}
-    .maps-cls{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
-
-    /* ── THEME BUTTON ── */
-    .theme-btn{
-      background:rgba(255,255,255,0.07);border:1px solid var(--border);
-      border-radius:50%;width:34px;height:34px;font-size:1rem;
-      cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;
-      flex-shrink:0;
-    }
-    .theme-btn:hover{border-color:var(--gold);transform:scale(1.1)}
-
-    /* ── THEME PICKER ── */
-    .moverlay-theme{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:800;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
-    .moverlay-theme.show{display:flex}
-    .theme-sheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;border:1px solid var(--border)}
-    .theme-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:center;margin-bottom:16px}
-    .theme-preview{border-radius:var(--radius);overflow:hidden;margin-bottom:20px;border:1px solid var(--border)}
-    .preview-header{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-    .preview-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--white)}
-    .preview-logo span{color:var(--gold)}
-    .preview-dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
-    .preview-card{background:var(--card-bg);margin:8px;border-radius:8px;padding:10px 12px;border:1px solid var(--border);display:flex;gap:8px;align-items:center}
-    .preview-stripe{width:3px;height:32px;border-radius:3px;background:var(--gold);flex-shrink:0}
-    .preview-text{font-size:0.75rem;color:var(--white);font-weight:600}
-    .preview-tag{font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(245,197,24,0.15);color:var(--gold);margin-top:3px;display:inline-block}
-    .theme-section{margin-bottom:20px}
-    .theme-section-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px}
-    .color-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-    .color-label{font-size:0.8rem;font-weight:600;color:var(--white);min-width:80px;flex-shrink:0}
-    .color-input-wrap{position:relative;flex-shrink:0}
-    .color-swatch{width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,0.2);cursor:pointer;transition:transform 0.15s}
-    .color-swatch:hover{transform:scale(1.1)}
-    input[type=color]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none;padding:0}
-    .color-hex{flex:1;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:0.78rem;font-weight:600;color:var(--white);font-family:'DM Mono',monospace;text-transform:uppercase}
-    .color-hex:focus{outline:none;border-color:var(--gold)}
-    .palette-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;max-height:160px;overflow-y:auto;padding:4px 2px}
-    .palette-row::-webkit-scrollbar{width:4px}
-    .palette-row::-webkit-scrollbar-track{background:transparent}
-    .palette-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-    .palette-swatch{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all 0.15s;flex-shrink:0}
-    .palette-swatch:hover{transform:scale(1.2);border-color:rgba(255,255,255,0.6);z-index:1;position:relative}
-    .palette-swatch.selected{border-color:var(--white);transform:scale(1.15);box-shadow:0 0 0 1px var(--white)}
-    .theme-save{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:7px}
-    .theme-reset{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
-    .theme-cls{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
-
-    /* ── STATES ── */
-    .smsg{text-align:center;padding:52px 20px;color:var(--muted)}
-    .smsg .ico{font-size:2.8rem;margin-bottom:12px}
-    .smsg h3{font-family:'Playfair Display',serif;font-style:italic;font-size:1.3rem;color:var(--white);margin-bottom:6px}
-    .smsg p{font-size:0.85rem;line-height:1.6;max-width:280px;margin:0 auto}
-    .loader{display:flex;justify-content:center;align-items:center;gap:6px;padding:52px}
-    .loader span{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bounce 1s infinite ease-in-out}
-    .loader span:nth-child(2){animation-delay:0.15s}
-    .loader span:nth-child(3){animation-delay:0.3s}
-    @keyframes bounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
-
-    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy-light);border:1px solid var(--border);color:var(--white);padding:10px 18px;border-radius:20px;font-size:0.8rem;font-weight:500;transition:transform 0.3s ease;z-index:600;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-    #toast.show{transform:translateX(-50%) translateY(0)}
-
-    @media(max-width:480px){
-      /* FIX 5: On mobile the stats bar becomes 2-col and taller.
-         ResizeObserver handles the dynamic offset — no hardcoded px needed here. */
-      #statsBar{grid-template-columns:repeat(2,1fr)}
-      .ccell{min-height:58px;padding:3px}
-      .cev{font-size:0.52rem}
-    }
-  </style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header id="siteHeader">
-  <div>
-    <div class="hlogo">Home<em>Huddle</em></div>
-    <div class="hsub">Dominic's schedule · powered by <b>Venuewise</b></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-    <button class="theme-btn" onclick="openTheme()" title="Customize colors">🎨</button>
-    <div class="sync-wrap">
-      <button class="sync-btn" onclick="loadEvents(true)">
-        <div class="sdot" id="sdot"></div>
-        <span id="stext">Synced</span>
-      </button>
-      <div class="sync-updated" id="syncUpdated">—</div>
-    </div>
-  </div>
-</header>
-
-<!-- STATS BAR -->
-<div id="statsBar">
-  <div class="stat"><div class="stat-val" id="stFuture">—</div><div class="stat-lbl">Upcoming</div></div>
-  <div class="stat"><div class="stat-val past" id="stPast">—</div><div class="stat-lbl">Past</div></div>
-  <div class="stat"><div class="stat-val" id="stConfl">—</div><div class="stat-lbl">Conflicts</div></div>
-  <div class="stat"><div class="stat-val" id="stWeek">—</div><div class="stat-lbl">This Week</div></div>
-</div>
-
-<!-- CONTROLS -->
-<div id="controls">
-  <div class="pstrip">
-    <div class="pchip active" data-key="all"  onclick="setPlatform('all',this)"><span class="cdot" style="background:var(--gold)"></span>All Events</div>
-    <div class="pchip"        data-key="west" onclick="setPlatform('west',this)"><span class="cdot" style="background:var(--orange)"></span>West Modified</div>
-    <div class="pchip"        data-key="caz"  onclick="setPlatform('caz',this)"><span class="cdot" style="background:var(--blue)"></span>Caz Chiefs</div>
-    <div class="pchip"        data-key="fcp"  onclick="setPlatform('fcp',this)"><span class="cdot" style="background:var(--green)"></span>FCP Baseball</div>
-  </div>
-  <div class="vrow">
-    <div style="display:flex;align-items:center;gap:6px">
-      <div class="vbtns">
-        <button class="vbtn active" id="btnList"  onclick="setView('list')">List</button>
-        <button class="vbtn"        id="btnMonth" onclick="setView('month')">Month</button>
-      </div>
-      <button class="mnav-today" onclick="goToday()">Today</button>
-    </div>
-    <div class="mnav">
-      <button class="mnav-arr" onclick="navigate(-1)">&#8249;</button>
-      <div id="calPeriod">—</div>
-      <button class="mnav-arr" onclick="navigate(1)">&#8250;</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONTENT -->
-<main id="calContent">
-  <div class="loader"><span></span><span></span><span></span></div>
-</main>
-
-<!-- MODAL -->
-<div class="moverlay" id="evModal" onclick="if(event.target===this)closeModal()">
-  <div class="msheet" id="mContent"></div>
-</div>
-<!-- MAPS PICKER -->
-<div class="moverlay-maps" id="mapsModal" onclick="if(event.target===this)closeMaps()">
-  <div class="maps-sheet" id="mapsContent"></div>
-</div>
-<!-- THEME PICKER -->
-<div class="moverlay-theme" id="themeModal" onclick="if(event.target===this)closeTheme()">
-  <div class="theme-sheet" id="themeContent"></div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
-const REFRESH = 5 * 60 * 1000;
-
-// ── PLATFORM DEFINITIONS ─────────────────────────────────────────
-const PLATFORMS = {
-  west: { label:'West Modified',  color:'#E8721C' },
-  caz:  { label:'Caz Chiefs',     color:'#1E6FD9' },
-  fcp:  { label:'FCP Baseball',   color:'#1EA85A' },
-};
-
-function platformKey(row) {
-  const plat = (row.platform||'').toLowerCase();
-  const name = (row.name||'').toLowerCase();
-  const sport = (row.sport||'').toLowerCase();
-
-  if (plat === 'teamsnap') return 'caz';
-
-  if (plat === 'gamechanger') {
-    // West Modified events always start with "west"
-    if (name.startsWith('west')) return 'west';
-    // FCP events start with "fcp", OR are tournaments (no org prefix) on the baseball calendar
-    // Tournaments have no "west" prefix so everything else on gamechanger → fcp
-    return 'fcp';
+// ── DATE PARSER ─────────────────────────────────────────────────────
+function parseIcalDate(str: string): Date {
+  const clean = str.includes(":") ? str.split(":").pop()! : str;
+  if (clean.length === 8) {
+    const y = parseInt(clean.slice(0, 4));
+    const m = parseInt(clean.slice(4, 6)) - 1;
+    const d = parseInt(clean.slice(6, 8));
+    return new Date(y, m, d, 0, 0, 0);
   }
-
-  // Fallback for rows with no platform set
-  if (name.startsWith('fcp') || sport === 'baseball') return 'fcp';
-  if (sport === 'hockey') return 'caz';
-  return 'west';
+  if (clean.length >= 15) {
+    const y = parseInt(clean.slice(0, 4));
+    const mo = parseInt(clean.slice(4, 6)) - 1;
+    const d = parseInt(clean.slice(6, 8));
+    const h = parseInt(clean.slice(9, 11));
+    const min = parseInt(clean.slice(11, 13));
+    const s = parseInt(clean.slice(13, 15));
+    const isUtc = clean.endsWith("Z");
+    return isUtc ? new Date(Date.UTC(y, mo, d, h, min, s)) : new Date(y, mo, d, h, min, s);
+  }
+  return new Date(str);
 }
 
-function colorFor(key) {
-  return PLATFORMS[key]?.color || '#7A8FAD';
+// ── TEXT DECODER ────────────────────────────────────────────────────
+function decodeIcalText(val: string): string {
+  return (val || "")
+    .replace(/\\n/g, "\n")
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\\\/g, "\\")
+    .trim();
 }
 
-const sb = window.supabase.createClient(SURL, SKEY);
-
-let allEvents    = [];
-let activeKey    = 'all';
-let currentView  = 'list';
-let currentDate  = new Date();
-let lastLoad     = null;
-
-// ── STICKY OFFSET — ResizeObserver approach ──────────────────────
-// FIX: Use ResizeObserver so offsets update instantly whenever
-// the header or statsBar change height (font load, resize, etc.)
-// This replaces the fragile setTimeout cascade.
-// We write to CSS custom properties on :root so the CSS can read them,
-// and also set the style directly on each element for maximum compat.
-function applySticky() {
-  const hh = document.getElementById('siteHeader').getBoundingClientRect().height;
-  const sh = document.getElementById('statsBar').getBoundingClientRect().height;
-  const controlsTop = hh + sh;
-
-  // Set CSS vars (used as fallbacks in CSS)
-  document.documentElement.style.setProperty('--header-h',        hh + 'px');
-  document.documentElement.style.setProperty('--header-stats-h',  controlsTop + 'px');
-
-  // Also set directly — belt-and-suspenders for older Safari
-  document.getElementById('statsBar').style.top  = hh + 'px';
-  document.getElementById('controls').style.top  = controlsTop + 'px';
+// ── ICAL PARSER ─────────────────────────────────────────────────────
+function parseIcal(
+  raw: string,
+  platform: string,
+  kid: string,
+  sport: string,
+  familyPhone?: string
+): CalEvent[] {
+  const events: CalEvent[] = [];
+  const blocks = raw.split("BEGIN:VEVENT");
+  for (let i = 1; i < blocks.length; i++) {
+    const block = blocks[i];
+    const get = (key: string): string => {
+      const patterns = [
+        new RegExp(`^${key}[;:][^\r\n]*`, "m"),
+        new RegExp(`^${key}\\.[^:]+:[^\r\n]*`, "m"),
+      ];
+      for (const p of patterns) {
+        const m = block.match(p);
+        if (m) return m[0].replace(/^[^:]+:/, "").trim();
+      }
+      return "";
+    };
+    const uid = get("UID");
+    const summary = get("SUMMARY");
+    const dtstart = get("DTSTART");
+    const dtend = get("DTEND");
+    if (!uid || !dtstart) continue;
+    events.push({
+      uid,
+      name: decodeIcalText(summary),
+      start: parseIcalDate(dtstart),
+      end: dtend ? parseIcalDate(dtend) : parseIcalDate(dtstart),
+      location: decodeIcalText(get("LOCATION")),
+      description: decodeIcalText(get("DESCRIPTION")),
+      platform,
+      kid,
+      sport,
+      familyPhone,
+    });
+  }
+  return events;
 }
 
-// Observe both sticky elements for size changes
-const stickyObserver = new ResizeObserver(applySticky);
-stickyObserver.observe(document.getElementById('siteHeader'));
-stickyObserver.observe(document.getElementById('statsBar'));
+// ── OVERLAP DETECTOR ────────────────────────────────────────────────
+function eventsOverlap(a: CalEvent, b: CalEvent): boolean {
+  if (a.kid !== b.kid || a.uid === b.uid) return false;
+  return a.start < b.end && b.start < a.end;
+}
 
-// Also call once immediately and on orientation change
-applySticky();
-window.addEventListener('orientationchange', () => { setTimeout(applySticky, 100); });
-
-// ── LOAD ─────────────────────────────────────────────────────────
-async function loadEvents(manual=false) {
-  if (manual) setSync('spin','Syncing…');
+// ── FEED FETCHER ────────────────────────────────────────────────────
+async function fetchFeed(url: string): Promise<string | null> {
   try {
-    const now   = new Date();
-    const past  = new Date(now - 30*864e5);
-    const ahead = new Date(now.getTime() + 365*864e5);
-
-    const { data, error } = await sb
-      .from('events')
-      .select('uid,name,kid,platform,sport,start,end,location,description,conflict,is_duplicate')
-      .eq('kid','Dominic')
-      .gte('start', past.toISOString())
-      .lte('start', ahead.toISOString())
-      .order('start',{ascending:true});
-
-    if (error) throw error;
-
-    lastLoad  = new Date();
-    allEvents = (data||[])
-      .filter(r => !r.is_duplicate)
-      .map(r => ({
-        id:   r.uid,
-        name: r.name || 'Event',
-        kid:  r.kid  || 'dominic',
-        platform: r.platform || '',
-        sport:    r.sport    || '',
-        start:    new Date(r.start),
-        end:      new Date(r.end),
-        location:    r.location    || '',
-        description: r.description || '',
-        conflict:    r.conflict    || false,
-        pkey:  platformKey(r),
-        color: colorFor(platformKey(r)),
-      }))
-      .filter(e => !isNaN(e.start));
-
-    applySticky();
-    updateStats();
-    render();
-    setSync('ok','Synced');
-    if (manual) showToast('✓ Refreshed — ' + allEvents.length + ' events loaded');
-  } catch(err) {
-    console.error(err);
-    setSync('err','Error');
-    document.getElementById('calContent').innerHTML =
-      `<div class="smsg"><div class="ico">⚠️</div><h3>Could not load</h3><p>${esc(err.message)}</p></div>`;
+    const cleanUrl = url.replace(/^webcal:\/\//i, "https://");
+    const response = await fetch(cleanUrl, {
+      headers: {
+        "User-Agent": "HomeHuddleCalendar/1.0",
+        "Accept": "text/calendar, application/ics, */*",
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    if (!text.includes("BEGIN:VCALENDAR")) throw new Error("Not valid iCal");
+    return text;
+  } catch (err) {
+    console.error("Feed fetch error:", err);
+    return null;
   }
 }
 
-// ── FILTER ───────────────────────────────────────────────────────
-function filtered() {
-  if (activeKey === 'all') return allEvents;
-  return allEvents.filter(e => e.pkey === activeKey);
+// ── SMS SENDER ──────────────────────────────────────────────────────
+async function sendSMS(message: string, toNumber?: string): Promise<void> {
+  const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const fromNumber = Deno.env.get("TWILIO_FROM_NUMBER");
+  const toNumbers = Deno.env.get("TWILIO_TO_NUMBERS");
+
+  if (!accountSid || !authToken || !fromNumber) {
+    console.log("Twilio not configured — skipping SMS");
+    return;
+  }
+
+  let recipients: string[] = [];
+  if (toNumber) {
+    recipients = [toNumber];
+  } else if (toNumbers) {
+    recipients = toNumbers.split(",").map((n) => n.trim()).filter(Boolean);
+  }
+
+  if (recipients.length === 0) {
+    console.log("No recipients — skipping SMS");
+    return;
+  }
+
+  const credentials = btoa(`${accountSid}:${authToken}`);
+
+  for (const to of recipients) {
+    try {
+      const response = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Basic ${credentials}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            From: fromNumber,
+            To: to,
+            Body: message,
+          }).toString(),
+        }
+      );
+      const result = await response.json();
+      if (result.error_code) {
+        console.error(`SMS error to ${to}:`, result.message);
+      } else {
+        console.log(`SMS sent to ${to}: ${result.sid}`);
+      }
+    } catch (err) {
+      console.error(`SMS failed to ${to}:`, err);
+    }
+  }
 }
 
-function setPlatform(key, el) {
-  activeKey = key;
-  document.querySelectorAll('.pchip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  updateStats();
-  render();
+// ── FORMAT DATE FOR SMS ─────────────────────────────────────────────
+function fmtDateTime(d: Date): string {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const h = d.getHours(), m = d.getMinutes();
+  const period = h >= 12 ? "PM" : "AM";
+  const hr = h % 12 || 12;
+  const min = m ? `:${String(m).padStart(2, "0")}` : "";
+  return `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()} at ${hr}${min}${period}`;
 }
 
-// ── STATS ────────────────────────────────────────────────────────
-function updateStats() {
+// ── TOMORROW REMINDERS ──────────────────────────────────────────────
+async function sendTomorrowReminders(supabase: any): Promise<void> {
   const now = new Date();
-  // This Week = today through end of this Saturday (current calendar week)
-  const dow     = now.getDay(); // 0=Sun … 6=Sat
-  const daysLeft = 6 - dow;
-  const weekEnd  = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysLeft, 23, 59, 59);
-  const evts = filtered();
-  const future = evts.filter(e => e.start >= now);
-  const past   = evts.filter(e => e.start < now);
-  document.getElementById('stFuture').textContent = future.length;
-  document.getElementById('stPast').textContent   = past.length;
-  document.getElementById('stConfl').textContent  = evts.filter(e=>e.conflict).length;
-  document.getElementById('stWeek').textContent   = evts.filter(e=>e.start>=now&&e.start<=weekEnd).length;
-  if (lastLoad) {
-    document.getElementById('syncUpdated').textContent =
-      'Updated ' + lastLoad.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const hour = now.getHours();
+  if (hour < 19 || hour >= 20) return;
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStart = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0, 0, 0);
+  const tomorrowEnd = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 23, 59, 59);
+
+  const { data: events } = await supabase
+    .from("events")
+    .select("*")
+    .gte("start", tomorrowStart.toISOString())
+    .lte("start", tomorrowEnd.toISOString())
+    .eq("is_duplicate", false);
+
+  if (!events || events.length === 0) return;
+
+  const byPhone: Record<string, any[]> = {};
+  for (const ev of events) {
+    const phone = ev.family_phone || "default";
+    if (!byPhone[phone]) byPhone[phone] = [];
+    byPhone[phone].push(ev);
   }
-}
 
-// ── VIEW ─────────────────────────────────────────────────────────
-function setView(v) {
-  currentView = v;
-  if (v==='month') currentDate = new Date();
-  document.getElementById('btnList').classList.toggle('active',  v==='list');
-  document.getElementById('btnMonth').classList.toggle('active', v==='month');
-  render();
-}
-
-function navigate(dir) {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+dir, 1);
-  render();
-}
-
-function goToday() {
-  currentDate = new Date();
-  // Always land in list view
-  if (currentView !== 'list') {
-    currentView = 'list';
-    document.getElementById('btnList').classList.add('active');
-    document.getElementById('btnMonth').classList.remove('active');
-  }
-  render();
-  setTimeout(() => {
-    // Try to scroll to today's label first
-    let el = document.querySelector('.dlabel.today');
-    if (!el) {
-      // No events today — find the first upcoming event label and scroll there
-      el = document.querySelector('.dgroup:not([style*="opacity"]) .dlabel');
+  for (const [phone, familyEvents] of Object.entries(byPhone)) {
+    let message = `📅 HomeHuddle — Tomorrow's Schedule\n\n`;
+    for (const ev of familyEvents) {
+      const start = new Date(ev.start);
+      const h = start.getHours(), m = start.getMinutes();
+      const period = h >= 12 ? "PM" : "AM";
+      const hr = h % 12 || 12;
+      const min = m ? `:${String(m).padStart(2, "0")}` : "";
+      message += `• ${ev.name}\n  ${hr}${min}${period}`;
+      if (ev.location) message += ` · ${ev.location}`;
+      message += `\n\n`;
     }
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 80);
-}
+    message += `View schedule: venuewise.net`;
 
-function render() {
-  currentView==='list' ? renderList() : renderMonth();
-}
-
-// ── LIST ─────────────────────────────────────────────────────────
-function renderList() {
-  const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  document.getElementById('calPeriod').textContent = MONTHS[m]+' '+y;
-
-  const ms=new Date(y,m,1), me=new Date(y,m+1,0,23,59,59);
-  const map={};
-  filtered().filter(e=>e.start>=ms&&e.start<=me).forEach(e=>{
-    const k=e.start.toDateString();
-    (map[k]=map[k]||[]).push(e);
-  });
-
-  const tds=new Date().toDateString();
-  let html='';
-
-  Object.entries(map).forEach(([ds,evs])=>{
-    const dt=new Date(ds);
-    const isTd=ds===tds;
-    const isPast=dt<new Date()&&!isTd;
-
-    html+=`<div class="dgroup"${isPast?' style="opacity:0.6"':''}>
-      <div class="dlabel${isTd?' today':''}">
-        ${DN[dt.getDay()]}, ${MO[dt.getMonth()]} ${dt.getDate()}
-        ${isTd?'<span class="tpill">Today</span>':''}
-      </div>`;
-
-    const confs=evs.filter(e=>e.conflict);
-    if(confs.length) html+=`<div class="cbanner">⚠️ ${confs.length} scheduling conflict${confs.length>1?'s':''} on this day</div>`;
-
-    evs.forEach(e=>{
-      const label=PLATFORMS[e.pkey]?.label||e.platform;
-      html+=`<div class="ecard" onclick='showModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
-        <div class="etime">${fmtT(e.start)}<small>${fmtT(e.end)}</small></div>
-        <div class="estripe" style="background:${e.color}"></div>
-        <div class="ebody">
-          <div class="etitle">${e.conflict?'⚠️ ':''}${esc(e.name)}</div>
-          ${e.location?`<span class="eloc" data-loc="${esc(e.location)}" onclick="event.stopPropagation();openMaps(this.dataset.loc)" style="cursor:pointer">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-            ${esc(e.location)}</span>`:''}
-          <span class="etag" style="background:${e.color}22;color:${e.color}">${esc(label)}</span>
-        </div>
-      </div>`;
-    });
-    html+='</div>';
-  });
-
-  if(!html) html=`<div class="smsg"><div class="ico">📅</div><h3>No events this month</h3><p>No games or practices in ${MONTHS[m]} ${y}.</p></div>`;
-  document.getElementById('calContent').innerHTML=html;
-}
-
-// ── MONTH ────────────────────────────────────────────────────────
-function renderMonth() {
-  const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calPeriod').textContent=MONTHS[m]+' '+y;
-
-  const firstDow=new Date(y,m,1).getDay();
-  const dim=new Date(y,m+1,0).getDate();
-  const today=new Date();
-  const dows=['Su','Mo','Tu','We','Th','Fr','Sa'];
-  const total=Math.ceil((dim+firstDow)/7)*7;
-
-  let html=`<div class="cghdr">${dows.map(d=>`<div class="cgdow">${d}</div>`).join('')}</div><div class="cg">`;
-
-  for(let i=0,day=1-firstDow;i<total;i++,day++){
-    const cd=new Date(y,m,day);
-    const tm=cd.getMonth()===m;
-    const isTd=cd.toDateString()===today.toDateString();
-    const evs=filtered().filter(e=>e.start.toDateString()===cd.toDateString());
-    const cls=['ccell',!tm?'om':'',isTd?'tc':''].filter(Boolean).join(' ');
-
-    html+=`<div class="${cls}" onclick="goToDate(${cd.getTime()})"><div class="cnum">${cd.getDate()}</div>`;
-    evs.slice(0,3).forEach(e=>{
-      html+=`<div class="cev" style="background:${e.color}22;color:${e.color};border-left:2px solid ${e.color}"
-        onclick="event.stopPropagation();showModal(${JSON.stringify(e).replace(/'/g,'&#39;')})">${e.conflict?'⚠️':''}${esc(e.name)}</div>`;
-    });
-    if(evs.length>3) html+=`<div class="cmore">+${evs.length-3} more</div>`;
-    html+='</div>';
-  }
-  html+='</div>';
-  document.getElementById('calContent').innerHTML=html;
-}
-
-function goToDate(ts){
-  currentDate=new Date(ts);
-  setView('list');
-}
-
-// ── MODAL ────────────────────────────────────────────────────────
-function showModal(ev){
-  if(typeof ev==='string') ev=JSON.parse(ev);
-  const s=new Date(ev.start), e=new Date(ev.end);
-  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const label=PLATFORMS[ev.pkey]?.label||ev.platform;
-
-  document.getElementById('mContent').innerHTML=`
-    <div class="mhandle"></div>
-    ${ev.conflict?`<div class="cbanner" style="margin-bottom:12px">⚠️ Schedule conflict — overlaps with another event</div>`:''}
-    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
-      <div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:${ev.color}"></div>
-      <div><div class="mtitle">${esc(ev.name)}</div><div class="morg">${esc(ev.kid)} · ${esc(label)}</div></div>
-    </div>
-    <div class="mrow"><div class="mico">📅</div><div class="mlbl">Date</div><div class="mval">${DN[s.getDay()]}, ${MO[s.getMonth()]} ${s.getDate()}</div></div>
-    <div class="mrow"><div class="mico">🕐</div><div class="mlbl">Time</div><div class="mval">${fmtT(s)} – ${fmtT(e)}</div></div>
-    ${ev.location?`<div class="mrow" data-loc="${esc(ev.location)}" onclick="openMaps(this.dataset.loc)" style="cursor:pointer">
-      <div class="mico">📍</div><div class="mlbl">Location</div>
-      <div class="mval" style="color:var(--gold);text-decoration:underline">${esc(ev.location)}</div><span style="color:var(--muted)">›</span></div>`:''}
-    ${ev.description?`<div class="mrow"><div class="mico">📝</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">${esc(ev.description)}</div></div>`:''}
-    <button class="mact" onclick="dlICS('${esc(String(ev.id))}')">📲 Add to My Calendar</button>
-    <button class="mcls" onclick="closeModal()">Close</button>`;
-  document.getElementById('evModal').classList.add('show');
-}
-
-function closeModal(){ document.getElementById('evModal').classList.remove('show'); }
-
-function dlICS(evId){
-  const ev=allEvents.find(e=>String(e.id)===String(evId));
-  if(!ev) return;
-  const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HomeHuddle//EN','BEGIN:VEVENT',
-    `UID:${ev.id}@homehuddle`,`DTSTART:${fmt(new Date(ev.start))}`,`DTEND:${fmt(new Date(ev.end))}`,
-    `SUMMARY:${ev.name}`,`LOCATION:${ev.location||''}`,
-    `DESCRIPTION:${ev.kid} · ${PLATFORMS[ev.pkey]?.label||ev.platform} · via HomeHuddle`,
-    'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  const a=Object.assign(document.createElement('a'),{
-    href:URL.createObjectURL(new Blob([ics],{type:'text/calendar'})),
-    download:(ev.name.replace(/[^a-z0-9]/gi,'_')||'event')+'.ics'
-  });
-  a.click();
-  showToast('📲 Open the .ics file to add to your calendar');
-}
-
-// ── THEME SYSTEM ─────────────────────────────────────────────────
-const FAMILY_EMAIL = 'keith@venuewise.net';
-
-const DEFAULT_THEME = {
-  base:   '#0A1628',
-  mid:    '#0F1F3D',
-  light:  '#162444',
-  card:   '#111D35',
-  accent: '#F5C518',
-  white:  '#F0F4FF',
-  muted:  '#7A8FAD',
-};
-
-let currentTheme = { ...DEFAULT_THEME };
-
-const ALL_COLORS = [
-  '#000000','#0a0a0a','#111111','#1a1a1a','#1C1C1E','#212121','#2C2C2E','#18181b',
-  '#1e1e1e','#222222','#2a2a2a','#27272a','#1f1f1f','#242424','#303030','#3a3a3a',
-  '#1f2937','#111827','#0f172a','#1e293b','#374151','#4B5563','#6B7280','#9CA3AF',
-  '#94A3B8','#A0AEC0','#CBD5E1','#D1D5DB','#E2E8F0','#C0C0C0','#808080','#696969',
-  '#0A1628','#0d1b2a','#0f2027','#0a1a28','#001f3f','#0D2137','#0a1929','#162032',
-  '#111D35','#0f1a2e','#0d1525','#1a2540','#0f2035','#13233d','#0a1828','#0c1e38',
-  '#1D4ED8','#2563EB','#3B82F6','#60A5FA','#0EA5E9','#0284C7','#0369A1','#38BDF8',
-  '#1a56db','#1e40af','#1d4ed8','#2563eb','#3b82f6','#93c5fd','#BFDBFE','#DBEAFE',
-  '#06B6D4','#0891B2','#0E7490','#67E8F9','#00BFFF','#00B4D8','#48CAE4','#90E0EF',
-  '#00CED1','#20B2AA','#48D1CC','#40E0D0','#7FFFD4','#00FFFF','#E0F7FA','#B2EBF2',
-  '#0a2818','#0d2b1a','#0f3020','#14290f','#1b3a2a','#0a2010','#1a3020','#0f2218',
-  '#0a1f14','#162d1e','#0d2a18','#112a1a','#0f2520','#162820','#102015','#0d2010',
-  '#15803D','#16A34A','#22C55E','#4ADE80','#86EFAC','#00FF00','#00CC00','#10B981',
-  '#059669','#047857','#065F46','#14532D','#00FF7F','#32CD32','#228B22','#006400',
-  '#1a0a0a','#2a0a0a','#1f0000','#2b0d0d','#1a0505','#260808','#3a0000','#200a0a',
-  '#1a0f0f','#200a0a','#2a1010','#1f0808','#250d0d','#1e0a0a','#2d1212','#180808',
-  '#FF0000','#CC0000','#DC2626','#EF4444','#B91C1C','#F43F5E','#E11D48','#BE123C',
-  '#FF4444','#FF6B6B','#FCA5A5','#FEE2E2','#7F0000','#8B0000','#A00000','#C00000',
-  '#FF6600','#F97316','#EA580C','#C2410C','#FB923C','#E67E22','#D35400','#FF8C00',
-  '#FF7F50','#FF6347','#FD7E14','#E8590C','#FF5722','#F4511E','#E64A19','#BF360C',
-  '#FFD700','#F5C518','#FACC15','#EAB308','#FCD34D','#F59E0B','#FBBF24','#FDE047',
-  '#FFF176','#FFEE58','#FFD54F','#FFCA28','#FFC107','#FFB300','#FFA000','#FF8F00',
-  '#1a0a28','#1a1a2e','#160a2e','#1f0d3a','#120820','#1c0f35','#24073d','#100a1f',
-  '#1a0f2e','#16213e','#1c1040','#180d35','#200f3a','#150a2e','#1e1040','#120828',
-  '#7C3AED','#8B5CF6','#A855F7','#9333EA','#C084FC','#6D28D9','#5B21B6','#4C1D95',
-  '#9B59B6','#8E44AD','#6C3483','#76448A','#DDA0DD','#DA70D6','#BA55D3','#9932CC',
-  '#FF1493','#FF69B4','#EC4899','#DB2777','#BE185D','#F472B6','#E91E8C','#C2185B',
-  '#FFB6C1','#FFC0CB','#FF91A4','#FF85A1','#F06292','#EC407A','#E91E63','#C2185B',
-  '#14B8A6','#0D9488','#0F766E','#2DD4BF','#115E59','#134E4A','#008080','#006666',
-  '#00827F','#019587','#00897B','#00796B','#00695C','#004D40','#1ABC9C','#17A589',
-  '#2d1b00','#2d1f00','#1f1500','#2a1a00','#1a1000','#2e2000','#231700','#1c1200',
-  '#FFFFFF','#F8F9FA','#F0F4FF','#F5F5F5','#FAFAFA','#F1F5F9','#EFF6FF','#F0FDF4',
-  '#FFFDE7','#FFF8E1','#FFF3E0','#FBE9E7','#FCE4EC','#F3E5F5','#EDE7F6','#E8EAF6',
-];
-
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return {r,g,b};
-}
-
-function adjustColor(hex, factor) {
-  const {r,g,b} = hexToRgb(hex);
-  const adj = v => Math.min(255, Math.max(0, Math.round(v * factor)));
-  return '#' + [adj(r),adj(g),adj(b)].map(v=>v.toString(16).padStart(2,'0')).join('');
-}
-
-function hexToRgba(hex, alpha) {
-  const {r,g,b} = hexToRgb(hex);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-function applyTheme(theme) {
-  const root = document.documentElement;
-  root.style.setProperty('--navy',       theme.base);
-  root.style.setProperty('--navy-mid',   theme.mid   || adjustColor(theme.base, 1.3));
-  root.style.setProperty('--navy-light', theme.light || adjustColor(theme.base, 1.6));
-  root.style.setProperty('--card-bg',    theme.card);
-  root.style.setProperty('--gold',       theme.accent);
-  root.style.setProperty('--gold-dim',   adjustColor(theme.accent, 0.75));
-  root.style.setProperty('--border',     hexToRgba(theme.accent, 0.12));
-  root.style.setProperty('--white',      theme.white || '#F0F4FF');
-  root.style.setProperty('--muted',      theme.muted || '#7A8FAD');
-  currentTheme = { ...theme };
-}
-
-async function loadTheme() {
-  try {
-    const { data } = await sb.from('feeds').select('theme').eq('email', FAMILY_EMAIL).limit(1).single();
-    if (data?.theme) applyTheme(data.theme);
-  } catch(e) { /* no theme saved yet */ }
-}
-
-async function saveTheme() {
-  try {
-    await sb.from('feeds').update({ theme: currentTheme }).eq('email', FAMILY_EMAIL);
-    showToast('✓ Theme saved');
-    closeTheme();
-  } catch(e) {
-    showToast('Could not save theme');
-  }
-}
-
-function openTheme() {
-  const t = currentTheme;
-  document.getElementById('themeContent').innerHTML = `
-    <div class="mhandle"></div>
-    <div class="theme-title">🎨 Customize Your Calendar</div>
-    <div class="theme-preview" id="themePreview">
-      <div class="preview-header">
-        <div class="preview-logo">Home<span>Huddle</span></div>
-        <div class="preview-dot"></div>
-      </div>
-      <div class="preview-card">
-        <div class="preview-stripe"></div>
-        <div>
-          <div class="preview-text">Sample Event · 4:00PM</div>
-          <div class="preview-tag">Your Team</div>
-        </div>
-      </div>
-    </div>
-    <div class="theme-section">
-      <div class="theme-section-label">Background Color</div>
-      <div class="palette-row" id="basePalette"></div>
-      <div class="color-row">
-        <div class="color-label">Base</div>
-        <div class="color-input-wrap">
-          <div class="color-swatch" id="baseSwatchDisplay" style="background:${t.base}"></div>
-          <input type="color" id="basePicker" value="${t.base}" oninput="onColorInput('base',this.value)"/>
-        </div>
-        <input class="color-hex" id="baseHex" value="${t.base}" maxlength="7"
-          oninput="onHexInput('base',this.value)" onblur="onHexBlur('base',this.value)"/>
-      </div>
-    </div>
-    <div class="theme-section">
-      <div class="theme-section-label">Accent Color</div>
-      <div class="palette-row" id="accentPalette"></div>
-      <div class="color-row">
-        <div class="color-label">Accent</div>
-        <div class="color-input-wrap">
-          <div class="color-swatch" id="accentSwatchDisplay" style="background:${t.accent}"></div>
-          <input type="color" id="accentPicker" value="${t.accent}" oninput="onColorInput('accent',this.value)"/>
-        </div>
-        <input class="color-hex" id="accentHex" value="${t.accent}" maxlength="7"
-          oninput="onHexInput('accent',this.value)" onblur="onHexBlur('accent',this.value)"/>
-      </div>
-    </div>
-    <div class="theme-section">
-      <div class="theme-section-label">Card Color</div>
-      <div class="palette-row" id="cardPalette"></div>
-      <div class="color-row">
-        <div class="color-label">Cards</div>
-        <div class="color-input-wrap">
-          <div class="color-swatch" id="cardSwatchDisplay" style="background:${t.card}"></div>
-          <input type="color" id="cardPicker" value="${t.card}" oninput="onColorInput('card',this.value)"/>
-        </div>
-        <input class="color-hex" id="cardHex" value="${t.card}" maxlength="7"
-          oninput="onHexInput('card',this.value)" onblur="onHexBlur('card',this.value)"/>
-      </div>
-    </div>
-    <button class="theme-save" onclick="saveTheme()">💾 Save My Theme</button>
-    <button class="theme-reset" onclick="resetTheme()">↺ Reset to Default</button>
-    <button class="theme-cls" onclick="closeTheme()">Cancel</button>`;
-
-  buildPalette('basePalette',   ALL_COLORS, 'base',   currentTheme.base);
-  buildPalette('accentPalette', ALL_COLORS, 'accent', currentTheme.accent);
-  buildPalette('cardPalette',   ALL_COLORS, 'card',   currentTheme.card);
-
-  document.getElementById('themeModal').classList.add('show');
-}
-
-function buildPalette(containerId, colors, type, current) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = colors.map(c =>
-    `<div class="palette-swatch${c.toLowerCase()===current.toLowerCase()?' selected':''}"
-      style="background:${c}" onclick="onColorInput('${type}','${c}')" title="${c}"></div>`
-  ).join('');
-}
-
-function onColorInput(type, value) {
-  if (!/^#[0-9A-Fa-f]{6}$/.test(value)) return;
-  if (type === 'base') {
-    currentTheme.base  = value;
-    currentTheme.mid   = adjustColor(value, 1.3);
-    currentTheme.light = adjustColor(value, 1.6);
-  } else if (type === 'accent') {
-    currentTheme.accent = value;
-  } else if (type === 'card') {
-    currentTheme.card = value;
-  }
-  applyTheme(currentTheme);
-  const picker = document.getElementById(type + 'Picker');
-  const hex    = document.getElementById(type + 'Hex');
-  const swatch = document.getElementById(type + 'SwatchDisplay');
-  if (picker) picker.value = value;
-  if (hex)    hex.value    = value.toUpperCase();
-  if (swatch) swatch.style.background = value;
-  const palMap = {base:'basePalette', accent:'accentPalette', card:'cardPalette'};
-  const pal = document.getElementById(palMap[type]);
-  if (pal) {
-    pal.querySelectorAll('.palette-swatch').forEach(s => {
-      s.classList.toggle('selected', s.title.toLowerCase() === value.toLowerCase());
-    });
-  }
-}
-
-function onHexInput(type, value) {
-  const clean = value.startsWith('#') ? value : '#' + value;
-  if (/^#[0-9A-Fa-f]{6}$/.test(clean)) onColorInput(type, clean);
-}
-
-function onHexBlur(type, value) {
-  const clean = value.startsWith('#') ? value : '#' + value;
-  if (!/^#[0-9A-Fa-f]{6}$/.test(clean)) {
-    const hex = document.getElementById(type + 'Hex');
-    if (hex) hex.value = currentTheme[type].toUpperCase();
-  }
-}
-
-function resetTheme() {
-  applyTheme(DEFAULT_THEME);
-  closeTheme();
-  setTimeout(openTheme, 150);
-  showToast('Theme reset to default');
-}
-
-function closeTheme() {
-  document.getElementById('themeModal').classList.remove('show');
-}
-
-// ── MAPS PICKER ──────────────────────────────────────────────────
-function openMaps(location) {
-  const enc = encodeURIComponent(location);
-  const options = [
-    {
-      ico: '🍎',
-      name: 'Apple Maps',
-      sub: 'Built-in on iPhone & Mac',
-      url: `https://maps.apple.com/?q=${enc}`
-    },
-    {
-      ico: '🗺️',
-      name: 'Google Maps',
-      sub: 'Works on all devices',
-      url: `https://www.google.com/maps/search/?api=1&query=${enc}`
-    },
-    {
-      ico: '🔵',
-      name: 'Waze',
-      sub: 'Community-based navigation',
-      url: `https://waze.com/ul?q=${enc}&navigate=yes`
-    },
-    {
-      ico: '📍',
-      name: 'Default Maps App',
-      sub: 'Opens your preferred app',
-      url: `geo:0,0?q=${enc}`
+    if (phone === "default") {
+      await sendSMS(message);
+    } else {
+      await sendSMS(message, phone);
     }
-  ];
+  }
 
-  document.getElementById('mapsContent').innerHTML = `
-    <div class="mhandle"></div>
-    <div class="maps-title">Open in Maps</div>
-    <div class="maps-loc">📍 ${esc(location)}</div>
-    ${options.map(o => `
-      <a class="maps-btn" href="${o.url}" target="_blank" rel="noopener" onclick="closeMaps()">
-        <div class="maps-btn-ico">${o.ico}</div>
-        <div class="maps-btn-label">
-          <span class="maps-btn-name">${o.name}</span>
-          <span class="maps-btn-sub">${o.sub}</span>
-        </div>
-        <span style="color:var(--muted);font-size:1rem">›</span>
-      </a>`).join('')}
-    <button class="maps-cls" onclick="closeMaps()">Cancel</button>`;
-
-  document.getElementById('mapsModal').classList.add('show');
+  console.log(`Sent tomorrow reminders for ${events.length} events`);
 }
 
-function closeMaps() {
-  document.getElementById('mapsModal').classList.remove('show');
+// ── SMART REMINDERS (IN-APP BANNERS) ────────────────────────────────
+// Writes today's events as reminder rows so calendar.html can show banners.
+// Safe to run every 30 min — upsert with ignoreDuplicates prevents double rows.
+async function generateReminders(supabase: any): Promise<void> {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+  // Load all active feeds to know which families/emails to notify
+  const { data: feeds, error: feedErr } = await supabase
+    .from("feeds")
+    .select("email, kid_name, family_name, phone")
+    .eq("is_active", true);
+
+  if (feedErr || !feeds || feeds.length === 0) {
+    console.log("generateReminders: no active feeds");
+    return;
+  }
+
+  // Build a lookup: kid name (lowercase) → email
+  const kidToEmail: Record<string, string> = {};
+  feeds.forEach((f: any) => {
+    if (f.kid_name) kidToEmail[f.kid_name.toLowerCase()] = f.email;
+  });
+
+  // Pull today's events
+  const { data: todayEvents, error: evErr } = await supabase
+    .from("events")
+    .select("uid, kid, name, start, end, location, platform")
+    .gte("start", todayStr + "T00:00:00Z")
+    .lte("start", todayStr + "T23:59:59Z")
+    .eq("is_duplicate", false);
+
+  if (evErr || !todayEvents || todayEvents.length === 0) {
+    console.log("generateReminders: no events today");
+    return;
+  }
+
+  const reminders: any[] = [];
+
+  for (const ev of todayEvents) {
+    const email = kidToEmail[ev.kid?.toLowerCase()] || null;
+    if (!email) continue;
+
+    const startDate = new Date(ev.start);
+    const endDate = new Date(ev.end);
+
+    // Format times in Eastern time (adjust if your families are in a different zone)
+    const timeStr = startDate.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "America/New_York",
+    });
+    const endStr = endDate.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "America/New_York",
+    });
+
+    const evName = ev.name || "event";
+    const lower = evName.toLowerCase();
+    const isGame = lower.includes("game") || lower.includes("vs") || lower.includes(" @ ");
+    const isTournament = lower.includes("tournament") || lower.includes("tourney");
+    const verb = isTournament ? "tournament" : isGame ? "game" : "practice";
+    const loc = ev.location ? ` at ${ev.location}` : "";
+    const durationMins = (endDate.getTime() - startDate.getTime()) / 60000;
+
+    let message: string;
+    if (isTournament) {
+      message = `${ev.kid} has a ${verb} today from ${timeStr}–${endStr}${loc}.`;
+    } else if (durationMins <= 90) {
+      message = `${ev.kid} has ${verb} today at ${timeStr}${loc} — ends around ${endStr}, plan for pickup!`;
+    } else {
+      message = `${ev.kid} has ${verb} today: ${evName} from ${timeStr}–${endStr}${loc}.`;
+    }
+
+    reminders.push({
+      email,
+      kid: ev.kid,
+      message,
+      event_uid: ev.uid,
+      event_date: todayStr,
+      event_time: timeStr,
+      event_name: ev.name,
+      dismissed: false,
+    });
+  }
+
+  if (reminders.length === 0) {
+    console.log("generateReminders: nothing to write");
+    return;
+  }
+
+  const { error: upsertErr } = await supabase
+    .from("reminders")
+    .upsert(reminders, { onConflict: "email,event_uid", ignoreDuplicates: true });
+
+  if (upsertErr) {
+    console.error("generateReminders upsert error:", upsertErr.message);
+  } else {
+    console.log(`generateReminders: wrote ${reminders.length} reminder(s) for ${todayStr}`);
+  }
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────
-function fmtT(d){const h=d.getHours(),m=d.getMinutes();return`${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${h>=12?'PM':'AM'}`}
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
-function setSync(state,label){
-  document.getElementById('stext').textContent=label;
-  const d=document.getElementById('sdot');
-  d.className='sdot'+(state==='err'?' err':state==='spin'?' spin':'');
-}
+// ── MAIN FUNCTION ───────────────────────────────────────────────────
+Deno.serve(async (_req) => {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseKey = Deno.env.get("SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEYS") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ── INIT ─────────────────────────────────────────────────────────
-applySticky();
-loadTheme();
-loadEvents().then(()=>{
-  applySticky();
-  setTimeout(()=>{
-    let el = document.querySelector('.dlabel.today');
-    if (!el) el = document.querySelector('.dgroup:not([style*="opacity"]) .dlabel');
-    if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
-  },200);
+  // ── LOAD FEEDS FROM DATABASE ──────────────────────────────────────
+  const { data: feedRecords, error: feedsError } = await supabase
+    .from("feeds")
+    .select("*")
+    .eq("is_active", true);
+
+  if (feedsError) {
+    console.error("Failed to load feeds:", feedsError);
+    return new Response(JSON.stringify({ error: "Failed to load feeds" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!feedRecords || feedRecords.length === 0) {
+    console.log("No active feeds found");
+    return new Response(JSON.stringify({ message: "No active feeds", feeds: [] }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  console.log(`Loaded ${feedRecords.length} active feeds from database`);
+
+  const results: any[] = [];
+  const allEvents: CalEvent[] = [];
+  let totalFetched = 0;
+  let totalUpserted = 0;
+  let conflictsDetected = 0;
+  const smsAlerts: { message: string; phone?: string }[] = [];
+
+  for (const feed of feedRecords as FeedRecord[]) {
+    const result: any = {
+      platform: feed.platform,
+      kid: feed.kid_name,
+      family: feed.family_name,
+      fetched: 0,
+      upserted: 0,
+      errors: [],
+    };
+
+    if (!feed.ical_url) {
+      result.errors.push("No iCal URL");
+      results.push(result);
+      continue;
+    }
+
+    const raw = await fetchFeed(feed.ical_url);
+    if (!raw) {
+      result.errors.push("Failed to fetch feed");
+      await supabase
+        .from("feeds")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", feed.id);
+      results.push(result);
+      continue;
+    }
+
+    const events = parseIcal(
+      raw,
+      feed.platform,
+      feed.kid_name,
+      feed.sport || "sport",
+      feed.phone
+    );
+
+    result.fetched = events.length;
+    totalFetched += events.length;
+    allEvents.push(...events);
+
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const windowEvents = events.filter(
+      (e) => e.start >= windowStart && e.start <= windowEnd
+    );
+
+    for (const ev of windowEvents) {
+      const { data: existing } = await supabase
+        .from("events")
+        .select("uid, name, start, location")
+        .eq("uid", ev.uid)
+        .single();
+
+      if (existing) {
+        const timeChanged = new Date(existing.start).getTime() !== ev.start.getTime();
+        const locationChanged = (existing.location || "") !== (ev.location || "");
+
+        if (timeChanged || locationChanged) {
+          let alertMsg = `⚠️ HomeHuddle Alert — Schedule Change\n\n`;
+          alertMsg += `${ev.name}\n`;
+          if (timeChanged) {
+            alertMsg += `⏰ Time changed:\n`;
+            alertMsg += `  Was: ${fmtDateTime(new Date(existing.start))}\n`;
+            alertMsg += `  Now: ${fmtDateTime(ev.start)}\n`;
+          }
+          if (locationChanged) {
+            alertMsg += `📍 Location changed:\n`;
+            if (existing.location) alertMsg += `  Was: ${existing.location}\n`;
+            alertMsg += `  Now: ${ev.location || "TBD"}\n`;
+          }
+          alertMsg += `\nView: venuewise.net`;
+          smsAlerts.push({ message: alertMsg, phone: feed.phone });
+          console.log(`Change detected for ${ev.name} — ${feed.family_name}`);
+        }
+      } else {
+        if (ev.start > now) {
+          let alertMsg = `🆕 HomeHuddle — New Event Added\n\n`;
+          alertMsg += `${ev.name}\n`;
+          alertMsg += `📅 ${fmtDateTime(ev.start)}\n`;
+          if (ev.location) alertMsg += `📍 ${ev.location}\n`;
+          alertMsg += `\nView: venuewise.net`;
+          smsAlerts.push({ message: alertMsg, phone: feed.phone });
+        }
+      }
+
+      const { error } = await supabase.from("events").upsert(
+        {
+          uid: ev.uid,
+          name: ev.name,
+          start: ev.start.toISOString(),
+          end: ev.end.toISOString(),
+          location: ev.location,
+          description: ev.description,
+          platform: ev.platform,
+          kid: ev.kid,
+          sport: ev.sport,
+          family_phone: feed.phone || null,
+          conflict: false,
+          is_duplicate: false,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "uid,kid" }
+      );
+
+      if (error) {
+        console.error(`Upsert error for ${ev.uid}:`, JSON.stringify(error));
+        result.errors.push(error.message);
+      } else {
+        result.upserted++;
+        totalUpserted++;
+      }
+    }
+
+    await supabase
+      .from("feeds")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", feed.id);
+
+    results.push(result);
+  }
+
+  // Detect conflicts across all events
+  for (let i = 0; i < allEvents.length; i++) {
+    for (let j = i + 1; j < allEvents.length; j++) {
+      if (eventsOverlap(allEvents[i], allEvents[j])) {
+        conflictsDetected++;
+        await supabase.from("events").update({ conflict: true }).eq("uid", allEvents[i].uid);
+        await supabase.from("events").update({ conflict: true }).eq("uid", allEvents[j].uid);
+
+        const now = new Date();
+        if (allEvents[i].start > now) {
+          let alertMsg = `⚠️ HomeHuddle — Schedule Conflict!\n\n`;
+          alertMsg += `${allEvents[i].kid} has 2 overlapping events:\n`;
+          alertMsg += `• ${allEvents[i].name}\n`;
+          alertMsg += `• ${allEvents[j].name}\n`;
+          alertMsg += `📅 ${fmtDateTime(allEvents[i].start)}\n\n`;
+          alertMsg += `View: venuewise.net`;
+          smsAlerts.push({ message: alertMsg, phone: allEvents[i].familyPhone });
+        }
+      }
+    }
+  }
+
+  // Send tomorrow's SMS reminders
+  await sendTomorrowReminders(supabase);
+
+  // Generate today's in-app banner reminders
+  await generateReminders(supabase);
+
+  // Send SMS alerts (max 5 per sync)
+  const alertsToSend = smsAlerts.slice(0, 5);
+  for (const alert of alertsToSend) {
+    if (alert.phone) {
+      await sendSMS(alert.message, alert.phone);
+    } else {
+      await sendSMS(alert.message);
+    }
+  }
+
+  const response = {
+    timestamp: new Date().toISOString(),
+    feeds_loaded: feedRecords.length,
+    total_fetched: totalFetched,
+    total_upserted: totalUpserted,
+    conflicts_detected: conflictsDetected,
+    sms_alerts_sent: alertsToSend.length,
+    feeds: results,
+  };
+
+  console.log("Sync complete:", JSON.stringify(response));
+
+  return new Response(JSON.stringify(response), {
+    headers: { "Content-Type": "application/json" },
+  });
 });
-setInterval(()=>loadEvents(false), REFRESH);
-</script>
-</body>
-</html>
