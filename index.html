@@ -16,14 +16,22 @@
       --white:#F0F4FF;--muted:#7A8FAD;
       --card-bg:#111D35;--border:rgba(245,197,24,0.12);--radius:10px;
       --orange:#E8721C;--blue:#1E6FD9;--green:#1EA85A;
-      --header-h:73px;--statsbar-h:90px;
     }
     html{scroll-behavior:smooth}
+
+    /*
+      FIX 1: Do NOT set overflow on body/html — any overflow:hidden/clip on an
+      ancestor will silently kill position:sticky on Safari.
+      Instead we clip overflow on <main> using a wrapper trick (see below).
+    */
     body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
 
     /* ── HEADER ── */
     #siteHeader{
-      position:sticky;top:0;z-index:300;
+      /* FIX 2: Always include -webkit-sticky — required on Safari */
+      position:-webkit-sticky;
+      position:sticky;
+      top:0;z-index:300;
       background:var(--navy);border-bottom:1px solid var(--border);
       padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
       box-shadow:0 4px 24px rgba(0,0,0,0.5);
@@ -47,9 +55,16 @@
     .sdot.spin{background:var(--gold)}
     @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
 
-    /* ── STATS BAR ── */
+    /* ── STATS BAR ──
+       FIX 3: top is set dynamically via JS (ResizeObserver),
+       so we use a CSS custom property as the source of truth.
+       The initial value keeps layout correct before JS fires.
+    */
     #statsBar{
-      position:sticky;top:73px;z-index:200;
+      position:-webkit-sticky;
+      position:sticky;
+      top:var(--header-h, 73px);
+      z-index:200;
       background:var(--navy-mid);border-bottom:1px solid var(--border);
       padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
       box-shadow:0 2px 12px rgba(0,0,0,0.4);
@@ -61,7 +76,10 @@
 
     /* ── CONTROLS ── */
     #controls{
-      position:sticky;top:163px;z-index:100;
+      position:-webkit-sticky;
+      position:sticky;
+      top:var(--header-stats-h, 163px);
+      z-index:100;
       background:var(--navy);border-bottom:1px solid var(--border);
       box-shadow:0 4px 16px rgba(0,0,0,0.4);
     }
@@ -111,8 +129,19 @@
     .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
     #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.07em;color:var(--white);min-width:100px;text-align:center;flex-shrink:1}
 
-    /* ── MAIN ── */
-    main{padding:14px 20px 80px;overflow-x:clip}
+    /* ── MAIN ──
+       FIX 4: The original used overflow-x:clip which Safari treats like
+       overflow:hidden and kills sticky on descendants.
+       Use clip-path or contain on a wrapper instead.
+       We contain overflow by wrapping content in a div that clips via
+       transform (doesn't create a new stacking context for sticky ancestors).
+       Simplest safe approach: just remove overflow-x clipping from main.
+       Horizontal overflow on list/month views is prevented by:
+       - etitle: text-overflow:ellipsis + overflow:hidden
+       - calendar grid: using percentage columns with no min-width issues
+       So we simply don't need overflow:clip here at all.
+    */
+    main{padding:14px 20px 80px}
 
     /* ── LIST ── */
     .dgroup{margin-bottom:20px}
@@ -185,6 +214,8 @@
     #toast.show{transform:translateX(-50%) translateY(0)}
 
     @media(max-width:480px){
+      /* FIX 5: On mobile the stats bar becomes 2-col and taller.
+         ResizeObserver handles the dynamic offset — no hardcoded px needed here. */
       #statsBar{grid-template-columns:repeat(2,1fr)}
       .ccell{min-height:58px;padding:3px}
       .cev{font-size:0.52rem}
@@ -255,28 +286,30 @@ const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const REFRESH = 5 * 60 * 1000;
 
 // ── PLATFORM DEFINITIONS ─────────────────────────────────────────
-// key → which Supabase 'platform' values belong to it + display info
 const PLATFORMS = {
-  west: { label:'West Modified', color:'#E8721C', match: v => v==='gamechanger' && true  },
-  caz:  { label:'Caz Chiefs',    color:'#1E6FD9', match: v => v==='teamsnap'               },
-  fcp:  { label:'FCP Baseball',  color:'#1EA85A', match: v => false /* set by sport below */ },
+  west: { label:'West Modified',  color:'#E8721C' },
+  caz:  { label:'Caz Chiefs',     color:'#1E6FD9' },
+  fcp:  { label:'FCP Baseball',   color:'#1EA85A' },
 };
 
-// We distinguish West Modified vs FCP Baseball both using 'gamechanger'
-// by the event name / sport field
 function platformKey(row) {
-  const plat  = (row.platform||'').toLowerCase();
+  const plat = (row.platform||'').toLowerCase();
+  const name = (row.name||'').toLowerCase();
   const sport = (row.sport||'').toLowerCase();
-  const name  = (row.name||'').toLowerCase();
+
   if (plat === 'teamsnap') return 'caz';
+
   if (plat === 'gamechanger') {
-    // FCP Baseball events contain "fcp" in name or sport = baseball and name contains "fcp"
-    if (name.includes('fcp') || sport.includes('fcp')) return 'fcp';
-    return 'west';
+    // West Modified events always start with "west"
+    if (name.startsWith('west')) return 'west';
+    // FCP events start with "fcp", OR are tournaments (no org prefix) on the baseball calendar
+    // Tournaments have no "west" prefix so everything else on gamechanger → fcp
+    return 'fcp';
   }
-  // fallback by sport
+
+  // Fallback for rows with no platform set
+  if (name.startsWith('fcp') || sport === 'baseball') return 'fcp';
   if (sport === 'hockey') return 'caz';
-  if (name.includes('fcp')) return 'fcp';
   return 'west';
 }
 
@@ -292,19 +325,34 @@ let currentView  = 'list';
 let currentDate  = new Date();
 let lastLoad     = null;
 
-// ── STICKY: measure actual heights and set directly ──────────────
-function fixSticky() {
-  const hh = document.getElementById('siteHeader').offsetHeight;
-  const sh = document.getElementById('statsBar').offsetHeight;
+// ── STICKY OFFSET — ResizeObserver approach ──────────────────────
+// FIX: Use ResizeObserver so offsets update instantly whenever
+// the header or statsBar change height (font load, resize, etc.)
+// This replaces the fragile setTimeout cascade.
+// We write to CSS custom properties on :root so the CSS can read them,
+// and also set the style directly on each element for maximum compat.
+function applySticky() {
+  const hh = document.getElementById('siteHeader').getBoundingClientRect().height;
+  const sh = document.getElementById('statsBar').getBoundingClientRect().height;
+  const controlsTop = hh + sh;
+
+  // Set CSS vars (used as fallbacks in CSS)
+  document.documentElement.style.setProperty('--header-h',        hh + 'px');
+  document.documentElement.style.setProperty('--header-stats-h',  controlsTop + 'px');
+
+  // Also set directly — belt-and-suspenders for older Safari
   document.getElementById('statsBar').style.top  = hh + 'px';
-  document.getElementById('controls').style.top  = (hh + sh) + 'px';
+  document.getElementById('controls').style.top  = controlsTop + 'px';
 }
-window.addEventListener('resize', fixSticky);
-// Run at multiple points to catch font/layout shifts
-document.addEventListener('DOMContentLoaded', fixSticky);
-window.addEventListener('load', fixSticky);
-setTimeout(fixSticky, 100);
-setTimeout(fixSticky, 500);
+
+// Observe both sticky elements for size changes
+const stickyObserver = new ResizeObserver(applySticky);
+stickyObserver.observe(document.getElementById('siteHeader'));
+stickyObserver.observe(document.getElementById('statsBar'));
+
+// Also call once immediately and on orientation change
+applySticky();
+window.addEventListener('orientationchange', () => { setTimeout(applySticky, 100); });
 
 // ── LOAD ─────────────────────────────────────────────────────────
 async function loadEvents(manual=false) {
@@ -343,7 +391,7 @@ async function loadEvents(manual=false) {
       }))
       .filter(e => !isNaN(e.start));
 
-    fixSticky();
+    applySticky();
     updateStats();
     render();
     setSync('ok','Synced');
@@ -403,13 +451,18 @@ function navigate(dir) {
 
 function goToday() {
   currentDate = new Date();
-  if (currentView==='list') {
-    render();
-    setTimeout(()=>{
-      const el=document.querySelector('.dlabel.today');
-      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
-  } else render();
+  // Always land in list view so the Today label is visible and scrollable
+  if (currentView !== 'list') {
+    currentView = 'list';
+    document.getElementById('btnList').classList.add('active');
+    document.getElementById('btnMonth').classList.remove('active');
+  }
+  render();
+  // Give the DOM a tick to paint, then scroll today into view
+  setTimeout(() => {
+    const el = document.querySelector('.dlabel.today');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
 }
 
 function render() {
@@ -438,7 +491,6 @@ function renderList() {
     const dt=new Date(ds);
     const isTd=ds===tds;
     const isPast=dt<new Date()&&!isTd;
-    const pl=PLATFORMS[evs[0]?.pkey];
 
     html+=`<div class="dgroup"${isPast?' style="opacity:0.6"':''}>
       <div class="dlabel${isTd?' today':''}">
@@ -564,9 +616,9 @@ function setSync(state,label){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
-fixSticky();
+applySticky();
 loadEvents().then(()=>{
-  fixSticky();
+  applySticky();
   setTimeout(()=>{
     const el=document.querySelector('.dlabel.today');
     if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
