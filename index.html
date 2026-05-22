@@ -47,7 +47,7 @@
 
     /* ── STATS BAR ── */
     #statsBar{
-      position:sticky;top:var(--header-h);z-index:200;
+      position:sticky;top:73px;z-index:200;
       background:var(--navy-mid);border-bottom:1px solid var(--border);
       padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
       box-shadow:0 2px 12px rgba(0,0,0,0.4);
@@ -58,7 +58,7 @@
 
     /* ── CONTROLS ── */
     #controls{
-      position:sticky;top:calc(var(--header-h) + var(--statsbar-h));z-index:100;
+      position:sticky;top:163px;z-index:100;
       background:var(--navy);border-bottom:1px solid var(--border);
       box-shadow:0 4px 16px rgba(0,0,0,0.4);
     }
@@ -80,32 +80,33 @@
     .pchip[data-key="fcp"].active{border-bottom-color:var(--green);color:var(--green)}
     .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .vrow{
-      padding:8px 20px 10px;
-      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      padding:8px 12px 10px;
+      display:flex;align-items:center;justify-content:space-between;gap:6px;
+      flex-wrap:nowrap;overflow:hidden;
     }
-    .vbtns{display:flex;background:var(--card-bg);border-radius:8px;padding:3px;gap:2px}
+    .vbtns{display:flex;background:var(--card-bg);border-radius:8px;padding:3px;gap:2px;flex-shrink:0}
     .vbtn{
-      padding:5px 16px;border-radius:6px;border:none;background:transparent;
+      padding:5px 12px;border-radius:6px;border:none;background:transparent;
       font-size:0.75rem;font-weight:600;color:var(--muted);
       cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
     }
     .vbtn.active{background:var(--navy-light);color:var(--gold)}
-    .mnav{display:flex;align-items:center;gap:6px}
+    .mnav{display:flex;align-items:center;gap:4px;flex-shrink:0}
     .mnav-arr{
       background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
-      border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:1.1rem;
+      border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
       display:flex;align-items:center;justify-content:center;transition:all 0.2s;
-      font-family:'DM Sans',sans-serif;
+      font-family:'DM Sans',sans-serif;flex-shrink:0;
     }
     .mnav-arr:hover{border-color:var(--gold);color:var(--gold)}
     .mnav-today{
       background:var(--card-bg);border:1px solid var(--border);color:var(--muted);
-      border-radius:6px;padding:0 10px;height:30px;
-      font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
-      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+      border-radius:6px;padding:0 8px;height:28px;
+      font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;
+      cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0;
     }
     .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-    #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.07em;color:var(--white);min-width:130px;text-align:center}
+    #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.07em;color:var(--white);min-width:100px;text-align:center;flex-shrink:1}
 
     /* ── MAIN ── */
     main{padding:14px 20px 80px}
@@ -285,12 +286,12 @@ let currentView  = 'list';
 let currentDate  = new Date();
 let lastLoad     = null;
 
-// ── STICKY: measure actual heights ──────────────────────────────
+// ── STICKY: measure actual heights and set directly ──────────────
 function fixSticky() {
   const hh = document.getElementById('siteHeader').offsetHeight;
   const sh = document.getElementById('statsBar').offsetHeight;
-  document.documentElement.style.setProperty('--header-h',   hh + 'px');
-  document.documentElement.style.setProperty('--statsbar-h', sh + 'px');
+  document.getElementById('statsBar').style.top  = hh + 'px';
+  document.getElementById('controls').style.top  = (hh + sh) + 'px';
 }
 window.addEventListener('resize', fixSticky);
 
