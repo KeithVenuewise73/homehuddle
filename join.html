@@ -40,7 +40,6 @@
     input[type=text], input[type=email], input[type=tel], input[type=url], select { width: 100%; padding: 9px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-900); outline: none; transition: border-color .15s, box-shadow .15s; appearance: none; }
     input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
     input::placeholder { color: var(--gray-400); }
-    input.error { border-color: var(--red); }
     .kids-list { display: flex; flex-direction: column; gap: 16px; }
     .kid-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; position: relative; background: var(--gray-50); }
     .kid-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -73,16 +72,30 @@
     .legal { font-size: 12px; color: var(--gray-400); text-align: center; margin-top: .75rem; line-height: 1.6; }
     .legal a { color: var(--green); text-decoration: none; }
     .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
-    .setup { display: none; text-align: center; padding: 3rem 1rem; }
+
+    /* SETUP SCREEN */
+    .setup { display: none; padding: 2rem 0; }
     .setup-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
     .setup-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
-    .setup h2 { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gray-900); margin-bottom: .5rem; }
-    .setup p { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; }
-    .setup-link { display: flex; align-items: center; gap: 10px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 1rem; cursor: pointer; transition: background .15s; border: 1px solid var(--gray-200); }
-    .setup-link:hover { background: var(--green-light); border-color: var(--green); }
-    .setup-link-url { font-size: 13px; color: var(--gray-700); flex: 1; text-align: left; word-break: break-all; }
-    .setup-link-copy { font-size: 12px; font-weight: 600; color: var(--green); flex-shrink: 0; }
-    .setup-cta { display: inline-block; padding: 12px 24px; background: var(--green); color: white; border-radius: var(--radius-sm); text-decoration: none; font-weight: 500; font-size: 14px; }
+    .setup h2 { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gray-900); margin-bottom: .5rem; text-align: center; }
+    .setup-sub { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; text-align: center; }
+    .setup-cta { display: block; padding: 13px; background: var(--green); color: white; border-radius: var(--radius-sm); text-decoration: none; font-weight: 500; font-size: 15px; text-align: center; margin-bottom: 1rem; transition: background .15s; }
+    .setup-cta:hover { background: var(--green-dark); }
+
+    /* SHARE CARD */
+    .share-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+    .share-card-title { font-size:13px; font-weight:600; color:var(--gray-700); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px; }
+    .share-message { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 0.75rem; font-family: 'DM Sans', sans-serif; white-space: pre-wrap; }
+    .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--green); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .copy-btn:hover { background: var(--green-light); border-color: var(--green); }
+    .copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
+
+    /* CALENDAR LINK */
+    .cal-link-row { display: flex; align-items: center; gap: 10px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 0.75rem; cursor: pointer; transition: background .15s; border: 1px solid var(--gray-200); }
+    .cal-link-row:hover { background: var(--green-light); border-color: var(--green); }
+    .cal-link-url { font-size: 13px; color: var(--gray-700); flex: 1; word-break: break-all; }
+    .cal-link-copy { font-size: 12px; font-weight: 600; color: var(--green); flex-shrink: 0; }
+
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @media (max-width: 480px) { .kid-row2 { grid-template-columns: 1fr; } .platform-grid { grid-template-columns: 1fr 1fr; } }
@@ -130,18 +143,36 @@
       <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
   </div>
 
+  <!-- SUCCESS SCREEN -->
   <div class="setup" id="setup">
     <div class="setup-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
     <h2>You're in!</h2>
-    <p>Your family's schedule is being set up now — it'll be ready in about a minute.<br><br>
-    Check your email for a welcome message with everything you need to get started.<br><br>
-    Bookmark your personal HomeHuddle link:</p>
-    <div class="setup-link" onclick="copyLink()">
-      <div class="setup-link-url" id="setupLinkUrl">—</div>
-      <div class="setup-link-copy" id="copyLabel">Copy</div>
+    <p class="setup-sub">Your family's schedule is syncing now — check your email for a welcome message with everything you need.</p>
+
+    <a id="viewCalBtn" href="#" class="setup-cta">View my family calendar →</a>
+
+    <!-- Calendar link -->
+    <div class="share-card">
+      <div class="share-card-title">📅 Your calendar link</div>
+      <div class="cal-link-row" onclick="copyCalLink()">
+        <div class="cal-link-url" id="setupLinkUrl">—</div>
+        <div class="cal-link-copy" id="calCopyLabel">Copy</div>
+      </div>
+      <p style="font-size:12px;color:var(--gray-400);line-height:1.5">Bookmark this — it's your family's schedule hub. Anyone with this link can view the calendar.</p>
     </div>
-    <p style="font-size:13px;color:var(--gray-400);margin-bottom:1.5rem">We'll alert you any time a game time changes.</p>
-    <a id="viewCalBtn" href="#" class="setup-cta">View my schedule →</a>
+
+    <!-- Share message -->
+    <div class="share-card">
+      <div class="share-card-title">👨‍👩‍👧‍👦 Share with family</div>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:0.75rem;line-height:1.5">Copy this message and text it to anyone who should follow the schedule — spouse, grandparents, siblings:</p>
+      <div class="share-message" id="share-message">Loading...</div>
+      <button class="copy-btn" id="copy-msg-btn" onclick="copyShareMessage()">📋 Copy message to share</button>
+    </div>
+
+    <p style="font-size:12px;color:var(--gray-400);text-align:center;line-height:1.6;margin-top:0.5rem">
+      SMS alerts coming soon · Push notifications active now<br>
+      Questions? <a href="mailto:hello@venuewise.net" style="color:var(--green)">hello@venuewise.net</a>
+    </p>
   </div>
 </div>
 
@@ -169,6 +200,7 @@ const INSTRUCTIONS = {
 
 let kidCount = 0;
 let familyCalendarUrl = '';
+let shareMessageText = '';
 
 function addKid() {
   kidCount++;
@@ -240,6 +272,28 @@ function collectKids() {
   return kids;
 }
 
+function buildShareMessage(fname, kids, calUrl) {
+  const familyFirst = fname.replace(/ Family$/i, '');
+
+  // Build kid descriptions
+  const kidDescriptions = kids.map(k => {
+    const sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
+    const team = k.teamName ? ` (${k.teamName})` : '';
+    return `${k.name}'s ${sports}${team}`;
+  });
+
+  let kidText = '';
+  if (kidDescriptions.length === 1) {
+    kidText = kidDescriptions[0];
+  } else if (kidDescriptions.length === 2) {
+    kidText = `${kidDescriptions[0]} and ${kidDescriptions[1]}`;
+  } else {
+    kidText = kidDescriptions.slice(0, -1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length - 1];
+  }
+
+  return `Hey! I'm using HomeHuddle to share ${kidText} schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n${calUrl}\n\nOnce you open it, tap "Enable notifications" to get alerts when games are added or times change. 🏅`;
+}
+
 async function submitForm() {
   const fname = document.getElementById('fname').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -258,15 +312,11 @@ async function submitForm() {
     for (const kid of kids) {
       const sportList = kid.sports.length > 0 ? kid.sports : ['Sport'];
       const payload = {
-        family_name: fname,
-        email,
-        phone: normalizedPhone,
-        kid_name: kid.name,
-        sport: sportList.join(', '),
+        family_name: fname, email, phone: normalizedPhone,
+        kid_name: kid.name, sport: sportList.join(', '),
         platform: kid.platform,
         ical_url: kid.icalUrl.replace(/^webcal:\/\//i, 'https://'),
-        is_active: true,
-        status: 'trial',
+        is_active: true, status: 'trial',
         team_name: kid.teamName || null,
       };
       const res = await fetch(`${SURL}/rest/v1/feeds`, {
@@ -289,10 +339,15 @@ async function submitForm() {
       });
     } catch(e) { console.error('Welcome email error:', e); }
 
+    // Build calendar URL and share message
     familyCalendarUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(email)}`;
+    shareMessageText = buildShareMessage(fname, kids, familyCalendarUrl);
+
+    // Show success screen
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
     document.getElementById('viewCalBtn').href = familyCalendarUrl;
+    document.getElementById('share-message').textContent = shareMessageText;
     document.getElementById('setup').style.display = 'block';
 
   } catch (err) {
@@ -303,17 +358,35 @@ async function submitForm() {
   }
 }
 
-function copyLink() {
-  if (!familyCalendarUrl) return;
-  navigator.clipboard.writeText(familyCalendarUrl).then(() => {
-    document.getElementById('copyLabel').textContent = 'Copied!';
-    setTimeout(() => { document.getElementById('copyLabel').textContent = 'Copy'; }, 2000);
+function copyCalLink() {
+  copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy');
+}
+
+function copyShareMessage() {
+  copyText(shareMessageText, null, null, null, 'copy-msg-btn');
+}
+
+function copyText(text, labelId, successText, defaultText, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      btn.textContent = '✅ Copied! Paste it in a text message';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+    }
+    if (labelId) {
+      document.getElementById(labelId).textContent = successText;
+      setTimeout(() => { document.getElementById(labelId).textContent = defaultText; }, 2000);
+    }
   }).catch(() => {
     const el = document.createElement('textarea');
-    el.value = familyCalendarUrl;
-    document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-    document.getElementById('copyLabel').textContent = 'Copied!';
-    setTimeout(() => { document.getElementById('copyLabel').textContent = 'Copy'; }, 2000);
+    el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      btn.textContent = '✅ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+    }
   });
 }
 
