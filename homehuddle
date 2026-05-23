@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HomeHuddle — Family Sports Scheduling, Powered by Venuewise</title>
+  <meta name="description" content="Real-time SMS and push alerts when your kid's game times change. Free for 30 days. Powered by Venuewise."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-text:#085041;
+      --gray-50:#F9F9F7;--gray-100:#F1EFE8;--gray-200:#D3D1C7;--gray-400:#888780;
+      --gray-700:#444441;--gray-900:#1a1a18;--gold:#F5C518;
+      --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+    }
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh}
+
+    /* NAV */
+    nav{background:white;border-bottom:1px solid var(--gray-200);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+    .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .nav-logo-mark{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center}
+    .nav-logo-mark svg{width:18px;height:18px;fill:white}
+    .nav-logo-name{font-size:16px;font-weight:600;color:var(--gray-900)}
+    .nav-logo-by{font-size:11px;color:var(--gray-400);margin-top:1px}
+    .nav-cta{background:var(--green);color:white;font-size:14px;font-weight:500;padding:8px 18px;border-radius:var(--radius-sm);text-decoration:none;transition:background 0.15s;font-family:'DM Sans',sans-serif}
+    .nav-cta:hover{background:var(--green-dark)}
+
+    /* HERO */
+    .hero{max-width:680px;margin:0 auto;padding:5rem 1.5rem 3rem;text-align:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green-text);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem}
+    .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2rem,6vw,3.2rem);line-height:1.12;color:var(--gray-900);margin-bottom:1rem}
+    .hero h1 em{font-style:italic;color:var(--green)}
+    .hero p{font-size:1.05rem;color:var(--gray-400);line-height:1.7;max-width:500px;margin:0 auto 2rem}
+    .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .btn-primary{background:var(--green);color:white;font-size:15px;font-weight:500;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;transition:background 0.15s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary:hover{background:var(--green-dark)}
+    .btn-secondary{background:white;color:var(--gray-700);font-size:15px;font-weight:500;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;border:1px solid var(--gray-200);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+    .btn-secondary:hover{border-color:var(--green);color:var(--green)}
+
+    /* PREVIEW CARD */
+    .preview{max-width:420px;margin:3rem auto;background:white;border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;border:1px solid var(--gray-200)}
+    .preview-header{background:#0A1628;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+    .preview-logo{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:700;color:white;letter-spacing:0.02em}
+    .preview-logo span{color:#F5C518}
+    .preview-dot{width:7px;height:7px;border-radius:50%;background:#22C55E}
+    .preview-body{padding:12px}
+    .preview-event{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#111D35;border-radius:8px;margin-bottom:8px;border:1px solid rgba(245,197,24,0.12)}
+    .preview-stripe{width:3px;border-radius:3px;background:#1EA85A;align-self:stretch;flex-shrink:0}
+    .preview-info{flex:1}
+    .preview-name{font-size:13px;font-weight:700;color:#F0F4FF;margin-bottom:2px}
+    .preview-meta{font-size:11px;color:#7A8FAD}
+    .preview-time{font-size:11px;font-weight:600;color:#7A8FAD;font-family:monospace}
+    .preview-banner{background:rgba(245,197,24,0.1);border-left:3px solid #F5C518;padding:8px 12px;margin-bottom:8px;border-radius:0 6px 6px 0;font-size:12px;color:#F5C518;font-weight:500}
+
+    /* HOW IT WORKS */
+    .section{max-width:760px;margin:0 auto;padding:3rem 1.5rem}
+    .section-label{font-size:11px;font-weight:500;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;text-align:center;margin-bottom:0.5rem}
+    .section h2{font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,4vw,2.2rem);text-align:center;color:var(--gray-900);margin-bottom:0.75rem}
+    .section h2 em{font-style:italic;color:var(--green)}
+    .section-sub{text-align:center;color:var(--gray-400);font-size:0.95rem;line-height:1.65;max-width:480px;margin:0 auto 2.5rem}
+
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .step{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.5rem;position:relative}
+    .step-num{width:28px;height:28px;border-radius:50%;background:var(--green-light);color:var(--green-text);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+    .step h3{font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:0.4rem}
+    .step p{font-size:13px;color:var(--gray-400);line-height:1.6}
+
+    /* FEATURES */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
+    .feature{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem}
+    .feature-icon{font-size:1.6rem;margin-bottom:0.75rem}
+    .feature h3{font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:0.35rem}
+    .feature p{font-size:13px;color:var(--gray-400);line-height:1.6}
+
+    /* PRICING */
+    .pricing-card{max-width:420px;margin:0 auto;background:white;border:2px solid var(--green);border-radius:var(--radius-lg);padding:2rem;text-align:center}
+    .pricing-badge{display:inline-block;background:var(--green-light);color:var(--green-text);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:1rem}
+    .pricing-price{font-family:'DM Serif Display',serif;font-size:3rem;color:var(--gray-900);line-height:1}
+    .pricing-price sup{font-size:1.2rem;vertical-align:top;margin-top:0.5rem;font-family:'DM Sans',sans-serif;font-weight:500}
+    .pricing-price sub{font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--gray-400)}
+    .pricing-desc{font-size:14px;color:var(--gray-400);margin:0.75rem 0 1.5rem;line-height:1.6}
+    .pricing-list{list-style:none;margin-bottom:1.75rem;text-align:left}
+    .pricing-list li{font-size:14px;color:var(--gray-700);padding:6px 0;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:8px}
+    .pricing-list li:last-child{border-bottom:none}
+    .pricing-list li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+    .pricing-fine{font-size:12px;color:var(--gray-400);margin-top:0.75rem}
+
+    /* CTA BAND */
+    .cta-band{background:var(--green);padding:4rem 1.5rem;text-align:center}
+    .cta-band h2{font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,4vw,2.2rem);color:white;margin-bottom:0.75rem}
+    .cta-band h2 em{font-style:italic}
+    .cta-band p{color:rgba(255,255,255,0.8);font-size:0.95rem;margin-bottom:2rem}
+    .btn-white{background:white;color:var(--green-dark);font-size:15px;font-weight:600;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;display:inline-block;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+    .btn-white:hover{background:var(--green-light)}
+
+    /* FOOTER */
+    footer{background:white;border-top:1px solid var(--gray-200);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .footer-logo{font-size:13px;color:var(--gray-400)}
+    .footer-logo strong{color:var(--gray-700)}
+    .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+    .footer-links a{font-size:13px;color:var(--gray-400);text-decoration:none;transition:color 0.15s}
+    .footer-links a:hover{color:var(--green)}
+
+    .divider{border:none;border-top:1px solid var(--gray-100);margin:0}
+
+    @media(max-width:520px){
+      .hero-btns{flex-direction:column;align-items:center}
+      footer{flex-direction:column;text-align:center}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/homehuddle.html" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="white" stroke-width="1.5"/></svg>
+    </div>
+    <div>
+      <div class="nav-logo-name">HomeHuddle</div>
+      <div class="nav-logo-by">powered by Venuewise</div>
+    </div>
+  </a>
+  <a href="/join.html" class="nav-cta">Start free trial</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">✦ Free 30-day trial — no credit card needed</div>
+  <h1>Your family's sports schedule,<br><em>always up to date.</em></h1>
+  <p>Real-time SMS and push alerts the moment practice times change, games are added, or there's a conflict. Never miss a pickup again.</p>
+  <div class="hero-btns">
+    <a href="/join.html" class="btn-primary">Start your free trial →</a>
+    <a href="#how-it-works" class="btn-secondary">See how it works</a>
+  </div>
+</div>
+
+<!-- APP PREVIEW -->
+<div class="preview">
+  <div class="preview-header">
+    <div class="preview-logo">Home<span>Huddle</span></div>
+    <div class="preview-dot"></div>
+  </div>
+  <div class="preview-body">
+    <div class="preview-banner">⚽ Dominic has practice today at 4:00 PM — ends 5:30 PM, plan for pickup!</div>
+    <div class="preview-event">
+      <div class="preview-stripe" style="background:#1EA85A"></div>
+      <div class="preview-info">
+        <div class="preview-name">FCP Baseball — Practice</div>
+        <div class="preview-meta">Onondaga Park · Field 3</div>
+      </div>
+      <div class="preview-time">4:00PM</div>
+    </div>
+    <div class="preview-event">
+      <div class="preview-stripe" style="background:#1E6FD9"></div>
+      <div class="preview-info">
+        <div class="preview-name">Caz Chiefs — Game vs Fayetteville</div>
+        <div class="preview-meta">Cazenovia Ice Rink</div>
+      </div>
+      <div class="preview-time">6:30PM</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- HOW IT WORKS -->
+<div class="section" id="how-it-works">
+  <div class="section-label">How it works</div>
+  <h2>Set up in <em>minutes.</em></h2>
+  <p class="section-sub">Connect your team calendars once and HomeHuddle handles everything else automatically.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Sign up your family</h3>
+      <p>Enter your name, email, and mobile number. Add each kid and their sport.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Connect your calendars</h3>
+      <p>Paste the iCal link from GameChanger, TeamSnap, or any team calendar app.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Get instant alerts</h3>
+      <p>We sync every 30 minutes. The moment something changes, you get a text.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Share with family</h3>
+      <p>Send your personal calendar link to grandparents, coaches, or anyone who needs it.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-label">Features</div>
+  <h2>Everything your family <em>needs.</em></h2>
+  <p class="section-sub">Built for busy sports families juggling multiple kids, multiple teams, and constantly changing schedules.</p>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">📲</div>
+      <h3>Instant SMS alerts</h3>
+      <p>Get a text the moment a game time changes or a new event is added to your kid's calendar.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔔</div>
+      <h3>Push notifications</h3>
+      <p>Day-of reminders right on your lock screen — no app download required.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📅</div>
+      <h3>Live calendar sync</h3>
+      <p>Connects to GameChanger, TeamSnap, LeagueApps, Google Calendar, Apple Calendar and more.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚠️</div>
+      <h3>Conflict detection</h3>
+      <p>Automatically flags when two of your kids have overlapping events so you can plan ahead.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎨</div>
+      <h3>Personalizable</h3>
+      <p>Each family member gets their own view and can customize the colors to their taste.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📍</div>
+      <h3>One-tap directions</h3>
+      <p>Tap any event location to open it in Apple Maps, Google Maps, or Waze instantly.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- PRICING -->
+<div class="section">
+  <div class="section-label">Pricing</div>
+  <h2>Simple, <em>affordable</em> pricing.</h2>
+  <p class="section-sub">One price covers your whole family — all kids, all sports, all season long.</p>
+  <div class="pricing-card">
+    <div class="pricing-badge">✦ Start free for 30 days</div>
+    <div class="pricing-price"><sup>$</sup>4<sub>.95/mo</sub></div>
+    <p class="pricing-desc">After your free trial. No contracts, cancel anytime.</p>
+    <ul class="pricing-list">
+      <li>Unlimited kids and sports</li>
+      <li>SMS alerts for every schedule change</li>
+      <li>Push notifications on all your devices</li>
+      <li>Shareable family calendar link</li>
+      <li>Conflict detection</li>
+      <li>Color customization per family member</li>
+    </ul>
+    <a href="/join.html" class="btn-primary" style="width:100%;justify-content:center">Start your free 30-day trial</a>
+    <p class="pricing-fine">No credit card required for trial. Cancel anytime.</p>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Stop missing pickups.<br><em>Start your free trial today.</em></h2>
+  <p>Takes less than 5 minutes to set up. Works with any team calendar app.</p>
+  <a href="/join.html" class="btn-white">Join HomeHuddle free →</a>
+</div>
+
+<footer>
+  <div class="footer-logo"><strong>HomeHuddle</strong> · powered by Venuewise &copy; 2026</div>
+  <div class="footer-links">
+    <a href="/join.html">Sign up</a>
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="/terms.html">Terms of Service</a>
+    <a href="mailto:hello@venuewise.net">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
