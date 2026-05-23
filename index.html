@@ -441,6 +441,7 @@ async function sendInvite() {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + SKEY,
+        'apikey': SKEY,
       },
       body: JSON.stringify({
         to_phone:     rawPhone,
