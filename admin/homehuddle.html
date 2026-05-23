@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — HomeHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-text:#085041;
+      --gray-50:#F9F9F7;--gray-100:#F1EFE8;--gray-200:#D3D1C7;--gray-400:#888780;
+      --gray-700:#444441;--gray-900:#1a1a18;
+      --red:#DC2626;--red-light:#FEF2F2;
+      --amber:#F59E0B;--amber-light:#FFFBEB;
+      --blue:#3B82F6;--blue-light:#EFF6FF;
+      --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+    }
+    html{font-size:16px}
+    body{font-family:'DM Sans',sans-serif;background:#0f1117;color:#e8e6df;min-height:100vh}
+
+    /* NAV */
+    nav{background:#1a1c24;border-bottom:1px solid #2a2d38;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .nav-logo-mark{width:30px;height:30px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center}
+    .nav-logo-mark svg{width:16px;height:16px;fill:white}
+    .nav-logo-name{font-size:15px;font-weight:600;color:#e8e6df}
+    .nav-logo-tag{font-size:11px;color:#555;margin-left:4px}
+    .nav-badge{background:#1D9E7520;color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid #1D9E7540}
+    .nav-signout{font-size:13px;color:#555;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .nav-signout:hover{color:var(--red)}
+
+    /* LOGIN */
+    #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+    .login-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:380px;text-align:center}
+    .login-card h2{font-family:'DM Serif Display',serif;font-size:1.75rem;color:#e8e6df;margin-bottom:0.5rem}
+    .login-card p{font-size:14px;color:#555;margin-bottom:1.75rem}
+    .pin-row{display:flex;gap:10px;justify-content:center;margin:1rem 0 1.5rem}
+    .pin-digit{width:54px;height:58px;background:#0f1117;border:1px solid #2a2d38;border-radius:var(--radius-sm);font-size:1.5rem;text-align:center;color:#e8e6df;outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
+    .pin-digit:focus{border-color:var(--green)}
+    .alert-error{background:#DC262615;color:#f87171;border:1px solid #DC262630;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:1rem;display:none}
+    .alert-error.show{display:block}
+
+    /* MAIN */
+    #admin-screen{display:none}
+    .page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+    .page-header h1{font-family:'DM Serif Display',serif;font-size:1.75rem;color:#e8e6df}
+    .page-header p{font-size:13px;color:#555;margin-top:2px}
+    .refresh-btn{background:#1a1c24;border:1px solid #2a2d38;color:#888;font-size:13px;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .refresh-btn:hover{border-color:var(--green);color:var(--green)}
+
+    /* KPI GRID */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+    .kpi-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:1.25rem;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+    .kpi-card.green::before{background:var(--green)}
+    .kpi-card.blue::before{background:var(--blue)}
+    .kpi-card.amber::before{background:var(--amber)}
+    .kpi-card.red::before{background:var(--red)}
+    .kpi-card.purple::before{background:#8B5CF6}
+    .kpi-card.teal::before{background:#14B8A6}
+    .kpi-label{font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem}
+    .kpi-value{font-family:'DM Serif Display',serif;font-size:2.25rem;color:#e8e6df;line-height:1}
+    .kpi-sub{font-size:12px;color:#555;margin-top:4px}
+
+    /* SECTION */
+    .section{margin-bottom:2rem}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .section-title{font-size:13px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em}
+    .section-count{font-size:12px;color:#333;background:#2a2d38;padding:2px 8px;border-radius:20px}
+
+    /* TABLE */
+    .table-wrap{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.06em;padding:10px 16px;text-align:left;border-bottom:1px solid #2a2d38;white-space:nowrap}
+    td{font-size:13px;color:#aaa;padding:12px 16px;border-bottom:1px solid #1f2130;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#1f2130}
+    .td-name{font-weight:600;color:#e8e6df}
+    .td-email{color:#666;font-size:12px}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px}
+    .badge-active{background:#1D9E7520;color:var(--green);border:1px solid #1D9E7540}
+    .badge-trial{background:#F59E0B20;color:var(--amber);border:1px solid #F59E0B40}
+    .badge-cancelled{background:#DC262620;color:#f87171;border:1px solid #DC262640}
+    .badge-sport{background:#3B82F620;color:#93C5FD;border:1px solid #3B82F640;margin-right:3px}
+
+    /* CHARTS */
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+    .chart-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:1.25rem}
+    .chart-title{font-size:13px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .bar-label{font-size:13px;color:#aaa;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-track{flex:1;height:8px;background:#2a2d38;border-radius:4px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+    .bar-count{font-size:12px;color:#555;width:24px;text-align:right;flex-shrink:0}
+
+    /* CHURN TABLE */
+    .churn-notes{background:#0f1117;border:1px solid #2a2d38;border-radius:6px;padding:6px 8px;font-size:12px;color:#888;width:100%;font-family:'DM Sans',sans-serif;resize:none;outline:none}
+    .churn-notes:focus{border-color:var(--green)}
+    .btn-followup{background:#1D9E7520;color:var(--green);border:1px solid #1D9E7540;font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
+    .btn-followup:hover{background:var(--green);color:white}
+
+    /* ORGS */
+    .org-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-md);padding:1rem;display:flex;align-items:center;gap:12px}
+    .org-icon{width:38px;height:38px;border-radius:8px;background:#2a2d38;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .org-name{font-size:14px;font-weight:600;color:#e8e6df}
+    .org-meta{font-size:12px;color:#555;margin-top:2px}
+    .org-count{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--green);margin-left:auto;flex-shrink:0}
+    .org-count-label{font-size:11px;color:#555;text-align:right}
+    .orgs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem}
+
+    /* LOADING */
+    .loading{text-align:center;padding:3rem;color:#555;font-size:14px}
+    .spinner{display:inline-block;width:20px;height:20px;border:2px solid #2a2d38;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:2rem;color:#555;font-size:13px}
+
+    footer{border-top:1px solid #2a2d38;padding:1.5rem 2rem;text-align:center;font-size:12px;color:#333}
+
+    @media(max-width:768px){
+      .charts-grid{grid-template-columns:1fr}
+      .kpi-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/homehuddle.html" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="white" stroke-width="1.5"/></svg>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:6px">
+      <div class="nav-logo-name">HomeHuddle</div>
+      <span class="nav-logo-tag">Admin</span>
+    </div>
+  </a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="nav-badge">⚡ Live Data</span>
+    <button class="nav-signout" id="sign-out-btn" style="display:none" onclick="signOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size:2rem;margin-bottom:1rem">🏠</div>
+    <h2>Admin Dashboard</h2>
+    <p>Enter your admin PIN to access the dashboard</p>
+    <div class="alert-error" id="pin-error"></div>
+    <div class="pin-row">
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0" oninput="pinNav(0)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1" oninput="pinNav(1)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNav(2)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNav(3)" onkeydown="pinBack(3,event)"/>
+    </div>
+    <p style="font-size:12px;color:#333">Powered by Venuewise</p>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="admin-screen">
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1>HomeHuddle Dashboard</h1>
+        <p id="last-updated">Loading...</p>
+      </div>
+      <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Sports Distribution</div>
+        <div id="sports-chart"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Platform Breakdown</div>
+        <div id="platform-chart"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <!-- ORGANIZATIONS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Organizations Being Tracked</span>
+        <span class="section-count" id="orgs-count">—</span>
+      </div>
+      <div class="orgs-grid" id="orgs-grid">
+        <div class="loading"><span class="spinner"></span>Loading...</div>
+      </div>
+    </div>
+
+    <!-- ACTIVE FAMILIES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Active Families</span>
+        <span class="section-count" id="active-count">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Family</th>
+              <th>Kids</th>
+              <th>Sports</th>
+              <th>Status</th>
+              <th>Signed Up</th>
+              <th>Feeds</th>
+            </tr>
+          </thead>
+          <tbody id="families-tbody">
+            <tr><td colspan="6" class="loading"><span class="spinner"></span>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHURNED / FOLLOW-UP -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">⚠️ Churned — Follow Up</span>
+        <span class="section-count" id="churn-count">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Family</th>
+              <th>Email</th>
+              <th>Cancelled</th>
+              <th>Was tracking</th>
+              <th>Notes</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="churn-tbody">
+            <tr><td colspan="6" class="empty">No churned accounts yet 🎉</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <footer>HomeHuddle Admin · powered by Venuewise · <a href="mailto:hello@venuewise.net" style="color:#333;text-decoration:none">hello@venuewise.net</a></footer>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+// ── CHANGE THIS TO YOUR ADMIN PIN ──
+const ADMIN_PIN = '2426';
+
+async function sbFetch(path) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+  });
+  return res.json();
+}
+
+// ── PIN LOGIN ─────────────────────────────────────────────
+function pinNav(i) {
+  const v = document.getElementById(`p${i}`).value;
+  if (!/^\d$/.test(v)) { document.getElementById(`p${i}`).value=''; return; }
+  if (i < 3) document.getElementById(`p${i+1}`).focus();
+  if (i === 3) checkPin();
+}
+function pinBack(i, e) {
+  if (e.key==='Backspace' && !document.getElementById(`p${i}`).value && i>0)
+    document.getElementById(`p${i-1}`).focus();
+}
+function checkPin() {
+  const pin = [0,1,2,3].map(i=>document.getElementById(`p${i}`).value).join('');
+  if (pin === ADMIN_PIN) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('sign-out-btn').style.display = 'inline';
+    loadDashboard();
+  } else {
+    const err = document.getElementById('pin-error');
+    err.textContent = 'Incorrect PIN. Please try again.';
+    err.classList.add('show');
+    [0,1,2,3].forEach(i=>{ document.getElementById(`p${i}`).value=''; });
+    document.getElementById('p0').focus();
+  }
+}
+function signOut() {
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('sign-out-btn').style.display='none';
+  [0,1,2,3].forEach(i=>{ document.getElementById(`p${i}`).value=''; });
+}
+
+// ── LOAD DASHBOARD ────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('last-updated').textContent = 'Loading...';
+  try {
+    const feeds = await sbFetch('feeds?select=*&order=created_at.desc');
+    const events = await sbFetch('events?select=uid,kid,platform,sport,name,family_phone&limit=1000');
+    const pushSubs = await sbFetch('push_subscriptions?select=id,email');
+    const syncSummary = await sbFetch('sync_summary?select=*&order=created_at.desc&limit=1');
+
+    renderKPIs(feeds, events, pushSubs, syncSummary);
+    renderCharts(feeds);
+    renderOrgs(feeds, events);
+    renderFamilies(feeds);
+    renderChurn(feeds);
+
+    document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('last-updated').textContent = 'Error loading data';
+  }
+}
+
+// ── KPIs ──────────────────────────────────────────────────
+function renderKPIs(feeds, events, pushSubs, syncSummary) {
+  // Distinct families by email
+  const families = [...new Set(feeds.map(f=>f.email))];
+  const activeFeeds = feeds.filter(f=>f.is_active && f.status !== 'cancelled');
+  const cancelledFeeds = feeds.filter(f=>f.status === 'cancelled');
+  const trialFeeds = feeds.filter(f=>f.status === 'trial' || !f.status);
+
+  // Distinct kids
+  const kids = [...new Set(feeds.map(f=>`${f.email}::${f.kid_name}`))];
+
+  // Distinct sports
+  const sportsSet = new Set();
+  feeds.forEach(f=>{ if(f.sport) f.sport.split(',').forEach(s=>sportsSet.add(s.trim())); });
+
+  const activeFamilies = families.filter(email => {
+    const fam = feeds.filter(f=>f.email===email);
+    return fam.some(f=>f.status!=='cancelled');
+  });
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card green">
+      <div class="kpi-label">Total Families</div>
+      <div class="kpi-value">${families.length}</div>
+      <div class="kpi-sub">${activeFamilies.length} active</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Kids</div>
+      <div class="kpi-value">${kids.length}</div>
+      <div class="kpi-sub">across all families</div>
+    </div>
+    <div class="kpi-card teal">
+      <div class="kpi-label">Sports Tracked</div>
+      <div class="kpi-value">${sportsSet.size}</div>
+      <div class="kpi-sub">${[...sportsSet].slice(0,2).join(', ')}</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Active Feeds</div>
+      <div class="kpi-value">${activeFeeds.length}</div>
+      <div class="kpi-sub">iCal syncing</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">Push Devices</div>
+      <div class="kpi-value">${pushSubs.length}</div>
+      <div class="kpi-sub">subscribed devices</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Churned</div>
+      <div class="kpi-value">${[...new Set(cancelledFeeds.map(f=>f.email))].length}</div>
+      <div class="kpi-sub">need follow-up</div>
+    </div>
+  `;
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+function renderCharts(feeds) {
+  // Sports
+  const sportCounts = {};
+  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
+    if(f.sport) f.sport.split(',').forEach(s=>{
+      const t = s.trim();
+      sportCounts[t] = (sportCounts[t]||0) + 1;
+    });
+  });
+  const sortedSports = Object.entries(sportCounts).sort((a,b)=>b[1]-a[1]);
+  const maxS = sortedSports[0]?.[1] || 1;
+  const sportColors = ['#1D9E75','#3B82F6','#F59E0B','#8B5CF6','#14B8A6','#EC4899'];
+  document.getElementById('sports-chart').innerHTML = sortedSports.map(([s,c],i)=>`
+    <div class="bar-row">
+      <div class="bar-label">${s}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(c/maxS*100).toFixed(0)}%;background:${sportColors[i%sportColors.length]}"></div></div>
+      <div class="bar-count">${c}</div>
+    </div>`).join('') || '<div class="empty">No data yet</div>';
+
+  // Platforms
+  const platCounts = {};
+  const platNames = {gamechanger:'GameChanger',teamsnap:'TeamSnap',leagueapps:'LeagueApps',google:'Google Cal',apple:'Apple Cal',other:'Other'};
+  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
+    if(f.platform) platCounts[f.platform] = (platCounts[f.platform]||0)+1;
+  });
+  const sortedPlats = Object.entries(platCounts).sort((a,b)=>b[1]-a[1]);
+  const maxP = sortedPlats[0]?.[1] || 1;
+  const platColors = ['#3B82F6','#F59E0B','#1D9E75','#8B5CF6','#EC4899','#14B8A6'];
+  document.getElementById('platform-chart').innerHTML = sortedPlats.map(([p,c],i)=>`
+    <div class="bar-row">
+      <div class="bar-label">${platNames[p]||p}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(c/maxP*100).toFixed(0)}%;background:${platColors[i%platColors.length]}"></div></div>
+      <div class="bar-count">${c}</div>
+    </div>`).join('') || '<div class="empty">No data yet</div>';
+}
+
+// ── ORGS ──────────────────────────────────────────────────
+function renderOrgs(feeds, events) {
+  // Group by team_name if set, otherwise try to extract from event names
+  const orgMap = {};
+
+  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
+    const key = f.team_name || `${f.sport||'Unknown'} (${f.platform||'unknown'})`;
+    if(!orgMap[key]) orgMap[key] = { name:key, families:new Set(), sports:new Set(), platform:f.platform };
+    orgMap[key].families.add(f.email);
+    if(f.sport) f.sport.split(',').forEach(s=>orgMap[key].sports.add(s.trim()));
+  });
+
+  // Also enrich from event names
+  events.forEach(e=>{
+    if(e.name && e.name.includes('—')) {
+      const teamName = e.name.split('—')[0].trim();
+      if(teamName && !orgMap[teamName]) {
+        orgMap[teamName] = { name:teamName, families:new Set(), sports:new Set(), platform:e.platform };
+      }
+    }
+  });
+
+  const orgs = Object.values(orgMap).sort((a,b)=>b.families.size-a.families.size);
+  document.getElementById('orgs-count').textContent = orgs.length;
+
+  const sportEmojis = {baseball:'⚾',hockey:'🏒',soccer:'⚽',basketball:'🏀',football:'🏈',lacrosse:'🥍',wrestling:'🤼',swimming:'🏊',volleyball:'🏐',softball:'🥎'};
+
+  document.getElementById('orgs-grid').innerHTML = orgs.length ? orgs.map(org=>{
+    const sport = [...org.sports][0]?.toLowerCase()||'';
+    const emoji = sportEmojis[sport] || '🏅';
+    return `
+      <div class="org-card">
+        <div class="org-icon">${emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div class="org-name">${org.name}</div>
+          <div class="org-meta">${[...org.sports].join(', ')||'Unknown sport'} · ${org.platform||'Unknown platform'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="org-count">${org.families.size}</div>
+          <div class="org-count-label">familie${org.families.size===1?'y':'s'}</div>
+        </div>
+      </div>`;
+  }).join('') : '<div class="empty">No organizations yet</div>';
+}
+
+// ── FAMILIES TABLE ─────────────────────────────────────────
+function renderFamilies(feeds) {
+  const familyMap = {};
+  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
+    if(!familyMap[f.email]) familyMap[f.email] = {
+      family_name:f.family_name, email:f.email, phone:f.phone,
+      kids:new Set(), sports:new Set(), status:f.status, created_at:f.created_at, feeds:0
+    };
+    familyMap[f.email].kids.add(f.kid_name);
+    if(f.sport) f.sport.split(',').forEach(s=>familyMap[f.email].sports.add(s.trim()));
+    if(f.is_active) familyMap[f.email].feeds++;
+  });
+
+  const families = Object.values(familyMap).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  document.getElementById('active-count').textContent = families.length;
+
+  document.getElementById('families-tbody').innerHTML = families.length ? families.map(f=>`
+    <tr>
+      <td>
+        <div class="td-name">${f.family_name||'—'}</div>
+        <div class="td-email">${f.email}</div>
+        <div class="td-email">${f.phone||'No phone'}</div>
+      </td>
+      <td>${[...f.kids].join(', ')||'—'}</td>
+      <td>${[...f.sports].map(s=>`<span class="badge badge-sport">${s}</span>`).join('')||'—'}</td>
+      <td><span class="badge ${f.status==='active'?'badge-active':'badge-trial'}">${f.status||'trial'}</span></td>
+      <td>${f.created_at ? new Date(f.created_at).toLocaleDateString() : '—'}</td>
+      <td>${f.feeds} active</td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">No active families yet</td></tr>';
+}
+
+// ── CHURN TABLE ────────────────────────────────────────────
+function renderChurn(feeds) {
+  const churnMap = {};
+  feeds.filter(f=>f.status==='cancelled').forEach(f=>{
+    if(!churnMap[f.email]) churnMap[f.email] = {
+      family_name:f.family_name, email:f.email,
+      cancelled_at:f.cancelled_at, kids:new Set(), sports:new Set()
+    };
+    churnMap[f.email].kids.add(f.kid_name);
+    if(f.sport) f.sport.split(',').forEach(s=>churnMap[f.email].sports.add(s.trim()));
+  });
+
+  const churned = Object.values(churnMap).sort((a,b)=>new Date(b.cancelled_at)-new Date(a.cancelled_at));
+  document.getElementById('churn-count').textContent = churned.length;
+
+  if(!churned.length) {
+    document.getElementById('churn-tbody').innerHTML = '<tr><td colspan="6" class="empty">No churned accounts yet 🎉</td></tr>';
+    return;
+  }
+
+  document.getElementById('churn-tbody').innerHTML = churned.map((f,i)=>`
+    <tr>
+      <td>
+        <div class="td-name">${f.family_name||'—'}</div>
+      </td>
+      <td><div class="td-email">${f.email}</div></td>
+      <td>${f.cancelled_at ? new Date(f.cancelled_at).toLocaleDateString() : 'Unknown'}</td>
+      <td>${[...f.kids].join(', ')} — ${[...f.sports].join(', ')||'—'}</td>
+      <td><textarea class="churn-notes" id="notes-${i}" rows="2" placeholder="Add follow-up notes...">${getNote(f.email)}</textarea></td>
+      <td>
+        <button class="btn-followup" onclick="followUp('${f.email}','${f.family_name||''}')">✉️ Email</button>
+      </td>
+    </tr>`).join('');
+}
+
+function getNote(email) {
+  return localStorage.getItem(`churn_note_${email}`) || '';
+}
+function saveNote(email, i) {
+  const val = document.getElementById(`notes-${i}`)?.value || '';
+  localStorage.setItem(`churn_note_${email}`, val);
+}
+
+function followUp(email, name) {
+  const subject = encodeURIComponent(`We miss you, ${name||'HomeHuddle family'}!`);
+  const body = encodeURIComponent(`Hi ${name||'there'},\n\nWe noticed you recently cancelled your HomeHuddle subscription. We'd love to hear your feedback and see if there's anything we can do to bring you back.\n\nHomeHuddle is just $4.95/month for your whole family — all kids, all sports, all season.\n\nIf you'd like to re-activate, just visit venuewise.net/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise`);
+  window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+}
+
+// Save notes on blur
+document.addEventListener('blur', e => {
+  if(e.target.classList.contains('churn-notes')) {
+    const i = e.target.id.replace('notes-','');
+    // find email from row
+    const row = e.target.closest('tr');
+    const emailEl = row?.querySelector('.td-email');
+    if(emailEl) localStorage.setItem(`churn_note_${emailEl.textContent}`, e.target.value);
+  }
+}, true);
+</script>
+</body>
+</html>
