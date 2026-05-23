@@ -436,7 +436,7 @@ async function sendInvite() {
   shareErr('');
 
   try {
-    const res = await fetch(SURL + '/functions/v1/send-invite', {
+    const res = await fetch(SURL + '/functions/v1/super-processor', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
