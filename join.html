@@ -41,7 +41,6 @@
     input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
     input::placeholder { color: var(--gray-400); }
     input.error { border-color: var(--red); }
-    .divider { border: none; border-top: 1px solid var(--gray-100); margin: 1.25rem 0; }
     .kids-list { display: flex; flex-direction: column; gap: 16px; }
     .kid-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; position: relative; background: var(--gray-50); }
     .kid-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -65,6 +64,7 @@
     .instructions li { font-size: 13px; color: var(--blue-text); line-height: 1.7; }
     .instructions strong { font-weight: 500; }
     .ical-field { margin-top: 8px; display: none; }
+    .team-name-field { margin-top: 8px; display: none; }
     .btn-add-kid { display: flex; align-items: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 12px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
     .btn-primary { width: 100%; padding: 13px; background: var(--green); color: white; font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.25rem; transition: background .15s; }
@@ -180,7 +180,7 @@ function addKid() {
   const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
     `<button class="plat-btn" onclick="selectPlatform(${id},'${key}',this)"><div class="plat-btn-name">${p.name}</div><div class="plat-btn-desc">${p.desc}</div></button>`
   ).join('');
-  const sportBtns = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this,'${s}')">${s}</button>`).join('');
+  const sportBtns = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this)">${s}</button>`).join('');
   div.innerHTML = `
     <div class="kid-block-header">
       <div class="kid-num">Kid ${id}</div>
@@ -200,12 +200,18 @@ function addKid() {
         <label for="kid-ical-${id}">Paste your calendar link</label>
         <input type="url" id="kid-ical-${id}" placeholder="webcal:// or https://" />
       </div>
+      <div class="team-name-field" id="kid-team-field-${id}">
+        <label for="kid-team-${id}">Team or organization name</label>
+        <input type="text" id="kid-team-${id}" placeholder="e.g. FCP Baseball, Caz Chiefs, West Modified" />
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">This helps us identify your team in your schedule</div>
+      </div>
     </div>`;
   list.appendChild(div);
 }
 
 function removeKid(id) { document.getElementById('kid-block-' + id)?.remove(); }
 function toggleSport(el) { el.classList.toggle('active'); }
+
 function selectPlatform(kidId, platform, el) {
   el.closest('.platform-grid').querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -214,6 +220,7 @@ function selectPlatform(kidId, platform, el) {
   instrEl.style.display = 'block';
   instrEl.innerHTML = `<div class="instructions-title">${info.title}</div><ol>${info.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
   document.getElementById('kid-ical-field-' + kidId).style.display = 'block';
+  document.getElementById('kid-team-field-' + kidId).style.display = 'block';
 }
 
 function collectKids() {
@@ -227,7 +234,8 @@ function collectKids() {
     const activePlat = block.querySelector('.plat-btn.active');
     const platKey = activePlat ? Object.keys(PLATFORMS).find(k => activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name) : null;
     const icalUrl = document.getElementById('kid-ical-' + id)?.value.trim() || '';
-    kids.push({ name, sports, platform: platKey || 'other', icalUrl });
+    const teamName = document.getElementById('kid-team-' + id)?.value.trim() || '';
+    kids.push({ name, sports, platform: platKey || 'other', icalUrl, teamName });
   });
   return kids;
 }
@@ -250,11 +258,16 @@ async function submitForm() {
     for (const kid of kids) {
       const sportList = kid.sports.length > 0 ? kid.sports : ['Sport'];
       const payload = {
-        family_name: fname, email, phone: normalizedPhone,
-        kid_name: kid.name, sport: sportList.join(', '),
+        family_name: fname,
+        email,
+        phone: normalizedPhone,
+        kid_name: kid.name,
+        sport: sportList.join(', '),
         platform: kid.platform,
         ical_url: kid.icalUrl.replace(/^webcal:\/\//i, 'https://'),
         is_active: true,
+        status: 'trial',
+        team_name: kid.teamName || null,
       };
       const res = await fetch(`${SURL}/rest/v1/feeds`, {
         method: 'POST',
@@ -276,7 +289,6 @@ async function submitForm() {
       });
     } catch(e) { console.error('Welcome email error:', e); }
 
-    // Build the family calendar URL and show setup screen
     familyCalendarUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(email)}`;
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
