@@ -17,7 +17,6 @@
     }
     html{font-size:16px;scroll-behavior:smooth}
     body{font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh}
-
     nav{background:white;border-bottom:1px solid var(--gray-200);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
     .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
     .nav-logo-mark{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center}
@@ -28,15 +27,12 @@
     .nav-user{font-size:13px;color:var(--gray-400)}
     .nav-signout{font-size:13px;color:var(--gray-400);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0}
     .nav-signout:hover{color:var(--red)}
-
     .page{max-width:720px;margin:0 auto;padding:2.5rem 1.5rem 6rem}
     .page-header{margin-bottom:2rem}
     .page-header h1{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--gray-900);margin-bottom:0.25rem}
     .page-header p{font-size:14px;color:var(--gray-400)}
-
     .card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem}
     .card-title{font-size:13px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
-
     .field{margin-bottom:1rem}
     .field label{display:block;font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:5px}
     .field input,.field select{width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--gray-900);background:white;transition:border-color 0.15s,box-shadow 0.15s;outline:none}
@@ -44,7 +40,6 @@
     .field input[readonly]{background:var(--gray-50);color:var(--gray-400);cursor:default}
     .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
     .field-hint{font-size:12px;color:var(--gray-400);margin-top:4px}
-
     .btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:9px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.15s;text-decoration:none}
     .btn-primary{background:var(--green);color:white}
     .btn-primary:hover{background:var(--green-dark)}
@@ -54,7 +49,6 @@
     .btn-danger:hover{background:var(--red-light)}
     .btn-sm{padding:6px 12px;font-size:13px}
     .btn-full{width:100%;justify-content:center}
-
     .kid-row{border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem}
     .kid-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
     .kid-name-label{font-size:14px;font-weight:600;color:var(--gray-900);display:flex;align-items:center;gap:8px}
@@ -63,7 +57,6 @@
     .feed-grid .field{margin:0}
     .add-dashed{border:2px dashed var(--gray-200);border-radius:var(--radius-md);padding:1rem;text-align:center;cursor:pointer;color:var(--gray-400);font-size:14px;font-weight:500;transition:all 0.15s;background:none;width:100%;font-family:'DM Sans',sans-serif;margin-top:0.75rem}
     .add-dashed:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
-
     .user-row{display:flex;align-items:center;gap:12px;padding:0.875rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);margin-bottom:0.75rem}
     .user-avatar{width:36px;height:36px;border-radius:50%;background:var(--green-light);color:var(--green-text);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .user-info{flex:1}
@@ -71,38 +64,31 @@
     .user-meta{font-size:12px;color:var(--gray-400)}
     .tag{font-size:11px;font-weight:500;background:var(--gray-100);color:var(--gray-700);padding:2px 8px;border-radius:12px}
     .tag-owner{background:var(--green-light);color:var(--green-text)}
-
     .add-member-form{border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem;margin-bottom:0.75rem;display:none}
     .add-member-form.open{display:block}
-
     .pin-row{display:flex;gap:8px;margin:0.5rem 0}
     .pin-digit{width:52px;height:56px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:1.5rem;text-align:center;font-family:'DM Sans',sans-serif;color:var(--gray-900);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
     .pin-digit:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.1)}
     .pin-digit-sm{width:44px;height:48px;font-size:1.2rem}
-
     #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:2rem}
     .login-card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:420px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.07)}
     .login-card h2{font-family:'DM Serif Display',serif;font-size:1.75rem;margin-bottom:0.5rem}
     .login-card p{font-size:14px;color:var(--gray-400);margin-bottom:1.75rem;line-height:1.6}
     .login-step{display:none}
     .login-step.active{display:block}
-
     .alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:1rem;display:none;text-align:left}
     .alert.show{display:block}
     .alert-success{background:var(--green-light);color:var(--green-text);border:1px solid #A7E3CE}
     .alert-error{background:var(--red-light);color:var(--red);border:1px solid #FECACA}
-
     .save-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--gray-200);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transform:translateY(100%);transition:transform 0.25s;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,0.06)}
     .save-bar.visible{transform:translateY(0)}
     .save-bar-msg{font-size:13px;color:var(--gray-400)}
-
     footer{background:white;border-top:1px solid var(--gray-200);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
     .footer-logo{font-size:13px;color:var(--gray-400)}
     .footer-logo strong{color:var(--gray-700)}
     .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
     .footer-links a{font-size:13px;color:var(--gray-400);text-decoration:none;transition:color 0.15s}
     .footer-links a:hover{color:var(--green)}
-
     @media(max-width:600px){
       .feed-grid{grid-template-columns:1fr 1fr;}.feed-grid .field:nth-child(3){grid-column:span 2}
       .field-row{grid-template-columns:1fr}
@@ -128,10 +114,8 @@
   </div>
 </nav>
 
-<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-card">
-
     <div class="login-step active" id="step-email">
       <div style="font-size:2rem;margin-bottom:1rem">🏠</div>
       <h2>My Account</h2>
@@ -156,7 +140,7 @@
         <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNav('p',2)"/>
         <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNav('p',3)" onkeydown="pinBack('p',3,event)"/>
       </div>
-      <p style="margin-top:1.5rem"><a href="#" onclick="forgotPin(event)" style="font-size:13px;color:var(--gray-400)">Forgot PIN? Send reset link →</a></p>
+      <p style="margin-top:1.5rem"><a href="#" onclick="forgotPin(event)" style="font-size:13px;color:var(--gray-400)">Forgot PIN? Send reset code →</a></p>
       <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="showStep('step-email')">← Back</button>
     </div>
 
@@ -178,24 +162,19 @@
     <div class="login-step" id="step-reset-sent">
       <div style="font-size:2rem;margin-bottom:1rem">📧</div>
       <h2>Check your email</h2>
-      <p id="reset-msg">A PIN reset link has been sent to your email address.</p>
+      <p id="reset-msg">A PIN reset code has been sent to your email.</p>
       <button class="btn btn-secondary btn-sm" style="margin-top:1rem" onclick="showStep('step-email')">← Back</button>
     </div>
-
   </div>
 </div>
 
-<!-- ACCOUNT SCREEN -->
 <div id="account-screen" style="display:none">
   <div class="page">
     <div class="page-header">
       <h1>My Account</h1>
       <p id="account-subtitle">Manage your family's HomeHuddle settings</p>
     </div>
-
     <div class="alert alert-success" id="global-success"></div>
-
-    <!-- CONTACT INFO -->
     <div class="card">
       <div class="card-title">👤 Contact Info</div>
       <div class="field-row">
@@ -214,15 +193,11 @@
         <input type="tel" id="f-phone" placeholder="+1 (555) 000-0000" oninput="markDirty()"/>
       </div>
     </div>
-
-    <!-- KIDS & SCHEDULES -->
     <div class="card">
       <div class="card-title">🏃 Kids & Schedules</div>
       <div id="kid-list"></div>
       <button class="add-dashed" onclick="addKid()">+ Add another kid</button>
     </div>
-
-    <!-- FAMILY MEMBERS -->
     <div class="card">
       <div class="card-title">👨‍👩‍👧‍👦 Family Members</div>
       <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.6">Add anyone who should get notifications and access the calendar — spouse, grandparents, siblings, etc.</p>
@@ -249,8 +224,6 @@
       </div>
       <button class="add-dashed" id="add-member-btn" onclick="showAddMember()">+ Add family member</button>
     </div>
-
-    <!-- SECURITY -->
     <div class="card">
       <div class="card-title">🔐 Security</div>
       <div class="field" style="max-width:320px">
@@ -269,15 +242,12 @@
       <div class="alert alert-success" id="pin-success">PIN updated successfully!</div>
       <div class="alert alert-error" id="pin-error-acct"></div>
     </div>
-
-    <!-- DANGER ZONE -->
     <div class="card" style="border-color:#FECACA">
       <div class="card-title" style="color:var(--red)">⚠️ Danger Zone</div>
       <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.6">Canceling your account will stop all notifications and remove your data. This cannot be undone.</p>
       <button class="btn btn-danger btn-sm" onclick="confirmCancel()">Cancel my account</button>
     </div>
   </div>
-
   <footer>
     <div class="footer-logo"><strong>HomeHuddle</strong> · powered by Venuewise &copy; 2026</div>
     <div class="footer-links">
@@ -288,7 +258,6 @@
   </footer>
 </div>
 
-<!-- SAVE BAR -->
 <div class="save-bar" id="save-bar">
   <span class="save-bar-msg">You have unsaved changes</span>
   <div style="display:flex;gap:8px">
@@ -306,7 +275,6 @@ let currentFeeds = [];
 let familyMembers = [];
 let isDirty = false;
 
-// ── Supabase ──────────────────────────────────────────────
 async function sbFetch(path, opts={}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...opts,
@@ -321,7 +289,6 @@ async function sbFetch(path, opts={}) {
   return res.status === 204 ? null : res.json();
 }
 
-// ── PIN helpers ───────────────────────────────────────────
 function pinNav(prefix, i) {
   const v = document.getElementById(`${prefix}${i}`).value;
   if (!/^\d$/.test(v)) { document.getElementById(`${prefix}${i}`).value=''; return; }
@@ -339,7 +306,6 @@ function clearPin(prefix) {
   [0,1,2,3].forEach(i=>{ document.getElementById(`${prefix}${i}`).value=''; });
 }
 
-// ── Login steps ───────────────────────────────────────────
 function showStep(id) {
   document.querySelectorAll('.login-step').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -349,13 +315,12 @@ async function submitEmail() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   if (!email) return showErr('email-error','Please enter your email address.');
   hideErr('email-error');
-
   try {
     const feeds = await sbFetch(`feeds?email=eq.${encodeURIComponent(email)}&select=*&limit=20`);
     if (!feeds.length) return showErr('email-error','No account found. <a href="/join.html" style="color:var(--red)">Sign up free →</a>');
     currentEmail = email;
     currentFeeds = feeds;
-    const hasPIN = feeds[0].pin && feeds[0].pin.trim().length === 4;
+    const hasPIN = feeds[0].pin && feeds[0].pin.trim().length >= 4;
     if (hasPIN) {
       document.getElementById('pin-prompt').textContent = `Welcome back, ${feeds[0].family_name||email}! Enter your 4-digit PIN.`;
       showStep('step-pin');
@@ -392,20 +357,15 @@ async function saveNewPin() {
 
 async function forgotPin(e) {
   e.preventDefault();
-  async function forgotPin(e) {
-  e.preventDefault();
   if (!currentEmail) return showStep('step-email');
   try {
-    await fetch('https://urwnbskrtoplgnkkxuvl.supabase.co/functions/v1/smart-task', {
+    await fetch(`${SUPABASE_URL}/functions/v1/smart-task`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
       body: JSON.stringify({ email: currentEmail })
     });
-  } catch(e) { console.error(e); }
+  } catch(err) { console.error(err); }
   document.getElementById('reset-msg').textContent = `A PIN reset code has been sent to ${currentEmail}. Use it as your PIN to log in, then change it once you're in.`;
-  showStep('step-reset-sent');
-}
-  document.getElementById('reset-msg').textContent = `A PIN reset link has been sent to ${currentEmail}.`;
   showStep('step-reset-sent');
 }
 
@@ -428,7 +388,6 @@ function signOut() {
   showStep('step-email');
 }
 
-// ── Account data ──────────────────────────────────────────
 function loadAccount() {
   const f = currentFeeds[0];
   document.getElementById('f-family-name').value = f.family_name||'';
@@ -439,7 +398,6 @@ function loadAccount() {
   renderMembers();
 }
 
-// ── Kids ──────────────────────────────────────────────────
 function renderKids() {
   const list = document.getElementById('kid-list');
   list.innerHTML = '';
@@ -448,7 +406,6 @@ function renderKids() {
     if (!kidMap[f.kid_name]) kidMap[f.kid_name] = [];
     kidMap[f.kid_name].push(f);
   });
-
   Object.entries(kidMap).forEach(([kidName, feeds]) => {
     const div = document.createElement('div');
     div.className = 'kid-row';
@@ -474,7 +431,6 @@ function renderKids() {
 }
 
 function feedRow(kidName, fi, feed, removable) {
-  const kid_ = kidName.replace(/\s/g,'_');
   return `
     <div class="feed-grid" data-kid="${kidName}" data-fi="${fi}">
       <div class="field">
@@ -505,29 +461,24 @@ function updateFeed(el) {
   const kidFeeds = currentFeeds.filter(f=>f.kid_name===kid);
   if (kidFeeds[fi]) kidFeeds[fi][col] = el.value;
 }
-
 function renameKid(oldName, inp) {
   currentFeeds.filter(f=>f.kid_name===oldName).forEach(f=>f.kid_name=inp.value);
 }
-
 function removeKid(kidName) {
   if (!confirm(`Remove ${kidName} and all their schedules?`)) return;
   currentFeeds = currentFeeds.filter(f=>f.kid_name!==kidName);
   renderKids(); markDirty();
 }
-
 function addTeam(kidName) {
   const ref = currentFeeds.find(f=>f.kid_name===kidName);
   currentFeeds.push({...ref, id:null, sport:'', ical_url:'', platform:'gamechanger'});
   renderKids(); markDirty();
 }
-
 function addKid() {
   const ref = currentFeeds[0];
   currentFeeds.push({...ref, id:null, kid_name:'', sport:'', ical_url:'', platform:'gamechanger'});
   renderKids(); markDirty();
 }
-
 function removeFeed(kidName, fi) {
   const kidFeeds = currentFeeds.filter(f=>f.kid_name===kidName);
   if (kidFeeds.length <= 1) return alert('Use "Remove" to remove the whole kid.');
@@ -536,13 +487,10 @@ function removeFeed(kidName, fi) {
   renderKids(); markDirty();
 }
 
-// ── Family members ────────────────────────────────────────
 function renderMembers() {
   const list = document.getElementById('user-list');
   list.innerHTML = '';
   const f = currentFeeds[0];
-
-  // Owner
   const ownerDiv = document.createElement('div');
   ownerDiv.className = 'user-row';
   ownerDiv.innerHTML = `
@@ -553,7 +501,6 @@ function renderMembers() {
     </div>
     <span class="tag tag-owner">Owner</span>`;
   list.appendChild(ownerDiv);
-
   familyMembers = JSON.parse(localStorage.getItem(`hh_fam_${currentEmail}`)||'[]');
   familyMembers.forEach((m,i) => {
     const row = document.createElement('div');
@@ -596,7 +543,6 @@ function removeMember(i) {
   renderMembers();
 }
 
-// ── Change PIN ────────────────────────────────────────────
 async function saveChangedPin() {
   const pin = getPin('cp');
   if (!/^\d{4}$/.test(pin)) return showErr('pin-error-acct','Please enter all 4 digits.');
@@ -609,22 +555,16 @@ async function saveChangedPin() {
   showAlert('pin-success'); setTimeout(()=>hideAlert('pin-success'),3000);
 }
 
-// ── Save changes ──────────────────────────────────────────
 function markDirty() { isDirty=true; document.getElementById('save-bar').classList.add('visible'); }
 function hideSaveBar() { isDirty=false; document.getElementById('save-bar').classList.remove('visible'); }
-
 function discardChanges() { loadAccount(); hideSaveBar(); }
 
 async function saveChanges() {
   const familyName = document.getElementById('f-family-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
-
-  // Update family_name and phone across all rows
   await sbFetch(`feeds?email=eq.${encodeURIComponent(currentEmail)}`,{
     method:'PATCH', body:JSON.stringify({family_name:familyName, phone})
   });
-
-  // Update individual feed rows that have IDs
   for (const feed of currentFeeds) {
     if (feed.id) {
       await sbFetch(`feeds?id=eq.${feed.id}`,{
@@ -633,7 +573,6 @@ async function saveChanges() {
       });
     }
   }
-
   hideSaveBar();
   showAlert('global-success','Changes saved successfully!');
   setTimeout(()=>hideAlert('global-success'),3000);
@@ -642,10 +581,9 @@ async function saveChanges() {
 
 function confirmCancel() {
   if (confirm('Are you sure you want to cancel your HomeHuddle account? This cannot be undone.'))
-    alert('Please email hello@venuewise.net to cancel your account and we\'ll take care of it right away.');
+    alert("Please email hello@venuewise.net to cancel your account and we'll take care of it right away.");
 }
 
-// ── Utils ─────────────────────────────────────────────────
 function showErr(id,msg){const el=document.getElementById(id);el.innerHTML=msg;el.classList.add('show')}
 function hideErr(id){document.getElementById(id).classList.remove('show')}
 function showAlert(id,msg){const el=document.getElementById(id);if(msg)el.textContent=msg;el.classList.add('show')}
