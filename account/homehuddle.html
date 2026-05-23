@@ -392,7 +392,19 @@ async function saveNewPin() {
 
 async function forgotPin(e) {
   e.preventDefault();
-  // TODO: wire up edge function to send reset email
+  async function forgotPin(e) {
+  e.preventDefault();
+  if (!currentEmail) return showStep('step-email');
+  try {
+    await fetch('https://urwnbskrtoplgnkkxuvl.supabase.co/functions/v1/smart-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email: currentEmail })
+    });
+  } catch(e) { console.error(e); }
+  document.getElementById('reset-msg').textContent = `A PIN reset code has been sent to ${currentEmail}. Use it as your PIN to log in, then change it once you're in.`;
+  showStep('step-reset-sent');
+}
   document.getElementById('reset-msg').textContent = `A PIN reset link has been sent to ${currentEmail}.`;
   showStep('step-reset-sent');
 }
