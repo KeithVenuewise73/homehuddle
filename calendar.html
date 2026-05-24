@@ -18,12 +18,7 @@
     }
     html{scroll-behavior:smooth}
     body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
-    #siteHeader{
-      position:-webkit-sticky;position:sticky;top:0;z-index:300;
-      background:var(--navy);border-bottom:1px solid var(--border);
-      padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-      box-shadow:0 4px 24px rgba(0,0,0,0.5);
-    }
+    #siteHeader{position:-webkit-sticky;position:sticky;top:0;z-index:300;background:var(--navy);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
     .hlogo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.04em;color:var(--white);line-height:1}
     .hlogo em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:2rem;letter-spacing:0}
     .hsub{font-size:0.7rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px}
@@ -31,13 +26,12 @@
     .sync-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
     .sync-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px;color:var(--white);font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0}
     .sync-btn:hover{border-color:var(--gold)}
+    .sync-btn:disabled{opacity:0.6;cursor:not-allowed}
     .sync-updated{font-size:0.58rem;color:var(--muted);letter-spacing:0.03em;padding-right:2px}
     .sdot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:pdot 1.5s ease-in-out infinite}
     .sdot.err{background:#EF4444;animation:none}
     .sdot.spin{background:var(--gold)}
     @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
-
-    /* REMINDER BANNERS */
     #reminderBanners{position:-webkit-sticky;position:sticky;top:var(--header-h,73px);z-index:250;display:none}
     .rbanner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);animation:slideDown 0.25s ease}
     .rbanner:last-child{border-bottom:none}
@@ -48,7 +42,6 @@
     .rbanner-time{font-size:0.65rem;font-weight:700;background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:10px;color:var(--gold);white-space:nowrap;flex-shrink:0}
     .rbanner-dismiss{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);font-size:1rem;padding:2px 4px;flex-shrink:0;transition:color 0.15s;font-family:'DM Sans',sans-serif;line-height:1}
     .rbanner-dismiss:hover{color:rgba(255,255,255,0.7)}
-
     #statsBar{position:-webkit-sticky;position:sticky;top:var(--header-h,73px);z-index:200;background:var(--navy-mid);border-bottom:1px solid var(--border);padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
     .stat{text-align:center;padding:5px 2px}
     .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);line-height:1}
@@ -185,7 +178,7 @@
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
     <button class="theme-btn" onclick="openTheme()" title="Customize colors">&#127912;</button>
     <div class="sync-wrap">
-      <button class="sync-btn" onclick="loadEvents(true)">
+      <button class="sync-btn" id="syncBtn" onclick="manualSync()">
         <div class="sdot" id="sdot"></div>
         <span id="stext">Synced</span>
       </button>
@@ -194,7 +187,6 @@
   </div>
 </header>
 
-<!-- SMART REMINDER BANNERS -->
 <div id="reminderBanners"></div>
 
 <div id="statsBar">
@@ -256,8 +248,9 @@ const familyPhone = params.get('phone');
 let allEvents = [], platformMap = {}, activeKey = 'all';
 let currentView = 'list', currentDate = new Date(), lastLoad = null;
 let familyLabel = 'Your';
+let isSyncing = false;
 
-// --- STICKY ---
+// ── STICKY ────────────────────────────────────────────────
 function applySticky() {
   const hh = document.getElementById('siteHeader').getBoundingClientRect().height;
   const rb = document.getElementById('reminderBanners');
@@ -276,7 +269,40 @@ sObs.observe(document.getElementById('reminderBanners'));
 applySticky();
 window.addEventListener('orientationchange', () => setTimeout(applySticky, 100));
 
-// --- REMINDERS ---
+// ── MANUAL SYNC ───────────────────────────────────────────
+async function manualSync() {
+  if (isSyncing) return;
+  isSyncing = true;
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true;
+  setSync('spin', 'Syncing...');
+
+  try {
+    // Call the sync-schedules edge function to re-fetch iCal feeds
+    await fetch(`${SURL}/functions/v1/sync-schedules`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SKEY,
+        'Authorization': `Bearer ${SKEY}`
+      },
+      body: JSON.stringify({ email: familyEmail || null })
+    });
+  } catch(e) {
+    console.log('Sync function called (may be processing in background)');
+  }
+
+  // Wait a moment for sync to process then reload events
+  setTimeout(async () => {
+    await loadEvents(false);
+    setSync('ok', 'Synced');
+    showToast('Schedule synced — ' + allEvents.length + ' events loaded');
+    btn.disabled = false;
+    isSyncing = false;
+  }, 3000);
+}
+
+// ── REMINDERS ─────────────────────────────────────────────
 const DKEY = 'hh_dismissed_' + (familyEmail || 'x');
 let dismissedIds = new Set(JSON.parse(localStorage.getItem(DKEY) || '[]'));
 
@@ -321,25 +347,14 @@ function renderBanners(reminders) {
 
 async function dismissBanner(id) {
   const el = document.getElementById('rbanner-' + id);
-  if (el) {
-    el.style.transition = 'opacity 0.2s';
-    el.style.opacity = '0';
-    setTimeout(function() {
-      el.remove();
-      if (!document.getElementById('reminderBanners').children.length) {
-        document.getElementById('reminderBanners').style.display = 'none';
-        applySticky();
-      }
-    }, 220);
-  }
+  if (el) { el.style.transition = 'opacity 0.2s'; el.style.opacity = '0'; setTimeout(function() { el.remove(); if (!document.getElementById('reminderBanners').children.length) { document.getElementById('reminderBanners').style.display = 'none'; applySticky(); } }, 220); }
   dismissedIds.add(id);
   localStorage.setItem(DKEY, JSON.stringify([...dismissedIds]));
   try { await sb.from('reminders').update({ dismissed: true }).eq('id', id); } catch(e) {}
 }
 
-// --- LOAD EVENTS ---
-async function loadEvents(manual) {
-  if (manual) setSync('spin', 'Syncing...');
+// ── LOAD EVENTS ───────────────────────────────────────────
+async function loadEvents(showToastMsg) {
   try {
     let feedQ = sb.from('feeds').select('*').eq('is_active', true);
     if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
@@ -360,7 +375,7 @@ async function loadEvents(manual) {
     const fname = feeds[0].family_name || '';
     familyLabel = fname ? fname + "'s" : (feeds[0].kid_name ? feeds[0].kid_name + "'s" : 'Your');
     document.getElementById('headerSub').innerHTML = familyLabel + ' schedule &middot; powered by <b>Venuewise</b>';
-    document.title = 'HomeHuddle &middot; ' + familyLabel + ' Schedule';
+    document.title = 'HomeHuddle · ' + familyLabel + ' Schedule';
     buildPlatformStrip();
 
     const now = new Date();
@@ -376,11 +391,10 @@ async function loadEvents(manual) {
     const { data, error } = await evQ;
     if (error) throw error;
     processEvents(data || [], feeds);
-    if (manual) showToast('Refreshed -- ' + allEvents.length + ' events loaded');
   } catch(err) {
     console.error(err);
     setSync('err', 'Error');
-    document.getElementById('calContent').innerHTML = '<div class="smsg"><div class="ico">&#x26A0;&#xFE0F;</div><h3>Could not load</h3><p>' + esc(err.message) + '<br><br><a href="javascript:loadEvents(true)">Try again</a></p></div>';
+    document.getElementById('calContent').innerHTML = '<div class="smsg"><div class="ico">&#x26A0;&#xFE0F;</div><h3>Could not load</h3><p>' + esc(err.message) + '<br><br><a href="javascript:loadEvents(false)">Try again</a></p></div>';
   }
 }
 
@@ -464,7 +478,7 @@ function renderList() {
     });
     html += '</div>';
   });
-  if (!html) html = '<div class="smsg"><div class="ico">&#x1F4C5;</div><h3>No events this month</h3><p>Nothing scheduled for ' + MONTHS[m] + ' ' + y + '.</p></div>';
+  if (!html) html = '<div class="smsg"><div class="ico">&#x1F4C5;</div><h3>No events this month</h3><p>Nothing scheduled for ' + MONTHS[m] + ' ' + y + '.<br><br>Tap <strong>Synced</strong> above to refresh your schedule.</p></div>';
   document.getElementById('calContent').innerHTML = html;
 }
 
@@ -523,10 +537,10 @@ function dlICS(evId) {
   showToast('Open the .ics file to add to your calendar');
 }
 
-// --- THEME ---
+// ── THEME ─────────────────────────────────────────────────
 const DEFAULT_THEME = { base:'#0A1628', mid:'#0F1F3D', light:'#162444', card:'#111D35', accent:'#F5C518', white:'#F0F4FF', muted:'#7A8FAD' };
 let currentTheme = Object.assign({}, DEFAULT_THEME);
-const ALL_COLORS = ['#000000','#0a0a0a','#111111','#1a1a1a','#1C1C1E','#212121','#2C2C2E','#18181b','#1e1e1e','#222222','#2a2a2a','#27272a','#1f1f1f','#242424','#303030','#3a3a3a','#1f2937','#111827','#0f172a','#1e293b','#374151','#4B5563','#6B7280','#9CA3AF','#94A3B8','#A0AEC0','#CBD5E1','#D1D5DB','#E2E8F0','#C0C0C0','#808080','#696969','#0A1628','#0d1b2a','#0f2027','#0a1a28','#001f3f','#0D2137','#0a1929','#162032','#111D35','#0f1a2e','#0d1525','#1a2540','#0f2035','#13233d','#0a1828','#0c1e38','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#0EA5E9','#0284C7','#0369A1','#38BDF8','#1a56db','#1e40af','#1d4ed8','#2563eb','#3b82f6','#93c5fd','#BFDBFE','#DBEAFE','#06B6D4','#0891B2','#0E7490','#67E8F9','#00BFFF','#00B4D8','#48CAE4','#90E0EF','#00CED1','#20B2AA','#48D1CC','#40E0D0','#7FFFD4','#00FFFF','#E0F7FA','#B2EBF2','#0a2818','#0d2b1a','#0f3020','#14290f','#1b3a2a','#0a2010','#1a3020','#0f2218','#0a1f14','#162d1e','#0d2a18','#112a1a','#0f2520','#162820','#102015','#0d2010','#15803D','#16A34A','#22C55E','#4ADE80','#86EFAC','#00FF00','#00CC00','#10B981','#059669','#047857','#065F46','#14532D','#00FF7F','#32CD32','#228B22','#006400','#1a0a0a','#2a0a0a','#1f0000','#2b0d0d','#1a0505','#260808','#3a0000','#200a0a','#1a0f0f','#200a0a','#2a1010','#1f0808','#250d0d','#1e0a0a','#2d1212','#180808','#FF0000','#CC0000','#DC2626','#EF4444','#B91C1C','#F43F5E','#E11D48','#BE123C','#FF4444','#FF6B6B','#FCA5A5','#FEE2E2','#7F0000','#8B0000','#A00000','#C00000','#FF6600','#F97316','#EA580C','#C2410C','#FB923C','#E67E22','#D35400','#FF8C00','#FF7F50','#FF6347','#FD7E14','#E8590C','#FF5722','#F4511E','#E64A19','#BF360C','#FFD700','#F5C518','#FACC15','#EAB308','#FCD34D','#F59E0B','#FBBF24','#FDE047','#FFF176','#FFEE58','#FFD54F','#FFCA28','#FFC107','#FFB300','#FFA000','#FF8F00','#1a0a28','#1a1a2e','#160a2e','#1f0d3a','#120820','#1c0f35','#24073d','#100a1f','#1a0f2e','#16213e','#1c1040','#180d35','#200f3a','#150a2e','#1e1040','#120828','#7C3AED','#8B5CF6','#A855F7','#9333EA','#C084FC','#6D28D9','#5B21B6','#4C1D95','#9B59B6','#8E44AD','#6C3483','#76448A','#DDA0DD','#DA70D6','#BA55D3','#9932CC','#FF1493','#FF69B4','#EC4899','#DB2777','#BE185D','#F472B6','#E91E8C','#C2185B','#FFB6C1','#FFC0CB','#FF91A4','#FF85A1','#F06292','#EC407A','#E91E63','#C2185B','#14B8A6','#0D9488','#0F766E','#2DD4BF','#115E59','#134E4A','#008080','#006666','#00827F','#019587','#00897B','#00796B','#00695C','#004D40','#1ABC9C','#17A589','#2d1b00','#2d1f00','#1f1500','#2a1a00','#1a1000','#2e2000','#231700','#1c1200','#FFFFFF','#F8F9FA','#F0F4FF','#F5F5F5','#FAFAFA','#F1F5F9','#EFF6FF','#F0FDF4','#FFFDE7','#FFF8E1','#FFF3E0','#FBE9E7','#FCE4EC','#F3E5F5','#EDE7F6','#E8EAF6'];
+const ALL_COLORS = ['#000000','#0a0a0a','#111111','#1a1a1a','#1C1C1E','#212121','#2C2C2E','#18181b','#1e1e1e','#222222','#2a2a2a','#27272a','#1f1f1f','#242424','#303030','#3a3a3a','#1f2937','#111827','#0f172a','#1e293b','#374151','#4B5563','#6B7280','#9CA3AF','#94A3B8','#A0AEC0','#CBD5E1','#D1D5DB','#E2E8F0','#C0C0C0','#808080','#696969','#0A1628','#0d1b2a','#0f2027','#0a1a28','#001f3f','#0D2137','#0a1929','#162032','#111D35','#0f1a2e','#0d1525','#1a2540','#0f2035','#13233d','#0a1828','#0c1e38','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#0EA5E9','#0284C7','#0369A1','#38BDF8','#1a56db','#1e40af','#1d4ed8','#2563eb','#3b82f6','#93c5fd','#BFDBFE','#DBEAFE','#06B6D4','#0891B2','#0E7490','#67E8F9','#00BFFF','#00B4D8','#48CAE4','#90E0EF','#00CED1','#20B2AA','#48D1CC','#40E0D0','#7FFFD4','#00FFFF','#E0F7FA','#B2EBF2','#0a2818','#0d2b1a','#0f3020','#14290f','#1b3a2a','#0a2010','#1a3020','#0f2218','#0a1f14','#162d1e','#0d2a18','#112a1a','#0f2520','#162820','#102015','#0d2010','#15803D','#16A34A','#22C55E','#4ADE80','#86EFAC','#00FF00','#00CC00','#10B981','#059669','#047857','#065F46','#14532D','#00FF7F','#32CD32','#228B22','#006400','#FF0000','#CC0000','#DC2626','#EF4444','#B91C1C','#F43F5E','#E11D48','#BE123C','#FF4444','#FF6B6B','#FCA5A5','#FEE2E2','#FF6600','#F97316','#EA580C','#C2410C','#FB923C','#FFD700','#F5C518','#FACC15','#EAB308','#FCD34D','#F59E0B','#7C3AED','#8B5CF6','#A855F7','#9333EA','#C084FC','#FF1493','#FF69B4','#EC4899','#DB2777','#14B8A6','#0D9488','#008080','#FFFFFF','#F8F9FA','#F0F4FF'];
 
 function hexToRgb(hex) { return { r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) }; }
 function hexToRgba(hex, alpha) { const c = hexToRgb(hex); return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + alpha + ')'; }
@@ -598,7 +612,7 @@ function onHexBlur(type, value) { const clean = value.startsWith('#') ? value : 
 function resetTheme() { applyTheme(DEFAULT_THEME); closeTheme(); setTimeout(openTheme, 150); showToast('Theme reset to default'); }
 function closeTheme() { document.getElementById('themeModal').classList.remove('show'); }
 
-// --- MAPS ---
+// ── MAPS ──────────────────────────────────────────────────
 function openMaps(location) {
   const enc = encodeURIComponent(location);
   const opts = [
@@ -624,11 +638,11 @@ function esc(s) { return String(s || '').replace(/[&<>"']/g, function(c){ return
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 3200); }
 function setSync(state, label) { document.getElementById('stext').textContent = label; const d = document.getElementById('sdot'); d.className = 'sdot' + (state === 'err' ? ' err' : state === 'spin' ? ' spin' : ''); }
 
-// --- INIT ---
+// ── INIT ──────────────────────────────────────────────────
 applySticky();
 loadTheme();
 loadReminders();
-loadEvents().then(function() {
+loadEvents(false).then(function() {
   applySticky();
   setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 });
