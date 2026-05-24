@@ -209,7 +209,7 @@ function addKid() {
   const div = document.createElement('div');
   div.className = 'kid-block';
   div.id = `kid-block-${id}`;
-  const sportBtns = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this)">${s}</button>`).join('');
+  const sportBtns = ''; // Sports now selected per team below
   div.innerHTML = `
     <div class="kid-block-header">
       <div class="kid-num">Kid ${id}</div>
@@ -219,12 +219,11 @@ function addKid() {
       <div><label>First name</label><input type="text" id="kid-name-${id}" placeholder="e.g. Dominic"/></div>
       <div><label>Age / grade</label><input type="text" id="kid-age-${id}" placeholder="e.g. 13 / 8th"/></div>
     </div>
-    <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px;display:block">Sports</label>
-    <div class="kid-sports" id="kid-sports-${id}">${sportBtns}</div>
     <div style="margin-top:12px">
       <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:8px;display:block">Team calendars</label>
+      <p style="font-size:12px;color:var(--gray-400);margin-bottom:8px">Select the sport and platform for each team, then paste the calendar link.</p>
       <div class="teams-list" id="teams-list-${id}"></div>
-      <button class="btn-add-team" onclick="addTeam(${id})">+ Add a team calendar</button>
+      <button class="btn-add-team" onclick="addTeam(${id})">+ Add another team</button>
     </div>`;
   list.appendChild(div);
   addTeam(id); // auto-add first team
@@ -242,11 +241,16 @@ function addTeam(kidId) {
   const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
     `<button class="plat-btn" onclick="selectPlatform(${kidId},${ti},'${key}',this)"><div class="plat-btn-name">${p.name}</div><div class="plat-btn-desc">${p.desc}</div></button>`
   ).join('');
+  const sportBtnsT = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this)">${s}</button>`).join('');
 
   div.innerHTML = `
     <div class="team-block-header">
       <div class="team-label">Team ${ti}</div>
       ${ti > 1 ? `<button class="btn-remove" style="width:24px;height:24px;font-size:14px" onclick="removeTeam(${kidId},${ti})">×</button>` : ''}
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Sport</label>
+      <div class="kid-sports" id="team-sports-${kidId}-${ti}" style="margin:0 0 4px">${sportBtnsT}</div>
     </div>
     <div class="platform-grid">${platBtns}</div>
     <div class="instructions" id="instr-${kidId}-${ti}" style="display:none"></div>
@@ -284,8 +288,6 @@ function collectKids() {
     const kidId = block.id.replace('kid-block-', '');
     const name = document.getElementById(`kid-name-${kidId}`)?.value.trim();
     if (!name) return;
-    const sports = [];
-    block.querySelectorAll('.sport-btn.active').forEach(b => sports.push(b.textContent.trim()));
     const teams = [];
     block.querySelectorAll('.team-block').forEach(tb => {
       const ids = tb.id.replace('team-block-', '').split('-');
@@ -294,8 +296,13 @@ function collectKids() {
       const platKey = activePlat ? Object.keys(PLATFORMS).find(k => activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name) : null;
       const icalUrl = document.getElementById(`ical-${kidId}-${ti}`)?.value.trim() || '';
       const teamName = document.getElementById(`team-name-${kidId}-${ti}`)?.value.trim() || '';
-      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl, teamName });
+      // Get sports selected for this specific team
+      const teamSports = [];
+      tb.querySelectorAll('.sport-btn.active').forEach(b => teamSports.push(b.textContent.trim()));
+      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl, teamName, sports: teamSports });
     });
+    // Collect all sports across teams for the kid
+    const sports = [...new Set(teams.flatMap(t => t.sports))];
     kids.push({ name, sports, teams });
   });
   return kids;
@@ -318,8 +325,8 @@ async function submitForm() {
   setLoading(true);
   try {
     for (const kid of kids) {
-      const sportList = kid.sports.length > 0 ? kid.sports : ['Sport'];
       for (const team of kid.teams) {
+        const sportList = team.sports && team.sports.length > 0 ? team.sports : (kid.sports.length > 0 ? kid.sports : ['Sport']);
         const payload = {
           family_name: fname, email, phone: normalizedPhone,
           kid_name: kid.name, sport: sportList.join(', '),
@@ -339,6 +346,15 @@ async function submitForm() {
         }
       }
     }
+
+    // Trigger immediate sync so calendar populates right away
+    try {
+      fetch(`${SURL}/functions/v1/sync-schedules`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}` },
+        body: JSON.stringify({ email: email })
+      });
+    } catch(e) { console.log('Sync triggered'); }
 
     // Send welcome email
     try {
