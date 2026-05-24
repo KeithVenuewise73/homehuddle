@@ -47,23 +47,31 @@
     .btn-remove { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--gray-200); border-radius: 6px; background: none; cursor: pointer; color: var(--gray-400); font-size: 16px; transition: all .15s; }
     .btn-remove:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
     .kid-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .kid-sports { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .kid-sports { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 12px; }
     .sport-btn { padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 12px; color: var(--gray-700); cursor: pointer; transition: all .15s; background: none; font-family: 'DM Sans', sans-serif; }
     .sport-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
-    .kid-cal { margin-top: 10px; }
+
+    /* TEAM BLOCKS */
+    .teams-list { display: flex; flex-direction: column; gap: 10px; }
+    .team-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; position: relative; }
+    .team-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .team-label { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
     .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .plat-btn { border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .75rem 1rem; cursor: pointer; transition: all .15s; background: white; text-align: left; }
+    .plat-btn { border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .6rem .75rem; cursor: pointer; transition: all .15s; background: white; text-align: left; }
     .plat-btn:hover { border-color: var(--green); background: var(--green-light); }
     .plat-btn.active { border: 2px solid var(--green); background: var(--green-light); }
-    .plat-btn-name { font-size: 13px; font-weight: 500; color: var(--gray-900); }
-    .plat-btn-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
-    .instructions { background: var(--blue-light); border-radius: var(--radius-sm); padding: 1rem; margin: 8px 0; }
-    .instructions-title { font-size: 13px; font-weight: 500; color: var(--blue-text); margin-bottom: .5rem; }
+    .plat-btn-name { font-size: 12px; font-weight: 500; color: var(--gray-900); }
+    .plat-btn-desc { font-size: 10px; color: var(--gray-400); margin-top: 1px; }
+    .instructions { background: var(--blue-light); border-radius: var(--radius-sm); padding: .75rem; margin: 8px 0; }
+    .instructions-title { font-size: 12px; font-weight: 500; color: var(--blue-text); margin-bottom: .4rem; }
     .instructions ol { padding-left: 1.25rem; }
-    .instructions li { font-size: 13px; color: var(--blue-text); line-height: 1.7; }
+    .instructions li { font-size: 12px; color: var(--blue-text); line-height: 1.6; }
     .instructions strong { font-weight: 500; }
     .ical-field { margin-top: 8px; display: none; }
     .team-name-field { margin-top: 8px; display: none; }
+
+    .btn-add-team { display: flex; align-items: center; gap: 6px; width: 100%; padding: 8px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .btn-add-team:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
     .btn-add-kid { display: flex; align-items: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 12px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
     .btn-primary { width: 100%; padding: 13px; background: var(--green); color: white; font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.25rem; transition: background .15s; }
@@ -73,7 +81,7 @@
     .legal a { color: var(--green); text-decoration: none; }
     .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
 
-    /* SETUP SCREEN */
+    /* SUCCESS SCREEN */
     .setup { display: none; padding: 2rem 0; }
     .setup-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
     .setup-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
@@ -81,21 +89,16 @@
     .setup-sub { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; text-align: center; }
     .setup-cta { display: block; padding: 13px; background: var(--green); color: white; border-radius: var(--radius-sm); text-decoration: none; font-weight: 500; font-size: 15px; text-align: center; margin-bottom: 1rem; transition: background .15s; }
     .setup-cta:hover { background: var(--green-dark); }
-
-    /* SHARE CARD */
     .share-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
-    .share-card-title { font-size:13px; font-weight:600; color:var(--gray-700); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px; }
-    .share-message { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 0.75rem; font-family: 'DM Sans', sans-serif; white-space: pre-wrap; }
+    .share-card-title { font-size:13px; font-weight:600; color:var(--gray-700); margin-bottom:0.75rem; }
+    .share-message { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 0.75rem; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; }
     .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--green); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .copy-btn:hover { background: var(--green-light); border-color: var(--green); }
     .copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
-
-    /* CALENDAR LINK */
     .cal-link-row { display: flex; align-items: center; gap: 10px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 0.75rem; cursor: pointer; transition: background .15s; border: 1px solid var(--gray-200); }
     .cal-link-row:hover { background: var(--green-light); border-color: var(--green); }
     .cal-link-url { font-size: 13px; color: var(--gray-700); flex: 1; word-break: break-all; }
     .cal-link-copy { font-size: 12px; font-weight: 600; color: var(--green); flex-shrink: 0; }
-
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @media (max-width: 480px) { .kid-row2 { grid-template-columns: 1fr; } .platform-grid { grid-template-columns: 1fr 1fr; } }
@@ -130,7 +133,7 @@
     </div>
     <div class="card">
       <p class="section-label">Your kids & their calendars</p>
-      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Add each kid and connect their team calendar. You can add multiple sports per kid.</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Add each kid, their sports, and connect each team calendar. Kids can have multiple teams.</p>
       <div class="kids-list" id="kids-list"></div>
       <button class="btn-add-kid" onclick="addKid()">+ Add another kid</button>
     </div>
@@ -147,28 +150,22 @@
   <div class="setup" id="setup">
     <div class="setup-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
     <h2>You're in!</h2>
-    <p class="setup-sub">Your family's schedule is syncing now — check your email for a welcome message with everything you need.</p>
-
+    <p class="setup-sub">Your family's schedule is syncing now — check your email for a welcome message.</p>
     <a id="viewCalBtn" href="#" class="setup-cta">View my family calendar →</a>
-
-    <!-- Calendar link -->
     <div class="share-card">
       <div class="share-card-title">📅 Your calendar link</div>
       <div class="cal-link-row" onclick="copyCalLink()">
         <div class="cal-link-url" id="setupLinkUrl">—</div>
         <div class="cal-link-copy" id="calCopyLabel">Copy</div>
       </div>
-      <p style="font-size:12px;color:var(--gray-400);line-height:1.5">Bookmark this — it's your family's schedule hub. Anyone with this link can view the calendar.</p>
+      <p style="font-size:12px;color:var(--gray-400);line-height:1.5">Bookmark this — it's your family's schedule hub.</p>
     </div>
-
-    <!-- Share message -->
     <div class="share-card">
       <div class="share-card-title">👨‍👩‍👧‍👦 Share with family</div>
-      <p style="font-size:13px;color:var(--gray-400);margin-bottom:0.75rem;line-height:1.5">Copy this message and text it to anyone who should follow the schedule — spouse, grandparents, siblings:</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:0.75rem;line-height:1.5">Copy and text this to anyone who should follow the schedule:</p>
       <div class="share-message" id="share-message">Loading...</div>
       <button class="copy-btn" id="copy-msg-btn" onclick="copyShareMessage()">📋 Copy message to share</button>
     </div>
-
     <p style="font-size:12px;color:var(--gray-400);text-align:center;line-height:1.6;margin-top:0.5rem">
       SMS alerts coming soon · Push notifications active now<br>
       Questions? <a href="mailto:hello@venuewise.net" style="color:var(--green)">hello@venuewise.net</a>
@@ -185,9 +182,9 @@ const PLATFORMS = {
   gamechanger: { name: 'GameChanger', desc: 'Baseball, softball' },
   teamsnap:    { name: 'TeamSnap',    desc: 'Hockey, soccer, more' },
   leagueapps:  { name: 'LeagueApps', desc: 'Rec leagues' },
-  google:      { name: 'Google Calendar', desc: 'Any Google cal' },
-  apple:       { name: 'Apple Calendar', desc: 'iPhone / iCloud' },
-  other:       { name: 'Other / iCal link', desc: 'I have a webcal URL' },
+  google:      { name: 'Google Cal',  desc: 'Any Google cal' },
+  apple:       { name: 'Apple Cal',   desc: 'iPhone / iCloud' },
+  other:       { name: 'Other / iCal', desc: 'webcal URL' },
 };
 const INSTRUCTIONS = {
   gamechanger: { title: 'Get your GameChanger calendar link', steps: ['Open the <strong>GameChanger app</strong>','Tap your team → <strong>Schedule tab</strong>','Tap the share/calendar icon (top right)','Tap <strong>"Subscribe to Calendar"</strong>','Tap Copy — then paste the link below'] },
@@ -199,19 +196,19 @@ const INSTRUCTIONS = {
 };
 
 let kidCount = 0;
+let teamCounters = {};
 let familyCalendarUrl = '';
 let shareMessageText = '';
 
+// ── ADD KID ───────────────────────────────────────────────
 function addKid() {
   kidCount++;
   const id = kidCount;
+  teamCounters[id] = 0;
   const list = document.getElementById('kids-list');
   const div = document.createElement('div');
   div.className = 'kid-block';
-  div.id = 'kid-block-' + id;
-  const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
-    `<button class="plat-btn" onclick="selectPlatform(${id},'${key}',this)"><div class="plat-btn-name">${p.name}</div><div class="plat-btn-desc">${p.desc}</div></button>`
-  ).join('');
+  div.id = `kid-block-${id}`;
   const sportBtns = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this)">${s}</button>`).join('');
   div.innerHTML = `
     <div class="kid-block-header">
@@ -219,81 +216,92 @@ function addKid() {
       ${id > 1 ? `<button class="btn-remove" onclick="removeKid(${id})">×</button>` : ''}
     </div>
     <div class="kid-row2">
-      <div><label>First name</label><input type="text" id="kid-name-${id}" placeholder="e.g. Dominic" /></div>
-      <div><label>Age / grade</label><input type="text" id="kid-age-${id}" placeholder="e.g. 13 / 8th" /></div>
+      <div><label>First name</label><input type="text" id="kid-name-${id}" placeholder="e.g. Dominic"/></div>
+      <div><label>Age / grade</label><input type="text" id="kid-age-${id}" placeholder="e.g. 13 / 8th"/></div>
     </div>
     <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px;display:block">Sports</label>
     <div class="kid-sports" id="kid-sports-${id}">${sportBtns}</div>
-    <div class="kid-cal" id="kid-cal-${id}">
-      <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin:12px 0 6px;display:block">Team calendar app</label>
-      <div class="platform-grid">${platBtns}</div>
-      <div class="instructions" id="kid-instr-${id}" style="display:none"></div>
-      <div class="ical-field" id="kid-ical-field-${id}">
-        <label for="kid-ical-${id}">Paste your calendar link</label>
-        <input type="url" id="kid-ical-${id}" placeholder="webcal:// or https://" />
-      </div>
-      <div class="team-name-field" id="kid-team-field-${id}">
-        <label for="kid-team-${id}">Team or organization name</label>
-        <input type="text" id="kid-team-${id}" placeholder="e.g. FCP Baseball, Caz Chiefs, West Modified" />
-        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">This helps us identify your team in your schedule</div>
-      </div>
+    <div style="margin-top:12px">
+      <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:8px;display:block">Team calendars</label>
+      <div class="teams-list" id="teams-list-${id}"></div>
+      <button class="btn-add-team" onclick="addTeam(${id})">+ Add a team calendar</button>
     </div>`;
   list.appendChild(div);
+  addTeam(id); // auto-add first team
 }
 
-function removeKid(id) { document.getElementById('kid-block-' + id)?.remove(); }
+// ── ADD TEAM ──────────────────────────────────────────────
+function addTeam(kidId) {
+  teamCounters[kidId] = (teamCounters[kidId] || 0) + 1;
+  const ti = teamCounters[kidId];
+  const teamsList = document.getElementById(`teams-list-${kidId}`);
+  const div = document.createElement('div');
+  div.className = 'team-block';
+  div.id = `team-block-${kidId}-${ti}`;
+
+  const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
+    `<button class="plat-btn" onclick="selectPlatform(${kidId},${ti},'${key}',this)"><div class="plat-btn-name">${p.name}</div><div class="plat-btn-desc">${p.desc}</div></button>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="team-block-header">
+      <div class="team-label">Team ${ti}</div>
+      ${ti > 1 ? `<button class="btn-remove" style="width:24px;height:24px;font-size:14px" onclick="removeTeam(${kidId},${ti})">×</button>` : ''}
+    </div>
+    <div class="platform-grid">${platBtns}</div>
+    <div class="instructions" id="instr-${kidId}-${ti}" style="display:none"></div>
+    <div class="ical-field" id="ical-field-${kidId}-${ti}">
+      <label>Paste your calendar link</label>
+      <input type="url" id="ical-${kidId}-${ti}" placeholder="webcal:// or https://"/>
+    </div>
+    <div class="team-name-field" id="team-name-field-${kidId}-${ti}">
+      <label>Team or organization name</label>
+      <input type="text" id="team-name-${kidId}-${ti}" placeholder="e.g. FCP Baseball, Caz Chiefs"/>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:3px">Helps identify your team in notifications</div>
+    </div>`;
+  teamsList.appendChild(div);
+}
+
+function removeKid(id) { document.getElementById(`kid-block-${id}`)?.remove(); }
+function removeTeam(kidId, ti) { document.getElementById(`team-block-${kidId}-${ti}`)?.remove(); }
 function toggleSport(el) { el.classList.toggle('active'); }
 
-function selectPlatform(kidId, platform, el) {
+function selectPlatform(kidId, ti, platform, el) {
   el.closest('.platform-grid').querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   const info = INSTRUCTIONS[platform];
-  const instrEl = document.getElementById('kid-instr-' + kidId);
+  const instrEl = document.getElementById(`instr-${kidId}-${ti}`);
   instrEl.style.display = 'block';
-  instrEl.innerHTML = `<div class="instructions-title">${info.title}</div><ol>${info.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
-  document.getElementById('kid-ical-field-' + kidId).style.display = 'block';
-  document.getElementById('kid-team-field-' + kidId).style.display = 'block';
+  instrEl.innerHTML = `<div class="instructions-title">${info.title}</div><ol>${info.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+  document.getElementById(`ical-field-${kidId}-${ti}`).style.display = 'block';
+  document.getElementById(`team-name-field-${kidId}-${ti}`).style.display = 'block';
 }
 
+// ── COLLECT DATA ──────────────────────────────────────────
 function collectKids() {
   const kids = [];
   document.querySelectorAll('.kid-block').forEach(block => {
-    const id = block.id.replace('kid-block-', '');
-    const name = document.getElementById('kid-name-' + id)?.value.trim();
+    const kidId = block.id.replace('kid-block-', '');
+    const name = document.getElementById(`kid-name-${kidId}`)?.value.trim();
     if (!name) return;
     const sports = [];
     block.querySelectorAll('.sport-btn.active').forEach(b => sports.push(b.textContent.trim()));
-    const activePlat = block.querySelector('.plat-btn.active');
-    const platKey = activePlat ? Object.keys(PLATFORMS).find(k => activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name) : null;
-    const icalUrl = document.getElementById('kid-ical-' + id)?.value.trim() || '';
-    const teamName = document.getElementById('kid-team-' + id)?.value.trim() || '';
-    kids.push({ name, sports, platform: platKey || 'other', icalUrl, teamName });
+    const teams = [];
+    block.querySelectorAll('.team-block').forEach(tb => {
+      const ids = tb.id.replace('team-block-', '').split('-');
+      const ti = ids[1];
+      const activePlat = tb.querySelector('.plat-btn.active');
+      const platKey = activePlat ? Object.keys(PLATFORMS).find(k => activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name) : null;
+      const icalUrl = document.getElementById(`ical-${kidId}-${ti}`)?.value.trim() || '';
+      const teamName = document.getElementById(`team-name-${kidId}-${ti}`)?.value.trim() || '';
+      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl, teamName });
+    });
+    kids.push({ name, sports, teams });
   });
   return kids;
 }
 
-function buildShareMessage(fname, kids, calUrl) {
-  const familyFirst = fname.replace(/ Family$/i, '');
-
-  // Build kid descriptions
-  const kidDescriptions = kids.map(k => {
-    const sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
-    const team = k.teamName ? ` (${k.teamName})` : '';
-    return `${k.name}'s ${sports}${team}`;
-  });
-
-  let kidText = '';
-  if (kidDescriptions.length === 1) {
-    kidText = kidDescriptions[0];
-  } else if (kidDescriptions.length === 2) {
-    kidText = `${kidDescriptions[0]} and ${kidDescriptions[1]}`;
-  } else {
-    kidText = kidDescriptions.slice(0, -1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length - 1];
-  }
-
-  return `Hey! I'm using HomeHuddle to share ${kidText} schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n${calUrl}\n\nOnce you open it, tap "Enable notifications" to get alerts when games are added or times change. 🏅`;
-}
-
+// ── SUBMIT ────────────────────────────────────────────────
 async function submitForm() {
   const fname = document.getElementById('fname').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -304,29 +312,31 @@ async function submitForm() {
   if (!phone) return showError('Please enter your mobile number for SMS alerts.');
   const kids = collectKids();
   if (kids.length === 0) return showError('Please add at least one kid.');
-  const missingCal = kids.find(k => !k.icalUrl);
-  if (missingCal) return showError(`Please paste a calendar link for ${missingCal.name}.`);
+  const missingTeam = kids.find(k => k.teams.length === 0);
+  if (missingTeam) return showError(`Please add at least one team calendar for ${missingTeam.name}.`);
   const normalizedPhone = normalizePhone(phone);
   setLoading(true);
   try {
     for (const kid of kids) {
       const sportList = kid.sports.length > 0 ? kid.sports : ['Sport'];
-      const payload = {
-        family_name: fname, email, phone: normalizedPhone,
-        kid_name: kid.name, sport: sportList.join(', '),
-        platform: kid.platform,
-        ical_url: kid.icalUrl.replace(/^webcal:\/\//i, 'https://'),
-        is_active: true, status: 'trial',
-        team_name: kid.teamName || null,
-      };
-      const res = await fetch(`${SURL}/rest/v1/feeds`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Prefer': 'return=minimal' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `Signup failed (${res.status})`);
+      for (const team of kid.teams) {
+        const payload = {
+          family_name: fname, email, phone: normalizedPhone,
+          kid_name: kid.name, sport: sportList.join(', '),
+          platform: team.platform,
+          ical_url: team.icalUrl.replace(/^webcal:\/\//i, 'https://'),
+          is_active: true, status: 'trial',
+          team_name: team.teamName || null,
+        };
+        const res = await fetch(`${SURL}/rest/v1/feeds`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Prefer': 'return=minimal' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `Signup failed (${res.status})`);
+        }
       }
     }
 
@@ -339,11 +349,9 @@ async function submitForm() {
       });
     } catch(e) { console.error('Welcome email error:', e); }
 
-    // Build calendar URL and share message
     familyCalendarUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(email)}`;
     shareMessageText = buildShareMessage(fname, kids, familyCalendarUrl);
 
-    // Show success screen
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
     document.getElementById('viewCalBtn').href = familyCalendarUrl;
@@ -358,50 +366,48 @@ async function submitForm() {
   }
 }
 
-function copyCalLink() {
-  copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy');
+function buildShareMessage(fname, kids, calUrl) {
+  const first = fname.replace(/ Family$/i, '');
+  const kidDescriptions = kids.map(k => {
+    const sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
+    const teams = k.teams.map(t => t.teamName).filter(Boolean);
+    const teamStr = teams.length ? ` (${teams.join(', ')})` : '';
+    return `${k.name}'s ${sports}${teamStr}`;
+  });
+  let kidText = kidDescriptions.length === 1 ? kidDescriptions[0]
+    : kidDescriptions.length === 2 ? `${kidDescriptions[0]} and ${kidDescriptions[1]}`
+    : kidDescriptions.slice(0,-1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length-1];
+  return `Hey! I'm using HomeHuddle to share ${kidText} schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n${calUrl}\n\nOnce you open it, tap "Enable notifications" to get alerts when games are added or times change. 🏅`;
 }
 
+function copyCalLink() {
+  copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy', null);
+}
 function copyShareMessage() {
   copyText(shareMessageText, null, null, null, 'copy-msg-btn');
 }
-
 function copyText(text, labelId, successText, defaultText, btnId) {
   navigator.clipboard.writeText(text).then(() => {
-    if (btnId) {
-      const btn = document.getElementById(btnId);
-      btn.textContent = '✅ Copied! Paste it in a text message';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
-    }
-    if (labelId) {
-      document.getElementById(labelId).textContent = successText;
-      setTimeout(() => { document.getElementById(labelId).textContent = defaultText; }, 2000);
-    }
+    if (btnId) { const b=document.getElementById(btnId); b.textContent='✅ Copied! Paste it in a text message'; b.classList.add('copied'); setTimeout(()=>{b.textContent='📋 Copy message to share';b.classList.remove('copied')},3000); }
+    if (labelId) { document.getElementById(labelId).textContent=successText; setTimeout(()=>document.getElementById(labelId).textContent=defaultText,2000); }
   }).catch(() => {
-    const el = document.createElement('textarea');
-    el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-    if (btnId) {
-      const btn = document.getElementById(btnId);
-      btn.textContent = '✅ Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
-    }
+    const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    if (btnId) { const b=document.getElementById(btnId); b.textContent='✅ Copied!'; b.classList.add('copied'); setTimeout(()=>{b.textContent='📋 Copy message to share';b.classList.remove('copied')},3000); }
   });
 }
 
 function normalizePhone(p) {
-  const digits = p.replace(/\D/g, '');
-  if (digits.length === 10) return '+1' + digits;
-  if (digits.length === 11 && digits[0] === '1') return '+' + digits;
+  const d=p.replace(/\D/g,'');
+  if(d.length===10) return '+1'+d;
+  if(d.length===11&&d[0]==='1') return '+'+d;
   return p;
 }
-function showError(msg) { const el = document.getElementById('error-msg'); el.textContent = msg; el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
-function hideError() { document.getElementById('error-msg').style.display = 'none'; }
+function showError(msg) { const el=document.getElementById('error-msg'); el.textContent=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function hideError() { document.getElementById('error-msg').style.display='none'; }
 function setLoading(on) {
-  document.getElementById('submit-btn').disabled = on;
-  document.getElementById('btn-text').textContent = on ? 'Setting up your account…' : 'Start your free 30-day trial';
-  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  document.getElementById('submit-btn').disabled=on;
+  document.getElementById('btn-text').textContent=on?'Setting up your account…':'Start your free 30-day trial';
+  document.getElementById('spinner').style.display=on?'block':'none';
 }
 
 addKid();
