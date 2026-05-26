@@ -278,7 +278,6 @@ async function manualSync() {
   setSync('spin', 'Syncing...');
 
   try {
-    // Call the sync-schedules edge function to re-fetch iCal feeds
     await fetch(`${SURL}/functions/v1/sync-schedules`, {
       method: 'POST',
       headers: {
@@ -292,7 +291,6 @@ async function manualSync() {
     console.log('Sync function called (may be processing in background)');
   }
 
-  // Wait a moment for sync to process then reload events
   setTimeout(async () => {
     await loadEvents(false);
     setSync('ok', 'Synced');
@@ -300,6 +298,66 @@ async function manualSync() {
     btn.disabled = false;
     isSyncing = false;
   }, 3000);
+}
+
+// ── PUSH NOTIFICATIONS ────────────────────────────────────
+// IMPORTANT: Replace the value below with your actual VAPID public key
+// Find it in Supabase → Edge Functions → Secrets → VAPID_PUBLIC_KEY
+const VAPID_PUBLIC = 'EKJUeAsR-r7LlfWI88pKcATtN07J9iAx6GBwuKCZT5N7GrzyxH3XYn_9H2FusaIv64NOwaeAs_ctuaCc90uFwA';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(function(c) { return c.charCodeAt(0); }));
+}
+
+async function savePushSub(sub) {
+  if (!familyEmail) return;
+  try {
+    const json = sub.toJSON();
+    await sb.from('push_subscriptions').upsert({
+      email: familyEmail,
+      endpoint: json.endpoint,
+      keys: json.keys
+    }, { onConflict: 'email,endpoint' });
+    console.log('Push subscription saved for ' + familyEmail);
+  } catch(e) {
+    console.log('Could not save push subscription:', e);
+  }
+}
+
+async function registerPush() {
+  if (!familyEmail) return;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.log('Push not supported on this browser');
+    return;
+  }
+  if (VAPID_PUBLIC === 'EKJUeAsR-r7LlfWI88pKcATtN07J9iAx6GBwuKCZT5N7GrzyxH3XYn_9H2FusaIv64NOwaeAs_ctuaCc90uFwA') {
+    console.log('VAPID public key not set — skipping push registration');
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) {
+      await savePushSub(existing);
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.log('Notification permission denied');
+      return;
+    }
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+    });
+    await savePushSub(sub);
+  } catch(e) {
+    console.log('Push registration error:', e);
+  }
 }
 
 // ── REMINDERS ─────────────────────────────────────────────
@@ -649,6 +707,9 @@ loadEvents(false).then(function() {
 });
 setInterval(function(){ loadEvents(false); }, REFRESH);
 setInterval(loadReminders, REFRESH);
+
+// Register push notifications after page is loaded
+setTimeout(registerPush, 2000);
 </script>
 </body>
 </html>
