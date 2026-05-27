@@ -19,8 +19,6 @@
     }
     html{font-size:16px}
     body{font-family:'DM Sans',sans-serif;background:#0f1117;color:#e8e6df;min-height:100vh}
-
-    /* NAV */
     nav{background:#1a1c24;border-bottom:1px solid #2a2d38;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
     .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
     .nav-logo-mark{width:30px;height:30px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center}
@@ -30,8 +28,6 @@
     .nav-badge{background:#1D9E7520;color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid #1D9E7540}
     .nav-signout{font-size:13px;color:#555;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
     .nav-signout:hover{color:var(--red)}
-
-    /* LOGIN */
     #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
     .login-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:380px;text-align:center}
     .login-card h2{font-family:'DM Serif Display',serif;font-size:1.75rem;color:#e8e6df;margin-bottom:0.5rem}
@@ -41,18 +37,18 @@
     .pin-digit:focus{border-color:var(--green)}
     .alert-error{background:#DC262615;color:#f87171;border:1px solid #DC262630;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:1rem;display:none}
     .alert-error.show{display:block}
-
-    /* MAIN */
     #admin-screen{display:none}
     .page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
     .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
     .page-header h1{font-family:'DM Serif Display',serif;font-size:1.75rem;color:#e8e6df}
     .page-header p{font-size:13px;color:#555;margin-top:2px}
+    .header-actions{display:flex;gap:8px;flex-wrap:wrap}
     .refresh-btn{background:#1a1c24;border:1px solid #2a2d38;color:#888;font-size:13px;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
     .refresh-btn:hover{border-color:var(--green);color:var(--green)}
-
-    /* KPI GRID */
-    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+    .sync-btn{background:#1D9E7520;border:1px solid #1D9E7540;color:var(--green);font-size:13px;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .sync-btn:hover{background:var(--green);color:white}
+    .sync-btn:disabled{opacity:0.5;cursor:not-allowed}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
     .kpi-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:1.25rem;position:relative;overflow:hidden}
     .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
     .kpi-card.green::before{background:var(--green)}
@@ -61,17 +57,17 @@
     .kpi-card.red::before{background:var(--red)}
     .kpi-card.purple::before{background:#8B5CF6}
     .kpi-card.teal::before{background:#14B8A6}
+    .kpi-card.pink::before{background:#EC4899}
     .kpi-label{font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem}
     .kpi-value{font-family:'DM Serif Display',serif;font-size:2.25rem;color:#e8e6df;line-height:1}
     .kpi-sub{font-size:12px;color:#555;margin-top:4px}
-
-    /* SECTION */
+    .kpi-trend{font-size:11px;margin-top:4px}
+    .kpi-trend.up{color:var(--green)}
+    .kpi-trend.down{color:#f87171}
     .section{margin-bottom:2rem}
-    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
     .section-title{font-size:13px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em}
     .section-count{font-size:12px;color:#333;background:#2a2d38;padding:2px 8px;border-radius:20px}
-
-    /* TABLE */
     .table-wrap{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);overflow:hidden}
     table{width:100%;border-collapse:collapse}
     th{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.06em;padding:10px 16px;text-align:left;border-bottom:1px solid #2a2d38;white-space:nowrap}
@@ -80,53 +76,59 @@
     tr:hover td{background:#1f2130}
     .td-name{font-weight:600;color:#e8e6df}
     .td-email{color:#666;font-size:12px}
-
-    /* BADGES */
     .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px}
     .badge-active{background:#1D9E7520;color:var(--green);border:1px solid #1D9E7540}
     .badge-trial{background:#F59E0B20;color:var(--amber);border:1px solid #F59E0B40}
     .badge-cancelled{background:#DC262620;color:#f87171;border:1px solid #DC262640}
     .badge-sport{background:#3B82F620;color:#93C5FD;border:1px solid #3B82F640;margin-right:3px}
-
-    /* CHARTS */
     .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
     .chart-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:1.25rem}
     .chart-title{font-size:13px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem}
     .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    .bar-label{font-size:13px;color:#aaa;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-label{font-size:13px;color:#aaa;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .bar-track{flex:1;height:8px;background:#2a2d38;border-radius:4px;overflow:hidden}
     .bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
     .bar-count{font-size:12px;color:#555;width:24px;text-align:right;flex-shrink:0}
-
-    /* CHURN TABLE */
     .churn-notes{background:#0f1117;border:1px solid #2a2d38;border-radius:6px;padding:6px 8px;font-size:12px;color:#888;width:100%;font-family:'DM Sans',sans-serif;resize:none;outline:none}
     .churn-notes:focus{border-color:var(--green)}
     .btn-followup{background:#1D9E7520;color:var(--green);border:1px solid #1D9E7540;font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
     .btn-followup:hover{background:var(--green);color:white}
-
-    /* ORGS */
+    .btn-push{background:#8B5CF620;color:#c4b5fd;border:1px solid #8B5CF640;font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s;margin-left:4px}
+    .btn-push:hover{background:#8B5CF6;color:white}
     .org-card{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-md);padding:1rem;display:flex;align-items:center;gap:12px}
     .org-icon{width:38px;height:38px;border-radius:8px;background:#2a2d38;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
     .org-name{font-size:14px;font-weight:600;color:#e8e6df}
     .org-meta{font-size:12px;color:#555;margin-top:2px}
+    .org-alias{font-size:11px;color:#444;margin-top:3px;font-style:italic}
     .org-count{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--green);margin-left:auto;flex-shrink:0}
     .org-count-label{font-size:11px;color:#555;text-align:right}
     .orgs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem}
 
-    /* LOADING */
+    /* TEAM NAME MANAGER */
+    .team-manager{background:#1a1c24;border:1px solid #2a2d38;border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:2rem}
+    .team-manager-title{font-size:13px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem}
+    .alias-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .alias-canonical{font-size:13px;font-weight:600;color:#e8e6df;min-width:160px}
+    .alias-list{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+    .alias-tag{font-size:11px;background:#2a2d38;color:#888;padding:2px 8px;border-radius:12px}
+    .alias-input{background:#0f1117;border:1px solid #2a2d38;border-radius:6px;padding:5px 8px;font-size:12px;color:#e8e6df;font-family:'DM Sans',sans-serif;outline:none;width:160px}
+    .alias-input:focus{border-color:var(--green)}
+    .btn-alias-add{background:#2a2d38;color:#888;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .btn-alias-add:hover{background:var(--green);color:white}
+
+    .growth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:8px}
+    .growth-month{background:#2a2d38;border-radius:6px;padding:8px;text-align:center}
+    .growth-month-label{font-size:10px;color:#555;margin-bottom:4px}
+    .growth-month-val{font-size:1.1rem;font-weight:700;color:var(--green);font-family:'DM Serif Display',serif}
+
     .loading{text-align:center;padding:3rem;color:#555;font-size:14px}
     .spinner{display:inline-block;width:20px;height:20px;border:2px solid #2a2d38;border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* EMPTY */
     .empty{text-align:center;padding:2rem;color:#555;font-size:13px}
-
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1a1c24;border:1px solid #2a2d38;color:#e8e6df;padding:10px 18px;border-radius:20px;font-size:13px;transition:transform 0.3s;z-index:999;pointer-events:none}
+    .toast.show{transform:translateX(-50%) translateY(0)}
     footer{border-top:1px solid #2a2d38;padding:1.5rem 2rem;text-align:center;font-size:12px;color:#333}
-
-    @media(max-width:768px){
-      .charts-grid{grid-template-columns:1fr}
-      .kpi-grid{grid-template-columns:repeat(2,1fr)}
-    }
+    @media(max-width:768px){.charts-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
@@ -147,7 +149,6 @@
   </div>
 </nav>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <div style="font-size:2rem;margin-bottom:1rem">🏠</div>
@@ -164,7 +165,6 @@
   </div>
 </div>
 
-<!-- ADMIN SCREEN -->
 <div id="admin-screen">
   <div class="page">
     <div class="page-header">
@@ -172,15 +172,27 @@
         <h1>HomeHuddle Dashboard</h1>
         <p id="last-updated">Loading...</p>
       </div>
-      <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+      <div class="header-actions">
+        <button class="sync-btn" id="sync-btn" onclick="triggerSync()">⚡ Sync Now</button>
+        <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+      </div>
     </div>
 
-    <!-- KPIs -->
     <div class="kpi-grid" id="kpi-grid">
       <div class="loading"><span class="spinner"></span>Loading...</div>
     </div>
 
-    <!-- CHARTS -->
+    <!-- GROWTH TRACKER -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">📈 User Growth</span>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Signups by Month</div>
+        <div class="growth-grid" id="growth-grid"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-title">Sports Distribution</div>
@@ -189,6 +201,17 @@
       <div class="chart-card">
         <div class="chart-title">Platform Breakdown</div>
         <div id="platform-chart"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <!-- TEAM NAME MANAGER -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🏷️ Team Name Aliases</span>
+        <span style="font-size:12px;color:#444">Variations that get mapped to canonical names</span>
+      </div>
+      <div class="team-manager" id="team-manager">
+        <div class="loading"><span class="spinner"></span>Loading...</div>
       </div>
     </div>
 
@@ -219,16 +242,18 @@
               <th>Status</th>
               <th>Signed Up</th>
               <th>Feeds</th>
+              <th>Family Members</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="families-tbody">
-            <tr><td colspan="6" class="loading"><span class="spinner"></span>Loading...</td></tr>
+            <tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- CHURNED / FOLLOW-UP -->
+    <!-- CHURNED -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">⚠️ Churned — Follow Up</span>
@@ -252,38 +277,149 @@
         </table>
       </div>
     </div>
-
   </div>
   <footer>HomeHuddle Admin · powered by Venuewise · <a href="mailto:hello@venuewise.net" style="color:#333;text-decoration:none">hello@venuewise.net</a></footer>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const SUPABASE_URL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
-
-// ── CHANGE THIS TO YOUR ADMIN PIN ──
 const ADMIN_PIN = '2426';
 
+// ── TEAM NAME NORMALIZATION ───────────────────────────────
+// Canonical name → array of known aliases/variations
+// Edit this list to add new teams or aliases
+let TEAM_ALIASES = JSON.parse(localStorage.getItem('hh_team_aliases') || 'null') || {
+  'Caz Chiefs':       ['caz chiefs','cazz chiefs','caz chief','cazchiefs','the caz chiefs','Caz Chiefs Hockey'],
+  'FCP Baseball':     ['fcp baseball','fcp','f.c.p. baseball','fcp bb','fcpbaseball','FCP'],
+  'West Seneca Modified': ['west seneca modified','ws modified','west seneca mod','wsm','west seneca modified baseball','West Middle Modified'],
+};
+
+function saveAliases() {
+  localStorage.setItem('hh_team_aliases', JSON.stringify(TEAM_ALIASES));
+}
+
+// Normalize a team name to its canonical form
+function normalizeTeamName(raw) {
+  if (!raw) return raw;
+  const lower = raw.toLowerCase().trim();
+  for (const [canonical, aliases] of Object.entries(TEAM_ALIASES)) {
+    if (lower === canonical.toLowerCase()) return canonical;
+    if (aliases.some(function(a){ return a.toLowerCase() === lower; })) return canonical;
+    // Fuzzy: if 80%+ of words match
+    const canonWords = canonical.toLowerCase().split(/\s+/);
+    const rawWords = lower.split(/\s+/);
+    const matches = rawWords.filter(function(w){ return canonWords.some(function(c){ return c.includes(w) || w.includes(c); }); });
+    if (rawWords.length > 0 && matches.length / rawWords.length >= 0.8) return canonical;
+  }
+  // Title case the raw value as fallback
+  return raw.trim().replace(/\w\S*/g, function(t){ return t.charAt(0).toUpperCase()+t.substr(1).toLowerCase(); });
+}
+
+function renderTeamManager() {
+  const container = document.getElementById('team-manager');
+  let html = '<div style="font-size:12px;color:#555;margin-bottom:1rem">These canonical names are used to group teams across families even if typed differently. Add aliases for any variation you want matched.</div>';
+
+  Object.entries(TEAM_ALIASES).forEach(function(entry) {
+    const canonical = entry[0], aliases = entry[1];
+    html += '<div class="alias-row">' +
+      '<div class="alias-canonical">'+canonical+'</div>' +
+      '<div class="alias-list">' +
+        aliases.map(function(a){ return '<span class="alias-tag">'+a+'</span>'; }).join('') +
+      '</div>' +
+      '<input class="alias-input" type="text" placeholder="Add alias..." id="alias-input-'+canonical.replace(/\s/g,'_')+'" />' +
+      '<button class="btn-alias-add" onclick="addAlias(\''+canonical+'\')">+ Add</button>' +
+    '</div>';
+  });
+
+  // Add new canonical team
+  html += '<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #2a2d38;display:flex;gap:8px;align-items:center">' +
+    '<input class="alias-input" type="text" placeholder="New canonical team name..." id="new-canonical" style="width:220px"/>' +
+    '<button class="btn-alias-add" onclick="addCanonical()">+ Add Team</button>' +
+  '</div>';
+
+  container.innerHTML = html;
+}
+
+function addAlias(canonical) {
+  const inputId = 'alias-input-' + canonical.replace(/\s/g,'_');
+  const val = document.getElementById(inputId)?.value.trim();
+  if (!val) return;
+  if (!TEAM_ALIASES[canonical]) TEAM_ALIASES[canonical] = [];
+  if (!TEAM_ALIASES[canonical].includes(val)) {
+    TEAM_ALIASES[canonical].push(val);
+    saveAliases();
+    showToast('Alias added: "' + val + '" → ' + canonical);
+    renderTeamManager();
+  }
+}
+
+function addCanonical() {
+  const val = document.getElementById('new-canonical')?.value.trim();
+  if (!val || TEAM_ALIASES[val]) return;
+  TEAM_ALIASES[val] = [];
+  saveAliases();
+  showToast('Team added: ' + val);
+  renderTeamManager();
+}
+
+// ── SYNC TRIGGER ─────────────────────────────────────────
+async function triggerSync() {
+  const btn = document.getElementById('sync-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Syncing...';
+  try {
+    const res = await fetch(SUPABASE_URL + '/functions/v1/sync-schedules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    showToast('Sync complete — ' + (data.total_upserted || 0) + ' events upserted');
+    setTimeout(loadDashboard, 2000);
+  } catch(e) {
+    showToast('Sync error: ' + e.message);
+  } finally {
+    setTimeout(function(){ btn.disabled=false; btn.textContent='⚡ Sync Now'; }, 5000);
+  }
+}
+
+// ── PUSH TEST ─────────────────────────────────────────────
+async function testPush(email, familyName) {
+  try {
+    await fetch(SUPABASE_URL + '/functions/v1/hyper-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON },
+      body: JSON.stringify({ email, title: 'HomeHuddle Test', body: 'Push notifications are working for ' + familyName + '! 🏅' })
+    });
+    showToast('Test push sent to ' + email);
+  } catch(e) {
+    showToast('Push error: ' + e.message);
+  }
+}
+
 async function sbFetch(path) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
   });
   return res.json();
 }
 
 // ── PIN LOGIN ─────────────────────────────────────────────
 function pinNav(i) {
-  const v = document.getElementById(`p${i}`).value;
-  if (!/^\d$/.test(v)) { document.getElementById(`p${i}`).value=''; return; }
-  if (i < 3) document.getElementById(`p${i+1}`).focus();
+  const v = document.getElementById('p'+i).value;
+  if (!/^\d$/.test(v)) { document.getElementById('p'+i).value=''; return; }
+  if (i < 3) document.getElementById('p'+(i+1)).focus();
   if (i === 3) checkPin();
 }
 function pinBack(i, e) {
-  if (e.key==='Backspace' && !document.getElementById(`p${i}`).value && i>0)
-    document.getElementById(`p${i-1}`).focus();
+  if (e.key==='Backspace' && !document.getElementById('p'+i).value && i>0)
+    document.getElementById('p'+(i-1)).focus();
 }
 function checkPin() {
-  const pin = [0,1,2,3].map(i=>document.getElementById(`p${i}`).value).join('');
+  const pin = [0,1,2,3].map(function(i){ return document.getElementById('p'+i).value; }).join('');
   if (pin === ADMIN_PIN) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-screen').style.display = 'block';
@@ -293,7 +429,7 @@ function checkPin() {
     const err = document.getElementById('pin-error');
     err.textContent = 'Incorrect PIN. Please try again.';
     err.classList.add('show');
-    [0,1,2,3].forEach(i=>{ document.getElementById(`p${i}`).value=''; });
+    [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
     document.getElementById('p0').focus();
   }
 }
@@ -301,25 +437,26 @@ function signOut() {
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('admin-screen').style.display='none';
   document.getElementById('sign-out-btn').style.display='none';
-  [0,1,2,3].forEach(i=>{ document.getElementById(`p${i}`).value=''; });
+  [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
 }
 
 // ── LOAD DASHBOARD ────────────────────────────────────────
 async function loadDashboard() {
   document.getElementById('last-updated').textContent = 'Loading...';
   try {
-    const feeds = await sbFetch('feeds?select=*&order=created_at.desc');
-    const events = await sbFetch('events?select=uid,kid,platform,sport,name,family_phone&limit=1000');
+    const feeds = await sbFetch('feeds?select=*&order=created_at.asc');
     const pushSubs = await sbFetch('push_subscriptions?select=id,email');
-    const syncSummary = await sbFetch('sync_summary?select=*&order=created_at.desc&limit=1');
+    const members = await sbFetch('family_members?select=id,family_email,name,role');
 
-    renderKPIs(feeds, events, pushSubs, syncSummary);
+    renderKPIs(feeds, pushSubs, members);
+    renderGrowth(feeds, members);
     renderCharts(feeds);
-    renderOrgs(feeds, events);
-    renderFamilies(feeds);
+    renderTeamManager();
+    renderOrgs(feeds);
+    renderFamilies(feeds, pushSubs, members);
     renderChurn(feeds);
 
-    document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+    document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
   } catch(e) {
     console.error(e);
     document.getElementById('last-updated').textContent = 'Error loading data';
@@ -327,185 +464,198 @@ async function loadDashboard() {
 }
 
 // ── KPIs ──────────────────────────────────────────────────
-function renderKPIs(feeds, events, pushSubs, syncSummary) {
-  // Distinct families by email
-  const families = [...new Set(feeds.map(f=>f.email))];
-  const activeFeeds = feeds.filter(f=>f.is_active && f.status !== 'cancelled');
-  const cancelledFeeds = feeds.filter(f=>f.status === 'cancelled');
-  const trialFeeds = feeds.filter(f=>f.status === 'trial' || !f.status);
-
-  // Distinct kids
-  const kids = [...new Set(feeds.map(f=>`${f.email}::${f.kid_name}`))];
-
-  // Distinct sports
+function renderKPIs(feeds, pushSubs, members) {
+  const allEmails = [...new Set(feeds.map(function(f){ return f.email; }))];
+  const activeFeeds = feeds.filter(function(f){ return f.is_active && f.status !== 'cancelled'; });
+  const cancelledEmails = [...new Set(feeds.filter(function(f){ return f.status==='cancelled'; }).map(function(f){ return f.email; }))];
+  const activeEmails = allEmails.filter(function(e){ return !cancelledEmails.includes(e); });
+  const kids = [...new Set(feeds.map(function(f){ return f.email+'::'+f.kid_name; }))];
   const sportsSet = new Set();
-  feeds.forEach(f=>{ if(f.sport) f.sport.split(',').forEach(s=>sportsSet.add(s.trim())); });
+  feeds.forEach(function(f){ if(f.sport) f.sport.split(',').forEach(function(s){ sportsSet.add(s.trim()); }); });
 
-  const activeFamilies = families.filter(email => {
-    const fam = feeds.filter(f=>f.email===email);
-    return fam.some(f=>f.status!=='cancelled');
+  // Subscribers = unique account holders (1 per email)
+  const totalSubscribers = allEmails.length;
+  const activeSubscribers = activeEmails.length;
+
+  // Total users = subscribers + all family members added under any account
+  const totalMembers = (members||[]).length;
+  const totalUsers = totalSubscribers + totalMembers;
+
+  const thisMonth = feeds.filter(function(f){
+    const d = new Date(f.created_at);
+    const now = new Date();
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  const newThisMonth = [...new Set(thisMonth.map(function(f){ return f.email; }))].length;
+
+  document.getElementById('kpi-grid').innerHTML =
+    kpiCard('green','Total Users',totalUsers, totalSubscribers+' subscriber'+(totalSubscribers===1?'':'s')+' + '+totalMembers+' member'+(totalMembers===1?'':'s'), '') +
+    kpiCard('blue','Subscribers',activeSubscribers, activeSubscribers+' active · '+cancelledEmails.length+' churned', '') +
+    kpiCard('pink','Family Members',totalMembers, 'added across all accounts', '') +
+    kpiCard('teal','Total Kids',kids.length,'across all families','') +
+    kpiCard('amber','Active Feeds',activeFeeds.length,'iCal syncing','') +
+    kpiCard('purple','Push Devices',pushSubs.length,'subscribed devices','') +
+    kpiCard('red','Churned',cancelledEmails.length,'need follow-up','');
+}
+
+function kpiCard(color, label, value, sub, trend) {
+  return '<div class="kpi-card '+color+'">' +
+    '<div class="kpi-label">'+label+'</div>' +
+    '<div class="kpi-value">'+value+'</div>' +
+    (sub ? '<div class="kpi-sub">'+sub+'</div>' : '') +
+    (trend ? '<div class="kpi-trend '+trend+'">'+sub+'</div>' : '') +
+  '</div>';
+}
+
+// ── GROWTH TRACKER ────────────────────────────────────────
+function renderGrowth(feeds, members) {
+  // Group first signup per email by month
+  const firstSignup = {};
+  feeds.forEach(function(f) {
+    if (!firstSignup[f.email] || new Date(f.created_at) < new Date(firstSignup[f.email])) {
+      firstSignup[f.email] = f.created_at;
+    }
   });
 
-  document.getElementById('kpi-grid').innerHTML = `
-    <div class="kpi-card green">
-      <div class="kpi-label">Total Families</div>
-      <div class="kpi-value">${families.length}</div>
-      <div class="kpi-sub">${activeFamilies.length} active</div>
-    </div>
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Kids</div>
-      <div class="kpi-value">${kids.length}</div>
-      <div class="kpi-sub">across all families</div>
-    </div>
-    <div class="kpi-card teal">
-      <div class="kpi-label">Sports Tracked</div>
-      <div class="kpi-value">${sportsSet.size}</div>
-      <div class="kpi-sub">${[...sportsSet].slice(0,2).join(', ')}</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-label">Active Feeds</div>
-      <div class="kpi-value">${activeFeeds.length}</div>
-      <div class="kpi-sub">iCal syncing</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-label">Push Devices</div>
-      <div class="kpi-value">${pushSubs.length}</div>
-      <div class="kpi-sub">subscribed devices</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">Churned</div>
-      <div class="kpi-value">${[...new Set(cancelledFeeds.map(f=>f.email))].length}</div>
-      <div class="kpi-sub">need follow-up</div>
-    </div>
-  `;
+  const monthCounts = {};
+  Object.values(firstSignup).forEach(function(dateStr) {
+    const d = new Date(dateStr);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('en-US', { month:'short', year:'2-digit' });
+    if (!monthCounts[key]) monthCounts[key] = { label, count: 0 };
+    monthCounts[key].count++;
+  });
+
+  const sorted = Object.entries(monthCounts).sort(function(a,b){ return a[0].localeCompare(b[0]); });
+  const cumulative = [];
+  let running = 0;
+  sorted.forEach(function(entry) {
+    running += entry[1].count;
+    cumulative.push({ label: entry[1].label, new: entry[1].count, total: running });
+  });
+
+  const totalMembers = (members||[]).length;
+  document.getElementById('growth-grid').innerHTML = cumulative.length ?
+    cumulative.map(function(m, i) {
+      const isLast = i === cumulative.length - 1;
+      return '<div class="growth-month">' +
+        '<div class="growth-month-label">'+m.label+'</div>' +
+        '<div class="growth-month-val">'+m.total+'</div>' +
+        '<div style="font-size:10px;color:#555">+'+m.new+' new</div>' +
+        (isLast && totalMembers > 0 ? '<div style="font-size:10px;color:#8B5CF6;margin-top:2px">+'+totalMembers+' members</div>' : '') +
+      '</div>';
+    }).join('') :
+    '<div class="empty">No signup data yet</div>';
 }
 
 // ── CHARTS ────────────────────────────────────────────────
 function renderCharts(feeds) {
-  // Sports
+  const activeFeed = feeds.filter(function(f){ return f.status!=='cancelled'; });
   const sportCounts = {};
-  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
-    if(f.sport) f.sport.split(',').forEach(s=>{
-      const t = s.trim();
-      sportCounts[t] = (sportCounts[t]||0) + 1;
+  activeFeed.forEach(function(f){
+    if(f.sport) f.sport.split(',').forEach(function(s){
+      const t=s.trim(); sportCounts[t]=(sportCounts[t]||0)+1;
     });
   });
-  const sortedSports = Object.entries(sportCounts).sort((a,b)=>b[1]-a[1]);
+  const sortedSports = Object.entries(sportCounts).sort(function(a,b){ return b[1]-a[1]; });
   const maxS = sortedSports[0]?.[1] || 1;
   const sportColors = ['#1D9E75','#3B82F6','#F59E0B','#8B5CF6','#14B8A6','#EC4899'];
-  document.getElementById('sports-chart').innerHTML = sortedSports.map(([s,c],i)=>`
-    <div class="bar-row">
-      <div class="bar-label">${s}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(c/maxS*100).toFixed(0)}%;background:${sportColors[i%sportColors.length]}"></div></div>
-      <div class="bar-count">${c}</div>
-    </div>`).join('') || '<div class="empty">No data yet</div>';
+  document.getElementById('sports-chart').innerHTML = sortedSports.map(function(e,i){
+    return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxS*100)+'%;background:'+sportColors[i%sportColors.length]+'"></div></div><div class="bar-count">'+e[1]+'</div></div>';
+  }).join('') || '<div class="empty">No data yet</div>';
 
-  // Platforms
   const platCounts = {};
   const platNames = {gamechanger:'GameChanger',teamsnap:'TeamSnap',leagueapps:'LeagueApps',google:'Google Cal',apple:'Apple Cal',other:'Other'};
-  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
-    if(f.platform) platCounts[f.platform] = (platCounts[f.platform]||0)+1;
-  });
-  const sortedPlats = Object.entries(platCounts).sort((a,b)=>b[1]-a[1]);
+  activeFeed.forEach(function(f){ if(f.platform) platCounts[f.platform]=(platCounts[f.platform]||0)+1; });
+  const sortedPlats = Object.entries(platCounts).sort(function(a,b){ return b[1]-a[1]; });
   const maxP = sortedPlats[0]?.[1] || 1;
   const platColors = ['#3B82F6','#F59E0B','#1D9E75','#8B5CF6','#EC4899','#14B8A6'];
-  document.getElementById('platform-chart').innerHTML = sortedPlats.map(([p,c],i)=>`
-    <div class="bar-row">
-      <div class="bar-label">${platNames[p]||p}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(c/maxP*100).toFixed(0)}%;background:${platColors[i%platColors.length]}"></div></div>
-      <div class="bar-count">${c}</div>
-    </div>`).join('') || '<div class="empty">No data yet</div>';
+  document.getElementById('platform-chart').innerHTML = sortedPlats.map(function(e,i){
+    return '<div class="bar-row"><div class="bar-label">'+(platNames[e[0]]||e[0])+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxP*100)+'%;background:'+platColors[i%platColors.length]+'"></div></div><div class="bar-count">'+e[1]+'</div></div>';
+  }).join('') || '<div class="empty">No data yet</div>';
 }
 
-// ── ORGS ──────────────────────────────────────────────────
-function renderOrgs(feeds, events) {
-  // Group by team_name if set, otherwise try to extract from event names
+// ── ORGS (with normalization) ──────────────────────────────
+function renderOrgs(feeds) {
   const orgMap = {};
-
-  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
-    const key = f.team_name || `${f.sport||'Unknown'} (${f.platform||'unknown'})`;
-    if(!orgMap[key]) orgMap[key] = { name:key, families:new Set(), sports:new Set(), platform:f.platform };
-    orgMap[key].families.add(f.email);
-    if(f.sport) f.sport.split(',').forEach(s=>orgMap[key].sports.add(s.trim()));
+  feeds.filter(function(f){ return f.status!=='cancelled'; }).forEach(function(f) {
+    const rawName = f.team_name || (f.sport + ' (' + f.platform + ')');
+    const canonical = normalizeTeamName(rawName);
+    if (!orgMap[canonical]) orgMap[canonical] = { name:canonical, families:new Set(), sports:new Set(), platform:f.platform, aliases:new Set() };
+    orgMap[canonical].families.add(f.email);
+    if (f.sport) f.sport.split(',').forEach(function(s){ orgMap[canonical].sports.add(s.trim()); });
+    if (rawName !== canonical) orgMap[canonical].aliases.add(rawName);
   });
 
-  // Also enrich from event names
-  events.forEach(e=>{
-    if(e.name && e.name.includes('—')) {
-      const teamName = e.name.split('—')[0].trim();
-      if(teamName && !orgMap[teamName]) {
-        orgMap[teamName] = { name:teamName, families:new Set(), sports:new Set(), platform:e.platform };
-      }
-    }
-  });
-
-  const orgs = Object.values(orgMap).sort((a,b)=>b.families.size-a.families.size);
+  const orgs = Object.values(orgMap).sort(function(a,b){ return b.families.size-a.families.size; });
   document.getElementById('orgs-count').textContent = orgs.length;
 
   const sportEmojis = {baseball:'⚾',hockey:'🏒',soccer:'⚽',basketball:'🏀',football:'🏈',lacrosse:'🥍',wrestling:'🤼',swimming:'🏊',volleyball:'🏐',softball:'🥎'};
 
-  document.getElementById('orgs-grid').innerHTML = orgs.length ? orgs.map(org=>{
+  document.getElementById('orgs-grid').innerHTML = orgs.length ? orgs.map(function(org){
     const sport = [...org.sports][0]?.toLowerCase()||'';
     const emoji = sportEmojis[sport] || '🏅';
-    return `
-      <div class="org-card">
-        <div class="org-icon">${emoji}</div>
-        <div style="flex:1;min-width:0">
-          <div class="org-name">${org.name}</div>
-          <div class="org-meta">${[...org.sports].join(', ')||'Unknown sport'} · ${org.platform||'Unknown platform'}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="org-count">${org.families.size}</div>
-          <div class="org-count-label">familie${org.families.size===1?'y':'s'}</div>
-        </div>
-      </div>`;
+    const aliasHtml = org.aliases.size ? '<div class="org-alias">Also: '+[...org.aliases].join(', ')+'</div>' : '';
+    return '<div class="org-card">' +
+      '<div class="org-icon">'+emoji+'</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="org-name">'+org.name+'</div>' +
+        '<div class="org-meta">'+([...org.sports].join(', ')||'Unknown sport')+' · '+(org.platform||'unknown')+'</div>' +
+        aliasHtml +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+        '<div class="org-count">'+org.families.size+'</div>' +
+        '<div class="org-count-label">famil'+(org.families.size===1?'y':'ies')+'</div>' +
+      '</div>' +
+    '</div>';
   }).join('') : '<div class="empty">No organizations yet</div>';
 }
 
 // ── FAMILIES TABLE ─────────────────────────────────────────
-function renderFamilies(feeds) {
+function renderFamilies(feeds, pushSubs, members) {
+  const pushEmails = new Set((pushSubs||[]).map(function(p){ return p.email; }));
+  const membersByFamily = {};
+  (members||[]).forEach(function(m){
+    if (!membersByFamily[m.family_email]) membersByFamily[m.family_email] = [];
+    membersByFamily[m.family_email].push(m);
+  });
   const familyMap = {};
-  feeds.filter(f=>f.status!=='cancelled').forEach(f=>{
-    if(!familyMap[f.email]) familyMap[f.email] = {
-      family_name:f.family_name, email:f.email, phone:f.phone,
-      kids:new Set(), sports:new Set(), status:f.status, created_at:f.created_at, feeds:0
-    };
+  feeds.filter(function(f){ return f.status!=='cancelled'; }).forEach(function(f){
+    if(!familyMap[f.email]) familyMap[f.email]={family_name:f.family_name,email:f.email,phone:f.phone,kids:new Set(),sports:new Set(),status:f.status,created_at:f.created_at,feeds:0};
     familyMap[f.email].kids.add(f.kid_name);
-    if(f.sport) f.sport.split(',').forEach(s=>familyMap[f.email].sports.add(s.trim()));
+    if(f.sport) f.sport.split(',').forEach(function(s){ familyMap[f.email].sports.add(s.trim()); });
     if(f.is_active) familyMap[f.email].feeds++;
   });
 
-  const families = Object.values(familyMap).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const families = Object.values(familyMap).sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
   document.getElementById('active-count').textContent = families.length;
 
-  document.getElementById('families-tbody').innerHTML = families.length ? families.map(f=>`
-    <tr>
-      <td>
-        <div class="td-name">${f.family_name||'—'}</div>
-        <div class="td-email">${f.email}</div>
-        <div class="td-email">${f.phone||'No phone'}</div>
-      </td>
-      <td>${[...f.kids].join(', ')||'—'}</td>
-      <td>${[...f.sports].map(s=>`<span class="badge badge-sport">${s}</span>`).join('')||'—'}</td>
-      <td><span class="badge ${f.status==='active'?'badge-active':'badge-trial'}">${f.status||'trial'}</span></td>
-      <td>${f.created_at ? new Date(f.created_at).toLocaleDateString() : '—'}</td>
-      <td>${f.feeds} active</td>
-    </tr>`).join('') : '<tr><td colspan="6" class="empty">No active families yet</td></tr>';
+  document.getElementById('families-tbody').innerHTML = families.length ? families.map(function(f){
+    const hasPush = pushEmails.has(f.email);
+    return '<tr>' +
+      '<td><div class="td-name">'+f.family_name+'</div><div class="td-email">'+f.email+'</div><div class="td-email">'+(f.phone||'No phone')+'</div></td>' +
+      '<td>'+[...f.kids].join(', ')+'</td>' +
+      '<td>'+[...f.sports].map(function(s){ return '<span class="badge badge-sport">'+s+'</span>'; }).join('')+'</td>' +
+      '<td><span class="badge '+(f.status==='active'?'badge-active':'badge-trial')+'">'+(f.status||'trial')+'</span></td>' +
+      '<td>'+(f.created_at?new Date(f.created_at).toLocaleDateString():'—')+'</td>' +
+      '<td>'+f.feeds+' active</td>' +
+      '<td>' +
+        (hasPush ? '<button class="btn-push" onclick="testPush(\''+f.email+'\',\''+f.family_name+'\')">🔔 Test Push</button>' : '<span style="font-size:11px;color:#444">No push</span>') +
+      '</td>' +
+    '</tr>';
+  }).join('') : '<tr><td colspan="8" class="empty">No active families yet</td></tr>';
 }
 
 // ── CHURN TABLE ────────────────────────────────────────────
 function renderChurn(feeds) {
   const churnMap = {};
-  feeds.filter(f=>f.status==='cancelled').forEach(f=>{
-    if(!churnMap[f.email]) churnMap[f.email] = {
-      family_name:f.family_name, email:f.email,
-      cancelled_at:f.cancelled_at, kids:new Set(), sports:new Set()
-    };
+  feeds.filter(function(f){ return f.status==='cancelled'; }).forEach(function(f){
+    if(!churnMap[f.email]) churnMap[f.email]={family_name:f.family_name,email:f.email,cancelled_at:f.cancelled_at,kids:new Set(),sports:new Set()};
     churnMap[f.email].kids.add(f.kid_name);
-    if(f.sport) f.sport.split(',').forEach(s=>churnMap[f.email].sports.add(s.trim()));
+    if(f.sport) f.sport.split(',').forEach(function(s){ churnMap[f.email].sports.add(s.trim()); });
   });
 
-  const churned = Object.values(churnMap).sort((a,b)=>new Date(b.cancelled_at)-new Date(a.cancelled_at));
+  const churned = Object.values(churnMap).sort(function(a,b){ return new Date(b.cancelled_at)-new Date(a.cancelled_at); });
   document.getElementById('churn-count').textContent = churned.length;
 
   if(!churned.length) {
@@ -513,43 +663,36 @@ function renderChurn(feeds) {
     return;
   }
 
-  document.getElementById('churn-tbody').innerHTML = churned.map((f,i)=>`
-    <tr>
-      <td>
-        <div class="td-name">${f.family_name||'—'}</div>
-      </td>
-      <td><div class="td-email">${f.email}</div></td>
-      <td>${f.cancelled_at ? new Date(f.cancelled_at).toLocaleDateString() : 'Unknown'}</td>
-      <td>${[...f.kids].join(', ')} — ${[...f.sports].join(', ')||'—'}</td>
-      <td><textarea class="churn-notes" id="notes-${i}" rows="2" placeholder="Add follow-up notes...">${getNote(f.email)}</textarea></td>
-      <td>
-        <button class="btn-followup" onclick="followUp('${f.email}','${f.family_name||''}')">✉️ Email</button>
-      </td>
-    </tr>`).join('');
+  document.getElementById('churn-tbody').innerHTML = churned.map(function(f,i){
+    return '<tr>' +
+      '<td><div class="td-name">'+(f.family_name||'—')+'</div></td>' +
+      '<td><div class="td-email">'+f.email+'</div></td>' +
+      '<td>'+(f.cancelled_at?new Date(f.cancelled_at).toLocaleDateString():'Unknown')+'</td>' +
+      '<td>'+[...f.kids].join(', ')+' — '+([...f.sports].join(', ')||'—')+'</td>' +
+      '<td><textarea class="churn-notes" id="notes-'+i+'" rows="2" placeholder="Add follow-up notes...">'+getNote(f.email)+'</textarea></td>' +
+      '<td><button class="btn-followup" onclick="followUp(\''+f.email+'\',\''+f.family_name+'\')">✉️ Email</button></td>' +
+    '</tr>';
+  }).join('');
 }
 
-function getNote(email) {
-  return localStorage.getItem(`churn_note_${email}`) || '';
-}
-function saveNote(email, i) {
-  const val = document.getElementById(`notes-${i}`)?.value || '';
-  localStorage.setItem(`churn_note_${email}`, val);
-}
-
+function getNote(email) { return localStorage.getItem('churn_note_'+email)||''; }
 function followUp(email, name) {
-  const subject = encodeURIComponent(`We miss you, ${name||'HomeHuddle family'}!`);
-  const body = encodeURIComponent(`Hi ${name||'there'},\n\nWe noticed you recently cancelled your HomeHuddle subscription. We'd love to hear your feedback and see if there's anything we can do to bring you back.\n\nHomeHuddle is just $4.95/month for your whole family — all kids, all sports, all season.\n\nIf you'd like to re-activate, just visit venuewise.net/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise`);
-  window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+  const subject = encodeURIComponent('We miss you, '+(name||'HomeHuddle family')+'!');
+  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback and see if there\'s anything we can do to bring you back.\n\nHomeHuddle is just $4.95/month for your whole family — all kids, all sports, all season.\n\nIf you\'d like to re-activate, just visit venuewise.net/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
+  window.open('mailto:'+email+'?subject='+subject+'&body='+body);
 }
 
-// Save notes on blur
-document.addEventListener('blur', e => {
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+document.addEventListener('blur', function(e) {
   if(e.target.classList.contains('churn-notes')) {
-    const i = e.target.id.replace('notes-','');
-    // find email from row
     const row = e.target.closest('tr');
     const emailEl = row?.querySelector('.td-email');
-    if(emailEl) localStorage.setItem(`churn_note_${emailEl.textContent}`, e.target.value);
+    if(emailEl) localStorage.setItem('churn_note_'+emailEl.textContent, e.target.value);
   }
 }, true);
 </script>
