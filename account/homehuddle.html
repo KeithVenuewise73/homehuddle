@@ -83,7 +83,6 @@
     .save-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--gray-200);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transform:translateY(100%);transition:transform 0.25s;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,0.06)}
     .save-bar.visible{transform:translateY(0)}
     .save-bar-msg{font-size:13px;color:var(--gray-400)}
-    /* Share message */
     .share-message-box{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--gray-700);line-height:1.6;margin-bottom:0.75rem;white-space:pre-wrap;font-family:'DM Sans',sans-serif}
     .copy-share-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:none;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--green);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
     .copy-share-btn:hover{background:var(--green-light);border-color:var(--green)}
@@ -209,6 +208,7 @@
     <!-- KIDS & SCHEDULES -->
     <div class="card">
       <div class="card-title">🏃 Kids & Schedules</div>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.6">Add iCal feeds from GameChanger, TeamSnap, or any other scheduling platform. Each kid can have multiple teams.</p>
       <div id="kid-list"></div>
       <button class="add-dashed" onclick="addKid()">+ Add another kid</button>
     </div>
@@ -304,29 +304,29 @@ let isDirty = false;
 let shareMsg = '';
 
 async function sbFetch(path, opts={}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
     ...opts,
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', ...(opts.headers||{}) }
   });
   if (!res.ok && res.status !== 204) throw new Error(await res.text());
   return res.status === 204 ? null : res.json();
 }
 
 function pinNav(prefix, i) {
-  const v = document.getElementById(`${prefix}${i}`).value;
-  if (!/^\d$/.test(v)) { document.getElementById(`${prefix}${i}`).value=''; return; }
-  if (i < 3) document.getElementById(`${prefix}${i+1}`).focus();
+  const v = document.getElementById(prefix+i).value;
+  if (!/^\d$/.test(v)) { document.getElementById(prefix+i).value=''; return; }
+  if (i < 3) document.getElementById(prefix+(i+1)).focus();
   if (prefix==='p' && i===3) verifyPin();
 }
 function pinBack(prefix, i, e) {
-  if (e.key==='Backspace' && !document.getElementById(`${prefix}${i}`).value && i>0)
-    document.getElementById(`${prefix}${i-1}`).focus();
+  if (e.key==='Backspace' && !document.getElementById(prefix+i).value && i>0)
+    document.getElementById(prefix+(i-1)).focus();
 }
-function getPin(prefix) { return [0,1,2,3].map(i=>document.getElementById(`${prefix}${i}`).value).join(''); }
-function clearPin(prefix) { [0,1,2,3].forEach(i=>{ document.getElementById(`${prefix}${i}`).value=''; }); }
+function getPin(prefix) { return [0,1,2,3].map(function(i){ return document.getElementById(prefix+i).value; }).join(''); }
+function clearPin(prefix) { [0,1,2,3].forEach(function(i){ document.getElementById(prefix+i).value=''; }); }
 
 function showStep(id) {
-  document.querySelectorAll('.login-step').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.login-step').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
 }
 
@@ -335,17 +335,17 @@ async function submitEmail() {
   if (!email) return showErr('email-error','Please enter your email address.');
   hideErr('email-error');
   try {
-    const feeds = await sbFetch(`feeds?email=eq.${encodeURIComponent(email)}&select=*&limit=20`);
+    const feeds = await sbFetch('feeds?email=eq.'+encodeURIComponent(email)+'&select=*&limit=20');
     if (!feeds.length) return showErr('email-error','No account found. <a href="/join.html" style="color:var(--red)">Sign up free →</a>');
     currentEmail = email; currentFeeds = feeds;
     const hasPIN = feeds[0].pin && feeds[0].pin.trim().length >= 4;
     if (hasPIN) {
-      document.getElementById('pin-prompt').textContent = `Welcome back, ${feeds[0].family_name||email}! Enter your 4-digit PIN.`;
+      document.getElementById('pin-prompt').textContent = 'Welcome back, '+(feeds[0].family_name||email)+'! Enter your 4-digit PIN.';
       showStep('step-pin');
-      setTimeout(()=>document.getElementById('p0').focus(),100);
+      setTimeout(function(){ document.getElementById('p0').focus(); },100);
     } else {
       showStep('step-set-pin');
-      setTimeout(()=>document.getElementById('sp0').focus(),100);
+      setTimeout(function(){ document.getElementById('sp0').focus(); },100);
     }
   } catch(e) { showErr('email-error','Error looking up account. Please try again.'); }
 }
@@ -364,8 +364,8 @@ async function saveNewPin() {
   const pin = getPin('sp');
   if (!/^\d{4}$/.test(pin)) return showErr('set-pin-error','Please enter all 4 digits.');
   hideErr('set-pin-error');
-  await sbFetch(`feeds?email=eq.${encodeURIComponent(currentEmail)}`, { method:'PATCH', body: JSON.stringify({pin}) });
-  currentFeeds = currentFeeds.map(f=>({...f, pin}));
+  await sbFetch('feeds?email=eq.'+encodeURIComponent(currentEmail), { method:'PATCH', body: JSON.stringify({pin}) });
+  currentFeeds = currentFeeds.map(function(f){ return Object.assign({},f,{pin}); });
   enterAccount();
 }
 
@@ -373,13 +373,13 @@ async function forgotPin(e) {
   e.preventDefault();
   if (!currentEmail) return showStep('step-email');
   try {
-    await fetch(`${SUPABASE_URL}/functions/v1/smart-task`, {
+    await fetch(SUPABASE_URL+'/functions/v1/smart-task', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
       body: JSON.stringify({ email: currentEmail })
     });
   } catch(err) { console.error(err); }
-  document.getElementById('reset-msg').textContent = `A PIN reset code has been sent to ${currentEmail}. Use it as your PIN to log in, then change it once you're in.`;
+  document.getElementById('reset-msg').textContent = 'A PIN reset code has been sent to '+currentEmail+'. Use it as your PIN to log in, then change it once you\'re in.';
   showStep('step-reset-sent');
 }
 
@@ -406,7 +406,7 @@ function loadAccount() {
   document.getElementById('f-family-name').value = f.family_name||'';
   document.getElementById('f-email').value = f.email||'';
   document.getElementById('f-phone').value = f.phone||'';
-  document.getElementById('account-subtitle').textContent = `Managing ${f.family_name||'your family'}'s HomeHuddle settings`;
+  document.getElementById('account-subtitle').textContent = 'Managing '+(f.family_name||'your family')+'\'s HomeHuddle settings';
   buildShareMessage();
   renderKids();
   renderMembers();
@@ -415,43 +415,39 @@ function loadAccount() {
 function buildShareMessage() {
   const f = currentFeeds[0];
   const fname = (f.family_name||'').replace(/ Family$/i,'') || 'Our family';
-  const calUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(currentEmail)}`;
-
-  // Get unique kids and their sports
+  const calUrl = 'https://venuewise.net/calendar.html?email='+encodeURIComponent(currentEmail);
   const kidMap = {};
-  currentFeeds.forEach(feed => {
+  currentFeeds.forEach(function(feed) {
     if (!kidMap[feed.kid_name]) kidMap[feed.kid_name] = { sports: new Set(), teams: [] };
-    if (feed.sport) feed.sport.split(',').forEach(s => kidMap[feed.kid_name].sports.add(s.trim()));
+    if (feed.sport) feed.sport.split(',').forEach(function(s){ kidMap[feed.kid_name].sports.add(s.trim()); });
     if (feed.team_name) kidMap[feed.kid_name].teams.push(feed.team_name);
   });
-
-  const kidDescriptions = Object.entries(kidMap).map(([name, data]) => {
+  const kidDescriptions = Object.entries(kidMap).map(function(entry) {
+    const name = entry[0], data = entry[1];
     const sports = [...data.sports].join(' & ') || 'sports';
-    const team = data.teams.length ? ` (${data.teams[0]})` : '';
-    return `${name}'s ${sports}${team}`;
+    const team = data.teams.length ? ' ('+data.teams[0]+')' : '';
+    return name+"'s "+sports+team;
   });
-
   let kidText = '';
   if (kidDescriptions.length === 1) kidText = kidDescriptions[0];
-  else if (kidDescriptions.length === 2) kidText = `${kidDescriptions[0]} and ${kidDescriptions[1]}`;
-  else kidText = kidDescriptions.slice(0,-1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length-1];
-
-  shareMsg = `Hey! I'm using HomeHuddle to share ${kidText} schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n${calUrl}\n\nOnce you open it, tap "Enable notifications" to get alerts when games are added or times change. 🏅`;
+  else if (kidDescriptions.length === 2) kidText = kidDescriptions[0]+' and '+kidDescriptions[1];
+  else kidText = kidDescriptions.slice(0,-1).join(', ')+', and '+kidDescriptions[kidDescriptions.length-1];
+  shareMsg = "Hey! I'm using HomeHuddle to share "+kidText+" schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n"+calUrl+"\n\nOnce you open it, tap \"Enable notifications\" to get alerts when games are added or times change. 🏅";
   document.getElementById('share-message-box').textContent = shareMsg;
 }
 
 function copyShareMsg() {
-  navigator.clipboard.writeText(shareMsg).then(() => {
+  navigator.clipboard.writeText(shareMsg).then(function() {
     const btn = document.getElementById('copy-share-btn');
     btn.textContent = '✅ Copied! Paste it in a text message';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
-  }).catch(() => {
+    setTimeout(function(){ btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+  }).catch(function() {
     const el = document.createElement('textarea');
     el.value = shareMsg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
     const btn = document.getElementById('copy-share-btn');
     btn.textContent = '✅ Copied!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+    setTimeout(function(){ btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
   });
 }
 
@@ -459,109 +455,109 @@ function renderKids() {
   const list = document.getElementById('kid-list');
   list.innerHTML = '';
   const kidMap = {};
-  currentFeeds.forEach(f => {
+  currentFeeds.forEach(function(f) {
     if (!kidMap[f.kid_name]) kidMap[f.kid_name] = [];
     kidMap[f.kid_name].push(f);
   });
-  Object.entries(kidMap).forEach(([kidName, feeds]) => {
+  Object.entries(kidMap).forEach(function(entry) {
+    const kidName = entry[0], feeds = entry[1];
     const div = document.createElement('div');
     div.className = 'kid-row';
-    const sports = [...new Set(feeds.map(f=>f.sport).filter(Boolean))].join(', ');
-    div.innerHTML = `
-      <div class="kid-row-header">
-        <div class="kid-name-label">
-          🏅
-          <input type="text" value="${kidName}" placeholder="Kid's name"
-            style="border:none;outline:none;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;min-width:80px;width:auto"
-            oninput="renameKid('${kidName}',this);markDirty()"/>
-          ${sports?`<span class="sport-tag">${sports}</span>`:''}
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="removeKid('${kidName}')">Remove</button>
-      </div>
-      <div id="feeds-${kidName.replace(/\s/g,'_')}">
-        ${feeds.map((feed,fi)=>feedRow(kidName,fi,feed,feeds.length>1)).join('')}
-      </div>
-      <button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="addTeam('${kidName}')">+ Add another team</button>
-    `;
+    const sports = [...new Set(feeds.map(function(f){ return f.sport; }).filter(Boolean))].join(', ');
+    const kidId = kidName.replace(/\s/g,'_');
+    div.innerHTML =
+      '<div class="kid-row-header">' +
+        '<div class="kid-name-label">' +
+          '🏅 ' +
+          '<input type="text" value="'+esc(kidName)+'" placeholder="Kid\'s name" ' +
+            'style="border:none;outline:none;font-size:14px;font-weight:600;font-family:\'DM Sans\',sans-serif;background:transparent;min-width:80px;width:auto" ' +
+            'oninput="renameKid(\''+esc(kidName)+'\',this);markDirty()"/>' +
+          (sports ? '<span class="sport-tag">'+esc(sports)+'</span>' : '') +
+        '</div>' +
+        '<button class="btn btn-danger btn-sm" onclick="removeKid(\''+esc(kidName)+'\')">Remove</button>' +
+      '</div>' +
+      '<div id="feeds-'+kidId+'">'+
+        feeds.map(function(feed, fi){ return feedRow(kidName, fi, feed, feeds.length > 1); }).join('') +
+      '</div>' +
+      '<button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="addTeam(\''+esc(kidName)+'\')">+ Add another team / iCal feed</button>';
     list.appendChild(div);
   });
 }
 
 function feedRow(kidName, fi, feed, removable) {
-  return `
-    <div class="feed-grid" data-kid="${kidName}" data-fi="${fi}">
-      <div class="field"><label>Sport</label><input type="text" value="${feed.sport||''}" placeholder="Baseball" data-kid="${kidName}" data-fi="${fi}" data-col="sport" oninput="updateFeed(this);markDirty()"/></div>
-      <div class="field"><label>Platform</label>
-        <select data-kid="${kidName}" data-fi="${fi}" data-col="platform" onchange="updateFeed(this);markDirty()">
-          <option value="gamechanger" ${feed.platform==='gamechanger'?'selected':''}>GameChanger</option>
-          <option value="teamsnap" ${feed.platform==='teamsnap'?'selected':''}>TeamSnap</option>
-          <option value="leagueapps" ${feed.platform==='leagueapps'?'selected':''}>LeagueApps</option>
-          <option value="other" ${feed.platform==='other'?'selected':''}>Other</option>
-        </select>
-      </div>
-      <div class="field"><label>iCal URL</label><input type="url" value="${feed.ical_url||''}" placeholder="https://..." data-kid="${kidName}" data-fi="${fi}" data-col="ical_url" oninput="updateFeed(this);markDirty()"/></div>
-      ${removable?`<button class="btn btn-danger btn-sm" style="margin-bottom:1px" onclick="removeFeed('${kidName}',${fi})">✕</button>`:'<div></div>'}
-    </div>`;
+  return '<div class="feed-grid" data-kid="'+esc(kidName)+'" data-fi="'+fi+'">' +
+    '<div class="field"><label>Sport</label><input type="text" value="'+esc(feed.sport||'')+'" placeholder="Baseball" data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="sport" oninput="updateFeed(this);markDirty()"/></div>' +
+    '<div class="field"><label>Platform</label>' +
+      '<select data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="platform" onchange="updateFeed(this);markDirty()">' +
+        '<option value="gamechanger"'+(feed.platform==='gamechanger'?' selected':'')+'>GameChanger</option>' +
+        '<option value="teamsnap"'+(feed.platform==='teamsnap'?' selected':'')+'>TeamSnap</option>' +
+        '<option value="leagueapps"'+(feed.platform==='leagueapps'?' selected':'')+'>LeagueApps</option>' +
+        '<option value="other"'+(feed.platform==='other'?' selected':'')+'>Other</option>' +
+      '</select>' +
+    '</div>' +
+    '<div class="field"><label>iCal URL</label><input type="url" value="'+esc(feed.ical_url||'')+'" placeholder="https://..." data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="ical_url" oninput="updateFeed(this);markDirty()"/></div>' +
+    (removable ? '<button class="btn btn-danger btn-sm" style="margin-bottom:1px" onclick="removeFeed(\''+esc(kidName)+'\','+fi+')">✕</button>' : '<div></div>') +
+  '</div>';
 }
+
+function esc(s) { return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
 
 function updateFeed(el) {
   const kid=el.dataset.kid, fi=parseInt(el.dataset.fi), col=el.dataset.col;
-  const kidFeeds=currentFeeds.filter(f=>f.kid_name===kid);
+  const kidFeeds=currentFeeds.filter(function(f){ return f.kid_name===kid; });
   if (kidFeeds[fi]) kidFeeds[fi][col]=el.value;
 }
-function renameKid(oldName, inp) { currentFeeds.filter(f=>f.kid_name===oldName).forEach(f=>f.kid_name=inp.value); }
+function renameKid(oldName, inp) {
+  currentFeeds.filter(function(f){ return f.kid_name===oldName; }).forEach(function(f){ f.kid_name=inp.value; });
+}
 function removeKid(kidName) {
-  if (!confirm(`Remove ${kidName} and all their schedules?`)) return;
-  currentFeeds=currentFeeds.filter(f=>f.kid_name!==kidName); renderKids(); markDirty();
+  if (!confirm('Remove '+kidName+' and all their schedules?')) return;
+  currentFeeds=currentFeeds.filter(function(f){ return f.kid_name!==kidName; }); renderKids(); markDirty();
 }
 function addTeam(kidName) {
-  const ref=currentFeeds.find(f=>f.kid_name===kidName);
-  currentFeeds.push({...ref, id:null, sport:'', ical_url:'', platform:'gamechanger', team_name:''});
+  const ref=currentFeeds.find(function(f){ return f.kid_name===kidName; });
+  currentFeeds.push(Object.assign({},ref,{id:null,sport:'',ical_url:'',platform:'gamechanger',team_name:''}));
   renderKids(); markDirty();
 }
 function addKid() {
   const ref=currentFeeds[0];
-  currentFeeds.push({...ref, id:null, kid_name:'', sport:'', ical_url:'', platform:'gamechanger', team_name:''});
+  currentFeeds.push(Object.assign({},ref,{id:null,kid_name:'New Kid',sport:'',ical_url:'',platform:'gamechanger',team_name:''}));
   renderKids(); markDirty();
 }
 function removeFeed(kidName, fi) {
-  const kidFeeds=currentFeeds.filter(f=>f.kid_name===kidName);
+  const kidFeeds=currentFeeds.filter(function(f){ return f.kid_name===kidName; });
   if (kidFeeds.length<=1) return alert('Use "Remove" to remove the whole kid.');
   const feed=kidFeeds[fi];
-  currentFeeds=currentFeeds.filter(f=>f!==feed); renderKids(); markDirty();
+  currentFeeds=currentFeeds.filter(function(f){ return f!==feed; }); renderKids(); markDirty();
 }
 
-// ── FAMILY MEMBERS (Supabase) ─────────────────────────────
+// ── FAMILY MEMBERS ────────────────────────────────────────
 async function renderMembers() {
   const list = document.getElementById('user-list');
   list.innerHTML = '';
   const f = currentFeeds[0];
-
-  // Owner row
   const ownerDiv = document.createElement('div');
   ownerDiv.className = 'user-row';
-  ownerDiv.innerHTML = `
-    <div class="user-avatar">${(f.family_name||'?')[0].toUpperCase()}</div>
-    <div class="user-info">
-      <div class="user-name">${f.family_name||'Account owner'}</div>
-      <div class="user-meta">${f.email}${f.phone?' · '+f.phone:''}</div>
-    </div>
-    <span class="tag tag-owner">Owner</span>`;
+  ownerDiv.innerHTML =
+    '<div class="user-avatar">'+(f.family_name||'?')[0].toUpperCase()+'</div>' +
+    '<div class="user-info">' +
+      '<div class="user-name">'+(f.family_name||'Account owner')+'</div>' +
+      '<div class="user-meta">'+f.email+(f.phone?' · '+f.phone:'')+'</div>' +
+    '</div>' +
+    '<span class="tag tag-owner">Owner</span>';
   list.appendChild(ownerDiv);
-
-  // Load from Supabase
   try {
-    familyMembers = await sbFetch(`family_members?family_email=eq.${encodeURIComponent(currentEmail)}&order=created_at.asc`);
-    familyMembers.forEach((m,i) => {
+    familyMembers = await sbFetch('family_members?family_email=eq.'+encodeURIComponent(currentEmail)+'&order=created_at.asc');
+    familyMembers.forEach(function(m) {
       const row = document.createElement('div');
       row.className = 'user-row';
-      row.innerHTML = `
-        <div class="user-avatar">${m.name[0].toUpperCase()}</div>
-        <div class="user-info">
-          <div class="user-name">${m.name}</div>
-          <div class="user-meta">${m.phone||''}${m.phone&&m.role?' · ':''}${m.role||''}</div>
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="removeMember('${m.id}')">Remove</button>`;
+      row.innerHTML =
+        '<div class="user-avatar">'+m.name[0].toUpperCase()+'</div>' +
+        '<div class="user-info">' +
+          '<div class="user-name">'+esc(m.name)+'</div>' +
+          '<div class="user-meta">'+(m.phone||'')+(m.phone&&m.role?' · ':'')+(m.role||'')+'</div>' +
+        '</div>' +
+        '<button class="btn btn-danger btn-sm" onclick="removeMember(\''+m.id+'\')">Remove</button>';
       list.appendChild(row);
     });
   } catch(e) { console.error('Error loading family members:', e); }
@@ -585,7 +581,6 @@ async function confirmAddMember() {
   const role=document.getElementById('new-role').value;
   const email=document.getElementById('new-email').value.trim();
   if (!name||!phone) return alert('Please enter a name and phone number.');
-
   try {
     await sbFetch('family_members', {
       method:'POST',
@@ -600,7 +595,7 @@ async function confirmAddMember() {
 async function removeMember(id) {
   if (!confirm('Remove this family member?')) return;
   try {
-    await sbFetch(`family_members?id=eq.${id}`, { method:'DELETE' });
+    await sbFetch('family_members?id=eq.'+id, { method:'DELETE' });
     renderMembers();
   } catch(e) { alert('Error removing family member.'); }
 }
@@ -610,28 +605,64 @@ async function saveChangedPin() {
   const pin=getPin('cp');
   if (!/^\d{4}$/.test(pin)) return showErr('pin-error-acct','Please enter all 4 digits.');
   hideErr('pin-error-acct');
-  await sbFetch(`feeds?email=eq.${encodeURIComponent(currentEmail)}`,{method:'PATCH',body:JSON.stringify({pin})});
-  currentFeeds=currentFeeds.map(f=>({...f,pin}));
-  clearPin('cp'); showAlert('pin-success'); setTimeout(()=>hideAlert('pin-success'),3000);
+  await sbFetch('feeds?email=eq.'+encodeURIComponent(currentEmail),{method:'PATCH',body:JSON.stringify({pin})});
+  currentFeeds=currentFeeds.map(function(f){ return Object.assign({},f,{pin}); });
+  clearPin('cp'); showAlert('pin-success'); setTimeout(function(){ hideAlert('pin-success'); },3000);
 }
 
-// ── SAVE CHANGES ──────────────────────────────────────────
+// ── SAVE CHANGES (fixed: inserts new feeds, patches existing) ─
 function markDirty() { isDirty=true; document.getElementById('save-bar').classList.add('visible'); }
 function hideSaveBar() { isDirty=false; document.getElementById('save-bar').classList.remove('visible'); }
-function discardChanges() { loadAccount(); hideSaveBar(); }
+function discardChanges() {
+  // Reload from scratch to reset any in-memory new feeds
+  sbFetch('feeds?email=eq.'+encodeURIComponent(currentEmail)+'&select=*&limit=20').then(function(feeds){
+    currentFeeds = feeds;
+    loadAccount();
+    hideSaveBar();
+  }).catch(function(){ hideSaveBar(); });
+}
 
 async function saveChanges() {
   const familyName=document.getElementById('f-family-name').value.trim();
   const phone=document.getElementById('f-phone').value.trim();
-  await sbFetch(`feeds?email=eq.${encodeURIComponent(currentEmail)}`,{method:'PATCH',body:JSON.stringify({family_name:familyName,phone})});
+
+  // Update contact info on all existing feeds
+  await sbFetch('feeds?email=eq.'+encodeURIComponent(currentEmail),{method:'PATCH',body:JSON.stringify({family_name:familyName,phone})});
+
   for (const feed of currentFeeds) {
     if (feed.id) {
-      await sbFetch(`feeds?id=eq.${feed.id}`,{method:'PATCH',body:JSON.stringify({kid_name:feed.kid_name,sport:feed.sport,platform:feed.platform,ical_url:feed.ical_url})});
+      // Update existing feed row
+      await sbFetch('feeds?id=eq.'+feed.id,{method:'PATCH',body:JSON.stringify({
+        kid_name: feed.kid_name,
+        sport: feed.sport,
+        platform: feed.platform,
+        ical_url: feed.ical_url
+      })});
+    } else if (feed.ical_url && feed.kid_name) {
+      // INSERT new feed row — was missing before, this is the bug fix
+      const newFeed = await sbFetch('feeds',{
+        method:'POST',
+        headers:{'Prefer':'return=representation'},
+        body:JSON.stringify({
+          email: currentEmail,
+          family_name: familyName,
+          phone: phone,
+          kid_name: feed.kid_name,
+          sport: feed.sport || '',
+          platform: feed.platform || 'gamechanger',
+          ical_url: feed.ical_url,
+          is_active: true,
+          pin: currentFeeds.find(function(f){ return f.pin; })?.pin || ''
+        })
+      });
+      // Assign the new id so subsequent saves patch instead of re-insert
+      if (newFeed && newFeed[0]) feed.id = newFeed[0].id;
     }
   }
+
   hideSaveBar();
-  showAlert('global-success','Changes saved successfully!');
-  setTimeout(()=>hideAlert('global-success'),3000);
+  showAlert('global-success','Changes saved! New feeds will sync within 30 minutes.');
+  setTimeout(function(){ hideAlert('global-success'); },4000);
   document.getElementById('nav-user-label').textContent=familyName||currentEmail;
   buildShareMessage();
 }
@@ -641,12 +672,12 @@ function confirmCancel() {
     alert("Please email hello@venuewise.net to cancel your account and we'll take care of it right away.");
 }
 
-function showErr(id,msg){const el=document.getElementById(id);el.innerHTML=msg;el.classList.add('show')}
-function hideErr(id){document.getElementById(id).classList.remove('show')}
-function showAlert(id,msg){const el=document.getElementById(id);if(msg)el.textContent=msg;el.classList.add('show')}
-function hideAlert(id){document.getElementById(id).classList.remove('show')}
+function showErr(id,msg){const el=document.getElementById(id);el.innerHTML=msg;el.classList.add('show');}
+function hideErr(id){document.getElementById(id).classList.remove('show');}
+function showAlert(id,msg){const el=document.getElementById(id);if(msg)el.textContent=msg;el.classList.add('show');}
+function hideAlert(id){document.getElementById(id).classList.remove('show');}
 
-document.addEventListener('keydown',e=>{
+document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&document.querySelector('#step-email.active')) submitEmail();
 });
 </script>
