@@ -32,6 +32,9 @@
     .sdot.err{background:#EF4444;animation:none}
     .sdot.spin{background:var(--gold)}
     @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
+    #notifBanner{display:none;background:rgba(79,70,229,0.15);border-bottom:1px solid rgba(79,70,229,0.3);padding:10px 20px;text-align:center}
+    #notifBtn{background:#4f46e5;color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px}
+    #notifBtn:hover{background:#4338ca}
     #reminderBanners{position:-webkit-sticky;position:sticky;top:var(--header-h,73px);z-index:250;display:none}
     .rbanner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);animation:slideDown 0.25s ease}
     .rbanner:last-child{border-bottom:none}
@@ -187,6 +190,11 @@
   </div>
 </header>
 
+<!-- NOTIFICATION BANNER — shown only when permission not yet granted -->
+<div id="notifBanner">
+  <button id="notifBtn" onclick="requestNotifPermission()">🔔 Enable Game Notifications</button>
+</div>
+
 <div id="reminderBanners"></div>
 
 <div id="statsBar">
@@ -253,21 +261,25 @@ let isSyncing = false;
 // ── STICKY ────────────────────────────────────────────────
 function applySticky() {
   const hh = document.getElementById('siteHeader').getBoundingClientRect().height;
+  const nb = document.getElementById('notifBanner');
+  const nbH = (nb.style.display !== 'none') ? nb.getBoundingClientRect().height : 0;
   const rb = document.getElementById('reminderBanners');
   const rbH = (rb.style.display !== 'none') ? rb.getBoundingClientRect().height : 0;
   const sh = document.getElementById('statsBar').getBoundingClientRect().height;
   document.documentElement.style.setProperty('--header-h', hh + 'px');
-  rb.style.top = hh + 'px';
-  document.getElementById('statsBar').style.top = (hh + rbH) + 'px';
-  document.documentElement.style.setProperty('--header-stats-h', (hh + rbH + sh) + 'px');
-  document.getElementById('controls').style.top = (hh + rbH + sh) + 'px';
+  nb.style.top = hh + 'px';
+  rb.style.top = (hh + nbH) + 'px';
+  document.getElementById('statsBar').style.top = (hh + nbH + rbH) + 'px';
+  document.documentElement.style.setProperty('--header-stats-h', (hh + nbH + rbH + sh) + 'px');
+  document.getElementById('controls').style.top = (hh + nbH + rbH + sh) + 'px';
 }
 const sObs = new ResizeObserver(applySticky);
 sObs.observe(document.getElementById('siteHeader'));
 sObs.observe(document.getElementById('statsBar'));
 sObs.observe(document.getElementById('reminderBanners'));
+sObs.observe(document.getElementById('notifBanner'));
 applySticky();
-window.addEventListener('orientationchange', () => setTimeout(applySticky, 100));
+window.addEventListener('orientationchange', function() { setTimeout(applySticky, 100); });
 
 // ── MANUAL SYNC ───────────────────────────────────────────
 async function manualSync() {
@@ -278,12 +290,12 @@ async function manualSync() {
   setSync('spin', 'Syncing...');
 
   try {
-    await fetch(`${SURL}/functions/v1/sync-schedules`, {
+    await fetch(SURL + '/functions/v1/sync-schedules', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': SKEY,
-        'Authorization': `Bearer ${SKEY}`
+        'Authorization': 'Bearer ' + SKEY
       },
       body: JSON.stringify({ email: familyEmail || null })
     });
@@ -291,7 +303,7 @@ async function manualSync() {
     console.log('Sync function called (may be processing in background)');
   }
 
-  setTimeout(async () => {
+  setTimeout(async function() {
     await loadEvents(false);
     setSync('ok', 'Synced');
     showToast('Schedule synced — ' + allEvents.length + ' events loaded');
@@ -301,8 +313,6 @@ async function manualSync() {
 }
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────────
-// IMPORTANT: Replace the value below with your actual VAPID public key
-// Find it in Supabase → Edge Functions → Secrets → VAPID_PUBLIC_KEY
 const VAPID_PUBLIC = 'EKJUeAsR-r7LlfWI88pKcATtN07J9iAx6GBwuKCZT5N7GrzyxH3XYn_9H2FusaIv64NOwaeAs_ctuaCc90uFwA';
 
 function urlBase64ToUint8Array(base64String) {
@@ -322,41 +332,71 @@ async function savePushSub(sub) {
       keys: json.keys
     }, { onConflict: 'email,endpoint' });
     console.log('Push subscription saved for ' + familyEmail);
+    showToast('Notifications enabled!');
   } catch(e) {
     console.log('Could not save push subscription:', e);
   }
 }
 
-async function registerPush() {
+// Called on page load — sets up service worker and shows banner if needed
+async function initPush() {
   if (!familyEmail) return;
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.log('Push not supported on this browser');
     return;
   }
-  if (VAPID_PUBLIC === 'EKJUeAsR-r7LlfWI88pKcATtN07J9iAx6GBwuKCZT5N7GrzyxH3XYn_9H2FusaIv64NOwaeAs_ctuaCc90uFwA') {
-    console.log('VAPID public key not set — skipping push registration');
-    return;
-  }
   try {
     const reg = await navigator.serviceWorker.register('/sw.js');
     await navigator.serviceWorker.ready;
-    const existing = await reg.pushManager.getSubscription();
-    if (existing) {
-      await savePushSub(existing);
-      return;
+
+    const perm = Notification.permission;
+    if (perm === 'granted') {
+      // Already granted — make sure we have a subscription saved
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        await savePushSub(existing);
+      } else {
+        // Granted but no subscription yet — subscribe silently
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+        });
+        await savePushSub(sub);
+      }
+      document.getElementById('notifBanner').style.display = 'none';
+    } else if (perm === 'default') {
+      // Not yet asked — show the banner so user can tap to enable
+      document.getElementById('notifBanner').style.display = 'block';
+      applySticky();
+    } else {
+      // 'denied' — nothing we can do, keep banner hidden
+      document.getElementById('notifBanner').style.display = 'none';
     }
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      console.log('Notification permission denied');
-      return;
-    }
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
-    });
-    await savePushSub(sub);
   } catch(e) {
-    console.log('Push registration error:', e);
+    console.log('Push init error:', e);
+  }
+}
+
+// Called by the Enable Notifications button tap (user gesture — iOS requires this)
+async function requestNotifPermission() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      document.getElementById('notifBanner').style.display = 'none';
+      applySticky();
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+      await savePushSub(sub);
+    } else {
+      showToast('Notifications blocked — enable in Settings');
+    }
+  } catch(e) {
+    console.log('Permission request error:', e);
+    showToast('Could not enable notifications');
   }
 }
 
@@ -371,7 +411,7 @@ async function loadReminders() {
     const { data } = await sb.from('reminders').select('id,kid,message,event_time,event_name,dismissed')
       .eq('email', familyEmail).eq('event_date', today).eq('dismissed', false);
     if (!data) return;
-    renderBanners(data.filter(r => !dismissedIds.has(r.id)));
+    renderBanners(data.filter(function(r){ return !dismissedIds.has(r.id); }));
   } catch(e) {}
 }
 
@@ -389,16 +429,16 @@ function renderBanners(reminders) {
   const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#F5C518';
   const rgb = hexToRgb(gold);
   const tint = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.11)';
-  wrap.innerHTML = reminders.map(r =>
-    '<div class="rbanner" id="rbanner-' + r.id + '" style="background:' + tint + '">' +
+  wrap.innerHTML = reminders.map(function(r) {
+    return '<div class="rbanner" id="rbanner-' + r.id + '" style="background:' + tint + '">' +
       '<div class="rbanner-body">' +
         '<div class="rbanner-icon">' + bannerIcon(r.message) + '</div>' +
         '<div class="rbanner-text">' + esc(r.message) + '</div>' +
       '</div>' +
       (r.event_time ? '<div class="rbanner-time">' + esc(r.event_time) + '</div>' : '') +
       '<button class="rbanner-dismiss" onclick="dismissBanner(\'' + r.id + '\')" title="Dismiss">&times;</button>' +
-    '</div>'
-  ).join('');
+    '</div>';
+  }).join('');
   wrap.style.display = 'block';
   applySticky();
 }
@@ -708,8 +748,8 @@ loadEvents(false).then(function() {
 setInterval(function(){ loadEvents(false); }, REFRESH);
 setInterval(loadReminders, REFRESH);
 
-// Register push notifications after page is loaded
-setTimeout(registerPush, 2000);
+// Initialize push — shows banner if permission not yet granted
+initPush();
 </script>
 </body>
 </html>
