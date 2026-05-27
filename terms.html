@@ -3,146 +3,157 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Terms of Service · HomeHuddle by Venuewise</title>
+  <title>Terms of Service — HomeHuddle</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --navy:#0A1628;--navy-mid:#0F1F3D;--gold:#F5C518;
-      --white:#F0F4FF;--muted:#7A8FAD;--card-bg:#111D35;
-      --border:rgba(245,197,24,0.12);--radius:10px;
+      --navy:#0A1628;--navy-mid:#0F1F3D;--navy-light:#162444;
+      --gold:#F5C518;--gold-dim:#c49e10;
+      --white:#F0F4FF;--muted:#7A8FAD;
+      --card-bg:#111D35;--border:rgba(245,197,24,0.12);--radius:10px;
     }
-    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:4rem}
-
-    header{background:var(--navy);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
-    .hlogo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.04em;color:var(--white);text-decoration:none;line-height:1}
+    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;padding:0 0 4rem}
+    header{background:var(--navy);border-bottom:1px solid var(--border);padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+    .hlogo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.04em;color:var(--white);text-decoration:none}
     .hlogo em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold)}
-    .hsub{font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px}
-    .back-btn{font-size:0.78rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color 0.15s}
-    .back-btn:hover{color:var(--gold)}
-
-    .wrap{max-width:680px;margin:0 auto;padding:2.5rem 1.5rem}
-
-    .page-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:0.04em;color:var(--white);margin-bottom:0.25rem}
-    .page-title em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold)}
-    .effective{font-size:0.75rem;color:var(--muted);margin-bottom:2rem}
-
-    .card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
-    .card h2{font-size:0.78rem;font-weight:700;color:var(--gold);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em}
-    .card p{font-size:0.88rem;color:var(--muted);line-height:1.75;margin-bottom:0.75rem}
-    .card p:last-child{margin-bottom:0}
-    .card ul{padding-left:1.25rem;margin-bottom:0.75rem}
-    .card ul:last-child{margin-bottom:0}
-    .card li{font-size:0.88rem;color:var(--muted);line-height:1.75;margin-bottom:0.25rem}
-    .card a{color:var(--gold);text-decoration:none}
-    .card a:hover{text-decoration:underline}
-    strong{color:var(--white);font-weight:600}
-
-    .contact-box{background:rgba(245,197,24,0.06);border:1px solid rgba(245,197,24,0.2);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-top:1.5rem;text-align:center}
-    .contact-box p{font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem}
-    .contact-box a{color:var(--gold);font-weight:600;font-size:0.9rem}
-
-    footer{text-align:center;padding:2rem 1rem 0;font-size:0.72rem;color:var(--muted)}
-    footer a{color:var(--gold);text-decoration:none}
+    .nav-links{display:flex;gap:20px}
+    .nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s}
+    .nav-links a:hover{color:var(--gold)}
+    .wrap{max-width:740px;margin:0 auto;padding:3rem 24px}
+    .page-title{margin-bottom:0.5rem}
+    .page-title span{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:0.04em;color:var(--white)}
+    .page-title em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:2.8rem}
+    .effective{font-size:13px;color:var(--muted);margin-bottom:2.5rem}
+    .section{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
+    p{font-size:14px;color:var(--white);line-height:1.75;margin-bottom:0.85rem}
+    p:last-child{margin-bottom:0}
+    ul{padding-left:1.25rem;margin-bottom:0.85rem}
+    ul:last-child{margin-bottom:0}
+    li{font-size:14px;color:var(--white);line-height:1.75;margin-bottom:0.35rem}
+    li strong{color:var(--white);font-weight:600}
+    a{color:var(--gold);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .highlight{color:var(--gold);font-weight:600}
+    .contact-box{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-top:2rem;text-align:center}
+    .contact-box p{color:var(--muted);font-size:13px;margin-bottom:0.5rem}
+    .contact-box a{font-size:15px;font-weight:600;color:var(--gold)}
+    footer{border-top:1px solid var(--border);padding:1.5rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;max-width:740px;margin:2rem auto 0}
+    .footer-copy{font-size:12px;color:var(--muted)}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+    .footer-links a:hover{color:var(--gold)}
+    @media(max-width:600px){.page-title span,.page-title em{font-size:2rem}.nav-links{display:none}}
   </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <a href="/" class="hlogo">Home<em>Huddle</em></a>
-    <div class="hsub">powered by Venuewise</div>
-  </div>
-  <a href="/" class="back-btn">&#8592; Back to HomeHuddle</a>
+  <a href="/homehuddle.html" class="hlogo">Home<em>Huddle</em></a>
+  <nav class="nav-links">
+    <a href="/join.html">Sign up</a>
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="mailto:hello@venuewise.net">Contact</a>
+  </nav>
 </header>
 
 <div class="wrap">
-  <div class="page-title">Terms of <em>Service</em></div>
-  <div class="effective">Effective date: May 22, 2026 · Last updated: May 22, 2026</div>
+  <div class="page-title"><span>Terms of </span><em>Service</em></div>
+  <div class="effective">Effective date: May 22, 2026 &nbsp;·&nbsp; Last updated: May 22, 2026</div>
 
-  <div class="card">
-    <h2>Agreement</h2>
-    <p>These Terms of Service govern your use of HomeHuddle, a family sports scheduling service operated by <strong>Venuewise</strong> ("we," "us," or "our"). By signing up or using HomeHuddle you agree to these terms. If you do not agree, do not use the service.</p>
+  <div class="section">
+    <div class="section-title">Overview</div>
+    <p>HomeHuddle is a family sports scheduling service operated by <strong>Venuewise</strong>. By signing up for or using HomeHuddle, you agree to these Terms of Service. Please read them carefully.</p>
+    <p>If you do not agree to these terms, do not use the service.</p>
   </div>
 
-  <div class="card">
-    <h2>The Service</h2>
-    <p>HomeHuddle syncs your family's youth sports calendars from third-party apps like GameChanger and TeamSnap, detects schedule changes, and sends alerts via SMS and push notifications. We also provide a shared family calendar view.</p>
-    <p>We are not affiliated with GameChanger, TeamSnap, LeagueApps, or any other calendar platform. We access only the public iCal feeds you provide to us.</p>
+  <div class="section">
+    <div class="section-title">The Service</div>
+    <p>HomeHuddle syncs your family's sports schedules from third-party calendar apps (such as GameChanger and TeamSnap) and delivers schedule alerts via SMS and push notifications. The service is intended for use by parents and guardians managing their family's sports schedules.</p>
+    <p>HomeHuddle is provided on a subscription basis. After a free 30-day trial, continued use requires a paid subscription at the then-current rate (currently $4.95/month). We reserve the right to change pricing with 30 days' notice.</p>
   </div>
 
-  <div class="card">
-    <h2>Free Trial and Pricing</h2>
-    <p>HomeHuddle is free for the first <strong>30 days</strong> after signup. After the trial period, continued use requires a subscription of <strong>$4.95 per month</strong> per family.</p>
-    <p>Pricing is subject to change. We will notify you in advance of any pricing changes.</p>
-  </div>
-
-  <div class="card">
-    <h2>SMS Messaging</h2>
-    <p>By providing your mobile phone number you consent to receive SMS messages from HomeHuddle including schedule alerts, reminders, and calendar sharing invites.</p>
+  <div class="section">
+    <div class="section-title">SMS Messaging Terms</div>
+    <p>By providing your mobile phone number and signing up for HomeHuddle, you expressly consent to receive recurring automated SMS text messages from HomeHuddle (powered by Venuewise), including:</p>
     <ul>
-      <li>Message and data rates may apply</li>
-      <li>Message frequency varies based on your schedule activity</li>
-      <li>Reply <strong>STOP</strong> to unsubscribe from SMS at any time</li>
-      <li>Reply <strong>HELP</strong> for assistance</li>
-      <li>SMS is powered by Twilio</li>
+      <li>Schedule change alerts when game times or locations are updated</li>
+      <li>New event notifications when games or practices are added</li>
+      <li>Day-of reminders for your family's upcoming events</li>
+      <li>Conflict alerts when two events overlap</li>
     </ul>
+    <p><strong class="highlight">Message frequency varies</strong> based on your family's schedule activity. <strong class="highlight">Message and data rates may apply</strong> depending on your mobile carrier and plan.</p>
+    <p>To opt out of SMS messages at any time, reply <strong>STOP</strong> to any message. You will receive a confirmation and no further messages will be sent. To re-subscribe, text <strong>START</strong> to the same number. For help, reply <strong>HELP</strong> or contact us at <a href="mailto:hello@venuewise.net">hello@venuewise.net</a>.</p>
+    <p>Carriers are not liable for delayed or undelivered messages. HomeHuddle SMS is available to subscribers in the United States.</p>
   </div>
 
-  <div class="card">
-    <h2>Your Responsibilities</h2>
+  <div class="section">
+    <div class="section-title">Push Notifications</div>
+    <p>Push notifications are optional. If you enable them by tapping "Enable Notifications" in the HomeHuddle app, your device's push subscription token will be stored and used only to deliver HomeHuddle alerts to your device.</p>
+    <p>You can disable push notifications at any time through your device's notification settings or by removing the HomeHuddle app from your home screen.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Your Account &amp; Data</div>
+    <p>You are responsible for providing accurate information when signing up, including your mobile phone number and the iCal URLs for your team schedules. HomeHuddle syncs data from those URLs and is not responsible for errors or inaccuracies in the source schedule data.</p>
+    <p>You may access and update your account information at any time by visiting <a href="https://venuewise.net/account.html">venuewise.net/account.html</a>. To delete your account and all associated data, contact us at <a href="mailto:hello@venuewise.net">hello@venuewise.net</a> and we will process your request within 30 days.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Acceptable Use</div>
+    <p>You agree not to use HomeHuddle to:</p>
     <ul>
-      <li>You must provide accurate information when signing up</li>
-      <li>You are responsible for the iCal URLs you provide — only share URLs from calendars you have permission to access</li>
-      <li>You must not use HomeHuddle for any unlawful purpose</li>
-      <li>You must not attempt to reverse-engineer, scrape, or abuse the service</li>
-      <li>You are responsible for keeping your calendar link private if you do not want others to view your schedule</li>
+      <li>Provide false or misleading information during signup</li>
+      <li>Share your calendar link publicly in a way that exposes other families' schedules without consent</li>
+      <li>Attempt to reverse-engineer, scrape, or interfere with the HomeHuddle service</li>
+      <li>Use the service for any unlawful purpose</li>
     </ul>
+    <p>We reserve the right to suspend or terminate accounts that violate these terms.</p>
   </div>
 
-  <div class="card">
-    <h2>Accuracy of Schedule Information</h2>
-    <p>HomeHuddle displays schedule information pulled directly from your team's calendar feeds. We are not responsible for inaccurate, missing, or delayed information in those feeds. Always confirm important schedule details with your team directly.</p>
+  <div class="section">
+    <div class="section-title">Third-Party Services</div>
+    <p>HomeHuddle relies on third-party services to operate, including Supabase (database), Twilio (SMS delivery), and Google Fonts (typography). Your use of HomeHuddle is subject to the terms and privacy policies of these providers where applicable.</p>
+    <p>HomeHuddle is not affiliated with GameChanger, TeamSnap, LeagueApps, or any other sports scheduling platform. We sync publicly accessible iCal feeds that you provide.</p>
   </div>
 
-  <div class="card">
-    <h2>Service Availability</h2>
-    <p>We aim to keep HomeHuddle running reliably but do not guarantee uninterrupted availability. Schedule syncs occur approximately every 30 minutes. We are not liable for missed alerts due to service interruptions, SMS carrier delays, or third-party outages.</p>
+  <div class="section">
+    <div class="section-title">Disclaimer of Warranties</div>
+    <p>HomeHuddle is provided "as is" without warranty of any kind. We do not guarantee that the service will be uninterrupted, error-free, or that schedule data will always be accurate or up to date. Schedule information is pulled from third-party sources and may not reflect last-minute changes made directly in those apps.</p>
+    <p>Always confirm game times directly with your team or coach for time-sensitive events.</p>
   </div>
 
-  <div class="card">
-    <h2>Termination</h2>
-    <p>You may stop using HomeHuddle at any time. To have your data deleted, contact us at the email below. We reserve the right to suspend or terminate accounts that violate these terms.</p>
+  <div class="section">
+    <div class="section-title">Limitation of Liability</div>
+    <p>To the fullest extent permitted by law, Venuewise shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of HomeHuddle, including missed games or practices due to inaccurate schedule data.</p>
+    <p>Our total liability to you for any claim arising from use of HomeHuddle shall not exceed the amount you paid us in the 3 months preceding the claim.</p>
   </div>
 
-  <div class="card">
-    <h2>Limitation of Liability</h2>
-    <p>HomeHuddle is provided "as is" without warranties of any kind. Venuewise is not liable for any damages arising from your use of the service, missed schedule alerts, or reliance on schedule information displayed in the app.</p>
+  <div class="section">
+    <div class="section-title">Changes to These Terms</div>
+    <p>We may update these Terms of Service from time to time. When we do, we'll update the effective date at the top of this page. Continued use of HomeHuddle after changes means you accept the updated terms. For material changes, we'll notify you via SMS or email.</p>
   </div>
 
-  <div class="card">
-    <h2>Changes to These Terms</h2>
-    <p>We may update these terms from time to time. When we do, we'll update the effective date at the top of this page. Continued use of HomeHuddle after changes means you accept the updated terms.</p>
-  </div>
-
-  <div class="card">
-    <h2>Governing Law</h2>
-    <p>These terms are governed by the laws of the State of New York. Any disputes will be resolved in Erie County, New York.</p>
+  <div class="section">
+    <div class="section-title">Governing Law</div>
+    <p>These terms are governed by the laws of the State of New York, without regard to conflict of law principles. Any disputes shall be resolved in the courts of Erie County, New York.</p>
   </div>
 
   <div class="contact-box">
-    <p>Questions about these terms?</p>
+    <p>Questions about these terms or want to cancel your account?</p>
     <a href="mailto:hello@venuewise.net">hello@venuewise.net</a>
   </div>
 </div>
 
 <footer>
-  &copy; 2026 Venuewise &nbsp;·&nbsp;
-  <a href="/privacy.html">Privacy Policy</a> &nbsp;·&nbsp;
-  <a href="/terms.html">Terms of Service</a> &nbsp;·&nbsp;
-  <a href="/join.html">Join HomeHuddle</a>
+  <div class="footer-copy">&copy; 2026 Venuewise &nbsp;·&nbsp; HomeHuddle</div>
+  <div class="footer-links">
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="/terms.html">Terms of Service</a>
+    <a href="mailto:hello@venuewise.net">Contact</a>
+  </div>
 </footer>
 
 </body>
