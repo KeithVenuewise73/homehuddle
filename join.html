@@ -50,8 +50,6 @@
     .kid-sports { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 12px; }
     .sport-btn { padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 12px; color: var(--gray-700); cursor: pointer; transition: all .15s; background: none; font-family: 'DM Sans', sans-serif; }
     .sport-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
-
-    /* TEAM BLOCKS */
     .teams-list { display: flex; flex-direction: column; gap: 10px; }
     .team-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; position: relative; }
     .team-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -68,8 +66,6 @@
     .instructions li { font-size: 12px; color: var(--blue-text); line-height: 1.6; }
     .instructions strong { font-weight: 500; }
     .ical-field { margin-top: 8px; display: none; }
-    .team-name-field { margin-top: 8px; display: none; }
-
     .btn-add-team { display: flex; align-items: center; gap: 6px; width: 100%; padding: 8px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .btn-add-team:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
     .btn-add-kid { display: flex; align-items: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 12px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
@@ -80,8 +76,6 @@
     .legal { font-size: 12px; color: var(--gray-400); text-align: center; margin-top: .75rem; line-height: 1.6; }
     .legal a { color: var(--green); text-decoration: none; }
     .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
-
-    /* SUCCESS SCREEN */
     .setup { display: none; padding: 2rem 0; }
     .setup-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
     .setup-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
@@ -146,7 +140,6 @@
       <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
   </div>
 
-  <!-- SUCCESS SCREEN -->
   <div class="setup" id="setup">
     <div class="setup-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
     <h2>You're in!</h2>
@@ -200,7 +193,6 @@ let teamCounters = {};
 let familyCalendarUrl = '';
 let shareMessageText = '';
 
-// ── ADD KID ───────────────────────────────────────────────
 function addKid() {
   kidCount++;
   const id = kidCount;
@@ -208,172 +200,184 @@ function addKid() {
   const list = document.getElementById('kids-list');
   const div = document.createElement('div');
   div.className = 'kid-block';
-  div.id = `kid-block-${id}`;
-  const sportBtns = ''; // Sports now selected per team below
-  div.innerHTML = `
-    <div class="kid-block-header">
-      <div class="kid-num">Kid ${id}</div>
-      ${id > 1 ? `<button class="btn-remove" onclick="removeKid(${id})">×</button>` : ''}
-    </div>
-    <div class="kid-row2">
-      <div><label>First name</label><input type="text" id="kid-name-${id}" placeholder="e.g. Dominic"/></div>
-      <div><label>Age / grade</label><input type="text" id="kid-age-${id}" placeholder="e.g. 13 / 8th"/></div>
-    </div>
-    <div style="margin-top:12px">
-      <label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:8px;display:block">Team calendars</label>
-      <p style="font-size:12px;color:var(--gray-400);margin-bottom:8px">Select the sport and platform for each team, then paste the calendar link.</p>
-      <div class="teams-list" id="teams-list-${id}"></div>
-      <button class="btn-add-team" onclick="addTeam(${id})">+ Add another team</button>
-    </div>`;
+  div.id = 'kid-block-' + id;
+  div.innerHTML =
+    '<div class="kid-block-header">' +
+      '<div class="kid-num">Kid ' + id + '</div>' +
+      (id > 1 ? '<button class="btn-remove" onclick="removeKid(' + id + ')">×</button>' : '') +
+    '</div>' +
+    '<div class="kid-row2">' +
+      '<div><label>First name</label><input type="text" id="kid-name-' + id + '" placeholder="e.g. Dominic"/></div>' +
+      '<div><label>Age / grade</label><input type="text" id="kid-age-' + id + '" placeholder="e.g. 13 / 8th"/></div>' +
+    '</div>' +
+    '<div style="margin-top:12px">' +
+      '<label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:8px;display:block">Team calendars</label>' +
+      '<p style="font-size:12px;color:var(--gray-400);margin-bottom:8px">For each team, enter the team name, pick the sport, select the platform, then paste the calendar link.</p>' +
+      '<div class="teams-list" id="teams-list-' + id + '"></div>' +
+      '<button class="btn-add-team" onclick="addTeam(' + id + ')">+ Add another team</button>' +
+    '</div>';
   list.appendChild(div);
-  addTeam(id); // auto-add first team
+  addTeam(id);
 }
 
-// ── ADD TEAM ──────────────────────────────────────────────
 function addTeam(kidId) {
   teamCounters[kidId] = (teamCounters[kidId] || 0) + 1;
   const ti = teamCounters[kidId];
-  const teamsList = document.getElementById(`teams-list-${kidId}`);
+  const teamsList = document.getElementById('teams-list-' + kidId);
   const div = document.createElement('div');
   div.className = 'team-block';
-  div.id = `team-block-${kidId}-${ti}`;
+  div.id = 'team-block-' + kidId + '-' + ti;
 
-  const platBtns = Object.entries(PLATFORMS).map(([key, p]) =>
-    `<button class="plat-btn" onclick="selectPlatform(${kidId},${ti},'${key}',this)"><div class="plat-btn-name">${p.name}</div><div class="plat-btn-desc">${p.desc}</div></button>`
-  ).join('');
-  const sportBtnsT = SPORTS.map(s => `<button class="sport-btn" onclick="toggleSport(this)">${s}</button>`).join('');
+  const platBtns = Object.entries(PLATFORMS).map(function(entry) {
+    const key = entry[0], p = entry[1];
+    return '<button class="plat-btn" onclick="selectPlatform(' + kidId + ',' + ti + ',\'' + key + '\',this)"><div class="plat-btn-name">' + p.name + '</div><div class="plat-btn-desc">' + p.desc + '</div></button>';
+  }).join('');
 
-  div.innerHTML = `
-    <div class="team-block-header">
-      <div class="team-label">Team ${ti}</div>
-      ${ti > 1 ? `<button class="btn-remove" style="width:24px;height:24px;font-size:14px" onclick="removeTeam(${kidId},${ti})">×</button>` : ''}
-    </div>
-    <div style="margin-bottom:8px">
-      <label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Sport</label>
-      <div class="kid-sports" id="team-sports-${kidId}-${ti}" style="margin:0 0 4px">${sportBtnsT}</div>
-    </div>
-    <div class="platform-grid">${platBtns}</div>
-    <div class="instructions" id="instr-${kidId}-${ti}" style="display:none"></div>
-    <div class="ical-field" id="ical-field-${kidId}-${ti}">
-      <label>Paste your calendar link</label>
-      <input type="url" id="ical-${kidId}-${ti}" placeholder="webcal:// or https://"/>
-    </div>
-    <div class="team-name-field" id="team-name-field-${kidId}-${ti}">
-      <label>Team or organization name</label>
-      <input type="text" id="team-name-${kidId}-${ti}" placeholder="e.g. FCP Baseball, Caz Chiefs"/>
-      <div style="font-size:11px;color:var(--gray-400);margin-top:3px">Helps identify your team in notifications</div>
-    </div>`;
+  const sportBtnsT = SPORTS.map(function(s) {
+    return '<button class="sport-btn" onclick="toggleSport(this)">' + s + '</button>';
+  }).join('');
+
+  div.innerHTML =
+    '<div class="team-block-header">' +
+      '<div class="team-label">Team ' + ti + '</div>' +
+      (ti > 1 ? '<button class="btn-remove" style="width:24px;height:24px;font-size:14px" onclick="removeTeam(' + kidId + ',' + ti + ')">×</button>' : '') +
+    '</div>' +
+    // TEAM NAME — always visible, first field
+    '<div style="margin-bottom:10px">' +
+      '<label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Team name <span style="font-weight:400;color:var(--gray-400)">(required)</span></label>' +
+      '<input type="text" id="team-name-' + kidId + '-' + ti + '" placeholder="e.g. FCP Baseball, West Seneca Modified, Caz Chiefs"/>' +
+      '<div style="font-size:11px;color:var(--gray-400);margin-top:3px">Helps identify this team in your calendar and notifications</div>' +
+    '</div>' +
+    // SPORT
+    '<div style="margin-bottom:8px">' +
+      '<label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Sport</label>' +
+      '<div class="kid-sports" id="team-sports-' + kidId + '-' + ti + '" style="margin:0 0 4px">' + sportBtnsT + '</div>' +
+    '</div>' +
+    // PLATFORM
+    '<div class="platform-grid">' + platBtns + '</div>' +
+    // INSTRUCTIONS (shown after platform selected)
+    '<div class="instructions" id="instr-' + kidId + '-' + ti + '" style="display:none"></div>' +
+    // ICAL URL (shown after platform selected)
+    '<div class="ical-field" id="ical-field-' + kidId + '-' + ti + '">' +
+      '<label>Paste your calendar link</label>' +
+      '<input type="url" id="ical-' + kidId + '-' + ti + '" placeholder="webcal:// or https://"/>' +
+    '</div>';
+
   teamsList.appendChild(div);
 }
 
-function removeKid(id) { document.getElementById(`kid-block-${id}`)?.remove(); }
-function removeTeam(kidId, ti) { document.getElementById(`team-block-${kidId}-${ti}`)?.remove(); }
+function removeKid(id) { var el = document.getElementById('kid-block-' + id); if (el) el.remove(); }
+function removeTeam(kidId, ti) { var el = document.getElementById('team-block-' + kidId + '-' + ti); if (el) el.remove(); }
 function toggleSport(el) { el.classList.toggle('active'); }
 
 function selectPlatform(kidId, ti, platform, el) {
-  el.closest('.platform-grid').querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+  el.closest('.platform-grid').querySelectorAll('.plat-btn').forEach(function(b){ b.classList.remove('active'); });
   el.classList.add('active');
-  const info = INSTRUCTIONS[platform];
-  const instrEl = document.getElementById(`instr-${kidId}-${ti}`);
+  var info = INSTRUCTIONS[platform];
+  var instrEl = document.getElementById('instr-' + kidId + '-' + ti);
   instrEl.style.display = 'block';
-  instrEl.innerHTML = `<div class="instructions-title">${info.title}</div><ol>${info.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
-  document.getElementById(`ical-field-${kidId}-${ti}`).style.display = 'block';
-  document.getElementById(`team-name-field-${kidId}-${ti}`).style.display = 'block';
+  instrEl.innerHTML = '<div class="instructions-title">' + info.title + '</div><ol>' + info.steps.map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ol>';
+  document.getElementById('ical-field-' + kidId + '-' + ti).style.display = 'block';
 }
 
-// ── COLLECT DATA ──────────────────────────────────────────
 function collectKids() {
-  const kids = [];
-  document.querySelectorAll('.kid-block').forEach(block => {
-    const kidId = block.id.replace('kid-block-', '');
-    const name = document.getElementById(`kid-name-${kidId}`)?.value.trim();
-    if (!name) return;
-    const teams = [];
-    block.querySelectorAll('.team-block').forEach(tb => {
-      const ids = tb.id.replace('team-block-', '').split('-');
-      const ti = ids[1];
-      const activePlat = tb.querySelector('.plat-btn.active');
-      const platKey = activePlat ? Object.keys(PLATFORMS).find(k => activePlat.querySelector('.plat-btn-name')?.textContent === PLATFORMS[k].name) : null;
-      const icalUrl = document.getElementById(`ical-${kidId}-${ti}`)?.value.trim() || '';
-      const teamName = document.getElementById(`team-name-${kidId}-${ti}`)?.value.trim() || '';
-      // Get sports selected for this specific team
-      const teamSports = [];
-      tb.querySelectorAll('.sport-btn.active').forEach(b => teamSports.push(b.textContent.trim()));
-      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl, teamName, sports: teamSports });
+  var kids = [];
+  document.querySelectorAll('.kid-block').forEach(function(block) {
+    var kidId = block.id.replace('kid-block-', '');
+    var name = document.getElementById('kid-name-' + kidId);
+    if (!name || !name.value.trim()) return;
+    var teams = [];
+    block.querySelectorAll('.team-block').forEach(function(tb) {
+      var parts = tb.id.replace('team-block-', '').split('-');
+      var ti = parts[1];
+      var activePlat = tb.querySelector('.plat-btn.active');
+      var platKey = null;
+      if (activePlat) {
+        var platName = activePlat.querySelector('.plat-btn-name').textContent;
+        platKey = Object.keys(PLATFORMS).find(function(k){ return PLATFORMS[k].name === platName; });
+      }
+      var icalInput = document.getElementById('ical-' + kidId + '-' + ti);
+      var icalUrl = icalInput ? icalInput.value.trim() : '';
+      var teamNameInput = document.getElementById('team-name-' + kidId + '-' + ti);
+      var teamName = teamNameInput ? teamNameInput.value.trim() : '';
+      var teamSports = [];
+      tb.querySelectorAll('.sport-btn.active').forEach(function(b){ teamSports.push(b.textContent.trim()); });
+      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl: icalUrl, teamName: teamName, sports: teamSports });
     });
-    // Collect all sports across teams for the kid
-    const sports = [...new Set(teams.flatMap(t => t.sports))];
-    kids.push({ name, sports, teams });
+    var sports = [...new Set(teams.flatMap(function(t){ return t.sports; }))];
+    kids.push({ name: name.value.trim(), sports: sports, teams: teams });
   });
   return kids;
 }
 
-// ── SUBMIT ────────────────────────────────────────────────
 async function submitForm() {
-  const fname = document.getElementById('fname').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+  var fname = document.getElementById('fname').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var phone = document.getElementById('phone').value.trim();
   hideError();
   if (!fname) return showError('Please enter your family name.');
   if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
   if (!phone) return showError('Please enter your mobile number for SMS alerts.');
-  const kids = collectKids();
+  var kids = collectKids();
   if (kids.length === 0) return showError('Please add at least one kid.');
-  const missingTeam = kids.find(k => k.teams.length === 0);
-  if (missingTeam) return showError(`Please add at least one team calendar for ${missingTeam.name}.`);
-  const normalizedPhone = normalizePhone(phone);
+  var missingTeam = kids.find(function(k){ return k.teams.length === 0; });
+  if (missingTeam) return showError('Please add at least one team calendar for ' + missingTeam.name + '.');
+  var missingTeamName = null;
+  kids.forEach(function(k){
+    k.teams.forEach(function(t){
+      if (!t.teamName) missingTeamName = k.name;
+    });
+  });
+  if (missingTeamName) return showError('Please enter a team name for all of ' + missingTeamName + '\'s teams.');
+  var normalizedPhone = normalizePhone(phone);
   setLoading(true);
   try {
-    for (const kid of kids) {
-      for (const team of kid.teams) {
-        const sportList = team.sports && team.sports.length > 0 ? team.sports : (kid.sports.length > 0 ? kid.sports : ['Sport']);
-        const payload = {
-          family_name: fname, email, phone: normalizedPhone,
+    for (var ki = 0; ki < kids.length; ki++) {
+      var kid = kids[ki];
+      for (var ti = 0; ti < kid.teams.length; ti++) {
+        var team = kid.teams[ti];
+        var sportList = team.sports && team.sports.length > 0 ? team.sports : (kid.sports.length > 0 ? kid.sports : ['Sport']);
+        var payload = {
+          family_name: fname, email: email, phone: normalizedPhone,
           kid_name: kid.name, sport: sportList.join(', '),
           platform: team.platform,
           ical_url: team.icalUrl.replace(/^webcal:\/\//i, 'https://'),
           is_active: true, status: 'trial',
           team_name: team.teamName || null,
         };
-        const res = await fetch(`${SURL}/rest/v1/feeds`, {
+        var res = await fetch(SURL + '/rest/v1/feeds', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Prefer': 'return=minimal' },
+          headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=minimal' },
           body: JSON.stringify(payload),
         });
         if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || `Signup failed (${res.status})`);
+          var err = await res.json().catch(function(){ return {}; });
+          throw new Error(err.message || 'Signup failed (' + res.status + ')');
         }
       }
     }
-
-    // Trigger immediate sync so calendar populates right away
     try {
-      fetch(`${SURL}/functions/v1/sync-schedules`, {
+      fetch(SURL + '/functions/v1/sync-schedules', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}` },
+        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
         body: JSON.stringify({ email: email })
       });
     } catch(e) { console.log('Sync triggered'); }
-
-    // Send welcome email
     try {
-      await fetch(`${SURL}/functions/v1/send-welcome`, {
+      await fetch(SURL + '/functions/v1/send-welcome', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
-        body: JSON.stringify({ email, family_name: fname, kid_names: kids.map(k => k.name) })
+        body: JSON.stringify({ email: email, family_name: fname, kid_names: kids.map(function(k){ return k.name; }) })
       });
     } catch(e) { console.error('Welcome email error:', e); }
 
-    familyCalendarUrl = `https://venuewise.net/calendar.html?email=${encodeURIComponent(email)}`;
+    familyCalendarUrl = 'https://venuewise.net/calendar.html?email=' + encodeURIComponent(email);
     shareMessageText = buildShareMessage(fname, kids, familyCalendarUrl);
-
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
     document.getElementById('viewCalBtn').href = familyCalendarUrl;
     document.getElementById('share-message').textContent = shareMessageText;
     document.getElementById('setup').style.display = 'block';
-
   } catch (err) {
     showError('Something went wrong: ' + err.message + '. Please try again or text us at +1 (716) 671-1814.');
     console.error(err);
@@ -383,42 +387,32 @@ async function submitForm() {
 }
 
 function buildShareMessage(fname, kids, calUrl) {
-  const first = fname.replace(/ Family$/i, '');
-  const kidDescriptions = kids.map(k => {
-    const sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
-    const teams = k.teams.map(t => t.teamName).filter(Boolean);
-    const teamStr = teams.length ? ` (${teams.join(', ')})` : '';
-    return `${k.name}'s ${sports}${teamStr}`;
+  var first = fname.replace(/ Family$/i, '');
+  var kidDescriptions = kids.map(function(k) {
+    var sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
+    var teams = k.teams.map(function(t){ return t.teamName; }).filter(Boolean);
+    var teamStr = teams.length ? ' (' + teams.join(', ') + ')' : '';
+    return k.name + "'s " + sports + teamStr;
   });
-  let kidText = kidDescriptions.length === 1 ? kidDescriptions[0]
-    : kidDescriptions.length === 2 ? `${kidDescriptions[0]} and ${kidDescriptions[1]}`
+  var kidText = kidDescriptions.length === 1 ? kidDescriptions[0]
+    : kidDescriptions.length === 2 ? kidDescriptions[0] + ' and ' + kidDescriptions[1]
     : kidDescriptions.slice(0,-1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length-1];
-  return `Hey! I'm using HomeHuddle to share ${kidText} schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n${calUrl}\n\nOnce you open it, tap "Enable notifications" to get alerts when games are added or times change. 🏅`;
+  return "Hey! I'm using HomeHuddle to share " + kidText + " schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n" + calUrl + "\n\nOnce you open it, tap \"Enable notifications\" to get alerts when games are added or times change. 🏅";
 }
 
-function copyCalLink() {
-  copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy', null);
-}
-function copyShareMessage() {
-  copyText(shareMessageText, null, null, null, 'copy-msg-btn');
-}
+function copyCalLink() { copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy', null); }
+function copyShareMessage() { copyText(shareMessageText, null, null, null, 'copy-msg-btn'); }
 function copyText(text, labelId, successText, defaultText, btnId) {
-  navigator.clipboard.writeText(text).then(() => {
-    if (btnId) { const b=document.getElementById(btnId); b.textContent='✅ Copied! Paste it in a text message'; b.classList.add('copied'); setTimeout(()=>{b.textContent='📋 Copy message to share';b.classList.remove('copied')},3000); }
-    if (labelId) { document.getElementById(labelId).textContent=successText; setTimeout(()=>document.getElementById(labelId).textContent=defaultText,2000); }
-  }).catch(() => {
-    const el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-    if (btnId) { const b=document.getElementById(btnId); b.textContent='✅ Copied!'; b.classList.add('copied'); setTimeout(()=>{b.textContent='📋 Copy message to share';b.classList.remove('copied')},3000); }
+  navigator.clipboard.writeText(text).then(function() {
+    if (btnId) { var b=document.getElementById(btnId); b.textContent='✅ Copied! Paste it in a text message'; b.classList.add('copied'); setTimeout(function(){b.textContent='📋 Copy message to share';b.classList.remove('copied');},3000); }
+    if (labelId) { document.getElementById(labelId).textContent=successText; setTimeout(function(){document.getElementById(labelId).textContent=defaultText;},2000); }
+  }).catch(function() {
+    var el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    if (btnId) { var b=document.getElementById(btnId); b.textContent='✅ Copied!'; b.classList.add('copied'); setTimeout(function(){b.textContent='📋 Copy message to share';b.classList.remove('copied');},3000); }
   });
 }
-
-function normalizePhone(p) {
-  const d=p.replace(/\D/g,'');
-  if(d.length===10) return '+1'+d;
-  if(d.length===11&&d[0]==='1') return '+'+d;
-  return p;
-}
-function showError(msg) { const el=document.getElementById('error-msg'); el.textContent=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function normalizePhone(p) { var d=p.replace(/\D/g,''); if(d.length===10) return '+1'+d; if(d.length===11&&d[0]==='1') return '+'+d; return p; }
+function showError(msg) { var el=document.getElementById('error-msg'); el.textContent=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
 function hideError() { document.getElementById('error-msg').style.display='none'; }
 function setLoading(on) {
   document.getElementById('submit-btn').disabled=on;
