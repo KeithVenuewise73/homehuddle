@@ -485,18 +485,24 @@ function renderKids() {
 }
 
 function feedRow(kidName, fi, feed, removable) {
-  return '<div class="feed-grid" data-kid="'+esc(kidName)+'" data-fi="'+fi+'">' +
-    '<div class="field"><label>Sport</label><input type="text" value="'+esc(feed.sport||'')+'" placeholder="Baseball" data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="sport" oninput="updateFeed(this);markDirty()"/></div>' +
-    '<div class="field"><label>Platform</label>' +
-      '<select data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="platform" onchange="updateFeed(this);markDirty()">' +
-        '<option value="gamechanger"'+(feed.platform==='gamechanger'?' selected':'')+'>GameChanger</option>' +
-        '<option value="teamsnap"'+(feed.platform==='teamsnap'?' selected':'')+'>TeamSnap</option>' +
-        '<option value="leagueapps"'+(feed.platform==='leagueapps'?' selected':'')+'>LeagueApps</option>' +
-        '<option value="other"'+(feed.platform==='other'?' selected':'')+'>Other</option>' +
-      '</select>' +
+  return '<div style="border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px" data-kid="'+esc(kidName)+'" data-fi="'+fi+'">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.06em">Team '+(fi+1)+'</div>' +
+      (removable ? '<button class="btn btn-danger btn-sm" onclick="removeFeed(\''+esc(kidName)+'\','+fi+')">✕ Remove</button>' : '') +
     '</div>' +
-    '<div class="field"><label>iCal URL</label><input type="url" value="'+esc(feed.ical_url||'')+'" placeholder="https://..." data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="ical_url" oninput="updateFeed(this);markDirty()"/></div>' +
-    (removable ? '<button class="btn btn-danger btn-sm" style="margin-bottom:1px" onclick="removeFeed(\''+esc(kidName)+'\','+fi+')">✕</button>' : '<div></div>') +
+    '<div class="field"><label>Team name</label><input type="text" value="'+esc(feed.team_name||'')+'" placeholder="e.g. FCP Baseball, West Seneca Modified" data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="team_name" oninput="updateFeed(this);markDirty()"/></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+      '<div class="field" style="margin:0"><label>Sport</label><input type="text" value="'+esc(feed.sport||'')+'" placeholder="Baseball" data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="sport" oninput="updateFeed(this);markDirty()"/></div>' +
+      '<div class="field" style="margin:0"><label>Platform</label>' +
+        '<select data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="platform" onchange="updateFeed(this);markDirty()">' +
+          '<option value="gamechanger"'+(feed.platform==='gamechanger'?' selected':'')+'>GameChanger</option>' +
+          '<option value="teamsnap"'+(feed.platform==='teamsnap'?' selected':'')+'>TeamSnap</option>' +
+          '<option value="leagueapps"'+(feed.platform==='leagueapps'?' selected':'')+'>LeagueApps</option>' +
+          '<option value="other"'+(feed.platform==='other'?' selected':'')+'>Other</option>' +
+        '</select>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field" style="margin-top:8px;margin-bottom:0"><label>iCal URL</label><input type="url" value="'+esc(feed.ical_url||'')+'" placeholder="https://..." data-kid="'+esc(kidName)+'" data-fi="'+fi+'" data-col="ical_url" oninput="updateFeed(this);markDirty()"/></div>' +
   '</div>';
 }
 
@@ -636,7 +642,8 @@ async function saveChanges() {
         kid_name: feed.kid_name,
         sport: feed.sport,
         platform: feed.platform,
-        ical_url: feed.ical_url
+        ical_url: feed.ical_url,
+        team_name: feed.team_name || null
       })});
     } else if (feed.ical_url && feed.kid_name) {
       // INSERT new feed row — was missing before, this is the bug fix
@@ -651,6 +658,7 @@ async function saveChanges() {
           sport: feed.sport || '',
           platform: feed.platform || 'gamechanger',
           ical_url: feed.ical_url,
+          team_name: feed.team_name || null,
           is_active: true,
           pin: currentFeeds.find(function(f){ return f.pin; })?.pin || ''
         })
