@@ -465,10 +465,10 @@ async function loadEvents(showToastMsg) {
     platformMap = {};
     const seen = new Set();
     feeds.forEach(function(f, i) {
-      const key = (f.platform || 'cal') + '::' + (f.kid_name || '');
+      const key = (f.platform || 'cal') + '::' + (f.kid_name || '') + '::' + (f.team_name || '');
       if (seen.has(key)) return;
       seen.add(key);
-      platformMap[key] = { label: f.kid_name ? f.kid_name + (f.sport ? ' · ' + f.sport : '') : (f.platform || 'Calendar'), color: COLORS[i % COLORS.length], kidName: f.kid_name || '', sport: f.sport || '', platform: f.platform || '' };
+      platformMap[key] = { label: f.team_name || (f.kid_name ? f.kid_name + (f.sport ? ' · ' + f.sport : '') : (f.platform || 'Calendar')), color: COLORS[i % COLORS.length], kidName: f.kid_name || '', sport: f.sport || '', platform: f.platform || '', teamName: f.team_name || '' };
     });
 
     const fname = feeds[0].family_name || '';
@@ -500,9 +500,10 @@ async function loadEvents(showToastMsg) {
 function processEvents(data, feeds) {
   lastLoad = new Date();
   allEvents = data.map(function(row) {
-    const mf = feeds.find(function(f){ return f.kid_name && f.kid_name === row.kid && f.platform && f.platform === row.platform; })
+    const mf = feeds.find(function(f){ return f.kid_name && f.kid_name === row.kid && f.platform && f.platform === row.platform && f.team_name && row.name && row.name.toLowerCase().includes((f.team_name||'').toLowerCase().split(' ')[0].toLowerCase()); })
+      || feeds.find(function(f){ return f.kid_name && f.kid_name === row.kid && f.platform && f.platform === row.platform; })
       || feeds.find(function(f){ return f.kid_name && f.kid_name === row.kid; }) || feeds[0];
-    const pmKey = mf ? (mf.platform || 'cal') + '::' + (mf.kid_name || '') : null;
+    const pmKey = mf ? (mf.platform || 'cal') + '::' + (mf.kid_name || '') + '::' + (mf.team_name || '') : null;
     const pm = pmKey && platformMap[pmKey];
     return { id: row.uid || row.id, name: row.name || row.title || 'Event', kid: row.kid || '', platform: row.platform || '', sport: row.sport || '', start: new Date(row.start || row.start_time), end: new Date(row.end || row.end_time), location: row.location || '', description: row.description || '', conflict: row.conflict || false, pmKey: pmKey || 'all', color: pm ? pm.color : COLORS[0], pmLabel: pm ? pm.label : (row.platform || '') };
   }).filter(function(e){ return !isNaN(e.start); });
