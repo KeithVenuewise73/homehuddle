@@ -1,282 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HomeHuddle — Family Sports Scheduling, Powered by Venuewise</title>
-  <meta name="description" content="Real-time SMS and push alerts when your kid's game times change. Free for 30 days. Powered by Venuewise."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-text:#085041;
-      --gray-50:#F9F9F7;--gray-100:#F1EFE8;--gray-200:#D3D1C7;--gray-400:#888780;
-      --gray-700:#444441;--gray-900:#1a1a18;--gold:#F5C518;
-      --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
-    }
-    html{font-size:16px;scroll-behavior:smooth}
-    body{font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeHuddle Family Dashboard | Powered by Venuewise</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a1628;--navy2:#0d1e38;--navy3:#142444;--gold:#c9a227;--gold2:#e8bf45;--white:#f8fafc;--muted:#8fa3c0;--green:#22c55e;--r:12px}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--navy2);border-bottom:1px solid rgba(184,228,245,0.1);position:sticky;top:0;z-index:100}
+.nav-left{display:flex;align-items:center;gap:14px}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--white);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-divider{width:1px;height:18px;background:rgba(184,228,245,0.2)}
+.nav-powered{font-size:11px;color:var(--muted)}
+.nav-powered a{color:var(--gold);text-decoration:none;font-weight:600}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-link{font-size:12px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
+.nav-link:hover{color:var(--white)}
+.family-badge{display:flex;align-items:center;gap:8px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--gold)}
 
-    /* NAV */
-    nav{background:white;border-bottom:1px solid var(--gray-200);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
-    .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .nav-logo-mark{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center}
-    .nav-logo-mark svg{width:18px;height:18px;fill:white}
-    .nav-logo-name{font-size:16px;font-weight:600;color:var(--gray-900)}
-    .nav-logo-by{font-size:11px;color:var(--gray-400);margin-top:1px}
-    .nav-cta{background:var(--green);color:white;font-size:14px;font-weight:500;padding:8px 18px;border-radius:var(--radius-sm);text-decoration:none;transition:background 0.15s;font-family:'DM Sans',sans-serif}
-    .nav-cta:hover{background:var(--green-dark)}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 53px)}
+.sidebar{background:var(--navy2);border-right:1px solid rgba(184,228,245,0.08);padding:20px 0}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent;text-decoration:none}
+.sidebar-item:hover{color:var(--white);background:rgba(184,228,245,0.04)}
+.sidebar-item.active{color:var(--white);background:rgba(201,162,39,0.08);border-left-color:var(--gold)}
+.sidebar-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-count{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 6px}
+.notif-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;margin-left:auto}
 
-    /* HERO */
-    .hero{max-width:680px;margin:0 auto;padding:5rem 1.5rem 3rem;text-align:center}
-    .hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green-text);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem}
-    .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2rem,6vw,3.2rem);line-height:1.12;color:var(--gray-900);margin-bottom:1rem}
-    .hero h1 em{font-style:italic;color:var(--green)}
-    .hero p{font-size:1.05rem;color:var(--gray-400);line-height:1.7;max-width:500px;margin:0 auto 2rem}
-    .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-    .btn-primary{background:var(--green);color:white;font-size:15px;font-weight:500;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;transition:background 0.15s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px}
-    .btn-primary:hover{background:var(--green-dark)}
-    .btn-secondary{background:white;color:var(--gray-700);font-size:15px;font-weight:500;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;border:1px solid var(--gray-200);transition:all 0.15s;font-family:'DM Sans',sans-serif}
-    .btn-secondary:hover{border-color:var(--green);color:var(--green)}
+.main{padding:24px;overflow-y:auto}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-    /* PREVIEW CARD */
-    .preview{max-width:420px;margin:3rem auto;background:white;border-radius:var(--radius-lg);box-shadow:0 8px 40px rgba(0,0,0,0.1);overflow:hidden;border:1px solid var(--gray-200)}
-    .preview-header{background:#0A1628;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
-    .preview-logo{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:700;color:white;letter-spacing:0.02em}
-    .preview-logo span{color:#F5C518}
-    .preview-dot{width:7px;height:7px;border-radius:50%;background:#22C55E}
-    .preview-body{padding:12px}
-    .preview-event{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#111D35;border-radius:8px;margin-bottom:8px;border:1px solid rgba(245,197,24,0.12)}
-    .preview-stripe{width:3px;border-radius:3px;background:#1EA85A;align-self:stretch;flex-shrink:0}
-    .preview-info{flex:1}
-    .preview-name{font-size:13px;font-weight:700;color:#F0F4FF;margin-bottom:2px}
-    .preview-meta{font-size:11px;color:#7A8FAD}
-    .preview-time{font-size:11px;font-weight:600;color:#7A8FAD;font-family:monospace}
-    .preview-banner{background:rgba(245,197,24,0.1);border-left:3px solid #F5C518;padding:8px 12px;margin-bottom:8px;border-radius:0 6px 6px 0;font-size:12px;color:#F5C518;font-weight:500}
+/* NEXT SESSION HERO */
+.next-hero{background:linear-gradient(135deg,rgba(201,162,39,0.08) 0%,rgba(184,228,245,0.05) 100%);border:1px solid rgba(201,162,39,0.2);border-radius:var(--r);padding:24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.nh-left{}
+.nh-badge{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.nh-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;margin-bottom:4px}
+.nh-meta{font-size:13px;color:var(--muted);margin-bottom:12px}
+.nh-countdown{display:flex;gap:10px}
+.nh-unit{text-align:center;background:var(--navy3);border-radius:6px;padding:8px 12px;min-width:52px}
+.nh-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800}
+.nh-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.nh-right{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.btn-directions{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:10px 20px;cursor:pointer}
+.nh-rink{font-size:12px;color:var(--muted);text-align:right}
 
-    /* HOW IT WORKS */
-    .section{max-width:760px;margin:0 auto;padding:3rem 1.5rem}
-    .section-label{font-size:11px;font-weight:500;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;text-align:center;margin-bottom:0.5rem}
-    .section h2{font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,4vw,2.2rem);text-align:center;color:var(--gray-900);margin-bottom:0.75rem}
-    .section h2 em{font-style:italic;color:var(--green)}
-    .section-sub{text-align:center;color:var(--gray-400);font-size:0.95rem;line-height:1.65;max-width:480px;margin:0 auto 2.5rem}
+/* SCHEDULE GRID */
+.schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.schedule-panel{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
+.panel-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.event-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
+.event-item:last-child{border-bottom:none;padding-bottom:0}
+.event-date{background:var(--navy3);border-radius:8px;padding:6px 10px;text-align:center;min-width:46px;flex-shrink:0}
+.event-month{font-size:9px;font-weight:600;text-transform:uppercase;color:var(--gold);letter-spacing:.5px}
+.event-day{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.event-info{flex:1}
+.event-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.event-meta{font-size:11px;color:var(--muted)}
+.event-coach{font-size:11px;color:var(--gold);margin-top:2px}
+.event-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:auto;flex-shrink:0;align-self:center}
+.tag-hockey{background:rgba(184,228,245,0.1);color:#b8e4f5;border:1px solid rgba(184,228,245,0.2)}
+.tag-elite{background:rgba(201,162,39,0.1);color:var(--gold);border:1px solid rgba(201,162,39,0.25)}
+.tag-goalie{background:rgba(139,92,246,0.1);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25)}
 
-    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
-    .step{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.5rem;position:relative}
-    .step-num{width:28px;height:28px;border-radius:50%;background:var(--green-light);color:var(--green-text);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
-    .step h3{font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:0.4rem}
-    .step p{font-size:13px;color:var(--gray-400);line-height:1.6}
+/* NOTIFICATIONS */
+.notif-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
+.notif-item:last-child{border-bottom:none;padding-bottom:0}
+.ni-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.notif-text{font-size:12px;line-height:1.5;flex:1}
+.notif-time{font-size:10px;color:var(--muted);flex-shrink:0}
+.notif-unread{width:6px;height:6px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:4px}
 
-    /* FEATURES */
-    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
-    .feature{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem}
-    .feature-icon{font-size:1.6rem;margin-bottom:0.75rem}
-    .feature h3{font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:0.35rem}
-    .feature p{font-size:13px;color:var(--gray-400);line-height:1.6}
+/* FAMILY MEMBERS */
+.family-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.family-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;text-align:center}
+.family-avatar{width:52px;height:52px;border-radius:50%;background:rgba(201,162,39,0.15);border:2px solid rgba(201,162,39,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px}
+.family-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:2px}
+.family-role{font-size:11px;color:var(--muted);margin-bottom:10px}
+.family-sports{display:flex;flex-direction:column;gap:4px}
+.sport-tag{font-size:11px;background:var(--navy3);border-radius:4px;padding:3px 8px;color:var(--muted)}
 
-    /* PRICING */
-    .pricing-card{max-width:420px;margin:0 auto;background:white;border:2px solid var(--green);border-radius:var(--radius-lg);padding:2rem;text-align:center}
-    .pricing-badge{display:inline-block;background:var(--green-light);color:var(--green-text);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:1rem}
-    .pricing-price{font-family:'DM Serif Display',serif;font-size:3rem;color:var(--gray-900);line-height:1}
-    .pricing-price sup{font-size:1.2rem;vertical-align:top;margin-top:0.5rem;font-family:'DM Sans',sans-serif;font-weight:500}
-    .pricing-price sub{font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--gray-400)}
-    .pricing-desc{font-size:14px;color:var(--gray-400);margin:0.75rem 0 1.5rem;line-height:1.6}
-    .pricing-list{list-style:none;margin-bottom:1.75rem;text-align:left}
-    .pricing-list li{font-size:14px;color:var(--gray-700);padding:6px 0;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:8px}
-    .pricing-list li:last-child{border-bottom:none}
-    .pricing-list li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
-    .pricing-fine{font-size:12px;color:var(--gray-400);margin-top:0.75rem}
+/* MAP CARD */
+.map-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.map-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.map-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
+.map-item:last-child{border-bottom:none}
+.map-pin{width:36px;height:36px;border-radius:8px;background:rgba(201,162,39,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.map-info{flex:1}
+.map-name{font-size:13px;font-weight:600}
+.map-addr{font-size:11px;color:var(--muted)}
+.map-sessions{font-size:11px;color:var(--gold);margin-top:2px}
+.btn-dir{font-size:11px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;white-space:nowrap}
 
-    /* CTA BAND */
-    .cta-band{background:var(--green);padding:4rem 1.5rem;text-align:center}
-    .cta-band h2{font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,4vw,2.2rem);color:white;margin-bottom:0.75rem}
-    .cta-band h2 em{font-style:italic}
-    .cta-band p{color:rgba(255,255,255,0.8);font-size:0.95rem;margin-bottom:2rem}
-    .btn-white{background:white;color:var(--green-dark);font-size:15px;font-weight:600;padding:13px 28px;border-radius:var(--radius-sm);text-decoration:none;display:inline-block;transition:all 0.15s;font-family:'DM Sans',sans-serif}
-    .btn-white:hover{background:var(--green-light)}
+/* COACHES SECTION */
+.coaches-section{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.coach-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
+.coach-item:last-child{border-bottom:none}
+.coach-ava{width:40px;height:40px;border-radius:8px;background:rgba(201,162,39,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.coach-info{flex:1}
+.coach-n{font-size:13px;font-weight:600}
+.coach-s{font-size:11px;color:var(--muted)}
+.coach-sessions{font-size:11px;color:var(--gold)}
+.btn-view-coach{font-size:11px;font-weight:600;color:var(--navy);background:var(--gold);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap}
 
-    /* FOOTER */
-    footer{background:white;border-top:1px solid var(--gray-200);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-    .footer-logo{font-size:13px;color:var(--gray-400)}
-    .footer-logo strong{color:var(--gray-700)}
-    .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
-    .footer-links a{font-size:13px;color:var(--gray-400);text-decoration:none;transition:color 0.15s}
-    .footer-links a:hover{color:var(--green)}
-
-    .divider{border:none;border-top:1px solid var(--gray-100);margin:0}
-
-    @media(max-width:520px){
-      .hero-btns{flex-direction:column;align-items:center}
-      footer{flex-direction:column;text-align:center}
-    }
-  </style>
+/* DISCOVER */
+.discover-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.discover-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
+.dc-sport{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.dc-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.dc-meta{font-size:12px;color:var(--muted);margin-bottom:12px}
+.dc-spots{font-size:12px;color:var(--green);margin-bottom:12px}
+.btn-register{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+</style>
 </head>
 <body>
 
-<nav>
-  <a href="/homehuddle.html" class="nav-logo">
-    <div class="nav-logo-mark">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="white" stroke-width="1.5"/></svg>
-    </div>
-    <div>
-      <div class="nav-logo-name">HomeHuddle</div>
-      <div class="nav-logo-by">powered by Venuewise</div>
-    </div>
-  </a>
-  <a href="/join.html" class="nav-cta">Start free trial</a>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-badge">✦ Free 30-day trial — no credit card needed</div>
-  <h1>Your family's sports schedule,<br><em>always up to date.</em></h1>
-  <p>Real-time SMS and push alerts the moment practice times change, games are added, or there's a conflict. Never miss a pickup again.</p>
-  <div class="hero-btns">
-    <a href="/join.html" class="btn-primary">Start your free trial →</a>
-    <a href="#how-it-works" class="btn-secondary">See how it works</a>
+<div class="nav">
+  <div class="nav-left">
+    <a href="https://venuewise.net/homehuddle" class="nav-logo">Home<span>Huddle</span></a>
+    <div class="nav-divider"></div>
+    <div class="nav-powered">powered by <a href="https://venuewise.net">Venuewise</a></div>
+  </div>
+  <div class="nav-right">
+    <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="nav-link">🏒 CoachesHuddle</a>
+    <div class="family-badge">👨‍👩‍👧 Rodriguez Family</div>
   </div>
 </div>
 
-<!-- APP PREVIEW -->
-<div class="preview">
-  <div class="preview-header">
-    <div class="preview-logo">Home<span>Huddle</span></div>
-    <div class="preview-dot"></div>
-  </div>
-  <div class="preview-body">
-    <div class="preview-banner">⚽ Dominic has practice today at 4:00 PM — ends 5:30 PM, plan for pickup!</div>
-    <div class="preview-event">
-      <div class="preview-stripe" style="background:#1EA85A"></div>
-      <div class="preview-info">
-        <div class="preview-name">FCP Baseball — Practice</div>
-        <div class="preview-meta">Onondaga Park · Field 3</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Family</div>
+      <div class="sidebar-item active" onclick="showPanel('dashboard',this)">
+        <span class="sidebar-icon">🏠</span> Dashboard
       </div>
-      <div class="preview-time">4:00PM</div>
-    </div>
-    <div class="preview-event">
-      <div class="preview-stripe" style="background:#1E6FD9"></div>
-      <div class="preview-info">
-        <div class="preview-name">Caz Chiefs — Game vs Fayetteville</div>
-        <div class="preview-meta">Cazenovia Ice Rink</div>
+      <div class="sidebar-item" onclick="showPanel('schedule',this)">
+        <span class="sidebar-icon">📅</span> Full Schedule
+        <span class="sidebar-count">6</span>
       </div>
-      <div class="preview-time">6:30PM</div>
+      <div class="sidebar-item" onclick="showPanel('family',this)">
+        <span class="sidebar-icon">👨‍👩‍👧</span> Family Members
+      </div>
     </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Sports</div>
+      <div class="sidebar-item" onclick="showPanel('coaches',this)">
+        <span class="sidebar-icon">🏒</span> My Coaches
+        <span class="sidebar-count">1</span>
+      </div>
+      <div class="sidebar-item" onclick="showPanel('locations',this)">
+        <span class="sidebar-icon">📍</span> Rink Locations
+      </div>
+      <div class="sidebar-item" onclick="showPanel('discover',this)">
+        <span class="sidebar-icon">🔍</span> Find Clinics
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Updates</div>
+      <div class="sidebar-item" onclick="showPanel('notifications',this)">
+        <span class="sidebar-icon">🔔</span> Notifications
+        <div class="notif-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800">Good morning, Mike 👋</div>
+          <div style="font-size:13px;color:var(--muted)">Jake has a session coming up soon</div>
+        </div>
+      </div>
+
+      <!-- NEXT SESSION -->
+      <div class="next-hero">
+        <div class="nh-left">
+          <div class="nh-badge">⚡ Next Session</div>
+          <div class="nh-title">Summer Skills Camp</div>
+          <div class="nh-meta">Mon Jun 9 · 6:00 PM · LECOM Harborcenter, Rink 2 · Coach: Chris Mazzu</div>
+          <div class="nh-countdown">
+            <div class="nh-unit"><div class="nh-num">2</div><div class="nh-lbl">Days</div></div>
+            <div class="nh-unit"><div class="nh-num">14</div><div class="nh-lbl">Hrs</div></div>
+            <div class="nh-unit"><div class="nh-num">33</div><div class="nh-lbl">Min</div></div>
+          </div>
+        </div>
+        <div class="nh-right">
+          <button class="btn-directions" onclick="showToast('Opening directions to LECOM Harborcenter...')">📍 Get Directions</button>
+          <div class="nh-rink">LECOM Harborcenter<br>1 James D. Griffin Plaza<br>Buffalo, NY 14203</div>
+        </div>
+      </div>
+
+      <div class="schedule-grid">
+        <div class="schedule-panel">
+          <div class="panel-title">📅 Jake's Upcoming Sessions</div>
+          <div class="event-item">
+            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">9</div></div>
+            <div class="event-info">
+              <div class="event-name">Summer Skills Camp</div>
+              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
+              <div class="event-coach">Coach Chris Mazzu</div>
+            </div>
+            <div class="event-tag tag-hockey">Hockey</div>
+          </div>
+          <div class="event-item">
+            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">16</div></div>
+            <div class="event-info">
+              <div class="event-name">Summer Skills Camp</div>
+              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
+              <div class="event-coach">Coach Chris Mazzu</div>
+            </div>
+            <div class="event-tag tag-hockey">Hockey</div>
+          </div>
+          <div class="event-item">
+            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">23</div></div>
+            <div class="event-info">
+              <div class="event-name">Summer Skills Camp</div>
+              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
+              <div class="event-coach">Coach Chris Mazzu</div>
+            </div>
+            <div class="event-tag tag-hockey">Hockey</div>
+          </div>
+          <div class="event-item">
+            <div class="event-date"><div class="event-month">Jul</div><div class="event-day">7</div></div>
+            <div class="event-info">
+              <div class="event-name">Elite Power Skating</div>
+              <div class="event-meta">5:30 PM · Rink 1 · 60 min</div>
+              <div class="event-coach">Coach Chris Mazzu</div>
+            </div>
+            <div class="event-tag tag-elite">Elite</div>
+          </div>
+        </div>
+        <div class="schedule-panel">
+          <div class="panel-title">🔔 Latest Alerts</div>
+          <div class="notif-item">
+            <div class="notif-unread"></div>
+            <div class="ni-icon" style="background:rgba(234,179,8,0.1)">⏰</div>
+            <div class="notif-text">Skills Camp is <strong>tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear!</div>
+            <div class="notif-time">1h ago</div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-unread"></div>
+            <div class="ni-icon" style="background:rgba(59,130,246,0.1)">ℹ️</div>
+            <div class="notif-text"><strong>2 spots opened</strong> in Saturday Elite Camp — register to secure Jake's spot</div>
+            <div class="notif-time">3h ago</div>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:rgba(34,197,94,0.1)">✅</div>
+            <div class="notif-text">Registration confirmed — Summer Skills Camp added to your HomeHuddle dashboard</div>
+            <div class="notif-time">Yesterday</div>
+          </div>
+          <div class="notif-item">
+            <div class="ni-icon" style="background:rgba(184,228,245,0.1)">🏒</div>
+            <div class="notif-text">Welcome to <strong>Chris Mazzu Hockey Clinics</strong> via CoachesHuddle powered by Venuewise</div>
+            <div class="notif-time">2 days ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL SCHEDULE -->
+    <div class="panel" id="panel-schedule">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Jake's Full Schedule</div>
+      <div class="schedule-panel" style="background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px">
+        <div class="panel-title">📅 All Sessions — Summer 2025</div>
+        ${[
+          {m:'Jun',d:'9',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
+          {m:'Jun',d:'16',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
+          {m:'Jun',d:'23',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
+          {m:'Jun',d:'30',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
+          {m:'Jul',d:'7',name:'Elite Power Skating',meta:'5:30 PM · Rink 1 · 60 min',tag:'Elite',tc:'tag-elite'},
+          {m:'Jul',d:'14',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
+          {m:'Jul',d:'21',name:'Elite Power Skating',meta:'5:30 PM · Rink 1 · 60 min',tag:'Elite',tc:'tag-elite'},
+          {m:'Aug',d:'4',name:'Goalie Clinic',meta:'4:00 PM · Rink 3 · 75 min',tag:'Goalie',tc:'tag-goalie'},
+        ].map(e=>`
+        <div class="event-item">
+          <div class="event-date"><div class="event-month">${e.m}</div><div class="event-day">${e.d}</div></div>
+          <div class="event-info">
+            <div class="event-name">${e.name}</div>
+            <div class="event-meta">${e.meta}</div>
+            <div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div>
+          </div>
+          <div class="event-tag ${e.tc}">${e.tag}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- FAMILY -->
+    <div class="panel" id="panel-family">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Family Members</div>
+      <div class="family-grid">
+        <div class="family-card">
+          <div class="family-avatar">👨</div>
+          <div class="family-name">Mike</div>
+          <div class="family-role">Parent · Account Owner</div>
+          <div class="family-sports">
+            <div class="sport-tag">📱 SMS Notifications On</div>
+            <div class="sport-tag">📧 Email Confirmed</div>
+          </div>
+        </div>
+        <div class="family-card">
+          <div class="family-avatar">🧒</div>
+          <div class="family-name">Jake</div>
+          <div class="family-role">Player · Age 11</div>
+          <div class="family-sports">
+            <div class="sport-tag">🏒 Hockey · Skills Camp</div>
+            <div class="sport-tag">🏒 Elite Power Skating</div>
+            <div class="sport-tag">🥅 Goalie Clinic</div>
+          </div>
+        </div>
+        <div class="family-card" style="border-style:dashed;opacity:.5;cursor:pointer">
+          <div class="family-avatar" style="background:rgba(184,228,245,0.05)">+</div>
+          <div class="family-name">Add Child</div>
+          <div class="family-role">Add another player</div>
+          <div class="family-sports">
+            <div class="sport-tag">Tap to add</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COACHES -->
+    <div class="panel" id="panel-coaches">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">My Coaches</div>
+      <div class="coaches-section">
+        <div class="panel-title">🏒 Registered Coaches</div>
+        <div class="coach-item">
+          <div class="coach-ava">🏒</div>
+          <div class="coach-info">
+            <div class="coach-n">Chris Mazzu</div>
+            <div class="coach-s">Hockey Clinics · Buffalo NY</div>
+            <div class="coach-sessions">3 active programs · 8 sessions remaining</div>
+          </div>
+          <button class="btn-view-coach" onclick="window.open('https://venuewise.net/coacheshuddle/chrismazzu','_blank')">View Page</button>
+        </div>
+      </div>
+      <div class="coaches-section">
+        <div class="panel-title">🔍 Discover More Coaches</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Find more clinics and programs near you powered by Venuewise</div>
+        <button class="btn-view-coach" onclick="showPanel('discover',document.querySelectorAll('.sidebar-item')[5])">Browse All Clinics →</button>
+      </div>
+    </div>
+
+    <!-- LOCATIONS -->
+    <div class="panel" id="panel-locations">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Rink Locations</div>
+      <div class="map-card">
+        <div class="map-header">
+          <div class="map-title">📍 Your Rinks</div>
+        </div>
+        <div class="map-item">
+          <div class="map-pin">🏒</div>
+          <div class="map-info">
+            <div class="map-name">LECOM Harborcenter</div>
+            <div class="map-addr">1 James D. Griffin Plaza, Buffalo NY 14203</div>
+            <div class="map-sessions">3 upcoming sessions here · Next: Jun 9 at 6:00 PM</div>
+          </div>
+          <button class="btn-dir" onclick="showToast('Opening Google Maps...')">Directions →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCOVER -->
+    <div class="panel" id="panel-discover">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Find Clinics Near You</div>
+      <div class="discover-grid">
+        <div class="discover-card">
+          <div class="dc-sport">🏒 Hockey</div>
+          <div class="dc-name">Elite Power Skating</div>
+          <div class="dc-meta">Chris Mazzu · Jul 7 – Jul 28 · Mon 5:30 PM · Ages 10–16</div>
+          <div class="dc-spots">6 spots remaining · $249</div>
+          <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
+        </div>
+        <div class="discover-card">
+          <div class="dc-sport">🥅 Hockey</div>
+          <div class="dc-name">Goalie Clinic</div>
+          <div class="dc-meta">Chris Mazzu · Aug 4 – Aug 18 · Mon 4:00 PM · All ages</div>
+          <div class="dc-spots">6 spots remaining · $199</div>
+          <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
+        </div>
+        <div class="discover-card" style="opacity:.5">
+          <div class="dc-sport">🏒 Hockey</div>
+          <div class="dc-name">Mark Zarbo Clinics</div>
+          <div class="dc-meta">Coming Soon · Buffalo NY</div>
+          <div class="dc-spots" style="color:var(--muted)">Registration opening soon</div>
+          <button class="btn-register" style="opacity:.5;cursor:not-allowed">Notify Me</button>
+        </div>
+        <div class="discover-card" style="opacity:.5">
+          <div class="dc-sport">More sports</div>
+          <div class="dc-name">More Coaches</div>
+          <div class="dc-meta">New coaches joining Venuewise soon</div>
+          <div class="dc-spots" style="color:var(--muted)">Stay tuned</div>
+          <button class="btn-register" style="opacity:.5;cursor:not-allowed">Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="panel-notifications">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Notifications</div>
+      <div class="schedule-panel" style="background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px">
+        ${[
+          {unread:true,icon:'⏰',bg:'rgba(234,179,8,0.1)',text:'<strong>Skills Camp tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear! 🏒',time:'1h ago'},
+          {unread:true,icon:'ℹ️',bg:'rgba(59,130,246,0.1)',text:'<strong>2 spots opened</strong> in Saturday Elite Camp (Jul 12) — register now at venuewise.net/coacheshuddle/chrismazzu',time:'3h ago'},
+          {unread:false,icon:'✅',bg:'rgba(34,197,94,0.1)',text:'Registration confirmed — <strong>Summer Skills Camp</strong> added to your HomeHuddle dashboard automatically',time:'Yesterday'},
+          {unread:false,icon:'🔄',bg:'rgba(59,130,246,0.1)',text:'Schedule update: Thursday session moved to <strong>Rink 3</strong>. Same time (5:30 PM). Dashboard updated automatically.',time:'Jun 5'},
+          {unread:false,icon:'🏒',bg:'rgba(184,228,245,0.1)',text:'Welcome to <strong>Chris Mazzu Hockey Clinics</strong>! Your schedule has been automatically synced to HomeHuddle.',time:'Jun 3'},
+        ].map(n=>`
+        <div class="notif-item">
+          ${n.unread?'<div class="notif-unread"></div>':'<div style="width:6px"></div>'}
+          <div class="ni-icon" style="background:${n.bg}">${n.icon}</div>
+          <div class="notif-text">${n.text}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
   </div>
 </div>
 
-<hr class="divider"/>
-
-<!-- HOW IT WORKS -->
-<div class="section" id="how-it-works">
-  <div class="section-label">How it works</div>
-  <h2>Set up in <em>minutes.</em></h2>
-  <p class="section-sub">Connect your team calendars once and HomeHuddle handles everything else automatically.</p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <h3>Sign up your family</h3>
-      <p>Enter your name, email, and mobile number. Add each kid and their sport.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <h3>Connect your calendars</h3>
-      <p>Paste the iCal link from GameChanger, TeamSnap, or any team calendar app.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <h3>Get instant alerts</h3>
-      <p>We sync every 30 minutes. The moment something changes, you get a text.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <h3>Share with family</h3>
-      <p>Send your personal calendar link to grandparents, coaches, or anyone who needs it.</p>
-    </div>
-  </div>
+<div class="toast" id="toast" style="position:fixed;bottom:24px;right:24px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px 18px;font-size:13px;font-weight:500;color:var(--green);display:none;align-items:center;gap:8px;z-index:2000">
+  ✅ <span id="toastMsg"></span>
 </div>
 
-<hr class="divider"/>
-
-<!-- FEATURES -->
-<div class="section">
-  <div class="section-label">Features</div>
-  <h2>Everything your family <em>needs.</em></h2>
-  <p class="section-sub">Built for busy sports families juggling multiple kids, multiple teams, and constantly changing schedules.</p>
-  <div class="features">
-    <div class="feature">
-      <div class="feature-icon">📲</div>
-      <h3>Instant SMS alerts</h3>
-      <p>Get a text the moment a game time changes or a new event is added to your kid's calendar.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🔔</div>
-      <h3>Push notifications</h3>
-      <p>Day-of reminders right on your lock screen — no app download required.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">📅</div>
-      <h3>Live calendar sync</h3>
-      <p>Connects to GameChanger, TeamSnap, LeagueApps, Google Calendar, Apple Calendar and more.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">⚠️</div>
-      <h3>Conflict detection</h3>
-      <p>Automatically flags when two of your kids have overlapping events so you can plan ahead.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🎨</div>
-      <h3>Personalizable</h3>
-      <p>Each family member gets their own view and can customize the colors to their taste.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">📍</div>
-      <h3>One-tap directions</h3>
-      <p>Tap any event location to open it in Apple Maps, Google Maps, or Waze instantly.</p>
-    </div>
-  </div>
-</div>
-
-<hr class="divider"/>
-
-<!-- PRICING -->
-<div class="section">
-  <div class="section-label">Pricing</div>
-  <h2>Simple, <em>affordable</em> pricing.</h2>
-  <p class="section-sub">One price covers your whole family — all kids, all sports, all season long.</p>
-  <div class="pricing-card">
-    <div class="pricing-badge">✦ Start free for 30 days</div>
-    <div class="pricing-price"><sup>$</sup>4<sub>.95/mo</sub></div>
-    <p class="pricing-desc">After your free trial. No contracts, cancel anytime.</p>
-    <ul class="pricing-list">
-      <li>Unlimited kids and sports</li>
-      <li>SMS alerts for every schedule change</li>
-      <li>Push notifications on all your devices</li>
-      <li>Shareable family calendar link</li>
-      <li>Conflict detection</li>
-      <li>Color customization per family member</li>
-    </ul>
-    <a href="/join.html" class="btn-primary" style="width:100%;justify-content:center">Start your free 30-day trial</a>
-    <p class="pricing-fine">No credit card required for trial. Cancel anytime.</p>
-  </div>
-</div>
-
-<!-- CTA BAND -->
-<div class="cta-band">
-  <h2>Stop missing pickups.<br><em>Start your free trial today.</em></h2>
-  <p>Takes less than 5 minutes to set up. Works with any team calendar app.</p>
-  <a href="/join.html" class="btn-white">Join HomeHuddle free →</a>
-</div>
-
-<footer>
-  <div class="footer-logo"><strong>HomeHuddle</strong> · powered by Venuewise &copy; 2026</div>
-  <div class="footer-links">
-    <a href="/join.html">Sign up</a>
-    <a href="/privacy.html">Privacy Policy</a>
-    <a href="/terms.html">Terms of Service</a>
-    <a href="mailto:hello@venuewise.net">Contact</a>
-  </div>
-</footer>
-
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.style.display='flex';
+  setTimeout(()=>t.style.display='none',3500);
+}
+</script>
 </body>
 </html>
