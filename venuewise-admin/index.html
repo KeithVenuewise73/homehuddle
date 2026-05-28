@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venuewise Master Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a1628;--navy2:#0d1e38;--navy3:#142444;--gold:#c9a227;--gold2:#e8bf45;--white:#f8fafc;--muted:#8fa3c0;--green:#22c55e;--r:12px}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--navy2);border-bottom:1px solid rgba(184,228,245,0.1);position:sticky;top:0;z-index:100}
+.nav-left{display:flex;align-items:center;gap:14px}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--white);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-badge{font-size:11px;font-weight:600;color:var(--gold);background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:20px;padding:4px 12px}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-link{font-size:12px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
+.nav-link:hover{color:var(--white);background:rgba(184,228,245,0.08)}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 53px)}
+.sidebar{background:var(--navy2);border-right:1px solid rgba(184,228,245,0.08);padding:20px 0}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent}
+.sidebar-item:hover{color:var(--white);background:rgba(184,228,245,0.04)}
+.sidebar-item.active{color:var(--white);background:rgba(201,162,39,0.08);border-left-color:var(--gold)}
+.sidebar-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-count{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 6px}
+.main{padding:24px;overflow-y:auto}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:20px}
+.kpi-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:var(--muted)}
+.kpi-trend{font-size:11px;font-weight:600;margin-top:6px}
+.trend-up{color:var(--green)}
+.trend-warn{color:#eab308}
+
+/* SECTION */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800}
+.btn-add{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 20px;cursor:pointer}
+
+/* COACH CARDS */
+.coach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.coach-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:20px}
+.coach-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.coach-avatar{width:48px;height:48px;border-radius:10px;background:rgba(201,162,39,0.15);border:1px solid rgba(201,162,39,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.coach-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.coach-sport{font-size:12px;color:var(--muted)}
+.coach-status{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.status-live{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.status-soon{background:rgba(234,179,8,0.1);color:#eab308;border:1px solid rgba(234,179,8,0.2)}
+.coach-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.cs-stat{background:var(--navy3);border-radius:8px;padding:10px;text-align:center}
+.cs-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--gold)}
+.cs-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.coach-progress{margin-bottom:12px}
+.cp-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.progress-bar{height:6px;background:var(--navy3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--gold)}
+.coach-actions{display:flex;gap:8px}
+.btn-sm{font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;transition:all .2s}
+.btn-view{background:rgba(184,228,245,0.1);color:#b8e4f5;border:1px solid rgba(184,228,245,0.2)}
+.btn-notify{background:rgba(201,162,39,0.1);color:var(--gold);border:1px solid rgba(201,162,39,0.25)}
+
+/* REVENUE CHART */
+.chart-wrap{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:20px;margin-bottom:24px}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.chart-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-bottom:0}
+.bar-group{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{border-radius:4px 4px 0 0;width:100%;transition:all .3s;cursor:pointer;position:relative}
+.bar:hover{filter:brightness(1.2)}
+.bar-val{font-size:10px;color:var(--muted);margin-bottom:2px}
+.bar-label{font-size:10px;color:var(--muted)}
+
+/* ACTIVITY FEED */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(184,228,245,0.06);align-items:flex-start}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.activity-body{flex:1}
+.activity-text{font-size:13px;line-height:1.5}
+.activity-text strong{color:var(--gold)}
+.activity-time{font-size:11px;color:var(--muted);flex-shrink:0}
+
+/* COACHES TABLE */
+.coaches-table{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);overflow:hidden}
+.table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;padding:10px 16px;background:var(--navy3);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;padding:14px 16px;border-top:1px solid rgba(184,228,245,0.06);font-size:13px;align-items:center}
+.table-row:hover{background:rgba(184,228,245,0.02)}
+
+/* FAMILIES TABLE */
+.families-table{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);overflow:hidden}
+.ft-header{display:grid;grid-template-columns:2fr 2fr 1.5fr 1fr 1fr;padding:10px 16px;background:var(--navy3);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.ft-row{display:grid;grid-template-columns:2fr 2fr 1.5fr 1fr 1fr;padding:12px 16px;border-top:1px solid rgba(184,228,245,0.06);font-size:13px;align-items:center}
+.ft-row:hover{background:rgba(184,228,245,0.02)}
+
+/* NOTIFICATIONS */
+.notif-compose{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:24px;margin-bottom:20px}
+.notif-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.notif-type-btn{background:var(--navy3);border:1px solid rgba(184,228,245,0.1);border-radius:8px;padding:12px;cursor:pointer;text-align:center;transition:all .2s}
+.notif-type-btn.selected{border-color:var(--gold);background:rgba(201,162,39,0.08)}
+.notif-type-icon{font-size:22px;margin-bottom:6px}
+.notif-type-label{font-size:11px;font-weight:600;color:var(--muted)}
+.notif-type-btn.selected .notif-type-label{color:var(--gold)}
+.notif-textarea{background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none;width:100%;resize:vertical;min-height:80px;margin-bottom:12px;line-height:1.5}
+.btn-send{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:11px 24px;cursor:pointer}
+
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px 18px;font-size:13px;font-weight:500;color:var(--green);display:none;align-items:center;gap:8px;z-index:2000}
+.toast.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-left">
+    <a href="https://venuewise.net" class="nav-logo">Venue<span>wise</span></a>
+    <div class="nav-badge">⬡ Master Dashboard</div>
+  </div>
+  <div class="nav-right">
+    <a href="https://venuewise.net/homehuddle" class="nav-link">HomeHuddle</a>
+    <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="nav-link">CoachesHuddle</a>
+    <a href="https://venuewise.net/coach-login" class="nav-link">Coach Portal</a>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active" onclick="showPanel('overview',this)">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform</div>
+      <div class="sidebar-item" onclick="showPanel('coaches',this)">
+        <span class="sidebar-icon">🏒</span> Coaches
+        <span class="sidebar-count">2</span>
+      </div>
+      <div class="sidebar-item" onclick="showPanel('families',this)">
+        <span class="sidebar-icon">🏠</span> Families
+        <span class="sidebar-count">42</span>
+      </div>
+      <div class="sidebar-item" onclick="showPanel('revenue',this)">
+        <span class="sidebar-icon">💰</span> Revenue
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Communication</div>
+      <div class="sidebar-item" onclick="showPanel('notifications',this)">
+        <span class="sidebar-icon">📢</span> Notifications
+      </div>
+      <div class="sidebar-item" onclick="showPanel('activity',this)">
+        <span class="sidebar-icon">⚡</span> Activity Feed
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Sites</div>
+      <div class="sidebar-item" onclick="window.open('https://venuewise.net/coacheshuddle/chrismazzu','_blank')">
+        <span class="sidebar-icon">🌐</span> Chris Mazzu
+      </div>
+      <div class="sidebar-item" onclick="window.open('https://venuewise.net/homehuddle','_blank')">
+        <span class="sidebar-icon">🏠</span> HomeHuddle
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="section-header">
+        <div class="section-title">Platform Overview</div>
+        <div style="font-size:12px;color:var(--muted)">Last updated: just now</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Families</div>
+          <div class="kpi-value" style="color:var(--gold)">42</div>
+          <div class="kpi-sub">Across all coaches</div>
+          <div class="kpi-trend trend-up">↑ 8 this week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Platform Revenue</div>
+          <div class="kpi-value" style="color:var(--green)">$8,241</div>
+          <div class="kpi-sub">2025 season</div>
+          <div class="kpi-trend trend-up">↑ $1,800 this month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Coaches</div>
+          <div class="kpi-value" style="color:#60a5fa">2</div>
+          <div class="kpi-sub">1 live · 1 coming soon</div>
+          <div class="kpi-trend trend-up">↑ Growing</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">HomeHuddle Synced</div>
+          <div class="kpi-value" style="color:#c4b5fd">31</div>
+          <div class="kpi-sub">Families connected</div>
+          <div class="kpi-trend trend-up">↑ 5 this week</div>
+        </div>
+      </div>
+
+      <!-- REVENUE CHART -->
+      <div class="chart-wrap">
+        <div class="chart-header">
+          <div class="chart-title">📈 Monthly Revenue</div>
+          <div style="font-size:12px;color:var(--muted)">2025 Season</div>
+        </div>
+        <div class="chart-bars">
+          ${[
+            {m:'Jan',v:0,h:0},
+            {m:'Feb',v:0,h:0},
+            {m:'Mar',v:480,h:20},
+            {m:'Apr',v:960,h:40},
+            {m:'May',v:1840,h:77},
+            {m:'Jun',v:2400,h:100},
+            {m:'Jul',v:1800,h:75},
+            {m:'Aug',v:760,h:32},
+          ].map(b=>`
+          <div class="bar-group">
+            <div class="bar-val">${b.v?'$'+b.v:''}</div>
+            <div class="bar" style="height:${b.h}%;background:${b.h===100?'var(--gold)':'rgba(201,162,39,0.4)'}"></div>
+            <div class="bar-label">${b.m}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- COACHES OVERVIEW -->
+      <div class="section-header">
+        <div class="section-title">Coaches</div>
+        <button class="btn-add">+ Add Coach</button>
+      </div>
+      <div class="coach-grid">
+        <div class="coach-card">
+          <div class="coach-header">
+            <div class="coach-avatar">🏒</div>
+            <div>
+              <div class="coach-name">Chris Mazzu</div>
+              <div class="coach-sport">Hockey Clinics · Buffalo NY</div>
+            </div>
+            <div class="coach-status status-live">● Live</div>
+          </div>
+          <div class="coach-stats">
+            <div class="cs-stat"><div class="cs-val">24</div><div class="cs-lbl">Registrations</div></div>
+            <div class="cs-stat"><div class="cs-val">$6,847</div><div class="cs-lbl">Revenue</div></div>
+            <div class="cs-stat"><div class="cs-val">18</div><div class="cs-lbl">HH Synced</div></div>
+          </div>
+          <div class="coach-progress">
+            <div class="cp-label"><span>Spots filled</span><span>25/40 (63%)</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:63%"></div></div>
+          </div>
+          <div class="coach-actions">
+            <button class="btn-sm btn-view" onclick="window.open('https://venuewise.net/admin/chrismazzu','_blank')">View Admin</button>
+            <button class="btn-sm btn-view" onclick="window.open('https://venuewise.net/coacheshuddle/chrismazzu','_blank')">Public Page</button>
+            <button class="btn-sm btn-notify" onclick="showToast('Notification sent to Chris Mazzu')">📢 Message</button>
+          </div>
+        </div>
+        <div class="coach-card" style="opacity:.6">
+          <div class="coach-header">
+            <div class="coach-avatar">🏒</div>
+            <div>
+              <div class="coach-name">Mark Zarbo</div>
+              <div class="coach-sport">Hockey · Buffalo NY</div>
+            </div>
+            <div class="coach-status status-soon">Coming Soon</div>
+          </div>
+          <div class="coach-stats">
+            <div class="cs-stat"><div class="cs-val">—</div><div class="cs-lbl">Registrations</div></div>
+            <div class="cs-stat"><div class="cs-val">—</div><div class="cs-lbl">Revenue</div></div>
+            <div class="cs-stat"><div class="cs-val">—</div><div class="cs-lbl">HH Synced</div></div>
+          </div>
+          <div class="coach-progress">
+            <div class="cp-label"><span>Setup progress</span><span>Demo ready</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:40%;background:rgba(234,179,8,0.6)"></div></div>
+          </div>
+          <div class="coach-actions">
+            <button class="btn-sm btn-view">Setup Dashboard</button>
+            <button class="btn-sm btn-notify">📢 Message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COACHES -->
+    <div class="panel" id="panel-coaches">
+      <div class="section-header">
+        <div class="section-title">All Coaches</div>
+        <button class="btn-add">+ Onboard Coach</button>
+      </div>
+      <div class="coaches-table">
+        <div class="table-header">
+          <div>Coach</div>
+          <div>Sport</div>
+          <div>Registrations</div>
+          <div>Revenue</div>
+          <div>HH Families</div>
+          <div>Status</div>
+        </div>
+        <div class="table-row">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:6px;background:rgba(201,162,39,0.15);display:flex;align-items:center;justify-content:center">🏒</div>
+            <div><div style="font-weight:600">Chris Mazzu</div><div style="font-size:11px;color:var(--muted)">Buffalo NY</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">Hockey</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gold)">24</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--green)">$6,847</div>
+          <div style="font-size:13px">18 synced</div>
+          <div><span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)">● Live</span></div>
+        </div>
+        <div class="table-row" style="opacity:.5">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:6px;background:rgba(201,162,39,0.15);display:flex;align-items:center;justify-content:center">🏒</div>
+            <div><div style="font-weight:600">Mark Zarbo</div><div style="font-size:11px;color:var(--muted)">Buffalo NY</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">Hockey</div>
+          <div style="color:var(--muted)">—</div>
+          <div style="color:var(--muted)">—</div>
+          <div style="color:var(--muted)">—</div>
+          <div><span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(234,179,8,0.1);color:#eab308;border:1px solid rgba(234,179,8,0.2)">Coming Soon</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAMILIES -->
+    <div class="panel" id="panel-families">
+      <div class="section-header">
+        <div class="section-title">All Families</div>
+        <div style="font-size:12px;color:var(--muted)">42 total · 31 on HomeHuddle</div>
+      </div>
+      <div class="families-table">
+        <div class="ft-header">
+          <div>Parent / Player</div>
+          <div>Coach / Program</div>
+          <div>Phone</div>
+          <div>HomeHuddle</div>
+          <div>Status</div>
+        </div>
+        ${[
+          ['Mike Rodriguez / Jake','Chris Mazzu · Skills Camp','(716) 555-0101',true,'Paid'],
+          ['Sarah Chen / Emma','Chris Mazzu · Skills Camp','(716) 555-0102',true,'Paid'],
+          ['Dave Johnson / Tyler','Chris Mazzu · Elite Skating','(716) 555-0103',true,'Paid'],
+          ['Pat Murphy / Aiden','Chris Mazzu · Skills Camp','(716) 555-0104',false,'Paid'],
+          ['Chris Foster / Liam','Chris Mazzu · Goalie Clinic','(716) 555-0105',true,'Paid'],
+          ['Amy Williams / Noah','Chris Mazzu · Elite Skating','(716) 555-0106',true,'Paid'],
+          ['Carlos Martinez / Sofia','Chris Mazzu · Skills Camp','(716) 555-0107',false,'Paid'],
+          ['Lisa Brown / Mason','Chris Mazzu · Goalie Clinic','(716) 555-0108',true,'Pending'],
+        ].map(r=>`
+        <div class="ft-row">
+          <div><div style="font-weight:600">${r[0].split('/')[0]}</div><div style="font-size:11px;color:var(--muted)">Player: ${r[0].split('/')[1]}</div></div>
+          <div style="font-size:12px;color:var(--muted)">${r[1]}</div>
+          <div style="font-size:12px">${r[2]}</div>
+          <div style="font-size:12px">${r[3]?'<span style="color:var(--green)">✓ Synced</span>':'<span style="color:var(--muted)">Not linked</span>'}</div>
+          <div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:${r[4]==='Paid'?'rgba(34,197,94,0.1)':'rgba(234,179,8,0.1)'};color:${r[4]==='Paid'?'var(--green)':'#eab308'};border:1px solid ${r[4]==='Paid'?'rgba(34,197,94,0.2)':'rgba(234,179,8,0.2)'}">${r[4]}</span></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="panel" id="panel-revenue">
+      <div class="section-header">
+        <div class="section-title">Revenue Breakdown</div>
+        <div style="font-size:12px;color:var(--muted)">2025 Season</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Platform Revenue</div>
+          <div class="kpi-value" style="color:var(--green)">$8,241</div>
+          <div class="kpi-sub">All coaches combined</div>
+          <div class="kpi-trend trend-up">↑ 28% vs last season</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Chris Mazzu</div>
+          <div class="kpi-value" style="color:var(--gold)">$6,847</div>
+          <div class="kpi-sub">24 registrations · 3 programs</div>
+          <div class="kpi-trend trend-up">↑ Active</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Revenue / Family</div>
+          <div class="kpi-value" style="color:#60a5fa">$285</div>
+          <div class="kpi-sub">Per registration</div>
+          <div class="kpi-trend trend-up">↑ Strong</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Open Spots Value</div>
+          <div class="kpi-value" style="color:#eab308">$3,135</div>
+          <div class="kpi-sub">Revenue opportunity</div>
+          <div class="kpi-trend trend-warn">11 spots unfilled</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-header">
+          <div class="chart-title">💰 Revenue by Program</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${[
+            {name:'Summer Skills Camp',rev:'$5,584',pct:81,coach:'Chris Mazzu'},
+            {name:'Elite Power Skating',rev:'$1,494',pct:22,coach:'Chris Mazzu'},
+            {name:'Goalie Clinic',rev:'$398',pct:6,coach:'Chris Mazzu'},
+          ].map(p=>`
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="font-size:13px;font-weight:600;min-width:200px">${p.name}</div>
+            <div style="flex:1"><div class="progress-bar"><div class="progress-fill" style="width:${p.pct}%"></div></div></div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--gold);min-width:70px;text-align:right">${p.rev}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="panel-notifications">
+      <div class="section-header">
+        <div class="section-title">Platform Notifications</div>
+      </div>
+      <div class="notif-compose">
+        <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px">Broadcast Message</h3>
+        <div class="notif-type-grid">
+          <div class="notif-type-btn selected" onclick="selectType(this)"><div class="notif-type-icon">📢</div><div class="notif-type-label">Platform Update</div></div>
+          <div class="notif-type-btn" onclick="selectType(this)"><div class="notif-type-icon">🏒</div><div class="notif-type-label">New Coach</div></div>
+          <div class="notif-type-btn" onclick="selectType(this)"><div class="notif-type-icon">⚡</div><div class="notif-type-label">Open Spots</div></div>
+          <div class="notif-type-btn" onclick="selectType(this)"><div class="notif-type-icon">🏠</div><div class="notif-type-label">HomeHuddle</div></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;font-size:13px;color:var(--muted)">
+          Send to:
+          <select style="background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
+            <option>All families (42)</option>
+            <option>Chris Mazzu families (24)</option>
+            <option>Not on HomeHuddle (11)</option>
+          </select>
+        </div>
+        <textarea class="notif-textarea" placeholder="Type your platform message...">New clinics are now open for registration at venuewise.net — check out Chris Mazzu Hockey Clinics for summer programs! 🏒</textarea>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn-send" onclick="showToast('Broadcast sent to 42 families ✓')">📢 Send Broadcast</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="panel" id="panel-activity">
+      <div class="section-header">
+        <div class="section-title">Activity Feed</div>
+        <div style="font-size:12px;color:var(--muted)">Real-time platform activity</div>
+      </div>
+      <div style="background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px">
+        <div class="activity-list">
+          ${[
+            {icon:'✅',bg:'rgba(34,197,94,0.1)',text:'<strong>Mike Rodriguez</strong> registered Jake for <strong>Summer Skills Camp</strong> · Chris Mazzu',time:'2 min ago'},
+            {icon:'🏠',bg:'rgba(184,228,245,0.1)',text:'<strong>Sarah Chen</strong> connected HomeHuddle — schedule synced automatically',time:'14 min ago'},
+            {icon:'📢',bg:'rgba(201,162,39,0.1)',text:'<strong>Chris Mazzu</strong> sent session reminder to 16 families · Skills Camp tomorrow',time:'1h ago'},
+            {icon:'✅',bg:'rgba(34,197,94,0.1)',text:'<strong>Dave Johnson</strong> registered Tyler for <strong>Elite Power Skating</strong> · Chris Mazzu',time:'2h ago'},
+            {icon:'⚡',bg:'rgba(239,68,68,0.1)',text:'Open spot alert sent · 2 spots available in Saturday Elite Camp',time:'3h ago'},
+            {icon:'🏠',bg:'rgba(184,228,245,0.1)',text:'<strong>Amy Williams</strong> connected HomeHuddle — schedule synced automatically',time:'4h ago'},
+            {icon:'✅',bg:'rgba(34,197,94,0.1)',text:'<strong>Chris Foster</strong> registered Liam for <strong>Goalie Clinic</strong> · Chris Mazzu',time:'5h ago'},
+            {icon:'🔄',bg:'rgba(59,130,246,0.1)',text:'Schedule change pushed to all families · Thursday session moved to Rink 3',time:'Yesterday'},
+          ].map(a=>`
+          <div class="activity-item">
+            <div class="activity-icon" style="background:${a.bg}">${a.icon}</div>
+            <div class="activity-body"><div class="activity-text">${a.text}</div></div>
+            <div class="activity-time">${a.time}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+function selectType(el){
+  document.querySelectorAll('.notif-type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
