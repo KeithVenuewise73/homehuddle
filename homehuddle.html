@@ -1,387 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeHuddle Family Dashboard | Powered by Venuewise</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#0a1628;--navy2:#0d1e38;--navy3:#142444;--gold:#c9a227;--gold2:#e8bf45;--white:#f8fafc;--muted:#8fa3c0;--green:#22c55e;--r:12px}
-body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--navy2);border-bottom:1px solid rgba(184,228,245,0.1);position:sticky;top:0;z-index:100}
-.nav-left{display:flex;align-items:center;gap:14px}
-.nav-logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--white);text-decoration:none}
-.nav-logo span{color:var(--gold)}
-.nav-divider{width:1px;height:18px;background:rgba(184,228,245,0.2)}
-.nav-powered{font-size:11px;color:var(--muted)}
-.nav-powered a{color:var(--gold);text-decoration:none;font-weight:600}
-.nav-right{display:flex;align-items:center;gap:10px}
-.nav-link{font-size:12px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
-.nav-link:hover{color:var(--white)}
-.family-badge{display:flex;align-items:center;gap:8px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--gold)}
-.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 53px)}
-.sidebar{background:var(--navy2);border-right:1px solid rgba(184,228,245,0.08);padding:20px 0}
-.sidebar-section{margin-bottom:8px}
-.sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:6px}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent}
-.sidebar-item:hover{color:var(--white);background:rgba(184,228,245,0.04)}
-.sidebar-item.active{color:var(--white);background:rgba(201,162,39,0.08);border-left-color:var(--gold)}
-.sidebar-icon{font-size:16px;width:20px;text-align:center}
-.sidebar-count{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 6px}
-.notif-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;margin-left:auto}
-.main{padding:24px;overflow-y:auto}
-.panel{display:none}
-.panel.active{display:block;animation:fadeIn .2s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.next-hero{background:linear-gradient(135deg,rgba(201,162,39,0.08) 0%,rgba(184,228,245,0.05) 100%);border:1px solid rgba(201,162,39,0.2);border-radius:var(--r);padding:24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-.nh-badge{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.nh-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;margin-bottom:4px}
-.nh-meta{font-size:13px;color:var(--muted);margin-bottom:12px}
-.nh-countdown{display:flex;gap:10px}
-.nh-unit{text-align:center;background:var(--navy3);border-radius:6px;padding:8px 12px;min-width:52px}
-.nh-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800}
-.nh-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.nh-right{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
-.btn-directions{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:10px 20px;cursor:pointer}
-.nh-rink{font-size:12px;color:var(--muted);text-align:right;line-height:1.6}
-.schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.schedule-panel{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
-.panel-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
-.event-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
-.event-item:last-child{border-bottom:none;padding-bottom:0}
-.event-date{background:var(--navy3);border-radius:8px;padding:6px 10px;text-align:center;min-width:46px;flex-shrink:0}
-.event-month{font-size:9px;font-weight:600;text-transform:uppercase;color:var(--gold);letter-spacing:.5px}
-.event-day{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1}
-.event-info{flex:1}
-.event-name{font-size:13px;font-weight:600;margin-bottom:2px}
-.event-meta{font-size:11px;color:var(--muted)}
-.event-coach{font-size:11px;color:var(--gold);margin-top:2px}
-.event-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:auto;flex-shrink:0;align-self:center}
-.tag-hockey{background:rgba(184,228,245,0.1);color:#b8e4f5;border:1px solid rgba(184,228,245,0.2)}
-.tag-elite{background:rgba(201,162,39,0.1);color:var(--gold);border:1px solid rgba(201,162,39,0.25)}
-.tag-goalie{background:rgba(139,92,246,0.1);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25)}
-.notif-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
-.notif-item:last-child{border-bottom:none;padding-bottom:0}
-.ni-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
-.notif-text{font-size:12px;line-height:1.5;flex:1}
-.notif-time{font-size:10px;color:var(--muted);flex-shrink:0}
-.notif-unread{width:6px;height:6px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:4px}
-.family-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.family-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;text-align:center}
-.family-avatar{width:52px;height:52px;border-radius:50%;background:rgba(201,162,39,0.15);border:2px solid rgba(201,162,39,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px}
-.family-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:2px}
-.family-role{font-size:11px;color:var(--muted);margin-bottom:10px}
-.sport-tag{font-size:11px;background:var(--navy3);border-radius:4px;padding:3px 8px;color:var(--muted);margin-bottom:4px;display:block}
-.map-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
-.map-item{display:flex;gap:12px;align-items:center;padding:10px 0}
-.map-pin{width:36px;height:36px;border-radius:8px;background:rgba(201,162,39,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.map-info{flex:1}
-.map-name{font-size:13px;font-weight:600}
-.map-addr{font-size:11px;color:var(--muted)}
-.map-sessions{font-size:11px;color:var(--gold);margin-top:2px}
-.btn-dir{font-size:11px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer}
-.coaches-section{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
-.coach-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
-.coach-item:last-child{border-bottom:none}
-.coach-ava{width:40px;height:40px;border-radius:8px;background:rgba(201,162,39,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.coach-n{font-size:13px;font-weight:600}
-.coach-s{font-size:11px;color:var(--muted)}
-.coach-sessions{font-size:11px;color:var(--gold)}
-.btn-view-coach{font-size:11px;font-weight:600;color:var(--navy);background:var(--gold);border:none;border-radius:6px;padding:5px 12px;cursor:pointer}
-.discover-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.discover-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
-.dc-sport{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.dc-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
-.dc-meta{font-size:12px;color:var(--muted);margin-bottom:12px}
-.dc-spots{font-size:12px;color:var(--green);margin-bottom:12px}
-.btn-register{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join HomeHuddle — Free Family Sports Calendar</title>
+  <meta name="description" content="Get real-time SMS alerts when your kid's game times change. Free for families, powered by Venuewise." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE; --green-text: #085041;
+      --blue-light: #E6F1FB; --blue-text: #0C447C;
+      --gray-50: #F9F9F7; --gray-100: #F1EFE8; --gray-200: #D3D1C7; --gray-400: #888780;
+      --gray-700: #444441; --gray-900: #1a1a18; --red: #E24B4A; --red-light: #FCEBEB;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+    }
+    html { font-size: 16px; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; padding: 2rem 1rem 4rem; }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; }
+    .logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--green); display: flex; align-items: center; justify-content: center; }
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+    .logo-name { font-size: 16px; font-weight: 500; color: var(--gray-900); }
+    .logo-by { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; background: var(--green-light); color: var(--green-text); font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(26px,5vw,34px); line-height: 1.15; color: var(--gray-900); margin-bottom: .5rem; }
+    h1 em { font-style: italic; color: var(--green); }
+    .sub { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.75rem; }
+    .perks { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.75rem; }
+    .perk { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .75rem; text-align: center; }
+    .perk-icon { font-size: 20px; margin-bottom: 4px; }
+    .perk span { font-size: 11px; color: var(--gray-400); line-height: 1.4; display: block; }
+    .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+    .section-label { font-size: 11px; font-weight: 500; color: var(--gray-400); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .75rem; }
+    .field { margin-bottom: 12px; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
+    input[type=text], input[type=email], input[type=tel], input[type=url], select { width: 100%; padding: 9px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-900); outline: none; transition: border-color .15s, box-shadow .15s; appearance: none; }
+    input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
+    input::placeholder { color: var(--gray-400); }
+    .kids-list { display: flex; flex-direction: column; gap: 16px; }
+    .kid-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; position: relative; background: var(--gray-50); }
+    .kid-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .kid-num { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
+    .btn-remove { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--gray-200); border-radius: 6px; background: none; cursor: pointer; color: var(--gray-400); font-size: 16px; transition: all .15s; }
+    .btn-remove:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+    .kid-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .kid-sports { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 12px; }
+    .sport-btn { padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 12px; color: var(--gray-700); cursor: pointer; transition: all .15s; background: none; font-family: 'DM Sans', sans-serif; }
+    .sport-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
+    .teams-list { display: flex; flex-direction: column; gap: 10px; }
+    .team-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; position: relative; }
+    .team-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .team-label { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
+    .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .plat-btn { border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .6rem .75rem; cursor: pointer; transition: all .15s; background: white; text-align: left; }
+    .plat-btn:hover { border-color: var(--green); background: var(--green-light); }
+    .plat-btn.active { border: 2px solid var(--green); background: var(--green-light); }
+    .plat-btn-name { font-size: 12px; font-weight: 500; color: var(--gray-900); }
+    .plat-btn-desc { font-size: 10px; color: var(--gray-400); margin-top: 1px; }
+    .instructions { background: var(--blue-light); border-radius: var(--radius-sm); padding: .75rem; margin: 8px 0; }
+    .instructions-title { font-size: 12px; font-weight: 500; color: var(--blue-text); margin-bottom: .4rem; }
+    .instructions ol { padding-left: 1.25rem; }
+    .instructions li { font-size: 12px; color: var(--blue-text); line-height: 1.6; }
+    .instructions strong { font-weight: 500; }
+    .ical-field { margin-top: 8px; display: none; }
+    .btn-add-team { display: flex; align-items: center; gap: 6px; width: 100%; padding: 8px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .btn-add-team:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
+    .btn-add-kid { display: flex; align-items: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 12px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .btn-add-kid:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
+    .btn-primary { width: 100%; padding: 13px; background: var(--green); color: white; font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.25rem; transition: background .15s; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
+    .legal { font-size: 12px; color: var(--gray-400); text-align: center; margin-top: .75rem; line-height: 1.6; }
+    .legal a { color: var(--green); text-decoration: none; }
+    .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
+    .setup { display: none; padding: 2rem 0; }
+    .setup-icon { width: 64px; height: 64px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .setup-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .setup h2 { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gray-900); margin-bottom: .5rem; text-align: center; }
+    .setup-sub { font-size: 15px; color: var(--gray-400); line-height: 1.6; margin-bottom: 1.5rem; text-align: center; }
+    .setup-cta { display: block; padding: 13px; background: var(--green); color: white; border-radius: var(--radius-sm); text-decoration: none; font-weight: 500; font-size: 15px; text-align: center; margin-bottom: 1rem; transition: background .15s; }
+    .setup-cta:hover { background: var(--green-dark); }
+    .share-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+    .share-card-title { font-size:13px; font-weight:600; color:var(--gray-700); margin-bottom:0.75rem; }
+    .share-message { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; color: var(--gray-700); line-height: 1.6; margin-bottom: 0.75rem; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; }
+    .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--green); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .copy-btn:hover { background: var(--green-light); border-color: var(--green); }
+    .copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
+    .cal-link-row { display: flex; align-items: center; gap: 10px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 0.75rem; cursor: pointer; transition: background .15s; border: 1px solid var(--gray-200); }
+    .cal-link-row:hover { background: var(--green-light); border-color: var(--green); }
+    .cal-link-url { font-size: 13px; color: var(--gray-700); flex: 1; word-break: break-all; }
+    .cal-link-copy { font-size: 12px; font-weight: 600; color: var(--green); flex-shrink: 0; }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 480px) { .kid-row2 { grid-template-columns: 1fr; } .platform-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
-
-<div class="nav">
-  <div class="nav-left">
-    <a href="https://venuewise.net/homehuddle" class="nav-logo">Home<span>Huddle</span></a>
-    <div class="nav-divider"></div>
-    <div class="nav-powered">powered by <a href="https://venuewise.net">Venuewise</a></div>
-  </div>
-  <div class="nav-right">
-    <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="nav-link">🏒 CoachesHuddle</a>
-    <div class="family-badge">👨‍👩‍👧 Rodriguez Family</div>
-  </div>
-</div>
-
-<div class="layout">
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Family</div>
-      <div class="sidebar-item active" onclick="showPanel('dashboard',this)"><span class="sidebar-icon">🏠</span> Dashboard</div>
-      <div class="sidebar-item" onclick="showPanel('schedule',this)"><span class="sidebar-icon">📅</span> Full Schedule <span class="sidebar-count">8</span></div>
-      <div class="sidebar-item" onclick="showPanel('family',this)"><span class="sidebar-icon">👨‍👩‍👧</span> Family Members</div>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Sports</div>
-      <div class="sidebar-item" onclick="showPanel('coaches',this)"><span class="sidebar-icon">🏒</span> My Coaches <span class="sidebar-count">1</span></div>
-      <div class="sidebar-item" onclick="showPanel('locations',this)"><span class="sidebar-icon">📍</span> Rink Locations</div>
-      <div class="sidebar-item" onclick="showPanel('discover',this)"><span class="sidebar-icon">🔍</span> Find Clinics</div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Updates</div>
-      <div class="sidebar-item" onclick="showPanel('notifications',this)"><span class="sidebar-icon">🔔</span> Notifications <div class="notif-dot"></div></div>
+    <div>
+      <div class="logo-name">HomeHuddle</div>
+      <div class="logo-by">powered by Venuewise</div>
     </div>
   </div>
 
-  <div class="main">
-
-    <!-- DASHBOARD -->
-    <div class="panel active" id="panel-dashboard">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800">Good morning, Mike 👋</div>
-          <div style="font-size:13px;color:var(--muted)">Jake has a session coming up soon</div>
-        </div>
-      </div>
-      <div class="next-hero">
-        <div>
-          <div class="nh-badge">⚡ Next Session</div>
-          <div class="nh-title">Summer Skills Camp</div>
-          <div class="nh-meta">Mon Jun 9 · 6:00 PM · LECOM Harborcenter, Rink 2 · Coach: Chris Mazzu</div>
-          <div class="nh-countdown">
-            <div class="nh-unit"><div class="nh-num">2</div><div class="nh-lbl">Days</div></div>
-            <div class="nh-unit"><div class="nh-num">14</div><div class="nh-lbl">Hrs</div></div>
-            <div class="nh-unit"><div class="nh-num">33</div><div class="nh-lbl">Min</div></div>
-          </div>
-        </div>
-        <div class="nh-right">
-          <button class="btn-directions" onclick="showToast('Opening directions to LECOM Harborcenter...')">📍 Get Directions</button>
-          <div class="nh-rink">LECOM Harborcenter<br>1 James D. Griffin Plaza<br>Buffalo, NY 14203</div>
-        </div>
-      </div>
-      <div class="schedule-grid">
-        <div class="schedule-panel">
-          <div class="panel-title">📅 Jake's Upcoming Sessions</div>
-          <div class="event-item">
-            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">9</div></div>
-            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
-            <div class="event-tag tag-hockey">Hockey</div>
-          </div>
-          <div class="event-item">
-            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">16</div></div>
-            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
-            <div class="event-tag tag-hockey">Hockey</div>
-          </div>
-          <div class="event-item">
-            <div class="event-date"><div class="event-month">Jun</div><div class="event-day">23</div></div>
-            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
-            <div class="event-tag tag-hockey">Hockey</div>
-          </div>
-          <div class="event-item">
-            <div class="event-date"><div class="event-month">Jul</div><div class="event-day">7</div></div>
-            <div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
-            <div class="event-tag tag-elite">Elite</div>
-          </div>
-        </div>
-        <div class="schedule-panel">
-          <div class="panel-title">🔔 Latest Alerts</div>
-          <div class="notif-item">
-            <div class="notif-unread"></div>
-            <div class="ni-icon" style="background:rgba(234,179,8,0.1)">⏰</div>
-            <div class="notif-text">Skills Camp is <strong>tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear!</div>
-            <div class="notif-time">1h ago</div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-unread"></div>
-            <div class="ni-icon" style="background:rgba(59,130,246,0.1)">ℹ️</div>
-            <div class="notif-text"><strong>2 spots opened</strong> in Saturday Elite Camp — register to secure Jake's spot</div>
-            <div class="notif-time">3h ago</div>
-          </div>
-          <div class="notif-item">
-            <div class="ni-icon" style="background:rgba(34,197,94,0.1)">✅</div>
-            <div class="notif-text">Registration confirmed — Summer Skills Camp added to your HomeHuddle dashboard</div>
-            <div class="notif-time">Yesterday</div>
-          </div>
-          <div class="notif-item">
-            <div class="ni-icon" style="background:rgba(184,228,245,0.1)">🏒</div>
-            <div class="notif-text">Welcome to <strong>Chris Mazzu Hockey Clinics</strong> via CoachesHuddle powered by Venuewise</div>
-            <div class="notif-time">2 days ago</div>
-          </div>
-        </div>
-      </div>
+  <div id="form-wrap">
+    <div class="badge">✦ Free 30-day trial</div>
+    <h1>Your family's schedule,<br><em>finally organized.</em></h1>
+    <p class="sub">Real-time SMS alerts when practice times change, games are added, or there's a conflict. Try free for 30 days, then just $4.95/month.</p>
+    <div class="perks">
+      <div class="perk"><div class="perk-icon">📲</div><span>SMS alerts</span></div>
+      <div class="perk"><div class="perk-icon">📅</div><span>Live sync</span></div>
+      <div class="perk"><div class="perk-icon">30</div><span>Day free trial</span></div>
     </div>
-
-    <!-- FULL SCHEDULE -->
-    <div class="panel" id="panel-schedule">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Jake's Full Schedule</div>
-      <div class="schedule-panel">
-        <div class="panel-title">📅 All Sessions — Summer 2025</div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">9</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">16</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">23</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">30</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">7</div></div><div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-elite">Elite</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">14</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">21</div></div><div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-elite">Elite</div></div>
-        <div class="event-item"><div class="event-date"><div class="event-month">Aug</div><div class="event-day">4</div></div><div class="event-info"><div class="event-name">Goalie Clinic</div><div class="event-meta">4:00 PM · Rink 3 · 75 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-goalie">Goalie</div></div>
-      </div>
+    <div class="card">
+      <p class="section-label">Your info</p>
+      <div class="field"><label for="fname">Family name</label><input type="text" id="fname" placeholder="e.g. Herman Family" /></div>
+      <div class="field"><label for="email">Email</label><input type="email" id="email" placeholder="you@example.com" /></div>
+      <div class="field"><label for="phone">Mobile number <span style="font-weight:400;color:var(--gray-400)">(for SMS alerts)</span></label><input type="tel" id="phone" placeholder="+1 (716) 555-0100" /></div>
     </div>
-
-    <!-- FAMILY -->
-    <div class="panel" id="panel-family">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Family Members</div>
-      <div class="family-grid">
-        <div class="family-card">
-          <div class="family-avatar">👨</div>
-          <div class="family-name">Mike</div>
-          <div class="family-role">Parent · Account Owner</div>
-          <span class="sport-tag">📱 SMS Notifications On</span>
-          <span class="sport-tag">📧 Email Confirmed</span>
-        </div>
-        <div class="family-card">
-          <div class="family-avatar">🧒</div>
-          <div class="family-name">Jake</div>
-          <div class="family-role">Player · Age 11</div>
-          <span class="sport-tag">🏒 Hockey · Skills Camp</span>
-          <span class="sport-tag">🏒 Elite Power Skating</span>
-          <span class="sport-tag">🥅 Goalie Clinic</span>
-        </div>
-        <div class="family-card" style="border-style:dashed;opacity:.5">
-          <div class="family-avatar" style="background:rgba(184,228,245,0.05)">+</div>
-          <div class="family-name">Add Child</div>
-          <div class="family-role">Add another player</div>
-          <span class="sport-tag">Tap to add</span>
-        </div>
-      </div>
+    <div class="card">
+      <p class="section-label">Your kids & their calendars</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:1rem;line-height:1.5">Add each kid, their sports, and connect each team calendar. Kids can have multiple teams.</p>
+      <div class="kids-list" id="kids-list"></div>
+      <button class="btn-add-kid" onclick="addKid()">+ Add another kid</button>
     </div>
-
-    <!-- COACHES -->
-    <div class="panel" id="panel-coaches">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">My Coaches</div>
-      <div class="coaches-section">
-        <div class="panel-title">🏒 Registered Coaches</div>
-        <div class="coach-item">
-          <div class="coach-ava">🏒</div>
-          <div style="flex:1">
-            <div class="coach-n">Chris Mazzu</div>
-            <div class="coach-s">Hockey Clinics · Buffalo NY</div>
-            <div class="coach-sessions">3 active programs · 8 sessions remaining</div>
-          </div>
-          <button class="btn-view-coach" onclick="window.open('https://venuewise.net/coacheshuddle/chrismazzu','_blank')">View Page</button>
-        </div>
-      </div>
-      <div class="coaches-section">
-        <div class="panel-title">🔍 Discover More Coaches</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Find more clinics and programs near you powered by Venuewise</div>
-        <button class="btn-view-coach" onclick="showPanel('discover',document.querySelectorAll('.sidebar-item')[5])">Browse All Clinics →</button>
-      </div>
-    </div>
-
-    <!-- LOCATIONS -->
-    <div class="panel" id="panel-locations">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Rink Locations</div>
-      <div class="map-card">
-        <div class="panel-title" style="margin-bottom:14px">📍 Your Rinks</div>
-        <div class="map-item">
-          <div class="map-pin">🏒</div>
-          <div class="map-info">
-            <div class="map-name">LECOM Harborcenter</div>
-            <div class="map-addr">1 James D. Griffin Plaza, Buffalo NY 14203</div>
-            <div class="map-sessions">3 upcoming sessions · Next: Jun 9 at 6:00 PM</div>
-          </div>
-          <button class="btn-dir" onclick="showToast('Opening Google Maps...')">Directions →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- DISCOVER -->
-    <div class="panel" id="panel-discover">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Find Clinics Near You</div>
-      <div class="discover-grid">
-        <div class="discover-card">
-          <div class="dc-sport">🏒 Hockey</div>
-          <div class="dc-name">Elite Power Skating</div>
-          <div class="dc-meta">Chris Mazzu · Jul 7–28 · Mon 5:30 PM · Ages 10–16</div>
-          <div class="dc-spots">6 spots remaining · $249</div>
-          <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
-        </div>
-        <div class="discover-card">
-          <div class="dc-sport">🥅 Hockey</div>
-          <div class="dc-name">Goalie Clinic</div>
-          <div class="dc-meta">Chris Mazzu · Aug 4–18 · Mon 4:00 PM · All ages</div>
-          <div class="dc-spots">6 spots remaining · $199</div>
-          <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
-        </div>
-        <div class="discover-card" style="opacity:.5">
-          <div class="dc-sport">🏒 Hockey</div>
-          <div class="dc-name">Mark Zarbo Clinics</div>
-          <div class="dc-meta">Coming Soon · Buffalo NY</div>
-          <div class="dc-spots" style="color:var(--muted)">Registration opening soon</div>
-          <button class="btn-register" style="opacity:.5;cursor:not-allowed">Notify Me</button>
-        </div>
-        <div class="discover-card" style="opacity:.5">
-          <div class="dc-sport">More sports</div>
-          <div class="dc-name">More Coaches</div>
-          <div class="dc-meta">New coaches joining Venuewise soon</div>
-          <div class="dc-spots" style="color:var(--muted)">Stay tuned</div>
-          <button class="btn-register" style="opacity:.5;cursor:not-allowed">Coming Soon</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- NOTIFICATIONS -->
-    <div class="panel" id="panel-notifications">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Notifications</div>
-      <div class="schedule-panel">
-        <div class="notif-item">
-          <div class="notif-unread"></div>
-          <div class="ni-icon" style="background:rgba(234,179,8,0.1)">⏰</div>
-          <div class="notif-text"><strong>Skills Camp tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear! 🏒</div>
-          <div class="notif-time">1h ago</div>
-        </div>
-        <div class="notif-item">
-          <div class="notif-unread"></div>
-          <div class="ni-icon" style="background:rgba(59,130,246,0.1)">ℹ️</div>
-          <div class="notif-text"><strong>2 spots opened</strong> in Saturday Elite Camp (Jul 12) — register now at venuewise.net/coacheshuddle/chrismazzu</div>
-          <div class="notif-time">3h ago</div>
-        </div>
-        <div class="notif-item">
-          <div class="ni-icon" style="background:rgba(34,197,94,0.1)">✅</div>
-          <div class="notif-text">Registration confirmed — <strong>Summer Skills Camp</strong> added to your HomeHuddle dashboard automatically</div>
-          <div class="notif-time">Yesterday</div>
-        </div>
-        <div class="notif-item">
-          <div class="ni-icon" style="background:rgba(59,130,246,0.1)">🔄</div>
-          <div class="notif-text">Schedule update: Thursday session moved to <strong>Rink 3</strong>. Same time (5:30 PM). Dashboard updated automatically.</div>
-          <div class="notif-time">Jun 5</div>
-        </div>
-        <div class="notif-item">
-          <div class="ni-icon" style="background:rgba(184,228,245,0.1)">🏒</div>
-          <div class="notif-text">Welcome to <strong>Chris Mazzu Hockey Clinics</strong>! Your schedule has been automatically synced to HomeHuddle.</div>
-          <div class="notif-time">Jun 3</div>
-        </div>
-      </div>
-    </div>
-
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-primary" id="submit-btn" onclick="submitForm()">
+      <span id="btn-text">Start your free 30-day trial</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+    <p class="legal">Free for 30 days, then $4.95/month. No contracts. Cancel anytime.<br>
+      <a href="https://venuewise.net">venuewise.net</a> · SMS powered by Venuewise</p>
   </div>
-</div>
 
-<div class="toast" id="toast" style="position:fixed;bottom:24px;right:24px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px 18px;font-size:13px;font-weight:500;color:var(--green);display:none;align-items:center;gap:8px;z-index:2000">
-  ✅ <span id="toastMsg"></span>
+  <div class="setup" id="setup">
+    <div class="setup-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+    <h2>You're in!</h2>
+    <p class="setup-sub">Your family's schedule is syncing now — check your email for a welcome message.</p>
+    <a id="viewCalBtn" href="#" class="setup-cta">View my family calendar →</a>
+    <div class="share-card">
+      <div class="share-card-title">📅 Your calendar link</div>
+      <div class="cal-link-row" onclick="copyCalLink()">
+        <div class="cal-link-url" id="setupLinkUrl">—</div>
+        <div class="cal-link-copy" id="calCopyLabel">Copy</div>
+      </div>
+      <p style="font-size:12px;color:var(--gray-400);line-height:1.5">Bookmark this — it's your family's schedule hub.</p>
+    </div>
+    <div class="share-card">
+      <div class="share-card-title">👨‍👩‍👧‍👦 Share with family</div>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:0.75rem;line-height:1.5">Copy and text this to anyone who should follow the schedule:</p>
+      <div class="share-message" id="share-message">Loading...</div>
+      <button class="copy-btn" id="copy-msg-btn" onclick="copyShareMessage()">📋 Copy message to share</button>
+    </div>
+    <p style="font-size:12px;color:var(--gray-400);text-align:center;line-height:1.6;margin-top:0.5rem">
+      SMS alerts coming soon · Push notifications active now<br>
+      Questions? <a href="mailto:hello@venuewise.net" style="color:var(--green)">hello@venuewise.net</a>
+    </p>
+  </div>
 </div>
 
 <script>
-function showPanel(id,el){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  if(el)el.classList.add('active');
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+const SPORTS = ['Baseball','Hockey','Soccer','Basketball','Lacrosse','Football','Wrestling','Swimming','Volleyball','Softball','Other'];
+const PLATFORMS = {
+  gamechanger: { name: 'GameChanger', desc: 'Baseball, softball' },
+  teamsnap:    { name: 'TeamSnap',    desc: 'Hockey, soccer, more' },
+  leagueapps:  { name: 'LeagueApps', desc: 'Rec leagues' },
+  google:      { name: 'Google Cal',  desc: 'Any Google cal' },
+  apple:       { name: 'Apple Cal',   desc: 'iPhone / iCloud' },
+  other:       { name: 'Other / iCal', desc: 'webcal URL' },
+};
+const INSTRUCTIONS = {
+  gamechanger: { title: 'Get your GameChanger calendar link', steps: ['Open the <strong>GameChanger app</strong>','Tap your team → <strong>Schedule tab</strong>','Tap the share/calendar icon (top right)','Tap <strong>"Subscribe to Calendar"</strong>','Tap Copy — then paste the link below'] },
+  teamsnap:    { title: 'Get your TeamSnap calendar link', steps: ['Open <strong>TeamSnap</strong>','Go to your team → <strong>Schedule</strong>','Tap <strong>"Export Schedule"</strong> or the "..." menu','Select <strong>iCal / Webcal</strong>','Copy the link and paste it below'] },
+  leagueapps:  { title: 'Get your LeagueApps calendar link', steps: ['Log into <strong>LeagueApps</strong>','Go to your team or program page','Find the <strong>Calendar</strong> section','Click <strong>Export</strong> or <strong>Subscribe</strong>','Copy the iCal link and paste it below'] },
+  google:      { title: 'Get your Google Calendar link', steps: ['Go to <strong>calendar.google.com</strong> on desktop','Hover over the calendar → click 3 dots → <strong>Settings</strong>','Scroll to <strong>"Integrate calendar"</strong>','Copy the <strong>Secret address in iCal format</strong>','Paste it below'] },
+  apple:       { title: 'Get your Apple Calendar link', steps: ['Open <strong>Calendar</strong> on your iPhone','Tap <strong>Calendars</strong> at the bottom','Tap the ⓘ next to the calendar','Tap <strong>Share Calendar</strong> → turn on <strong>Public Calendar</strong>','Copy the link and paste it below'] },
+  other:       { title: 'Paste your iCal / webcal link', steps: ['Find the <strong>Export</strong> or <strong>Subscribe</strong> option in your app','Copy the link — it starts with <strong>webcal://</strong> or <strong>https://</strong>','Paste it in the field below'] }
+};
+
+let kidCount = 0;
+let teamCounters = {};
+let familyCalendarUrl = '';
+let shareMessageText = '';
+
+function addKid() {
+  kidCount++;
+  const id = kidCount;
+  teamCounters[id] = 0;
+  const list = document.getElementById('kids-list');
+  const div = document.createElement('div');
+  div.className = 'kid-block';
+  div.id = 'kid-block-' + id;
+  div.innerHTML =
+    '<div class="kid-block-header">' +
+      '<div class="kid-num">Kid ' + id + '</div>' +
+      (id > 1 ? '<button class="btn-remove" onclick="removeKid(' + id + ')">×</button>' : '') +
+    '</div>' +
+    '<div class="kid-row2">' +
+      '<div><label>First name</label><input type="text" id="kid-name-' + id + '" placeholder="e.g. Dominic"/></div>' +
+      '<div><label>Age / grade</label><input type="text" id="kid-age-' + id + '" placeholder="e.g. 13 / 8th"/></div>' +
+    '</div>' +
+    '<div style="margin-top:12px">' +
+      '<label style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:8px;display:block">Team calendars</label>' +
+      '<p style="font-size:12px;color:var(--gray-400);margin-bottom:8px">For each team, enter the team name, pick the sport, select the platform, then paste the calendar link.</p>' +
+      '<div class="teams-list" id="teams-list-' + id + '"></div>' +
+      '<button class="btn-add-team" onclick="addTeam(' + id + ')">+ Add another team</button>' +
+    '</div>';
+  list.appendChild(div);
+  addTeam(id);
 }
-function showToast(msg){
-  const t=document.getElementById('toast');
-  document.getElementById('toastMsg').textContent=msg;
-  t.style.display='flex';
-  setTimeout(()=>t.style.display='none',3500);
+
+function addTeam(kidId) {
+  teamCounters[kidId] = (teamCounters[kidId] || 0) + 1;
+  const ti = teamCounters[kidId];
+  const teamsList = document.getElementById('teams-list-' + kidId);
+  const div = document.createElement('div');
+  div.className = 'team-block';
+  div.id = 'team-block-' + kidId + '-' + ti;
+
+  const platBtns = Object.entries(PLATFORMS).map(function(entry) {
+    const key = entry[0], p = entry[1];
+    return '<button class="plat-btn" onclick="selectPlatform(' + kidId + ',' + ti + ',\'' + key + '\',this)"><div class="plat-btn-name">' + p.name + '</div><div class="plat-btn-desc">' + p.desc + '</div></button>';
+  }).join('');
+
+  const sportBtnsT = SPORTS.map(function(s) {
+    return '<button class="sport-btn" onclick="toggleSport(this)">' + s + '</button>';
+  }).join('');
+
+  div.innerHTML =
+    '<div class="team-block-header">' +
+      '<div class="team-label">Team ' + ti + '</div>' +
+      (ti > 1 ? '<button class="btn-remove" style="width:24px;height:24px;font-size:14px" onclick="removeTeam(' + kidId + ',' + ti + ')">×</button>' : '') +
+    '</div>' +
+    // TEAM NAME — always visible, first field
+    '<div style="margin-bottom:10px">' +
+      '<label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Team name <span style="font-weight:400;color:var(--gray-400)">(required)</span></label>' +
+      '<input type="text" id="team-name-' + kidId + '-' + ti + '" placeholder="e.g. FCP Baseball, West Seneca Modified, Caz Chiefs"/>' +
+      '<div style="font-size:11px;color:var(--gray-400);margin-top:3px">Helps identify this team in your calendar and notifications</div>' +
+    '</div>' +
+    // SPORT
+    '<div style="margin-bottom:8px">' +
+      '<label style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:5px;display:block">Sport</label>' +
+      '<div class="kid-sports" id="team-sports-' + kidId + '-' + ti + '" style="margin:0 0 4px">' + sportBtnsT + '</div>' +
+    '</div>' +
+    // PLATFORM
+    '<div class="platform-grid">' + platBtns + '</div>' +
+    // INSTRUCTIONS (shown after platform selected)
+    '<div class="instructions" id="instr-' + kidId + '-' + ti + '" style="display:none"></div>' +
+    // ICAL URL (shown after platform selected)
+    '<div class="ical-field" id="ical-field-' + kidId + '-' + ti + '">' +
+      '<label>Paste your calendar link</label>' +
+      '<input type="url" id="ical-' + kidId + '-' + ti + '" placeholder="webcal:// or https://"/>' +
+    '</div>';
+
+  teamsList.appendChild(div);
 }
+
+function removeKid(id) { var el = document.getElementById('kid-block-' + id); if (el) el.remove(); }
+function removeTeam(kidId, ti) { var el = document.getElementById('team-block-' + kidId + '-' + ti); if (el) el.remove(); }
+function toggleSport(el) { el.classList.toggle('active'); }
+
+function selectPlatform(kidId, ti, platform, el) {
+  el.closest('.platform-grid').querySelectorAll('.plat-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  var info = INSTRUCTIONS[platform];
+  var instrEl = document.getElementById('instr-' + kidId + '-' + ti);
+  instrEl.style.display = 'block';
+  instrEl.innerHTML = '<div class="instructions-title">' + info.title + '</div><ol>' + info.steps.map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ol>';
+  document.getElementById('ical-field-' + kidId + '-' + ti).style.display = 'block';
+}
+
+function collectKids() {
+  var kids = [];
+  document.querySelectorAll('.kid-block').forEach(function(block) {
+    var kidId = block.id.replace('kid-block-', '');
+    var name = document.getElementById('kid-name-' + kidId);
+    if (!name || !name.value.trim()) return;
+    var teams = [];
+    block.querySelectorAll('.team-block').forEach(function(tb) {
+      var parts = tb.id.replace('team-block-', '').split('-');
+      var ti = parts[1];
+      var activePlat = tb.querySelector('.plat-btn.active');
+      var platKey = null;
+      if (activePlat) {
+        var platName = activePlat.querySelector('.plat-btn-name').textContent;
+        platKey = Object.keys(PLATFORMS).find(function(k){ return PLATFORMS[k].name === platName; });
+      }
+      var icalInput = document.getElementById('ical-' + kidId + '-' + ti);
+      var icalUrl = icalInput ? icalInput.value.trim() : '';
+      var teamNameInput = document.getElementById('team-name-' + kidId + '-' + ti);
+      var teamName = teamNameInput ? teamNameInput.value.trim() : '';
+      var teamSports = [];
+      tb.querySelectorAll('.sport-btn.active').forEach(function(b){ teamSports.push(b.textContent.trim()); });
+      if (icalUrl) teams.push({ platform: platKey || 'other', icalUrl: icalUrl, teamName: teamName, sports: teamSports });
+    });
+    var sports = [...new Set(teams.flatMap(function(t){ return t.sports; }))];
+    kids.push({ name: name.value.trim(), sports: sports, teams: teams });
+  });
+  return kids;
+}
+
+async function submitForm() {
+  var fname = document.getElementById('fname').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var phone = document.getElementById('phone').value.trim();
+  hideError();
+  if (!fname) return showError('Please enter your family name.');
+  if (!email || !email.includes('@')) return showError('Please enter a valid email address.');
+  if (!phone) return showError('Please enter your mobile number for SMS alerts.');
+  var kids = collectKids();
+  if (kids.length === 0) return showError('Please add at least one kid.');
+  var missingTeam = kids.find(function(k){ return k.teams.length === 0; });
+  if (missingTeam) return showError('Please add at least one team calendar for ' + missingTeam.name + '.');
+  var missingTeamName = null;
+  kids.forEach(function(k){
+    k.teams.forEach(function(t){
+      if (!t.teamName) missingTeamName = k.name;
+    });
+  });
+  if (missingTeamName) return showError('Please enter a team name for all of ' + missingTeamName + '\'s teams.');
+  var normalizedPhone = normalizePhone(phone);
+  setLoading(true);
+  try {
+    for (var ki = 0; ki < kids.length; ki++) {
+      var kid = kids[ki];
+      for (var ti = 0; ti < kid.teams.length; ti++) {
+        var team = kid.teams[ti];
+        var sportList = team.sports && team.sports.length > 0 ? team.sports : (kid.sports.length > 0 ? kid.sports : ['Sport']);
+        var payload = {
+          family_name: fname, email: email, phone: normalizedPhone,
+          kid_name: kid.name, sport: sportList.join(', '),
+          platform: team.platform,
+          ical_url: team.icalUrl.replace(/^webcal:\/\//i, 'https://'),
+          is_active: true, status: 'trial',
+          team_name: team.teamName || null,
+        };
+        var res = await fetch(SURL + '/rest/v1/feeds', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          var err = await res.json().catch(function(){ return {}; });
+          throw new Error(err.message || 'Signup failed (' + res.status + ')');
+        }
+      }
+    }
+    try {
+      fetch(SURL + '/functions/v1/sync-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+        body: JSON.stringify({ email: email })
+      });
+    } catch(e) { console.log('Sync triggered'); }
+    try {
+      await fetch(SURL + '/functions/v1/send-welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
+        body: JSON.stringify({ email: email, family_name: fname, kid_names: kids.map(function(k){ return k.name; }) })
+      });
+    } catch(e) { console.error('Welcome email error:', e); }
+
+    familyCalendarUrl = 'https://venuewise.net/calendar.html?email=' + encodeURIComponent(email);
+    shareMessageText = buildShareMessage(fname, kids, familyCalendarUrl);
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('setupLinkUrl').textContent = familyCalendarUrl;
+    document.getElementById('viewCalBtn').href = familyCalendarUrl;
+    document.getElementById('share-message').textContent = shareMessageText;
+    document.getElementById('setup').style.display = 'block';
+  } catch (err) {
+    showError('Something went wrong: ' + err.message + '. Please try again or text us at +1 (716) 671-1814.');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function buildShareMessage(fname, kids, calUrl) {
+  var first = fname.replace(/ Family$/i, '');
+  var kidDescriptions = kids.map(function(k) {
+    var sports = k.sports.length > 0 ? k.sports.join(' & ') : 'sports';
+    var teams = k.teams.map(function(t){ return t.teamName; }).filter(Boolean);
+    var teamStr = teams.length ? ' (' + teams.join(', ') + ')' : '';
+    return k.name + "'s " + sports + teamStr;
+  });
+  var kidText = kidDescriptions.length === 1 ? kidDescriptions[0]
+    : kidDescriptions.length === 2 ? kidDescriptions[0] + ' and ' + kidDescriptions[1]
+    : kidDescriptions.slice(0,-1).join(', ') + ', and ' + kidDescriptions[kidDescriptions.length-1];
+  return "Hey! I'm using HomeHuddle to share " + kidText + " schedule with the family. Tap the link to see the games and get push notifications right on your phone — no app needed!\n\n" + calUrl + "\n\nOnce you open it, tap \"Enable notifications\" to get alerts when games are added or times change. 🏅";
+}
+
+function copyCalLink() { copyText(familyCalendarUrl, 'calCopyLabel', 'Copied!', 'Copy', null); }
+function copyShareMessage() { copyText(shareMessageText, null, null, null, 'copy-msg-btn'); }
+function copyText(text, labelId, successText, defaultText, btnId) {
+  navigator.clipboard.writeText(text).then(function() {
+    if (btnId) { var b=document.getElementById(btnId); b.textContent='✅ Copied! Paste it in a text message'; b.classList.add('copied'); setTimeout(function(){b.textContent='📋 Copy message to share';b.classList.remove('copied');},3000); }
+    if (labelId) { document.getElementById(labelId).textContent=successText; setTimeout(function(){document.getElementById(labelId).textContent=defaultText;},2000); }
+  }).catch(function() {
+    var el=document.createElement('textarea'); el.value=text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    if (btnId) { var b=document.getElementById(btnId); b.textContent='✅ Copied!'; b.classList.add('copied'); setTimeout(function(){b.textContent='📋 Copy message to share';b.classList.remove('copied');},3000); }
+  });
+}
+function normalizePhone(p) { var d=p.replace(/\D/g,''); if(d.length===10) return '+1'+d; if(d.length===11&&d[0]==='1') return '+'+d; return p; }
+function showError(msg) { var el=document.getElementById('error-msg'); el.textContent=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function hideError() { document.getElementById('error-msg').style.display='none'; }
+function setLoading(on) {
+  document.getElementById('submit-btn').disabled=on;
+  document.getElementById('btn-text').textContent=on?'Setting up your account…':'Start your free 30-day trial';
+  document.getElementById('spinner').style.display=on?'block':'none';
+}
+
+addKid();
 </script>
 </body>
 </html>
