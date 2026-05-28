@@ -20,26 +20,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 .nav-link{font-size:12px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
 .nav-link:hover{color:var(--white)}
 .family-badge{display:flex;align-items:center;gap:8px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--gold)}
-
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 53px)}
 .sidebar{background:var(--navy2);border-right:1px solid rgba(184,228,245,0.08);padding:20px 0}
 .sidebar-section{margin-bottom:8px}
 .sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:6px}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent;text-decoration:none}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent}
 .sidebar-item:hover{color:var(--white);background:rgba(184,228,245,0.04)}
 .sidebar-item.active{color:var(--white);background:rgba(201,162,39,0.08);border-left-color:var(--gold)}
 .sidebar-icon{font-size:16px;width:20px;text-align:center}
 .sidebar-count{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 6px}
 .notif-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;margin-left:auto}
-
 .main{padding:24px;overflow-y:auto}
 .panel{display:none}
 .panel.active{display:block;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
-/* NEXT SESSION HERO */
 .next-hero{background:linear-gradient(135deg,rgba(201,162,39,0.08) 0%,rgba(184,228,245,0.05) 100%);border:1px solid rgba(201,162,39,0.2);border-radius:var(--r);padding:24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-.nh-left{}
 .nh-badge{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .nh-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;margin-bottom:4px}
 .nh-meta{font-size:13px;color:var(--muted);margin-bottom:12px}
@@ -49,9 +44,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 .nh-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .nh-right{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
 .btn-directions{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:10px 20px;cursor:pointer}
-.nh-rink{font-size:12px;color:var(--muted);text-align:right}
-
-/* SCHEDULE GRID */
+.nh-rink{font-size:12px;color:var(--muted);text-align:right;line-height:1.6}
 .schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .schedule-panel{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
 .panel-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
@@ -68,49 +61,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
 .tag-hockey{background:rgba(184,228,245,0.1);color:#b8e4f5;border:1px solid rgba(184,228,245,0.2)}
 .tag-elite{background:rgba(201,162,39,0.1);color:var(--gold);border:1px solid rgba(201,162,39,0.25)}
 .tag-goalie{background:rgba(139,92,246,0.1);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25)}
-
-/* NOTIFICATIONS */
 .notif-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
 .notif-item:last-child{border-bottom:none;padding-bottom:0}
 .ni-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
 .notif-text{font-size:12px;line-height:1.5;flex:1}
 .notif-time{font-size:10px;color:var(--muted);flex-shrink:0}
 .notif-unread{width:6px;height:6px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:4px}
-
-/* FAMILY MEMBERS */
 .family-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
 .family-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;text-align:center}
 .family-avatar{width:52px;height:52px;border-radius:50%;background:rgba(201,162,39,0.15);border:2px solid rgba(201,162,39,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px}
 .family-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:2px}
 .family-role{font-size:11px;color:var(--muted);margin-bottom:10px}
-.family-sports{display:flex;flex-direction:column;gap:4px}
-.sport-tag{font-size:11px;background:var(--navy3);border-radius:4px;padding:3px 8px;color:var(--muted)}
-
-/* MAP CARD */
+.sport-tag{font-size:11px;background:var(--navy3);border-radius:4px;padding:3px 8px;color:var(--muted);margin-bottom:4px;display:block}
 .map-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
-.map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.map-title{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
-.map-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
-.map-item:last-child{border-bottom:none}
+.map-item{display:flex;gap:12px;align-items:center;padding:10px 0}
 .map-pin{width:36px;height:36px;border-radius:8px;background:rgba(201,162,39,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .map-info{flex:1}
 .map-name{font-size:13px;font-weight:600}
 .map-addr{font-size:11px;color:var(--muted)}
 .map-sessions{font-size:11px;color:var(--gold);margin-top:2px}
-.btn-dir{font-size:11px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;white-space:nowrap}
-
-/* COACHES SECTION */
+.btn-dir{font-size:11px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer}
 .coaches-section{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;margin-bottom:16px}
 .coach-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(184,228,245,0.06)}
 .coach-item:last-child{border-bottom:none}
 .coach-ava{width:40px;height:40px;border-radius:8px;background:rgba(201,162,39,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.coach-info{flex:1}
 .coach-n{font-size:13px;font-weight:600}
 .coach-s{font-size:11px;color:var(--muted)}
 .coach-sessions{font-size:11px;color:var(--gold)}
-.btn-view-coach{font-size:11px;font-weight:600;color:var(--navy);background:var(--gold);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap}
-
-/* DISCOVER */
+.btn-view-coach{font-size:11px;font-weight:600;color:var(--navy);background:var(--gold);border:none;border-radius:6px;padding:5px 12px;cursor:pointer}
 .discover-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .discover-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
 .dc-sport{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
@@ -138,36 +116,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
   <div class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Family</div>
-      <div class="sidebar-item active" onclick="showPanel('dashboard',this)">
-        <span class="sidebar-icon">🏠</span> Dashboard
-      </div>
-      <div class="sidebar-item" onclick="showPanel('schedule',this)">
-        <span class="sidebar-icon">📅</span> Full Schedule
-        <span class="sidebar-count">6</span>
-      </div>
-      <div class="sidebar-item" onclick="showPanel('family',this)">
-        <span class="sidebar-icon">👨‍👩‍👧</span> Family Members
-      </div>
+      <div class="sidebar-item active" onclick="showPanel('dashboard',this)"><span class="sidebar-icon">🏠</span> Dashboard</div>
+      <div class="sidebar-item" onclick="showPanel('schedule',this)"><span class="sidebar-icon">📅</span> Full Schedule <span class="sidebar-count">8</span></div>
+      <div class="sidebar-item" onclick="showPanel('family',this)"><span class="sidebar-icon">👨‍👩‍👧</span> Family Members</div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Sports</div>
-      <div class="sidebar-item" onclick="showPanel('coaches',this)">
-        <span class="sidebar-icon">🏒</span> My Coaches
-        <span class="sidebar-count">1</span>
-      </div>
-      <div class="sidebar-item" onclick="showPanel('locations',this)">
-        <span class="sidebar-icon">📍</span> Rink Locations
-      </div>
-      <div class="sidebar-item" onclick="showPanel('discover',this)">
-        <span class="sidebar-icon">🔍</span> Find Clinics
-      </div>
+      <div class="sidebar-item" onclick="showPanel('coaches',this)"><span class="sidebar-icon">🏒</span> My Coaches <span class="sidebar-count">1</span></div>
+      <div class="sidebar-item" onclick="showPanel('locations',this)"><span class="sidebar-icon">📍</span> Rink Locations</div>
+      <div class="sidebar-item" onclick="showPanel('discover',this)"><span class="sidebar-icon">🔍</span> Find Clinics</div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Updates</div>
-      <div class="sidebar-item" onclick="showPanel('notifications',this)">
-        <span class="sidebar-icon">🔔</span> Notifications
-        <div class="notif-dot"></div>
-      </div>
+      <div class="sidebar-item" onclick="showPanel('notifications',this)"><span class="sidebar-icon">🔔</span> Notifications <div class="notif-dot"></div></div>
     </div>
   </div>
 
@@ -181,10 +142,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
           <div style="font-size:13px;color:var(--muted)">Jake has a session coming up soon</div>
         </div>
       </div>
-
-      <!-- NEXT SESSION -->
       <div class="next-hero">
-        <div class="nh-left">
+        <div>
           <div class="nh-badge">⚡ Next Session</div>
           <div class="nh-title">Summer Skills Camp</div>
           <div class="nh-meta">Mon Jun 9 · 6:00 PM · LECOM Harborcenter, Rink 2 · Coach: Chris Mazzu</div>
@@ -199,44 +158,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
           <div class="nh-rink">LECOM Harborcenter<br>1 James D. Griffin Plaza<br>Buffalo, NY 14203</div>
         </div>
       </div>
-
       <div class="schedule-grid">
         <div class="schedule-panel">
           <div class="panel-title">📅 Jake's Upcoming Sessions</div>
           <div class="event-item">
             <div class="event-date"><div class="event-month">Jun</div><div class="event-day">9</div></div>
-            <div class="event-info">
-              <div class="event-name">Summer Skills Camp</div>
-              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
-              <div class="event-coach">Coach Chris Mazzu</div>
-            </div>
+            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
             <div class="event-tag tag-hockey">Hockey</div>
           </div>
           <div class="event-item">
             <div class="event-date"><div class="event-month">Jun</div><div class="event-day">16</div></div>
-            <div class="event-info">
-              <div class="event-name">Summer Skills Camp</div>
-              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
-              <div class="event-coach">Coach Chris Mazzu</div>
-            </div>
+            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
             <div class="event-tag tag-hockey">Hockey</div>
           </div>
           <div class="event-item">
             <div class="event-date"><div class="event-month">Jun</div><div class="event-day">23</div></div>
-            <div class="event-info">
-              <div class="event-name">Summer Skills Camp</div>
-              <div class="event-meta">6:00 PM · Rink 2 · 90 min</div>
-              <div class="event-coach">Coach Chris Mazzu</div>
-            </div>
+            <div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
             <div class="event-tag tag-hockey">Hockey</div>
           </div>
           <div class="event-item">
             <div class="event-date"><div class="event-month">Jul</div><div class="event-day">7</div></div>
-            <div class="event-info">
-              <div class="event-name">Elite Power Skating</div>
-              <div class="event-meta">5:30 PM · Rink 1 · 60 min</div>
-              <div class="event-coach">Coach Chris Mazzu</div>
-            </div>
+            <div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu</div></div>
             <div class="event-tag tag-elite">Elite</div>
           </div>
         </div>
@@ -271,27 +213,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
     <!-- FULL SCHEDULE -->
     <div class="panel" id="panel-schedule">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Jake's Full Schedule</div>
-      <div class="schedule-panel" style="background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px">
+      <div class="schedule-panel">
         <div class="panel-title">📅 All Sessions — Summer 2025</div>
-        ${[
-          {m:'Jun',d:'9',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
-          {m:'Jun',d:'16',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
-          {m:'Jun',d:'23',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
-          {m:'Jun',d:'30',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
-          {m:'Jul',d:'7',name:'Elite Power Skating',meta:'5:30 PM · Rink 1 · 60 min',tag:'Elite',tc:'tag-elite'},
-          {m:'Jul',d:'14',name:'Summer Skills Camp',meta:'6:00 PM · Rink 2 · 90 min',tag:'Hockey',tc:'tag-hockey'},
-          {m:'Jul',d:'21',name:'Elite Power Skating',meta:'5:30 PM · Rink 1 · 60 min',tag:'Elite',tc:'tag-elite'},
-          {m:'Aug',d:'4',name:'Goalie Clinic',meta:'4:00 PM · Rink 3 · 75 min',tag:'Goalie',tc:'tag-goalie'},
-        ].map(e=>`
-        <div class="event-item">
-          <div class="event-date"><div class="event-month">${e.m}</div><div class="event-day">${e.d}</div></div>
-          <div class="event-info">
-            <div class="event-name">${e.name}</div>
-            <div class="event-meta">${e.meta}</div>
-            <div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div>
-          </div>
-          <div class="event-tag ${e.tc}">${e.tag}</div>
-        </div>`).join('')}
+        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">9</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">16</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">23</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jun</div><div class="event-day">30</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">7</div></div><div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-elite">Elite</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">14</div></div><div class="event-info"><div class="event-name">Summer Skills Camp</div><div class="event-meta">6:00 PM · Rink 2 · 90 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-hockey">Hockey</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">21</div></div><div class="event-info"><div class="event-name">Elite Power Skating</div><div class="event-meta">5:30 PM · Rink 1 · 60 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-elite">Elite</div></div>
+        <div class="event-item"><div class="event-date"><div class="event-month">Aug</div><div class="event-day">4</div></div><div class="event-info"><div class="event-name">Goalie Clinic</div><div class="event-meta">4:00 PM · Rink 3 · 75 min</div><div class="event-coach">Coach Chris Mazzu · LECOM Harborcenter</div></div><div class="event-tag tag-goalie">Goalie</div></div>
       </div>
     </div>
 
@@ -303,28 +234,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
           <div class="family-avatar">👨</div>
           <div class="family-name">Mike</div>
           <div class="family-role">Parent · Account Owner</div>
-          <div class="family-sports">
-            <div class="sport-tag">📱 SMS Notifications On</div>
-            <div class="sport-tag">📧 Email Confirmed</div>
-          </div>
+          <span class="sport-tag">📱 SMS Notifications On</span>
+          <span class="sport-tag">📧 Email Confirmed</span>
         </div>
         <div class="family-card">
           <div class="family-avatar">🧒</div>
           <div class="family-name">Jake</div>
           <div class="family-role">Player · Age 11</div>
-          <div class="family-sports">
-            <div class="sport-tag">🏒 Hockey · Skills Camp</div>
-            <div class="sport-tag">🏒 Elite Power Skating</div>
-            <div class="sport-tag">🥅 Goalie Clinic</div>
-          </div>
+          <span class="sport-tag">🏒 Hockey · Skills Camp</span>
+          <span class="sport-tag">🏒 Elite Power Skating</span>
+          <span class="sport-tag">🥅 Goalie Clinic</span>
         </div>
-        <div class="family-card" style="border-style:dashed;opacity:.5;cursor:pointer">
+        <div class="family-card" style="border-style:dashed;opacity:.5">
           <div class="family-avatar" style="background:rgba(184,228,245,0.05)">+</div>
           <div class="family-name">Add Child</div>
           <div class="family-role">Add another player</div>
-          <div class="family-sports">
-            <div class="sport-tag">Tap to add</div>
-          </div>
+          <span class="sport-tag">Tap to add</span>
         </div>
       </div>
     </div>
@@ -336,7 +261,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
         <div class="panel-title">🏒 Registered Coaches</div>
         <div class="coach-item">
           <div class="coach-ava">🏒</div>
-          <div class="coach-info">
+          <div style="flex:1">
             <div class="coach-n">Chris Mazzu</div>
             <div class="coach-s">Hockey Clinics · Buffalo NY</div>
             <div class="coach-sessions">3 active programs · 8 sessions remaining</div>
@@ -355,15 +280,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
     <div class="panel" id="panel-locations">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Rink Locations</div>
       <div class="map-card">
-        <div class="map-header">
-          <div class="map-title">📍 Your Rinks</div>
-        </div>
+        <div class="panel-title" style="margin-bottom:14px">📍 Your Rinks</div>
         <div class="map-item">
           <div class="map-pin">🏒</div>
           <div class="map-info">
             <div class="map-name">LECOM Harborcenter</div>
             <div class="map-addr">1 James D. Griffin Plaza, Buffalo NY 14203</div>
-            <div class="map-sessions">3 upcoming sessions here · Next: Jun 9 at 6:00 PM</div>
+            <div class="map-sessions">3 upcoming sessions · Next: Jun 9 at 6:00 PM</div>
           </div>
           <button class="btn-dir" onclick="showToast('Opening Google Maps...')">Directions →</button>
         </div>
@@ -377,14 +300,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
         <div class="discover-card">
           <div class="dc-sport">🏒 Hockey</div>
           <div class="dc-name">Elite Power Skating</div>
-          <div class="dc-meta">Chris Mazzu · Jul 7 – Jul 28 · Mon 5:30 PM · Ages 10–16</div>
+          <div class="dc-meta">Chris Mazzu · Jul 7–28 · Mon 5:30 PM · Ages 10–16</div>
           <div class="dc-spots">6 spots remaining · $249</div>
           <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
         </div>
         <div class="discover-card">
           <div class="dc-sport">🥅 Hockey</div>
           <div class="dc-name">Goalie Clinic</div>
-          <div class="dc-meta">Chris Mazzu · Aug 4 – Aug 18 · Mon 4:00 PM · All ages</div>
+          <div class="dc-meta">Chris Mazzu · Aug 4–18 · Mon 4:00 PM · All ages</div>
           <div class="dc-spots">6 spots remaining · $199</div>
           <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="btn-register">Register Now →</a>
         </div>
@@ -408,20 +331,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);
     <!-- NOTIFICATIONS -->
     <div class="panel" id="panel-notifications">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px">Notifications</div>
-      <div class="schedule-panel" style="background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px">
-        ${[
-          {unread:true,icon:'⏰',bg:'rgba(234,179,8,0.1)',text:'<strong>Skills Camp tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear! 🏒',time:'1h ago'},
-          {unread:true,icon:'ℹ️',bg:'rgba(59,130,246,0.1)',text:'<strong>2 spots opened</strong> in Saturday Elite Camp (Jul 12) — register now at venuewise.net/coacheshuddle/chrismazzu',time:'3h ago'},
-          {unread:false,icon:'✅',bg:'rgba(34,197,94,0.1)',text:'Registration confirmed — <strong>Summer Skills Camp</strong> added to your HomeHuddle dashboard automatically',time:'Yesterday'},
-          {unread:false,icon:'🔄',bg:'rgba(59,130,246,0.1)',text:'Schedule update: Thursday session moved to <strong>Rink 3</strong>. Same time (5:30 PM). Dashboard updated automatically.',time:'Jun 5'},
-          {unread:false,icon:'🏒',bg:'rgba(184,228,245,0.1)',text:'Welcome to <strong>Chris Mazzu Hockey Clinics</strong>! Your schedule has been automatically synced to HomeHuddle.',time:'Jun 3'},
-        ].map(n=>`
+      <div class="schedule-panel">
         <div class="notif-item">
-          ${n.unread?'<div class="notif-unread"></div>':'<div style="width:6px"></div>'}
-          <div class="ni-icon" style="background:${n.bg}">${n.icon}</div>
-          <div class="notif-text">${n.text}</div>
-          <div class="notif-time">${n.time}</div>
-        </div>`).join('')}
+          <div class="notif-unread"></div>
+          <div class="ni-icon" style="background:rgba(234,179,8,0.1)">⏰</div>
+          <div class="notif-text"><strong>Skills Camp tomorrow at 6:00 PM</strong> — LECOM Harborcenter, Rink 2. Bring full gear! 🏒</div>
+          <div class="notif-time">1h ago</div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-unread"></div>
+          <div class="ni-icon" style="background:rgba(59,130,246,0.1)">ℹ️</div>
+          <div class="notif-text"><strong>2 spots opened</strong> in Saturday Elite Camp (Jul 12) — register now at venuewise.net/coacheshuddle/chrismazzu</div>
+          <div class="notif-time">3h ago</div>
+        </div>
+        <div class="notif-item">
+          <div class="ni-icon" style="background:rgba(34,197,94,0.1)">✅</div>
+          <div class="notif-text">Registration confirmed — <strong>Summer Skills Camp</strong> added to your HomeHuddle dashboard automatically</div>
+          <div class="notif-time">Yesterday</div>
+        </div>
+        <div class="notif-item">
+          <div class="ni-icon" style="background:rgba(59,130,246,0.1)">🔄</div>
+          <div class="notif-text">Schedule update: Thursday session moved to <strong>Rink 3</strong>. Same time (5:30 PM). Dashboard updated automatically.</div>
+          <div class="notif-time">Jun 5</div>
+        </div>
+        <div class="notif-item">
+          <div class="ni-icon" style="background:rgba(184,228,245,0.1)">🏒</div>
+          <div class="notif-text">Welcome to <strong>Chris Mazzu Hockey Clinics</strong>! Your schedule has been automatically synced to HomeHuddle.</div>
+          <div class="notif-time">Jun 3</div>
+        </div>
       </div>
     </div>
 
