@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chris Mazzu Admin | CoachesHuddle</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a1628;--navy2:#0d1e38;--navy3:#142444;--gold:#c9a227;--gold2:#e8bf45;--white:#f8fafc;--muted:#8fa3c0;--green:#22c55e;--r:12px}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--navy2);border-bottom:1px solid rgba(184,228,245,0.1);position:sticky;top:0;z-index:100}
+.nav-left{display:flex;align-items:center;gap:14px}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--white);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-divider{width:1px;height:18px;background:rgba(184,228,245,0.2)}
+.coach-badge{display:flex;align-items:center;gap:8px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:20px;padding:4px 12px}
+.coach-badge-name{font-size:12px;font-weight:600;color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-link{font-size:12px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
+.nav-link:hover{color:var(--white);background:rgba(184,228,245,0.08)}
+.btn-logout{font-size:12px;font-weight:600;color:var(--navy);background:var(--gold);border:none;border-radius:6px;padding:6px 14px;cursor:pointer}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 53px)}
+.sidebar{background:var(--navy2);border-right:1px solid rgba(184,228,245,0.08);padding:20px 0}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--muted);border-left:2px solid transparent}
+.sidebar-item:hover{color:var(--white);background:rgba(184,228,245,0.04)}
+.sidebar-item.active{color:var(--white);background:rgba(201,162,39,0.08);border-left-color:var(--gold)}
+.sidebar-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-count{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold);color:var(--navy);border-radius:10px;padding:1px 6px}
+
+.main{padding:24px;overflow-y:auto}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px}
+.kpi-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:var(--muted)}
+.kpi-trend{font-size:11px;font-weight:600;margin-top:6px}
+.trend-up{color:var(--green)}
+.trend-warn{color:#eab308}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800}
+.btn-add{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 20px;cursor:pointer;transition:all .2s}
+.btn-add:hover{background:var(--gold2)}
+
+/* CLINIC CARDS */
+.clinic-list{display:flex;flex-direction:column;gap:12px}
+.clinic-card{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:18px;display:flex;gap:16px;align-items:flex-start}
+.clinic-card.cancelled{opacity:.5}
+.clinic-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.status-active{background:var(--green)}
+.status-open{background:#eab308}
+.status-cancelled{background:#ef4444}
+.clinic-info{flex:1}
+.clinic-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.clinic-meta{font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.clinic-meta span{display:flex;align-items:center;gap:4px}
+.clinic-progress{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.progress-bar{flex:1;height:6px;background:var(--navy3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--gold);transition:width .3s}
+.progress-text{font-size:11px;color:var(--muted);white-space:nowrap}
+.clinic-actions{display:flex;gap:8px;flex-shrink:0;align-self:center}
+.btn-sm{font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;transition:all .2s}
+.btn-edit{background:rgba(184,228,245,0.1);color:var(--ice,#b8e4f5);border:1px solid rgba(184,228,245,0.2)}
+.btn-edit:hover{background:rgba(184,228,245,0.2)}
+.btn-notify{background:rgba(201,162,39,0.1);color:var(--gold);border:1px solid rgba(201,162,39,0.25)}
+.btn-notify:hover{background:rgba(201,162,39,0.2)}
+.btn-cancel{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+.btn-cancel:hover{background:rgba(239,68,68,0.2)}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:8px}
+.tag-active{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.tag-open{background:rgba(234,179,8,0.1);color:#eab308;border:1px solid rgba(234,179,8,0.2)}
+.tag-full{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+
+/* ROSTER TABLE */
+.roster-filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{background:var(--navy2);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none}
+.roster-table{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);overflow:hidden}
+.table-header{display:grid;grid-template-columns:2fr 2fr 1.5fr 1fr 1fr 100px;gap:0;background:var(--navy3);padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.table-row{display:grid;grid-template-columns:2fr 2fr 1.5fr 1fr 1fr 100px;gap:0;padding:12px 16px;border-top:1px solid rgba(184,228,245,0.06);font-size:13px;align-items:center;transition:background .2s}
+.table-row:hover{background:rgba(184,228,245,0.03)}
+.player-name{font-weight:600}
+.player-parent{color:var(--muted);font-size:12px}
+.paid-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+
+/* NOTIFICATIONS */
+.notif-compose{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);padding:24px;margin-bottom:20px}
+.notif-compose h3{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px}
+.notif-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.notif-type-btn{background:var(--navy3);border:1px solid rgba(184,228,245,0.1);border-radius:8px;padding:12px;cursor:pointer;text-align:center;transition:all .2s}
+.notif-type-btn.selected{border-color:var(--gold);background:rgba(201,162,39,0.08)}
+.notif-type-icon{font-size:22px;margin-bottom:6px}
+.notif-type-label{font-size:11px;font-weight:600;color:var(--muted)}
+.notif-type-btn.selected .notif-type-label{color:var(--gold)}
+.notif-textarea{background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none;width:100%;resize:vertical;min-height:80px;margin-bottom:12px;transition:border-color .2s;line-height:1.5}
+.notif-textarea:focus{border-color:rgba(201,162,39,0.5)}
+.notif-recipients{display:flex;gap:10px;margin-bottom:16px;align-items:center;font-size:13px;color:var(--muted)}
+.notif-recipients select{background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none}
+.btn-send{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:11px 24px;cursor:pointer}
+.notif-history{background:var(--navy2);border:1px solid rgba(184,228,245,0.1);border-radius:var(--r);overflow:hidden}
+.nh-header{padding:14px 18px;border-bottom:1px solid rgba(184,228,245,0.08);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700}
+.nh-item{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(184,228,245,0.06);align-items:flex-start}
+.nh-item:last-child{border-bottom:none}
+.nh-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.nh-body{flex:1}
+.nh-type{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.nh-msg{font-size:13px;margin-bottom:2px}
+.nh-meta{font-size:11px;color:var(--muted)}
+
+/* ADD CLINIC MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid rgba(184,228,245,0.15);border-radius:16px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-bottom:20px}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.modal-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.form-group input,.form-group select,.form-group textarea{background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;width:100%}
+.form-group input:focus,.form-group select:focus{border-color:rgba(201,162,39,0.5)}
+.form-group select option{background:var(--navy2)}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel-modal{font-size:14px;font-weight:600;padding:10px 20px;border-radius:8px;border:1px solid rgba(184,228,245,0.2);background:transparent;color:var(--muted);cursor:pointer}
+.btn-save{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;padding:10px 24px;border-radius:8px;border:none;background:var(--gold);color:var(--navy);cursor:pointer}
+
+/* SUCCESS TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px 18px;font-size:13px;font-weight:500;color:var(--green);display:none;align-items:center;gap:8px;z-index:2000;animation:slideUp .3s ease}
+.toast.show{display:flex}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-left">
+    <a href="https://venuewise.net" class="nav-logo">Venue<span>wise</span></a>
+    <div class="nav-divider"></div>
+    <div class="coach-badge">
+      <span>🏒</span>
+      <span class="coach-badge-name">Chris Mazzu · Admin</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="https://venuewise.net/coacheshuddle/chrismazzu" class="nav-link">View Public Page →</a>
+    <a href="https://venuewise.net/homehuddle" class="nav-link">HomeHuddle</a>
+    <button class="btn-logout" onclick="window.location.href='https://venuewise.net/coach-login'">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active" onclick="showPanel('dashboard',this)">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Clinics</div>
+      <div class="sidebar-item" onclick="showPanel('clinics',this)">
+        <span class="sidebar-icon">🏒</span> Manage Clinics
+        <span class="sidebar-count">3</span>
+      </div>
+      <div class="sidebar-item" onclick="showPanel('roster',this)">
+        <span class="sidebar-icon">👥</span> Registrations
+        <span class="sidebar-count">24</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Communication</div>
+      <div class="sidebar-item" onclick="showPanel('notifications',this)">
+        <span class="sidebar-icon">📢</span> Notifications
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform</div>
+      <div class="sidebar-item" onclick="window.open('https://venuewise.net/coacheshuddle/chrismazzu','_blank')">
+        <span class="sidebar-icon">🌐</span> Public Page
+      </div>
+      <div class="sidebar-item" onclick="window.open('https://venuewise.net/homehuddle','_blank')">
+        <span class="sidebar-icon">🏠</span> HomeHuddle
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="section-header">
+        <div class="section-title">Good morning, Chris 👋</div>
+        <div style="font-size:12px;color:var(--muted)">Last updated: just now</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Registrations</div>
+          <div class="kpi-value" style="color:var(--gold)">24</div>
+          <div class="kpi-sub">Across all clinics</div>
+          <div class="kpi-trend trend-up">↑ 6 this week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Revenue</div>
+          <div class="kpi-value" style="color:var(--green)">$6,847</div>
+          <div class="kpi-sub">2025 season</div>
+          <div class="kpi-trend trend-up">↑ $1,200 this month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Open Spots</div>
+          <div class="kpi-value" style="color:#eab308">11</div>
+          <div class="kpi-sub">Across 3 programs</div>
+          <div class="kpi-trend trend-warn">Fill rate: 69%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Families on HomeHuddle</div>
+          <div class="kpi-value" style="color:#60a5fa">18</div>
+          <div class="kpi-sub">Synced dashboards</div>
+          <div class="kpi-trend trend-up">↑ 4 new this week</div>
+        </div>
+      </div>
+
+      <!-- UPCOMING -->
+      <div class="section-header" style="margin-top:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700">Upcoming Sessions</div>
+        <button class="btn-add" onclick="showPanel('clinics',document.querySelectorAll('.sidebar-item')[1])">+ Add Clinic</button>
+      </div>
+      <div class="clinic-list">
+        <div class="clinic-card">
+          <div class="clinic-status status-active"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Summer Skills Camp <span class="tag tag-active">Active</span></div>
+            <div class="clinic-meta">
+              <span>📅 Jun 9 – Jul 14</span>
+              <span>⏰ Mon 6:00 PM</span>
+              <span>📍 LECOM Harborcenter, Rink 2</span>
+              <span>💰 $349/player</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+              <div class="progress-text">16/20 spots filled</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Summer Skills Camp')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Notify</button>
+          </div>
+        </div>
+        <div class="clinic-card">
+          <div class="clinic-status status-open"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Elite Power Skating <span class="tag tag-open">Open Spots</span></div>
+            <div class="clinic-meta">
+              <span>📅 Jul 7 – Jul 28</span>
+              <span>⏰ Mon 5:30 PM</span>
+              <span>📍 LECOM Harborcenter, Rink 1</span>
+              <span>💰 $249/player</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+              <div class="progress-text">6/12 spots filled</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Elite Power Skating')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Notify</button>
+          </div>
+        </div>
+        <div class="clinic-card">
+          <div class="clinic-status status-open"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Goalie Clinic <span class="tag tag-open">Open Spots</span></div>
+            <div class="clinic-meta">
+              <span>📅 Aug 4 – Aug 18</span>
+              <span>⏰ Mon 4:00 PM</span>
+              <span>📍 LECOM Harborcenter, Rink 3</span>
+              <span>💰 $199/player</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
+              <div class="progress-text">2/8 spots filled</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Goalie Clinic')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Notify</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLINICS -->
+    <div class="panel" id="panel-clinics">
+      <div class="section-header">
+        <div class="section-title">Manage Clinics</div>
+        <button class="btn-add" onclick="openModal('')">+ Add New Clinic</button>
+      </div>
+      <div class="clinic-list">
+        <div class="clinic-card">
+          <div class="clinic-status status-active"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Summer Skills Camp <span class="tag tag-active">Active</span></div>
+            <div class="clinic-meta">
+              <span>📅 Jun 9 – Jul 14 · 6 sessions</span>
+              <span>⏰ Mon 6:00 PM · 90 min</span>
+              <span>📍 LECOM Harborcenter, Rink 2</span>
+              <span>💰 $349 · Ages 8–14</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+              <div class="progress-text">16/20 spots filled · $5,584 revenue</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Summer Skills Camp')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Alert</button>
+            <button class="btn-sm btn-cancel">🗑 Cancel</button>
+          </div>
+        </div>
+        <div class="clinic-card">
+          <div class="clinic-status status-open"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Elite Power Skating <span class="tag tag-open">Open Spots</span></div>
+            <div class="clinic-meta">
+              <span>📅 Jul 7 – Jul 28 · 4 sessions</span>
+              <span>⏰ Mon 5:30 PM · 60 min</span>
+              <span>📍 LECOM Harborcenter, Rink 1</span>
+              <span>💰 $249 · Ages 10–16</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+              <div class="progress-text">6/12 spots filled · $1,494 revenue</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Elite Power Skating')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Alert</button>
+            <button class="btn-sm btn-cancel">🗑 Cancel</button>
+          </div>
+        </div>
+        <div class="clinic-card">
+          <div class="clinic-status status-open"></div>
+          <div class="clinic-info">
+            <div class="clinic-name">Goalie Clinic <span class="tag tag-open">Open Spots</span></div>
+            <div class="clinic-meta">
+              <span>📅 Aug 4 – Aug 18 · 3 sessions</span>
+              <span>⏰ Mon 4:00 PM · 75 min</span>
+              <span>📍 LECOM Harborcenter, Rink 3</span>
+              <span>💰 $199 · All ages</span>
+            </div>
+            <div class="clinic-progress">
+              <div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
+              <div class="progress-text">2/8 spots filled · $398 revenue</div>
+            </div>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-sm btn-edit" onclick="openModal('Goalie Clinic')">✏️ Edit</button>
+            <button class="btn-sm btn-notify" onclick="showPanel('notifications',document.querySelectorAll('.sidebar-item')[3])">📢 Alert</button>
+            <button class="btn-sm btn-cancel">🗑 Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROSTER -->
+    <div class="panel" id="panel-roster">
+      <div class="section-header">
+        <div class="section-title">Registrations & Roster</div>
+        <div style="font-size:12px;color:var(--muted)">24 total registrations</div>
+      </div>
+      <div class="roster-filters">
+        <select class="filter-select">
+          <option>All Clinics</option>
+          <option>Summer Skills Camp</option>
+          <option>Elite Power Skating</option>
+          <option>Goalie Clinic</option>
+        </select>
+        <select class="filter-select">
+          <option>All Status</option>
+          <option>Paid</option>
+          <option>Pending</option>
+        </select>
+      </div>
+      <div class="roster-table">
+        <div class="table-header">
+          <div>Player</div>
+          <div>Parent / Contact</div>
+          <div>Program</div>
+          <div>Age</div>
+          <div>Status</div>
+          <div>HomeHuddle</div>
+        </div>
+        ${[
+          ['Jake Rodriguez','Mike Rodriguez · (716) 555-0101','Summer Skills','11','Paid',true],
+          ['Emma Chen','Sarah Chen · (716) 555-0102','Summer Skills','13','Paid',true],
+          ['Tyler Johnson','Dave Johnson · (716) 555-0103','Elite Skating','14','Paid',true],
+          ['Aiden Murphy','Pat Murphy · (716) 555-0104','Summer Skills','10','Paid',false],
+          ['Liam Foster','Chris Foster · (716) 555-0105','Goalie Clinic','12','Paid',true],
+          ['Noah Williams','Amy Williams · (716) 555-0106','Elite Skating','15','Paid',true],
+          ['Sofia Martinez','Carlos Martinez · (716) 555-0107','Summer Skills','9','Paid',false],
+          ['Mason Brown','Lisa Brown · (716) 555-0108','Goalie Clinic','11','Pending',true],
+        ].map(r=>`
+        <div class="table-row">
+          <div><div class="player-name">${r[0]}</div></div>
+          <div><div style="font-size:12px">${r[1]}</div></div>
+          <div style="font-size:12px;color:var(--muted)">${r[2]}</div>
+          <div style="font-size:13px">${r[3]}</div>
+          <div><span class="paid-badge" style="${r[4]==='Pending'?'background:rgba(234,179,8,0.1);color:#eab308;border-color:rgba(234,179,8,0.2)':''}">${r[4]}</span></div>
+          <div style="font-size:12px">${r[5]?'<span style="color:var(--green)">✓ Synced</span>':'<span style="color:var(--muted)">Not linked</span>'}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="panel-notifications">
+      <div class="section-header">
+        <div class="section-title">Send Notifications</div>
+      </div>
+      <div class="notif-compose">
+        <h3>Compose Message</h3>
+        <div class="notif-type-grid">
+          <div class="notif-type-btn selected" onclick="selectNotifType(this)">
+            <div class="notif-type-icon">🔔</div>
+            <div class="notif-type-label">Reminder</div>
+          </div>
+          <div class="notif-type-btn" onclick="selectNotifType(this)">
+            <div class="notif-type-icon">🔄</div>
+            <div class="notif-type-label">Schedule Change</div>
+          </div>
+          <div class="notif-type-btn" onclick="selectNotifType(this)">
+            <div class="notif-type-icon">❌</div>
+            <div class="notif-type-label">Cancellation</div>
+          </div>
+          <div class="notif-type-btn" onclick="selectNotifType(this)">
+            <div class="notif-type-icon">⚡</div>
+            <div class="notif-type-label">Open Spot Alert</div>
+          </div>
+        </div>
+        <div class="notif-recipients">
+          <span>Send to:</span>
+          <select>
+            <option>All registered families (24)</option>
+            <option>Summer Skills Camp families (16)</option>
+            <option>Elite Power Skating families (6)</option>
+            <option>Goalie Clinic families (2)</option>
+          </select>
+          <span style="margin-left:4px">via SMS + HomeHuddle</span>
+        </div>
+        <textarea class="notif-textarea" id="notifMessage" placeholder="Type your message to families...">Reminder: Skills Camp is tomorrow — Mon Jun 9 at 6:00 PM, Rink 2, LECOM Harborcenter. Bring full gear. See you on the ice! 🏒</textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:12px;color:var(--muted)">Message will be sent via SMS and synced to HomeHuddle dashboards</div>
+          <button class="btn-send" onclick="sendNotification()">📢 Send to 24 Families</button>
+        </div>
+      </div>
+
+      <div class="notif-history">
+        <div class="nh-header">Recent Notifications</div>
+        <div class="nh-item">
+          <div class="nh-icon" style="background:rgba(34,197,94,0.1)">✅</div>
+          <div class="nh-body">
+            <div class="nh-type" style="color:var(--green)">Registration Confirmed</div>
+            <div class="nh-msg">Welcome to Chris Mazzu Hockey Clinics! Your schedule has been synced to HomeHuddle.</div>
+            <div class="nh-meta">Sent to 1 family · Today 9:14 AM · SMS + HomeHuddle</div>
+          </div>
+        </div>
+        <div class="nh-item">
+          <div class="nh-icon" style="background:rgba(234,179,8,0.1)">🔔</div>
+          <div class="nh-body">
+            <div class="nh-type" style="color:#eab308">Session Reminder</div>
+            <div class="nh-msg">Skills Camp is tomorrow at 6:00 PM — LECOM Harborcenter, Rink 2.</div>
+            <div class="nh-meta">Sent to 16 families · Yesterday 6:00 PM · SMS + HomeHuddle</div>
+          </div>
+        </div>
+        <div class="nh-item">
+          <div class="nh-icon" style="background:rgba(59,130,246,0.1)">🔄</div>
+          <div class="nh-body">
+            <div class="nh-type" style="color:#60a5fa">Schedule Change</div>
+            <div class="nh-msg">Thursday session moved to Rink 3. Same time — 5:30 PM. HomeHuddle updated automatically.</div>
+            <div class="nh-meta">Sent to 6 families · Jun 5 2:14 PM · SMS + HomeHuddle</div>
+          </div>
+        </div>
+        <div class="nh-item">
+          <div class="nh-icon" style="background:rgba(239,68,68,0.1)">⚡</div>
+          <div class="nh-body">
+            <div class="nh-type" style="color:#f87171">Open Spot Alert</div>
+            <div class="nh-msg">2 spots just opened in Saturday Elite Camp. Register now — spots fill fast!</div>
+            <div class="nh-meta">Sent to all families · Jun 4 9:30 AM · SMS + HomeHuddle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT CLINIC MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add New Clinic</div>
+    <div class="modal-row">
+      <div class="form-group"><label>Clinic Name</label><input type="text" id="clinicName" placeholder="e.g. Summer Skills Camp"></div>
+      <div class="form-group"><label>Price per Player</label><input type="text" placeholder="e.g. $349"></div>
+    </div>
+    <div class="modal-row">
+      <div class="form-group"><label>Start Date</label><input type="date"></div>
+      <div class="form-group"><label>End Date</label><input type="date"></div>
+    </div>
+    <div class="modal-row">
+      <div class="form-group"><label>Time</label><input type="time"></div>
+      <div class="form-group"><label>Duration</label><select><option>60 min</option><option>75 min</option><option selected>90 min</option><option>120 min</option></select></div>
+    </div>
+    <div class="modal-row">
+      <div class="form-group"><label>Number of Sessions</label><input type="number" placeholder="e.g. 6" min="1"></div>
+      <div class="form-group"><label>Max Spots</label><input type="number" placeholder="e.g. 20" min="1"></div>
+    </div>
+    <div class="modal-row full">
+      <div class="form-group"><label>Rink / Location</label><input type="text" placeholder="e.g. LECOM Harborcenter, Rink 2"></div>
+    </div>
+    <div class="modal-row">
+      <div class="form-group"><label>Age Group</label><input type="text" placeholder="e.g. Ages 8–14"></div>
+      <div class="form-group"><label>Skill Level</label><select><option>All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Elite</option></select></div>
+    </div>
+    <div class="modal-row full">
+      <div class="form-group"><label>Notes (optional)</label><textarea style="background:var(--navy3);border:1px solid rgba(184,228,245,0.12);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none;width:100%;resize:vertical;min-height:60px" placeholder="Any extra info for parents..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveClinic()">Save & Publish Clinic →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ <span id="toastMsg">Saved successfully!</span></div>
+
+<script>
+function showPanel(id, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+function openModal(name){
+  document.getElementById('modalTitle').textContent = name ? 'Edit Clinic: '+name : 'Add New Clinic';
+  if(name) document.getElementById('clinicName').value = name;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function saveClinic(){
+  closeModal();
+  showToast('Clinic saved and published to venuewise.net/coacheshuddle/chrismazzu');
+}
+function sendNotification(){
+  showToast('Notification sent to 24 families via SMS + HomeHuddle ✓');
+}
+function selectNotifType(el){
+  document.querySelectorAll('.notif-type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+document.getElementById('modalOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
