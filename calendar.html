@@ -238,7 +238,7 @@
     <div class="hsub" id="headerSub">Your schedule · powered by <b>Venuewise</b></div>
   </div>
   <div class="header-right">
-    <button class="btn-add-event" id="addEventBtn" onclick="openAE()" style="display:none">✏️ Add</button>
+    <button class="icon-btn" id="addEventBtn" onclick="openAE()" style="display:none" title="Add event">✏️</button>
     <a href="https://venuewise.net/account.html" class="icon-btn" title="Account settings">⚙️</a>
     <button class="icon-btn" onclick="openTheme()" title="Customize colors">🎨</button>
     <div class="sync-wrap">
@@ -896,10 +896,11 @@ function setAEMember(el, kid) {
   aeKid = kid;
   checkAEConflict();
 }
-function openAE() {
+async function openAE() {
   if (!canAddEvents) return;
   const today = new Date().toISOString().split('T')[0];
-  loadMembersForAE();
+  await loadFamilyId();
+  await loadMembersForAE();
   document.getElementById('aeDate').value = today;
   document.getElementById('aeTitle').value = '';
   document.getElementById('aeStart').value = '';
