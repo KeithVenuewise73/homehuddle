@@ -870,14 +870,20 @@ function dlICS(evId) {
 
 // ── ADD EVENT ─────────────────────────────────────────────
 async function loadMembersForAE() {
+  if (!currentFamilyId) await loadFamilyId();
   if (!currentFamilyId) return;
   try {
-    const res = await fetch(SURL + '/rest/v1/family_members?family_id=eq.' + currentFamilyId + '&select=name,role&order=name.asc', {
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
-    familyMembers = await res.json() || [];
+    const { data } = await sb.from('family_members')
+      .select('name, role')
+      .eq('family_id', currentFamilyId)
+      .order('name', { ascending: true });
+    familyMembers = data || [];
     const wrap = document.getElementById('aeMemberWrap');
     if (!wrap) return;
+    // If only one non-Everyone member, default to them
+    if (familyMembers.length === 1 && aeKid === 'Family') {
+      aeKid = familyMembers[0].name;
+    }
     let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,\'Family\')">Everyone</button>';
     familyMembers.forEach(function(m) {
       html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,\'' + esc(m.name) + '\')">' + esc(m.name) + '</button>';
