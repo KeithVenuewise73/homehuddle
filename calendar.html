@@ -584,7 +584,7 @@ async function loadFamilyEvents() {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
-  if (!evData || !evData.length) return;
+    if (!evData || !evData.length) return;
 
     // Also set currentFamilyId for saving new events
     if (evData[0] && evData[0].family_id) currentFamilyId = evData[0].family_id;
@@ -993,16 +993,16 @@ applySticky();
 loadTheme();
 loadReminders();
 checkAddEventPermission();
-// Load both sports and family events, then detect conflicts on all
-Promise.all([
-  loadEvents(false),
-  loadFamilyEvents()
-]).then(function() {
-  detectConflicts();
-  updateStats();
-  render();
-  applySticky();
-  setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+// Load sports events first, then family events on top
+loadEvents(false).then(function() {
+  // Sports loaded — now load family events and merge
+  loadFamilyEvents().then(function() {
+    detectConflicts();
+    updateStats();
+    render();
+    applySticky();
+    setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+  });
 });
 setInterval(function(){ loadEvents(false); }, REFRESH);
 setInterval(loadReminders, REFRESH);
