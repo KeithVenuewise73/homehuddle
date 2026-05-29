@@ -601,6 +601,7 @@ async function loadFamilyEvents() {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
+    showToast('Family events: ' + (evData ? evData.length : 'null') + ' found');
     if (!evData || !evData.length) return;
 
     // Also set currentFamilyId for saving new events
