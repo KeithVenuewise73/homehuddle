@@ -898,16 +898,31 @@ async function saveAE() {
   if (!date) return showToast('Please select a date');
   const eventStart = startT ? new Date(date + 'T' + startT).toISOString() : new Date(date + 'T00:00:00').toISOString();
   const eventEnd = endT ? new Date(date + 'T' + endT).toISOString() : new Date(date + 'T23:59:00').toISOString();
+  // Clean up any orphaned local copies from previous failed attempts
+  allEvents = allEvents.filter(function(e){ return !(e.isManual && e.name === title && String(e.id).startsWith('manual-temp')); });
+
   const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: [], created_by: null };
+
+  // Disable save button to prevent double-submit
+  const saveBtn = document.querySelector('.ae-save');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
+
   try {
     const res = await fetch(SURL + '/rest/v1/family_events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Save failed');
+    if (!res.ok) {
+      const errData = await res.json().catch(function(){ return {}; });
+      throw new Error(errData.message || 'Save failed (' + res.status + ')');
+    }
     const saved = await res.json();
-    const newEv = { id: Array.isArray(saved) ? saved[0].id : saved.id, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: 'Family', platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+    const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
+    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: 'Family', platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+
+    // Only add to local array AFTER confirmed save
+    allEvents.push(newEv);
 
     if (aeRepeat !== 'none' && repEnd) {
       const endDate = new Date(repEnd);
@@ -916,22 +931,26 @@ async function saveAE() {
       if (aeRepeat === 'weekly') cur.setDate(cur.getDate() + 7);
       else cur.setMonth(cur.getMonth() + 1);
       while (cur <= endDate) {
-        const rp = { ...payload, event_start: cur.toISOString(), event_end: new Date(cur.getTime() + duration).toISOString() };
+        const rp = Object.assign({}, payload, { event_start: cur.toISOString(), event_end: new Date(cur.getTime() + duration).toISOString() });
         const rRes = await fetch(SURL + '/rest/v1/family_events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' }, body: JSON.stringify(rp) });
         const rSaved = await rRes.json();
-        allEvents.push({ ...newEv, id: Array.isArray(rSaved) ? rSaved[0].id : rSaved.id, start: new Date(cur), end: new Date(cur.getTime() + duration) });
+        allEvents.push(Object.assign({}, newEv, { id: Array.isArray(rSaved) ? rSaved[0].id : rSaved.id, start: new Date(cur), end: new Date(cur.getTime() + duration), conflicts: [] }));
         if (aeRepeat === 'weekly') cur.setDate(cur.getDate() + 7);
         else cur.setMonth(cur.getMonth() + 1);
       }
     }
 
-    allEvents.push(newEv);
     allEvents.sort(function(a,b){ return a.start - b.start; });
     detectConflicts();
     buildPlatformStrip();
     closeAE(); render(); updateStats();
     showToast('✅ "' + title + '" added to your calendar');
-  } catch(e) { showToast('Could not save — try again'); console.error(e); }
+  } catch(e) {
+    console.error('Save error:', e);
+    showToast('Could not save: ' + (e.message || 'try again'));
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Event'; }
+  }
 }
 
 // ── THEME ─────────────────────────────────────────────────
