@@ -76,7 +76,7 @@
     .vbtn.active{background:var(--navy-light);color:var(--gold)}
     .mnav-today{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0 8px;height:28px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
     .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
-    .btn-add-event{display:flex;align-items:center;gap:5px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:5px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
+    .btn-add-event{display:flex;align-items:center;gap:5px;background:var(--gold);color:var(--navy);border:none;border-radius:20px;padding:7px 13px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
     .btn-add-event:hover{filter:brightness(1.1)}
     .mnav{display:flex;align-items:center;gap:4px;flex-shrink:0}
     .mnav-arr{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0}
@@ -238,6 +238,7 @@
     <div class="hsub" id="headerSub">Your schedule · powered by <b>Venuewise</b></div>
   </div>
   <div class="header-right">
+    <button class="btn-add-event" id="addEventBtn" onclick="openAE()" style="display:none">✏️ Add</button>
     <a href="https://venuewise.net/account.html" class="icon-btn" title="Account settings">⚙️</a>
     <button class="icon-btn" onclick="openTheme()" title="Customize colors">🎨</button>
     <div class="sync-wrap">
@@ -276,7 +277,6 @@
         <button class="vbtn" id="btnMonth" onclick="setView('month')">Month</button>
       </div>
       <button class="mnav-today" onclick="goToday()">Today</button>
-      <button class="btn-add-event" id="addEventBtn" onclick="openAE()" style="display:none">✏️ Add Event</button>
     </div>
     <div class="mnav">
       <button class="mnav-arr" onclick="navigate(-1)">&#8249;</button>
@@ -603,7 +603,6 @@ async function loadFamilyEvents() {
 
     // Ensure we have family_id before querying
     if (!currentFamilyId) await loadFamilyId();
-    showToast('famId:' + (currentFamilyId||'NULL') + ' email:' + familyEmail);
     if (!currentFamilyId) return;
     const { data: evData } = await sb.from('family_events')
       .select('*')
