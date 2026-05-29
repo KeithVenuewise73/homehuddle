@@ -506,11 +506,14 @@ async function loadEvents(showToastMsg) {
 
     platformMap = {};
     const seen = new Set();
-    feeds.forEach(function(f, i) {
+    feeds.forEach(function(f) {
       const key = f.id || ((f.platform||'cal')+'::' +(f.kid_name||'')+'::' +(f.team_name||''));
       if (seen.has(key)) return;
       seen.add(key);
-      platformMap[key] = { label: f.team_name || (f.kid_name ? f.kid_name + (f.sport ? ' · ' + f.sport : '') : (f.platform || 'Calendar')), color: COLORS[i % COLORS.length], kidName: f.kid_name || '', sport: f.sport || '', platform: f.platform || '', teamName: f.team_name || '' };
+      // Use stable hash of key so colors don't shuffle on every sync
+      var hash = 0; for (var ci = 0; ci < key.length; ci++) { hash = ((hash << 5) - hash) + key.charCodeAt(ci); hash |= 0; }
+      var colorIndex = Math.abs(hash) % COLORS.length;
+      platformMap[key] = { label: f.team_name || (f.kid_name ? f.kid_name + (f.sport ? ' · ' + f.sport : '') : (f.platform || 'Calendar')), color: COLORS[colorIndex], kidName: f.kid_name || '', sport: f.sport || '', platform: f.platform || '', teamName: f.team_name || '' };
     });
 
     const fname = feeds[0].family_name || '';
@@ -564,6 +567,8 @@ function processSportsEvents(data, feeds) {
   // Keep manual events, replace sports events
   const manualOnly = allEvents.filter(function(e){ return e.isManual; });
   allEvents = sportsEvents.concat(manualOnly).sort(function(a,b){ return a.start - b.start; });
+  // Always reload family events after sports to keep manual events fresh
+  loadFamilyEvents();
 
   // Detect conflicts with player awareness
   detectConflicts();
@@ -1006,17 +1011,10 @@ applySticky();
 loadTheme();
 loadReminders();
 checkAddEventPermission();
-// Load sports events first, then family events on top
+// Load family ID first, then sports (which triggers family events load automatically)
 loadFamilyId().then(function() {
   loadEvents(false).then(function() {
-    // Sports loaded — now load family events and merge
-    loadFamilyEvents().then(function() {
-      detectConflicts();
-      updateStats();
-      render();
-      applySticky();
-      setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
-    });
+    setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
   });
 });
 setInterval(function(){ loadEvents(false); }, REFRESH);
