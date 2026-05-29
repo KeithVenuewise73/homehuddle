@@ -603,17 +603,14 @@ async function loadFamilyEvents() {
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
-    // Use the family_events_by_email view — queries directly by email, no family ID needed
-    const evUrl = SURL + '/rest/v1/family_events_by_email?order=event_start.asc';
+    // Query family_events directly by family_id — bypasses view issues entirely
+    if (!currentFamilyId) return;
+    const evUrl = SURL + '/rest/v1/family_events?family_id=eq.' + currentFamilyId + '&event_start=gte.' + encodeURIComponent(start) + '&event_start=lte.' + encodeURIComponent(end) + '&order=event_start.asc';
     const evRes = await fetch(evUrl, {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
-    showToast('Family events: ' + (evData ? evData.length : 'null') + ' found');
     if (!evData || !evData.length) return;
-
-    // Also set currentFamilyId for saving new events
-    if (evData[0] && evData[0].family_id) currentFamilyId = evData[0].family_id;
 
     const manualEvents = evData.map(function(e) {
       return {
