@@ -596,12 +596,12 @@ async function loadFamilyEvents() {
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
     // Use the family_events_by_email view — queries directly by email, no family ID needed
-    const evUrl = SURL + '/rest/v1/family_events_by_email?email=eq.' + encodeURIComponent(familyEmail) + '&order=event_start.asc';
+    const evUrl = SURL + '/rest/v1/family_events_by_email?order=event_start.asc';
     const evRes = await fetch(evUrl, {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
-    showToast('Status:' + evRes.status + ' Data:' + JSON.stringify(evData).slice(0,80));
+    showToast('Family events: ' + (evData ? evData.length : 'null') + ' found');
     if (!evData || !evData.length) return;
 
     // Also set currentFamilyId for saving new events
