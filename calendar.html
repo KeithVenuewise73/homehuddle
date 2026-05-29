@@ -664,8 +664,9 @@ function updateStats() {
   const upcoming = evts.filter(function(e){ return e.start >= now; });
   document.getElementById('stTotal').textContent = upcoming.length;
   document.getElementById('stWeek').textContent = evts.filter(function(e){ return e.start >= now && e.start <= weekEnd; }).length;
-  const conflictCount = evts.filter(function(e){ return e.conflicts && e.conflicts.some(function(c){ return c.type === 'red'; }); }).length;
-  document.getElementById('stConfl').textContent = conflictCount;
+  const seenPairs = new Set();
+evts.forEach(function(e){ (e.conflicts||[]).forEach(function(c){ var pair = [String(e.id), c.withId].sort().join('|'); seenPairs.add(pair); }); });
+document.getElementById('stConfl').textContent = seenPairs.size;
   document.getElementById('stPast').textContent = evts.filter(function(e){ return e.start < now; }).length;
   if (lastLoad) document.getElementById('syncUpdated').textContent = 'Updated ' + lastLoad.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
