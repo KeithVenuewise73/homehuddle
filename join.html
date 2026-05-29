@@ -18,15 +18,11 @@
     }
     body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; padding: 2rem 1rem 4rem; }
     .wrap { max-width: 560px; margin: 0 auto; }
-
-    /* LOGO */
     .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; }
     .logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--green); display: flex; align-items: center; justify-content: center; }
     .logo-mark svg { width: 18px; height: 18px; fill: white; }
     .logo-name { font-size: 16px; font-weight: 500; color: var(--gray-900); }
     .logo-by { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
-
-    /* HERO */
     .badge { display: inline-flex; align-items: center; gap: 5px; background: var(--green-light); color: var(--green-text); font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
     h1 { font-family: 'DM Serif Display', serif; font-size: clamp(26px,5vw,34px); line-height: 1.15; margin-bottom: .5rem; }
     h1 em { font-style: italic; color: var(--green); }
@@ -35,8 +31,6 @@
     .perk { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: .75rem; text-align: center; }
     .perk-icon { font-size: 20px; margin-bottom: 4px; }
     .perk span { font-size: 11px; color: var(--gray-400); line-height: 1.4; display: block; }
-
-    /* PROGRESS STEPS */
     .steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 2rem; }
     .step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
     .step-circle { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--gray-200); background: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--gray-400); transition: all .2s; }
@@ -46,15 +40,11 @@
     .step-label.active { color: var(--green); font-weight: 600; }
     .step-line { flex: 1; height: 2px; background: var(--gray-200); margin-top: -18px; }
     .step-line.done { background: var(--green); }
-
-    /* CARDS */
     .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
     .card.active { display: block; }
     .section-label { font-size: 11px; font-weight: 600; color: var(--gray-400); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .75rem; }
     .card-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: .25rem; }
     .card-sub { font-size: 13px; color: var(--gray-400); margin-bottom: 1.25rem; line-height: 1.5; }
-
-    /* FORM FIELDS */
     .field { margin-bottom: 12px; }
     label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
     input[type=text], input[type=email], input[type=tel], input[type=url], input[type=password], select, textarea {
@@ -66,19 +56,16 @@
     input::placeholder, textarea::placeholder { color: var(--gray-400); }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .field-hint { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
-
-    /* PIN INPUT */
     .pin-wrap { display: flex; gap: 10px; justify-content: center; margin: 1rem 0; }
     .pin-digit { width: 56px; height: 64px; text-align: center; font-size: 28px; font-weight: 700; border: 2px solid var(--gray-200); border-radius: var(--radius-md); background: white; color: var(--gray-900); outline: none; transition: all .15s; }
     .pin-digit:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
     .pin-label { text-align: center; font-size: 13px; color: var(--gray-400); margin-bottom: .5rem; }
-
-    /* MEMBER BLOCKS */
     .members-list { display: flex; flex-direction: column; gap: 12px; }
-    .member-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; background: var(--gray-50); position: relative; }
+    .member-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; background: var(--gray-50); }
     .member-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .member-num { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
     .owner-badge { font-size: 10px; font-weight: 600; background: var(--green-light); color: var(--green-text); padding: 2px 8px; border-radius: 10px; }
+    .player-badge { font-size: 10px; font-weight: 600; background: #EEF2FF; color: #3730A3; padding: 2px 8px; border-radius: 10px; }
     .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-200); }
     .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
     .toggle-label { font-size: 13px; color: var(--gray-700); }
@@ -89,12 +76,10 @@
     .toggle-slider:before { position: absolute; content: ''; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .2s; }
     .toggle input:checked + .toggle-slider { background: var(--green); }
     .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
-
-    /* PLAYER BLOCKS */
     .players-list { display: flex; flex-direction: column; gap: 16px; }
     .player-block { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; background: var(--gray-50); }
     .player-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .player-num { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
+    .player-num { font-size: 12px; font-weight: 600; color: #3730A3; text-transform: uppercase; letter-spacing: .06em; }
     .teams-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
     .team-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 12px; }
     .team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -113,28 +98,20 @@
     .sport-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
     .sport-chip { padding: 4px 10px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 12px; color: var(--gray-700); cursor: pointer; background: none; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .sport-chip.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
-
-    /* ADD BUTTONS */
     .btn-add-item { display: flex; align-items: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px dashed var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-400); cursor: pointer; justify-content: center; margin-top: 10px; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .btn-add-item:hover { background: var(--gray-50); border-color: var(--green); color: var(--green); }
     .btn-remove { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--gray-200); border-radius: 6px; background: none; cursor: pointer; color: var(--gray-400); font-size: 14px; transition: all .15s; }
     .btn-remove:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
-
-    /* NAV BUTTONS */
     .btn-nav { display: flex; gap: 10px; margin-top: 1.25rem; }
     .btn-primary { flex: 1; padding: 13px; background: var(--green); color: white; font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
     .btn-primary:hover { background: var(--green-dark); }
     .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
     .btn-back { padding: 13px 20px; background: none; color: var(--gray-400); font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); cursor: pointer; transition: all .15s; }
     .btn-back:hover { background: var(--gray-100); color: var(--gray-700); }
-
-    /* REVIEW */
     .review-section { margin-bottom: 1rem; }
-    .review-title { font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: .5rem; display: flex; align-items: center; gap: 6px; }
+    .review-title { font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: .5rem; }
     .review-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 4px; font-size: 13px; }
     .review-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-
-    /* SUCCESS */
     .setup { display: none; padding: 2rem 0; text-align: center; }
     .setup-icon { width: 72px; height: 72px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 36px; }
     .setup h2 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: .5rem; }
@@ -149,12 +126,12 @@
     .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: none; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--green); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .copy-btn:hover { background: var(--green-light); border-color: var(--green); }
     .copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
-
     .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
     .legal { font-size: 12px; color: var(--gray-400); text-align: center; margin-top: .75rem; line-height: 1.6; }
     .legal a { color: var(--green); text-decoration: none; }
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .readonly-note { display: flex; align-items: center; gap: 6px; background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: #3730A3; margin-bottom: 10px; }
     @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } .platform-grid { grid-template-columns: 1fr 1fr; } .perks { grid-template-columns: repeat(2,1fr); } }
   </style>
 </head>
@@ -181,66 +158,38 @@
       <div class="perk"><div class="perk-icon">30</div><span>Day free trial</span></div>
     </div>
 
-    <!-- PROGRESS STEPS -->
     <div class="steps" id="stepsBar">
-      <div class="step">
-        <div class="step-circle active" id="sc1">1</div>
-        <div class="step-label active" id="sl1">Account</div>
-      </div>
+      <div class="step"><div class="step-circle active" id="sc1">1</div><div class="step-label active" id="sl1">Account</div></div>
       <div class="step-line" id="line1"></div>
-      <div class="step">
-        <div class="step-circle" id="sc2">2</div>
-        <div class="step-label" id="sl2">Members</div>
-      </div>
+      <div class="step"><div class="step-circle" id="sc2">2</div><div class="step-label" id="sl2">Members</div></div>
       <div class="step-line" id="line2"></div>
-      <div class="step">
-        <div class="step-circle" id="sc3">3</div>
-        <div class="step-label" id="sl3">Players</div>
-      </div>
+      <div class="step"><div class="step-circle" id="sc3">3</div><div class="step-label" id="sl3">Players</div></div>
       <div class="step-line" id="line3"></div>
-      <div class="step">
-        <div class="step-circle" id="sc4">4</div>
-        <div class="step-label" id="sl4">PIN</div>
-      </div>
+      <div class="step"><div class="step-circle" id="sc4">4</div><div class="step-label" id="sl4">PIN</div></div>
       <div class="step-line" id="line4"></div>
-      <div class="step">
-        <div class="step-circle" id="sc5">5</div>
-        <div class="step-label" id="sl5">Review</div>
-      </div>
+      <div class="step"><div class="step-circle" id="sc5">5</div><div class="step-label" id="sl5">Review</div></div>
     </div>
 
-    <!-- STEP 1: ACCOUNT -->
+    <!-- STEP 1 -->
     <div class="card active" id="card1">
       <div class="section-label">Step 1 of 5</div>
       <div class="card-title">Family Account</div>
       <div class="card-sub">This is your family's HomeHuddle account. One login for the whole family.</div>
-      <div class="field">
-        <label>Family name</label>
-        <input type="text" id="familyName" placeholder="e.g. D'Amico-Herman Family" />
-        <div class="field-hint">This is how your family will appear in the app</div>
-      </div>
-      <div class="field">
-        <label>Account email <span style="font-weight:400;color:var(--gray-400)">(for login & notifications)</span></label>
-        <input type="email" id="familyEmail" placeholder="you@example.com" />
-      </div>
-      <div class="field">
-        <label>Primary phone <span style="font-weight:400;color:var(--gray-400)">(SMS alerts)</span></label>
-        <input type="tel" id="familyPhone" placeholder="+1 (716) 555-0100" />
-      </div>
+      <div class="field"><label>Family name</label><input type="text" id="familyName" placeholder="e.g. D'Amico-Herman Family" /><div class="field-hint">This is how your family will appear in the app</div></div>
+      <div class="field"><label>Account email <span style="font-weight:400;color:var(--gray-400)">(for login & notifications)</span></label><input type="email" id="familyEmail" placeholder="you@example.com" /></div>
+      <div class="field"><label>Primary phone <span style="font-weight:400;color:var(--gray-400)">(SMS alerts)</span></label><input type="tel" id="familyPhone" placeholder="+1 (716) 555-0100" /></div>
       <div class="error-msg" id="err1"></div>
-      <div class="btn-nav">
-        <button class="btn-primary" onclick="nextStep(1)">Continue → Add Family Members</button>
-      </div>
+      <div class="btn-nav"><button class="btn-primary" onclick="nextStep(1)">Continue → Add Family Members</button></div>
       <p class="legal">Free for 30 days, then $4.95/month. No contracts. Cancel anytime.</p>
     </div>
 
-    <!-- STEP 2: FAMILY MEMBERS -->
+    <!-- STEP 2 -->
     <div class="card" id="card2">
       <div class="section-label">Step 2 of 5</div>
       <div class="card-title">Family Members</div>
       <div class="card-sub">Add the adults in your family. Each person can receive their own SMS alerts and notifications.</div>
       <div class="members-list" id="membersList"></div>
-      <button class="btn-add-item" onclick="addMember()">+ Add another family member</button>
+      <button class="btn-add-item" onclick="addMember(false)">+ Add another family member</button>
       <div class="error-msg" id="err2"></div>
       <div class="btn-nav">
         <button class="btn-back" onclick="prevStep(2)">← Back</button>
@@ -248,11 +197,11 @@
       </div>
     </div>
 
-    <!-- STEP 3: PLAYERS & TEAMS -->
+    <!-- STEP 3 -->
     <div class="card" id="card3">
       <div class="section-label">Step 3 of 5</div>
       <div class="card-title">Players & Teams</div>
-      <div class="card-sub">Add each player in your family and connect their team calendars. Each team stays separate.</div>
+      <div class="card-sub">Add each player in your family. Players receive schedule notifications but cannot make account changes.</div>
       <div class="players-list" id="playersList"></div>
       <button class="btn-add-item" onclick="addPlayer()">+ Add another player</button>
       <div class="error-msg" id="err3"></div>
@@ -262,11 +211,11 @@
       </div>
     </div>
 
-    <!-- STEP 4: PIN -->
+    <!-- STEP 4 -->
     <div class="card" id="card4">
       <div class="section-label">Step 4 of 5</div>
       <div class="card-title">Create Your Family PIN</div>
-      <div class="card-sub">Your 4-digit PIN is how your family logs in to HomeHuddle. Simple and easy to remember.</div>
+      <div class="card-sub">Your 4-digit PIN is how everyone in your family logs in to HomeHuddle — adults and players alike.</div>
       <div class="pin-label">Enter a 4-digit PIN</div>
       <div class="pin-wrap">
         <input class="pin-digit" type="tel" maxlength="1" id="pin1" oninput="pinInput(this,1)" onkeydown="pinKey(event,1)" />
@@ -281,7 +230,7 @@
         <input class="pin-digit" type="tel" maxlength="1" id="conf3" oninput="confInput(this,3)" onkeydown="confKey(event,3)" />
         <input class="pin-digit" type="tel" maxlength="1" id="conf4" oninput="confInput(this,4)" onkeydown="confKey(event,4)" />
       </div>
-      <div class="field-hint" style="text-align:center;margin-top:.5rem">Save this PIN — you'll use it every time you log in</div>
+      <div class="field-hint" style="text-align:center;margin-top:.5rem">Share this PIN with all family members — adults and players use the same PIN</div>
       <div class="error-msg" id="err4"></div>
       <div class="btn-nav">
         <button class="btn-back" onclick="prevStep(4)">← Back</button>
@@ -289,7 +238,7 @@
       </div>
     </div>
 
-    <!-- STEP 5: REVIEW -->
+    <!-- STEP 5 -->
     <div class="card" id="card5">
       <div class="section-label">Step 5 of 5</div>
       <div class="card-title">Review & Launch</div>
@@ -312,16 +261,16 @@
   <div class="setup" id="setup">
     <div class="setup-icon">✅</div>
     <h2>You're in!</h2>
-    <p class="setup-sub">Your family calendar is live. Save your PIN — you'll need it to log in.</p>
+    <p class="setup-sub">Your family calendar is live. Share the PIN with everyone in your family.</p>
     <div class="setup-card">
       <div class="setup-card-title">🔑 Your Family PIN</div>
       <div class="pin-display" id="pinDisplay"></div>
-      <p style="font-size:12px;color:var(--gray-400);text-align:center;margin-top:.5rem">Save this — it's how your family logs in</p>
+      <p style="font-size:12px;color:var(--gray-400);text-align:center;margin-top:.5rem">Share this with all family members — adults and players use the same PIN to log in</p>
     </div>
     <a id="viewCalBtn" href="#" class="setup-cta">Open Family Calendar →</a>
     <div class="setup-card">
       <div class="setup-card-title">📱 Share with family</div>
-      <p style="font-size:13px;color:var(--gray-400);margin-bottom:.75rem;line-height:1.5">Copy and text this to family members:</p>
+      <p style="font-size:13px;color:var(--gray-400);margin-bottom:.75rem;line-height:1.5">Copy and text this to everyone in your family:</p>
       <div class="share-message" id="shareMessage"></div>
       <button class="copy-btn" id="copyBtn" onclick="copyShare()">📋 Copy message to share</button>
     </div>
@@ -334,7 +283,6 @@
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
-
 const SPORTS = ['Baseball','Hockey','Soccer','Basketball','Lacrosse','Football','Wrestling','Swimming','Volleyball','Softball','Dance','Other'];
 const PLATFORMS = {
   gamechanger: { name: 'GameChanger', desc: 'Baseball / Softball' },
@@ -360,12 +308,7 @@ let teamCounters = {};
 let familyCalUrl = '';
 let createdPin = '';
 
-// ── STEP NAVIGATION ──────────────────────────────────────
-function nextStep(from) {
-  if (!validateStep(from)) return;
-  if (from === 5) return;
-  goStep(from + 1);
-}
+function nextStep(from) { if (!validateStep(from)) return; goStep(from + 1); }
 function prevStep(from) { goStep(from - 1); }
 
 function goStep(n) {
@@ -388,16 +331,13 @@ function updateStepBar() {
   }
 }
 
-// ── VALIDATION ───────────────────────────────────────────
 function validateStep(step) {
   hideErr(step);
   if (step === 1) {
-    const name = document.getElementById('familyName').value.trim();
+    if (!document.getElementById('familyName').value.trim()) return showErr(1, 'Please enter your family name.');
     const email = document.getElementById('familyEmail').value.trim();
-    const phone = document.getElementById('familyPhone').value.trim();
-    if (!name) return showErr(1, 'Please enter your family name.');
     if (!email || !email.includes('@')) return showErr(1, 'Please enter a valid email address.');
-    if (!phone) return showErr(1, 'Please enter your primary phone number.');
+    if (!document.getElementById('familyPhone').value.trim()) return showErr(1, 'Please enter your primary phone number.');
     return true;
   }
   if (step === 2) {
@@ -423,8 +363,7 @@ function validateStep(step) {
   if (step === 4) {
     const pin = getPin();
     const conf = getConf();
-    if (pin.length !== 4) return showErr(4, 'Please enter a 4-digit PIN.');
-    if (!/^\d{4}$/.test(pin)) return showErr(4, 'PIN must be 4 numbers.');
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) return showErr(4, 'Please enter a 4-digit PIN.');
     if (pin !== conf) return showErr(4, 'PINs do not match. Please try again.');
     createdPin = pin;
     return true;
@@ -432,35 +371,16 @@ function validateStep(step) {
   return true;
 }
 
-function showErr(step, msg) {
-  const el = document.getElementById('err' + step);
-  el.textContent = msg; el.style.display = 'block';
-  return false;
-}
-function hideErr(step) {
-  const el = document.getElementById('err' + step);
-  if (el) el.style.display = 'none';
-}
+function showErr(step, msg) { const el = document.getElementById('err' + step); el.textContent = msg; el.style.display = 'block'; return false; }
+function hideErr(step) { const el = document.getElementById('err' + step); if (el) el.style.display = 'none'; }
 
-// ── PIN ──────────────────────────────────────────────────
-function pinInput(el, n) {
-  el.value = el.value.replace(/\D/g,'');
-  if (el.value && n < 4) document.getElementById('pin' + (n+1)).focus();
-}
-function pinKey(e, n) {
-  if (e.key === 'Backspace' && !document.getElementById('pin'+n).value && n > 1) document.getElementById('pin'+(n-1)).focus();
-}
-function confInput(el, n) {
-  el.value = el.value.replace(/\D/g,'');
-  if (el.value && n < 4) document.getElementById('conf' + (n+1)).focus();
-}
-function confKey(e, n) {
-  if (e.key === 'Backspace' && !document.getElementById('conf'+n).value && n > 1) document.getElementById('conf'+(n-1)).focus();
-}
+function pinInput(el, n) { el.value = el.value.replace(/\D/g,''); if (el.value && n < 4) document.getElementById('pin' + (n+1)).focus(); }
+function pinKey(e, n) { if (e.key === 'Backspace' && !document.getElementById('pin'+n).value && n > 1) document.getElementById('pin'+(n-1)).focus(); }
+function confInput(el, n) { el.value = el.value.replace(/\D/g,''); if (el.value && n < 4) document.getElementById('conf' + (n+1)).focus(); }
+function confKey(e, n) { if (e.key === 'Backspace' && !document.getElementById('conf'+n).value && n > 1) document.getElementById('conf'+(n-1)).focus(); }
 function getPin() { return ['pin1','pin2','pin3','pin4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
 function getConf() { return ['conf1','conf2','conf3','conf4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
 
-// ── MEMBERS ──────────────────────────────────────────────
 function addMember(isOwner) {
   memberCount++;
   const id = memberCount;
@@ -490,7 +410,6 @@ function addMember(isOwner) {
   list.appendChild(div);
 }
 
-// ── PLAYERS ──────────────────────────────────────────────
 function addPlayer() {
   playerCount++;
   const id = playerCount;
@@ -504,9 +423,14 @@ function addPlayer() {
       '<div class="player-num">Player ' + id + '</div>' +
       (id > 1 ? '<button class="btn-remove" onclick="document.getElementById(\'player-' + id + '\').remove()">×</button>' : '') +
     '</div>' +
+    '<div class="readonly-note">ℹ️ Players receive schedule notifications but cannot make account changes or add events.</div>' +
     '<div class="field-row" style="margin-bottom:10px">' +
       '<div class="field"><label>Player name</label><input type="text" id="pname-' + id + '" placeholder="e.g. Dominic" /></div>' +
       '<div class="field"><label>Birth year</label><input type="text" id="pbyear-' + id + '" placeholder="e.g. 2012" /></div>' +
+    '</div>' +
+    '<div class="field-row" style="margin-bottom:12px">' +
+      '<div class="field"><label>Player phone <span style="font-weight:400;color:var(--gray-400)">(SMS alerts)</span></label><input type="tel" id="pphone-' + id + '" placeholder="+1 (716) 555-0100" /></div>' +
+      '<div class="field"><label>SMS notifications</label><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><label class="toggle"><input type="checkbox" id="psms-' + id + '" checked /><span class="toggle-slider"></span></label><span style="font-size:12px;color:var(--gray-400)">Notify on schedule changes</span></div></div>' +
     '</div>' +
     '<div style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px">Team calendars</div>' +
     '<div style="font-size:12px;color:var(--gray-400);margin-bottom:10px">Add each team separately — they\'ll appear as distinct entries in the calendar.</div>' +
@@ -540,7 +464,7 @@ function addTeam(pid) {
       '<div class="field-hint">Be specific — this is how it appears in the calendar</div>' +
     '</div>' +
     '<div style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:6px">Sport</div>' +
-    '<div class="sport-chips" id="tsports-' + pid + '-' + ti + '">' + sportBtns + '</div>' +
+    '<div class="sport-chips">' + sportBtns + '</div>' +
     '<div style="font-size:12px;font-weight:500;color:var(--gray-700);margin:10px 0 6px">Calendar platform</div>' +
     '<div class="platform-grid">' + platBtns + '</div>' +
     '<div class="instructions" id="tinstr-' + pid + '-' + ti + '" style="display:none"></div>' +
@@ -561,54 +485,44 @@ function selectPlat(pid, ti, platform, el) {
   document.getElementById('tical-field-' + pid + '-' + ti).style.display = 'block';
 }
 
-// ── REVIEW ───────────────────────────────────────────────
 function buildReview() {
   const fname = document.getElementById('familyName').value.trim();
   const email = document.getElementById('familyEmail').value.trim();
   const phone = document.getElementById('familyPhone').value.trim();
   let html = '';
-
   html += '<div class="review-section"><div class="review-title">🏠 Family Account</div>';
   html += '<div class="review-item"><div class="review-dot"></div>' + fname + '</div>';
   html += '<div class="review-item"><div class="review-dot"></div>' + email + '</div>';
   html += '<div class="review-item"><div class="review-dot"></div>' + phone + '</div></div>';
-
-  html += '<div class="review-section"><div class="review-title">👥 Family Members</div>';
+  html += '<div class="review-section"><div class="review-title">👥 Family Members (Adults)</div>';
   document.querySelectorAll('.member-block').forEach(function(m) {
     const id = m.id.replace('member-','');
     const name = document.getElementById('mname-' + id);
     const role = document.getElementById('mrole-' + id);
-    if (name && name.value.trim()) {
-      html += '<div class="review-item"><div class="review-dot"></div>' + name.value.trim() + (role ? ' · ' + role.value : '') + '</div>';
-    }
+    if (name && name.value.trim()) html += '<div class="review-item"><div class="review-dot"></div>' + name.value.trim() + ' · ' + (role ? role.value : 'Parent') + ' · Full access</div>';
   });
   html += '</div>';
-
-  html += '<div class="review-section"><div class="review-title">🏒 Players & Teams</div>';
+  html += '<div class="review-section"><div class="review-title">🏒 Players (Read-only access)</div>';
   document.querySelectorAll('.player-block').forEach(function(p) {
     const id = p.id.replace('player-','');
     const name = document.getElementById('pname-' + id);
+    const phone = document.getElementById('pphone-' + id);
     if (name && name.value.trim()) {
-      html += '<div class="review-item" style="font-weight:600"><div class="review-dot" style="background:#1D9E75"></div>' + name.value.trim() + '</div>';
+      html += '<div class="review-item" style="font-weight:600"><div class="review-dot" style="background:#3730A3"></div>' + name.value.trim() + (phone && phone.value.trim() ? ' · ' + phone.value.trim() : '') + ' · SMS notifications</div>';
       p.querySelectorAll('.team-block').forEach(function(t) {
         const parts = t.id.replace('team-','').split('-');
         const ti = parts[1];
         const tname = document.getElementById('tname-' + id + '-' + ti);
-        if (tname && tname.value.trim()) {
-          html += '<div class="review-item" style="margin-left:16px"><div class="review-dot" style="background:#888"></div>' + tname.value.trim() + '</div>';
-        }
+        if (tname && tname.value.trim()) html += '<div class="review-item" style="margin-left:16px"><div class="review-dot" style="background:#888;width:6px;height:6px"></div>' + tname.value.trim() + '</div>';
       });
     }
   });
   html += '</div>';
-
   html += '<div class="review-section"><div class="review-title">🔑 PIN</div>';
-  html += '<div class="review-item"><div class="review-dot"></div>••••  (4-digit PIN set)</div></div>';
-
+  html += '<div class="review-item"><div class="review-dot"></div>••••  (4-digit PIN — shared by all family members)</div></div>';
   document.getElementById('reviewContent').innerHTML = html;
 }
 
-// ── COLLECT DATA ─────────────────────────────────────────
 function collectMembers() {
   const members = [];
   document.querySelectorAll('.member-block').forEach(function(m) {
@@ -628,7 +542,8 @@ function collectMembers() {
       email: email ? email.value.trim() : '',
       receives_sms: sms ? sms.checked : true,
       receives_push: push ? push.checked : true,
-      can_add_events: canAdd ? canAdd.checked : false,
+      can_add_events: canAdd ? canAdd.checked : id === '1',
+      can_edit_events: id === '1',
       is_owner: id === '1'
     });
   });
@@ -642,6 +557,8 @@ function collectPlayers() {
     const name = document.getElementById('pname-' + id);
     if (!name || !name.value.trim()) return;
     const byear = document.getElementById('pbyear-' + id);
+    const phone = document.getElementById('pphone-' + id);
+    const sms = document.getElementById('psms-' + id);
     const teams = [];
     p.querySelectorAll('.team-block').forEach(function(t) {
       const parts = t.id.replace('team-','').split('-');
@@ -653,20 +570,14 @@ function collectPlayers() {
       const sports = [];
       t.querySelectorAll('.sport-chip.active').forEach(function(s){ sports.push(s.textContent.trim()); });
       if (tname && tname.value.trim()) {
-        teams.push({
-          team_name: tname.value.trim(),
-          sport: sports.join(', '),
-          platform: platKey || 'other',
-          ical_url: ical ? ical.value.trim().replace(/^webcal:\/\//i,'https://') : ''
-        });
+        teams.push({ team_name: tname.value.trim(), sport: sports.join(', '), platform: platKey || 'other', ical_url: ical ? ical.value.trim().replace(/^webcal:\/\//i,'https://') : '' });
       }
     });
-    players.push({ name: name.value.trim(), birth_year: byear ? byear.value.trim() : '', teams: teams });
+    players.push({ name: name.value.trim(), birth_year: byear ? byear.value.trim() : '', phone: phone ? normalizePhone(phone.value.trim()) : '', receives_sms: sms ? sms.checked : true, teams: teams });
   });
   return players;
 }
 
-// ── SUBMIT ───────────────────────────────────────────────
 async function submitForm() {
   hideErr(5);
   setLoading(true);
@@ -678,18 +589,13 @@ async function submitForm() {
     const players = collectPlayers();
 
     // 1. Create family
-    const famRes = await sbPost('/rest/v1/families', {
-      family_name: fname, email: email, phone: phone,
-      pin: createdPin, status: 'trial'
-    });
-    if (!famRes.ok) throw new Error('Could not create family account');
+    const famRes = await sbPost('/rest/v1/families', { family_name: fname, email: email, phone: phone, pin: createdPin, status: 'trial' });
+    if (!famRes.ok) { const e = await famRes.json().catch(function(){return{};}); throw new Error(e.message || 'Could not create family account'); }
     const famData = await famRes.json();
     const familyId = Array.isArray(famData) ? famData[0].id : famData.id;
 
     // 2. Create family members
-    for (const m of members) {
-      await sbPost('/rest/v1/family_members', { ...m, family_id: familyId });
-    }
+    for (const m of members) { await sbPost('/rest/v1/family_members', { ...m, family_id: familyId }); }
 
     // 3. Create players + teams
     for (const p of players) {
@@ -697,17 +603,17 @@ async function submitForm() {
       if (!pRes.ok) throw new Error('Could not create player');
       const pData = await pRes.json();
       const playerId = Array.isArray(pData) ? pData[0].id : pData.id;
-
-      // Link player to family
       await sbPost('/rest/v1/family_players', { family_id: familyId, player_id: playerId, relationship: 'child' });
 
-      // Create teams
+      // Add player as family member with read-only access
+      await sbPost('/rest/v1/family_members', {
+        family_id: familyId, name: p.name, role: 'player',
+        phone: p.phone, receives_sms: p.receives_sms, receives_push: true,
+        can_add_events: false, can_edit_events: false, is_owner: false
+      });
+
       for (const t of p.teams) {
         await sbPost('/rest/v1/player_teams', { ...t, player_id: playerId, is_active: true });
-      }
-
-      // Also create legacy feed for backward compat
-      for (const t of p.teams) {
         if (t.ical_url) {
           await sbPost('/rest/v1/feeds', {
             family_name: fname, email: email, phone: phone,
@@ -718,45 +624,34 @@ async function submitForm() {
       }
     }
 
-    // 4. Send welcome email
+    // 4. Welcome email
     try {
       await fetch(SURL + '/functions/v1/send-welcome', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
         body: JSON.stringify({ email: email, family_name: fname, kid_names: players.map(function(p){ return p.name; }), pin: createdPin })
       });
-    } catch(e) { console.log('Welcome email error:', e); }
+    } catch(e) {}
 
     // 5. Trigger sync
     try {
       fetch(SURL + '/functions/v1/sync-schedules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
         body: JSON.stringify({ email: email })
       });
     } catch(e) {}
 
-    // 6. Show success
+    // 6. Success
     familyCalUrl = 'https://venuewise.net/calendar.html?email=' + encodeURIComponent(email);
     document.getElementById('form-wrap').style.display = 'none';
     document.getElementById('viewCalBtn').href = familyCalUrl;
-
-    // Show PIN
-    const pinHtml = createdPin.split('').map(function(d){ return '<div class="pin-box">' + d + '</div>'; }).join('');
-    document.getElementById('pinDisplay').innerHTML = pinHtml;
-
-    // Share message
-    const playerNames = players.map(function(p){ return p.name; });
-    const shareText = 'Hey! I set up HomeHuddle for the ' + fname + '. You can see the family calendar here:\n\n' + familyCalUrl + '\n\nUse PIN: ' + createdPin + '\n\nYou\'ll get notifications when schedules change. 📅';
-    document.getElementById('shareMessage').textContent = shareText;
+    document.getElementById('pinDisplay').innerHTML = createdPin.split('').map(function(d){ return '<div class="pin-box">' + d + '</div>'; }).join('');
+    const allNames = players.map(function(p){ return p.name; });
+    document.getElementById('shareMessage').textContent = 'Hey! I set up HomeHuddle for the ' + fname + '. You can see the family calendar here:\n\n' + familyCalUrl + '\n\nLog in with PIN: ' + createdPin + '\n\nYou\'ll get SMS alerts when schedules change. 📅';
     document.getElementById('setup').style.display = 'block';
-
   } catch(err) {
     showErr(5, 'Something went wrong: ' + err.message + '. Please try again.');
     console.error(err);
-  } finally {
-    setLoading(false);
-  }
+  } finally { setLoading(false); }
 }
 
 async function sbPost(path, data) {
@@ -783,7 +678,6 @@ function setLoading(on) {
   document.getElementById('spinner').style.display = on ? 'block' : 'none';
 }
 
-// INIT — add first member as owner and first player
 addMember(true);
 addPlayer();
 </script>
