@@ -1033,7 +1033,7 @@ function safeJSON(e){
   return JSON.stringify(safe);
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},8000);}
 function setSync(state,label){document.getElementById('stext').textContent=label;const d=document.getElementById('sdot');d.className='sdot'+(state==='err'?' err':state==='spin'?' spin':'');}
 
 // ── INIT ──────────────────────────────────────────────────
