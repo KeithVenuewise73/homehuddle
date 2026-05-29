@@ -573,32 +573,20 @@ function processSportsEvents(data, feeds) {
 async function loadFamilyEvents() {
   if (!familyEmail) return;
   try {
-    // First get family ID
-    const famRes = await fetch(SURL + '/rest/v1/families?email=eq.' + encodeURIComponent(familyEmail) + '&select=id&limit=1', {
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
-    const famData = await famRes.json();
-    if (famData && famData.length) {
-      currentFamilyId = famData[0].id;
-    }
-
     const now = new Date();
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
-    // If we have a family ID use it, otherwise try joining via families table
-    let evUrl;
-    if (currentFamilyId) {
-      evUrl = SURL + '/rest/v1/family_events?family_id=eq.' + currentFamilyId + '&event_start=gte.' + start + '&event_start=lte.' + end + '&order=event_start.asc';
-    } else {
-      // Fallback: get all family_events joined with families by email
-      evUrl = SURL + '/rest/v1/family_events?select=*,families!inner(email)&families.email=eq.' + encodeURIComponent(familyEmail) + '&event_start=gte.' + start + '&event_start=lte.' + end + '&order=event_start.asc';
-    }
+    // Use the family_events_by_email view — queries directly by email, no family ID needed
+    const evUrl = SURL + '/rest/v1/family_events_by_email?email=eq.' + encodeURIComponent(familyEmail) + '&event_start=gte.' + encodeURIComponent(start) + '&event_start=lte.' + encodeURIComponent(end) + '&order=event_start.asc';
     const evRes = await fetch(evUrl, {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
     if (!evData || !evData.length) return;
+
+    // Also set currentFamilyId for saving new events
+    if (evData[0] && evData[0].family_id) currentFamilyId = evData[0].family_id;
 
     const manualEvents = evData.map(function(e) {
       return {
