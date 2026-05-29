@@ -587,14 +587,9 @@ function processSportsEvents(data, feeds) {
 async function loadFamilyId() {
   if (currentFamilyId || !familyEmail) return;
   try {
-    const url = SURL + '/rest/v1/families?email=eq.' + familyEmail + '&select=id&limit=1';
-    const res = await fetch(url, {
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
-    const data = await res.json();
-    showToast('fam query:' + res.status + ' rows:' + (Array.isArray(data) ? data.length : JSON.stringify(data).slice(0,30)));
-    if (data && data.length && data[0].id) currentFamilyId = data[0].id;
-  } catch(e) { showToast('loadFamilyId err:' + e.message); }
+    const { data, error } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).single();
+    if (data && data.id) currentFamilyId = data.id;
+  } catch(e) {}
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
@@ -608,11 +603,12 @@ async function loadFamilyEvents() {
     // Ensure we have family_id before querying
     if (!currentFamilyId) await loadFamilyId();
     if (!currentFamilyId) return;
-    const evUrl = SURL + '/rest/v1/family_events?family_id=eq.' + currentFamilyId + '&event_start=gte.' + encodeURIComponent(start) + '&event_start=lte.' + encodeURIComponent(end) + '&order=event_start.asc';
-    const evRes = await fetch(evUrl, {
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
-    const evData = await evRes.json();
+    const { data: evData } = await sb.from('family_events')
+      .select('*')
+      .eq('family_id', currentFamilyId)
+      .gte('event_start', start)
+      .lte('event_start', end)
+      .order('event_start', { ascending: true });
     if (!evData || !evData.length) return;
 
     const manualEvents = evData.map(function(e) {
