@@ -588,8 +588,9 @@ async function loadFamilyId() {
   if (currentFamilyId || !familyEmail) return;
   try {
     const { data, error } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).single();
+    showToast('families: ' + JSON.stringify(data) + ' err:' + (error ? error.message : 'none'));
     if (data && data.id) currentFamilyId = data.id;
-  } catch(e) {}
+  } catch(e) { showToast('loadFamilyId catch: ' + e.message); }
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
@@ -602,6 +603,7 @@ async function loadFamilyEvents() {
 
     // Ensure we have family_id before querying
     if (!currentFamilyId) await loadFamilyId();
+    showToast('famId:' + (currentFamilyId||'NULL') + ' email:' + familyEmail);
     if (!currentFamilyId) return;
     const { data: evData } = await sb.from('family_events')
       .select('*')
