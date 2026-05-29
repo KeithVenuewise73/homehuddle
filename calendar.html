@@ -880,9 +880,9 @@ async function loadMembersForAE() {
     familyMembers = await res.json() || [];
     const wrap = document.getElementById('aeMemberWrap');
     if (!wrap) return;
-    let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,'Family')">👨‍👩‍👧 Everyone</button>';
+    let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,\'Family\')">Everyone</button>';
     familyMembers.forEach(function(m) {
-      html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,'' + esc(m.name) + '')">' + esc(m.name) + '</button>';
+      html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,\'' + esc(m.name) + '\')">' + esc(m.name) + '</button>';
     });
     wrap.innerHTML = html;
   } catch(e) {}
