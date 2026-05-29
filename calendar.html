@@ -603,7 +603,8 @@ async function loadFamilyEvents() {
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
-    // Query family_events directly by family_id — bypasses view issues entirely
+    // Ensure we have family_id before querying
+    if (!currentFamilyId) await loadFamilyId();
     if (!currentFamilyId) return;
     const evUrl = SURL + '/rest/v1/family_events?family_id=eq.' + currentFamilyId + '&event_start=gte.' + encodeURIComponent(start) + '&event_start=lte.' + encodeURIComponent(end) + '&order=event_start.asc';
     const evRes = await fetch(evUrl, {
