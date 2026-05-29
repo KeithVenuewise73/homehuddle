@@ -584,7 +584,7 @@ async function loadFamilyEvents() {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const evData = await evRes.json();
-    if (!evData || !evData.length) return;
+    if (!evData || !evData.length) { showToast('No family events found for ' + familyEmail); return; }
 
     // Also set currentFamilyId for saving new events
     if (evData[0] && evData[0].family_id) currentFamilyId = evData[0].family_id;
