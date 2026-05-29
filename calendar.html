@@ -587,7 +587,7 @@ function processSportsEvents(data, feeds) {
 async function loadFamilyId() {
   if (currentFamilyId || !familyEmail) return;
   try {
-    const res = await fetch(SURL + '/rest/v1/families?email=eq.' + encodeURIComponent(familyEmail) + '&select=id&limit=1', {
+    const res = await fetch(SURL + '/rest/v1/families?email=eq.' + familyEmail + '&select=id&limit=1', {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const data = await res.json();
@@ -605,7 +605,6 @@ async function loadFamilyEvents() {
 
     // Ensure we have family_id before querying
     if (!currentFamilyId) await loadFamilyId();
-    showToast('familyId=' + (currentFamilyId ? currentFamilyId.slice(0,8) : 'NULL'));
     if (!currentFamilyId) return;
     const evUrl = SURL + '/rest/v1/family_events?family_id=eq.' + currentFamilyId + '&event_start=gte.' + encodeURIComponent(start) + '&event_start=lte.' + encodeURIComponent(end) + '&order=event_start.asc';
     const evRes = await fetch(evUrl, {
