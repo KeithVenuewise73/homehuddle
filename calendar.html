@@ -346,6 +346,12 @@
       <input class="ae-input" type="date" id="aeRepEnd" />
     </div>
     <div class="ae-field">
+      <label class="ae-label">Who is this for?</label>
+      <div class="ae-cats" id="aeMemberWrap">
+        <button class="ae-cat active" onclick="setAEMember(this,'Family')">👨‍👩‍👧 Everyone</button>
+      </div>
+    </div>
+    <div class="ae-field">
       <label class="ae-label">Notes</label>
       <input class="ae-input" type="text" id="aeNotes" placeholder="Optional" />
     </div>
@@ -381,6 +387,8 @@ let canAddEvents = false;
 let currentFamilyId = null;
 let aeCategory = 'family';
 let aeRepeat = 'none';
+let aeKid = 'Family';
+let familyMembers = [];
 
 // ── STICKY ────────────────────────────────────────────────
 function applySticky() {
@@ -612,7 +620,7 @@ async function loadFamilyEvents() {
         id: e.id, name: e.title,
         start: new Date(e.event_start), end: new Date(e.event_end || e.event_start),
         location: e.location || '', sport: e.category || 'family',
-        kid: 'Family', platform: 'manual', team_name: '',
+        kid: (e.applies_to && e.applies_to.length ? e.applies_to[0] : 'Family'), platform: 'manual', team_name: '',
         color: e.color || CAT_COLORS[e.category] || '#F5C518',
         pmLabel: CAT_LABELS[e.category] || '🏠 Family',
         pmKey: 'manual', conflict: false, isManual: true,
@@ -863,9 +871,32 @@ function dlICS(evId) {
 }
 
 // ── ADD EVENT ─────────────────────────────────────────────
+async function loadMembersForAE() {
+  if (!currentFamilyId) return;
+  try {
+    const res = await fetch(SURL + '/rest/v1/family_members?family_id=eq.' + currentFamilyId + '&select=name,role&order=name.asc', {
+      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
+    });
+    familyMembers = await res.json() || [];
+    const wrap = document.getElementById('aeMemberWrap');
+    if (!wrap) return;
+    let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,'Family')">👨‍👩‍👧 Everyone</button>';
+    familyMembers.forEach(function(m) {
+      html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,'' + esc(m.name) + '')">' + esc(m.name) + '</button>';
+    });
+    wrap.innerHTML = html;
+  } catch(e) {}
+}
+function setAEMember(el, kid) {
+  document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  aeKid = kid;
+  checkAEConflict();
+}
 function openAE() {
   if (!canAddEvents) return;
   const today = new Date().toISOString().split('T')[0];
+  loadMembersForAE();
   document.getElementById('aeDate').value = today;
   document.getElementById('aeTitle').value = '';
   document.getElementById('aeStart').value = '';
@@ -874,7 +905,7 @@ function openAE() {
   document.getElementById('aeNotes').value = '';
   document.getElementById('aeConflictWrap').innerHTML = '';
   document.getElementById('aeRepEndWrap').style.display = 'none';
-  aeCategory = 'family'; aeRepeat = 'none';
+  aeCategory = 'family'; aeRepeat = 'none'; aeKid = 'Family';
   document.querySelectorAll('.ae-cat').forEach(function(b){ b.classList.remove('active'); });
   document.querySelector('.ae-cat').classList.add('active');
   document.querySelectorAll('.ae-rep').forEach(function(b){ b.classList.remove('active'); });
@@ -901,7 +932,7 @@ function checkAEConflict() {
   conflicts.forEach(function(c) {
     if (seen.has(c.id)) return; seen.add(c.id);
     const kidLabel = c.kid || (c.isManual ? 'Family' : 'Family');
-    const isRed = !!c.kid;
+    const isRed = aeKid !== 'Family' && c.kid === aeKid;
     html += '<div class="ae-conflict-item ' + (isRed ? 'ae-conflict-red' : 'ae-conflict-yellow') + '">' + (isRed ? '🔴' : '🟡') + ' ' + esc(kidLabel) + ' has <strong>' + esc(c.name) + '</strong> at ' + fmtT(c.start) + ' — you can still save</div>';
   });
   wrap.innerHTML = html;
@@ -922,7 +953,7 @@ async function saveAE() {
   // Clean up any orphaned local copies from previous failed attempts
   allEvents = allEvents.filter(function(e){ return !(e.isManual && e.name === title && String(e.id).startsWith('manual-temp')); });
 
-  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: [], created_by: null };
+  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
 
   // Disable save button to prevent double-submit
   const saveBtn = document.querySelector('.ae-save');
@@ -940,7 +971,7 @@ async function saveAE() {
     }
     const saved = await res.json();
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
-    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: 'Family', platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
 
     // Only add to local array AFTER confirmed save
     allEvents.push(newEv);
