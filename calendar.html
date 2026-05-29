@@ -626,10 +626,10 @@ function detectConflicts() {
       for (let j = i + 1; j < dayEvents.length; j++) {
         const a = dayEvents[i], b = dayEvents[j];
         if (a.start < b.end && a.end > b.start) {
-          const sameKid = a.kid && b.kid && a.kid === b.kid;
+          const sameKid = a.kid && b.kid && a.kid !== 'Family' && b.kid !== 'Family' && a.kid === b.kid;
           const type = sameKid ? 'red' : 'yellow';
-          a.conflicts.push({ with: b, type: type });
-          b.conflicts.push({ with: a, type: type });
+          a.conflicts.push({ withId: String(b.id), withName: b.name, withKid: b.kid||'Family', withStart: b.start.toISOString(), type: type });
+          b.conflicts.push({ withId: String(a.id), withName: a.name, withKid: a.kid||'Family', withStart: a.start.toISOString(), type: type });
         }
       }
     }
@@ -708,10 +708,10 @@ function renderList() {
     evs.forEach(function(e) {
       if (e.conflicts) {
         e.conflicts.forEach(function(c) {
-          const key = [e.id, c.with.id].sort().join('-');
+          const key = [String(e.id), String(c.withId)].sort().join("-");
           if (!seen.has(key)) {
             seen.add(key);
-            dayConflicts.push({ a: e, b: c.with, type: c.type });
+            dayConflicts.push({ a: e, b: { id: c.withId, name: c.withName, kid: c.withKid, start: new Date(c.withStart) }, type: c.type });
           }
         });
       }
@@ -740,7 +740,7 @@ function renderList() {
 
     evs.forEach(function(e) {
       const cardClass = 'ecard' + (e.isManual ? ' manual' : '');
-      html += '<div class="' + cardClass + '" onclick=\'showModal(' + JSON.stringify(e).replace(/'/g,"&#39;") + ')\'>';
+      html += '<div class="' + cardClass + '" onclick=\'showModal(' + safeJSON(e).replace(/'/g,"&#39;") + ')\'>';
       html += '<div class="etime">' + fmtT(e.start) + '<small>' + fmtT(e.end) + '</small></div>';
       html += '<div class="estripe" style="background:' + e.color + (e.isManual ? ';border-right:none' : '') + '"></div>';
       html += '<div class="ebody"><div class="etitle">' + esc(e.name) + '</div>';
@@ -776,7 +776,7 @@ function renderMonth() {
     html += '<div class="' + cls + '" onclick="goToDate(' + cd.getTime() + ')"><div class="cnum">' + cd.getDate() + '</div>';
     evs.slice(0, 3).forEach(function(e) {
       const evCls = 'cev' + (e.isManual ? ' manual-ev' : '');
-      html += '<div class="' + evCls + '" style="background:' + e.color + '22;color:' + e.color + ';border-left:2px solid ' + e.color + '" onclick="event.stopPropagation();showModal(' + JSON.stringify(e).replace(/'/g,'&#39;') + ')">' + esc(e.name) + '</div>';
+      html += '<div class="' + evCls + '" style="background:' + e.color + '22;color:' + e.color + ';border-left:2px solid ' + e.color + '" onclick="event.stopPropagation();showModal(' + safeJSON(e).replace(/'/g,'&#39;') + ')">' + esc(e.name) + '</div>';
     });
     if (evs.length > 3) html += '<div class="cmore">+' + (evs.length - 3) + ' more</div>';
     html += '</div>';
@@ -796,8 +796,8 @@ function showModal(ev) {
   let conflictHtml = '';
   if (ev.conflicts && ev.conflicts.length) {
     ev.conflicts.forEach(function(c) {
-      if (c.type === 'red') conflictHtml += '<div class="cbanner cbanner-red" style="margin-bottom:12px"><div class="cbanner-row">🔴 Same-player conflict with ' + esc(c.with.name) + ' at ' + fmtT(new Date(c.with.start)) + '</div></div>';
-      else conflictHtml += '<div class="cbanner cbanner-yellow" style="margin-bottom:12px"><div class="cbanner-row">🟡 Busy time — ' + esc(c.with.kid || 'Family') + ' has ' + esc(c.with.name) + ' at ' + fmtT(new Date(c.with.start)) + '</div></div>';
+      if (c.type === 'red') conflictHtml += '<div class="cbanner cbanner-red" style="margin-bottom:12px"><div class="cbanner-row">🔴 Same-player conflict with ' + esc(c.withName) + ' at ' + fmtT(new Date(c.withStart)) + '</div></div>';
+      else conflictHtml += '<div class="cbanner cbanner-yellow" style="margin-bottom:12px"><div class="cbanner-row">🟡 Busy time — ' + esc(c.withKid || 'Family') + ' has ' + esc(c.withName) + ' at ' + fmtT(new Date(c.withStart)) + '</div></div>';
     });
   }
   document.getElementById('mContent').innerHTML =
@@ -978,6 +978,10 @@ function closeMaps(){document.getElementById('mapsModal').classList.remove('show
 
 function showNoFamily(){setSync('err','Not found');document.getElementById('calContent').innerHTML='<div class="smsg"><div class="ico">&#x1F3E0;</div><h3>No schedule found</h3><p>We could not find a schedule for this link.<br><br><a href="https://venuewise.net/login.html">Log in to HomeHuddle &rarr;</a></p></div>';}
 function fmtT(d){const h=d.getHours(),m=d.getMinutes();return(h%12||12)+(m?':'+String(m).padStart(2,'0'):'')+(h>=12?'PM':'AM');}
+function safeJSON(e){
+  var safe={id:e.id,name:e.name,kid:e.kid||'',start:e.start,end:e.end,location:e.location||'',sport:e.sport||'',team_name:e.team_name||'',color:e.color,pmLabel:e.pmLabel||'',pmKey:e.pmKey||'',isManual:!!e.isManual,notes:e.notes||'',description:e.description||'',platform:e.platform||'',conflicts:(e.conflicts||[]).map(function(c){return{withId:c.withId,withName:c.withName,withKid:c.withKid,withStart:c.withStart,type:c.type};})};
+  return JSON.stringify(safe);
+}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
 function setSync(state,label){document.getElementById('stext').textContent=label;const d=document.getElementById('sdot');d.className='sdot'+(state==='err'?' err':state==='spin'?' spin':'');}
