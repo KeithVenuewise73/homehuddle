@@ -445,9 +445,10 @@ async function manualSync() {
     });
   } catch(e) {}
   setTimeout(async function() {
-    allEvents = [];
+    // Clear only sports events, keep manual events during sync
+    allEvents = allEvents.filter(function(e){ return e.isManual; });
     await loadEvents(false);
-    await loadFamilyEvents();
+    // loadFamilyEvents already called inside processSportsEvents via allEvents merge
     setSync('ok', 'Synced');
     showToast('Schedule synced — ' + allEvents.length + ' events loaded');
     btn.disabled = false;
@@ -601,8 +602,10 @@ async function loadFamilyEvents() {
       };
     });
 
-    // Remove old manual events and add fresh ones
+    // Remove old manual events (from DB) and add fresh ones, keep locally added ones
     allEvents = allEvents.filter(function(e){ return !e.isManual; }).concat(manualEvents).sort(function(a,b){ return a.start - b.start; });
+    // Set currentFamilyId if not already set
+    if (!currentFamilyId && manualEvents.length && manualEvents[0].family_id) currentFamilyId = manualEvents[0].family_id;
     detectConflicts();
     updateStats(); render();
   } catch(e) { console.log('Family events error:', e); }
@@ -990,8 +993,14 @@ applySticky();
 loadTheme();
 loadReminders();
 checkAddEventPermission();
-loadFamilyEvents();
-loadEvents(false).then(function() {
+// Load both sports and family events, then detect conflicts on all
+Promise.all([
+  loadEvents(false),
+  loadFamilyEvents()
+]).then(function() {
+  detectConflicts();
+  updateStats();
+  render();
   applySticky();
   setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 });
