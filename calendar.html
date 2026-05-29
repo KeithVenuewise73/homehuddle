@@ -587,12 +587,14 @@ function processSportsEvents(data, feeds) {
 async function loadFamilyId() {
   if (currentFamilyId || !familyEmail) return;
   try {
-    const res = await fetch(SURL + '/rest/v1/families?email=eq.' + familyEmail + '&select=id&limit=1', {
+    const url = SURL + '/rest/v1/families?email=eq.' + familyEmail + '&select=id&limit=1';
+    const res = await fetch(url, {
       headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
     });
     const data = await res.json();
+    showToast('fam query:' + res.status + ' rows:' + (Array.isArray(data) ? data.length : JSON.stringify(data).slice(0,30)));
     if (data && data.length && data[0].id) currentFamilyId = data[0].id;
-  } catch(e) { console.log('loadFamilyId error:', e); }
+  } catch(e) { showToast('loadFamilyId err:' + e.message); }
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
