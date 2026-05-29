@@ -588,9 +588,8 @@ async function loadFamilyId() {
   if (currentFamilyId || !familyEmail) return;
   try {
     const { data, error } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).single();
-    showToast('families: ' + JSON.stringify(data) + ' err:' + (error ? error.message : 'none'));
     if (data && data.id) currentFamilyId = data.id;
-  } catch(e) { showToast('loadFamilyId catch: ' + e.message); }
+  } catch(e) {}
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
@@ -879,13 +878,14 @@ async function loadMembersForAE() {
     familyMembers = data || [];
     const wrap = document.getElementById('aeMemberWrap');
     if (!wrap) return;
-    // If only one non-Everyone member, default to them
+    // Auto-select if only one member
     if (familyMembers.length === 1 && aeKid === 'Family') {
       aeKid = familyMembers[0].name;
     }
-    let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,\'Family\')">Everyone</button>';
+    let html = '<button class="ae-cat' + (aeKid === 'Family' ? ' active' : '') + '" onclick="setAEMember(this,\'Family\')">👨‍👩‍👧 Everyone</button>';
     familyMembers.forEach(function(m) {
-      html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,\'' + esc(m.name) + '\')">' + esc(m.name) + '</button>';
+      const icon = m.role === 'player' ? '⚽' : '👤';
+      html += '<button class="ae-cat' + (aeKid === m.name ? ' active' : '') + '" onclick="setAEMember(this,\'' + esc(m.name) + '\')">' + icon + ' ' + esc(m.name) + '</button>';
     });
     wrap.innerHTML = html;
   } catch(e) {}
@@ -1039,7 +1039,7 @@ function safeJSON(e){
   return JSON.stringify(safe);
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},8000);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
 function setSync(state,label){document.getElementById('stext').textContent=label;const d=document.getElementById('sdot');d.className='sdot'+(state==='err'?' err':state==='spin'?' spin':'');}
 
 // ── INIT ──────────────────────────────────────────────────
