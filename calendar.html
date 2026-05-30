@@ -326,10 +326,15 @@
       <label class="ae-label">Category</label>
       <div class="ae-cats">
         <button class="ae-cat active" onclick="setAECat(this,'family')">🏠 Family</button>
+        <button class="ae-cat" onclick="setAECat(this,'baseball')">⚾ Baseball</button>
+        <button class="ae-cat" onclick="setAECat(this,'football')">🏈 Football</button>
+        <button class="ae-cat" onclick="setAECat(this,'hockey')">🏒 Hockey</button>
+        <button class="ae-cat" onclick="setAECat(this,'soccer')">⚽ Soccer</button>
+        <button class="ae-cat" onclick="setAECat(this,'basketball')">🏀 Basketball</button>
         <button class="ae-cat" onclick="setAECat(this,'school')">🏫 School</button>
+        <button class="ae-cat" onclick="setAECat(this,'medical')">🏥 Medical</button>
         <button class="ae-cat" onclick="setAECat(this,'dance')">💃 Dance / Arts</button>
         <button class="ae-cat" onclick="setAECat(this,'religion')">✝️ Religion</button>
-        <button class="ae-cat" onclick="setAECat(this,'medical')">🏥 Medical</button>
         <button class="ae-cat" onclick="setAECat(this,'other')">📦 Other</button>
       </div>
     </div>
@@ -368,8 +373,8 @@ const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 const REFRESH = 5 * 60 * 1000;
 const COLORS = ['#F97316','#0EA5E9','#22C55E','#A855F7','#EF4444','#F59E0B','#06B6D4','#EC4899','#14B8A6','#F43F5E'];
-const CAT_COLORS = {family:'#F5C518',school:'#0EA5E9',dance:'#EC4899',religion:'#8B5CF6',medical:'#EF4444',other:'#94A3B8'};
-const CAT_LABELS = {family:'🏠 Family',school:'🏫 School',dance:'💃 Dance',religion:'✝️ Religion',medical:'🏥 Medical',other:'📦 Other'};
+const CAT_COLORS = {family:'#F5C518',baseball:'#E85D04',football:'#6B7280',hockey:'#0EA5E9',soccer:'#22C55E',basketball:'#F97316',school:'#0EA5E9',dance:'#EC4899',religion:'#8B5CF6',medical:'#EF4444',other:'#94A3B8'};
+const CAT_LABELS = {family:'🏠 Family',baseball:'⚾ Baseball',football:'🏈 Football',hockey:'🏒 Hockey',soccer:'⚽ Soccer',basketball:'🏀 Basketball',school:'🏫 School',dance:'💃 Dance',religion:'✝️ Religion',medical:'🏥 Medical',other:'📦 Other'};
 
 const sb = window.supabase.createClient(SURL, SKEY);
 const params = new URLSearchParams(window.location.search);
@@ -682,7 +687,7 @@ function setPlatform(key, el) { activeKey = key; document.querySelectorAll('.pch
 function updateStats() {
   const now = new Date(), dow = now.getDay();
   const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - dow), 23, 59, 59);
-  const evts = filtered();
+  const evts = allEvents; // Always count all events in header stats
   const upcoming = evts.filter(function(e){ return e.start >= now; });
   document.getElementById('stTotal').textContent = upcoming.length;
   document.getElementById('stWeek').textContent = evts.filter(function(e){ return e.start >= now && e.start <= weekEnd; }).length;
@@ -776,7 +781,7 @@ function renderList() {
       } else {
         html += '<span class="etag" style="background:' + e.color + '22;color:' + e.color + '">' + esc(e.pmLabel) + '</span>';
       }
-      if (e.kid && !e.isManual) html += '<span class="etag" style="background:rgba(255,255,255,0.06);color:var(--muted)">' + esc(e.kid) + '</span>';
+      if (e.kid && e.kid !== 'Family') html += '<span class="etag" style="background:rgba(255,255,255,0.06);color:var(--muted)">' + esc(e.kid) + '</span>';
       html += '</div></div></div>';
     });
     html += '</div>';
@@ -828,7 +833,7 @@ function showModal(ev) {
   document.getElementById('mContent').innerHTML =
     '<div class="mhandle"></div>' +
     conflictHtml +
-    '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px"><div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:' + ev.color + (isManual?';border-right:1px dashed '+ev.color:'') + '"></div><div><div class="mtitle">' + esc(ev.name) + '</div><div class="morg">' + esc(ev.pmLabel) + (ev.kid && !isManual ? ' &middot; ' + esc(ev.kid) : '') + (isManual ? ' &middot; ✏️ Family event' : '') + '</div></div></div>' +
+    '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px"><div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:' + ev.color + (isManual?';border-right:1px dashed '+ev.color:'') + '"></div><div><div class="mtitle">' + esc(ev.name) + '</div><div class="morg">' + esc(ev.pmLabel) + (ev.kid && !isManual ? ' &middot; ' + esc(ev.kid) : '') + (isManual && ev.kid && ev.kid !== 'Family' ? ' &middot; ' + esc(ev.kid) : isManual ? ' &middot; ✏️ Family event' : '') + '</div></div></div>' +
     '<div class="mrow"><div class="mico">&#x1F4C5;</div><div class="mlbl">Date</div><div class="mval">' + DN[s.getDay()] + ', ' + MO[s.getMonth()] + ' ' + s.getDate() + '</div></div>' +
     '<div class="mrow"><div class="mico">&#x1F550;</div><div class="mlbl">Time</div><div class="mval">' + fmtT(s) + ' – ' + fmtT(e) + '</div></div>' +
     (ev.location ? '<div class="mrow" data-loc="' + esc(ev.location) + '" onclick="openMaps(this.dataset.loc)" style="cursor:pointer"><div class="mico">&#x1F4CD;</div><div class="mlbl">Location</div><div class="mval" style="color:var(--gold);text-decoration:underline">' + esc(ev.location) + '</div><span style="color:var(--muted)">&rsaquo;</span></div>' : '') +
