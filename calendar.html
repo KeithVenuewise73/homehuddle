@@ -858,7 +858,7 @@ async function editManualEvent(evId) {
   document.getElementById('aeDate').value = ev.start.toLocaleDateString('en-CA');
   document.getElementById('aeStart').value = ev.start.toTimeString().slice(0,5);
   document.getElementById('aeEnd').value = ev.end.toTimeString().slice(0,5);
-  document.getElementById('aeLocation').value = ev.location || '';
+  document.getElementById('aeLoc').value = ev.location || '';
   document.getElementById('aeNotes').value = ev.notes || '';
   // Set category
   aeCategory = ev.sport || 'family';
