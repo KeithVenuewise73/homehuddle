@@ -361,7 +361,7 @@
       <input class="ae-input" type="text" id="aeNotes" placeholder="Optional" />
     </div>
     <div class="ae-conflict-wrap" id="aeConflictWrap"></div>
-    <button class="ae-save" onclick="saveAE()">💾 Save Event</button>
+    <button class="ae-save" id="aeSaveBtn" onclick="saveAE()">💾 Save Event</button>
     <button class="ae-cancel" onclick="closeAE()">Cancel</button>
   </div>
 </div>
@@ -841,11 +841,41 @@ function showModal(ev) {
     (ev.notes ? '<div class="mrow"><div class="mico">&#x1F4DD;</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">' + esc(ev.notes) + '</div></div>' : '') +
     (ev.description && !isManual ? '<div class="mrow"><div class="mico">&#x1F4DD;</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">' + esc(ev.description) + '</div></div>' : '') +
     (!isManual ? '<button class="mact" onclick="dlICS(\'' + esc(String(ev.id)) + '\')">&#x1F4F2; Add to My Calendar</button>' : '') +
-    (isManual && canAddEvents ? '<button class="mdel" onclick="deleteManualEvent(\'' + esc(String(ev.id)) + '\')">🗑 Delete Event</button>' : '') +
+    (isManual && canAddEvents ? '<button class="medit" onclick="editManualEvent(\'' + esc(String(ev.id)) + '\')">✏️ Edit</button><button class="mdel" onclick="deleteManualEvent(\'' + esc(String(ev.id)) + '\')">🗑 Delete</button>' : '') +
     '<button class="mcls" onclick="closeModal()">Close</button>';
   document.getElementById('evModal').classList.add('show');
 }
 function closeModal() { document.getElementById('evModal').classList.remove('show'); }
+
+async function editManualEvent(evId) {
+  const ev = allEvents.find(function(e){ return String(e.id) === String(evId); });
+  if (!ev) return;
+  closeModal();
+  // Pre-fill the Add Event modal with existing data
+  await loadFamilyId();
+  await loadMembersForAE();
+  document.getElementById('aeTitle').value = ev.name || '';
+  document.getElementById('aeDate').value = ev.start.toLocaleDateString('en-CA');
+  document.getElementById('aeStart').value = ev.start.toTimeString().slice(0,5);
+  document.getElementById('aeEnd').value = ev.end.toTimeString().slice(0,5);
+  document.getElementById('aeLocation').value = ev.location || '';
+  document.getElementById('aeNotes').value = ev.notes || '';
+  // Set category
+  aeCategory = ev.sport || 'family';
+  document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
+  var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="' + aeCategory + '"]');
+  if (catBtn) catBtn.classList.add('active');
+  // Set member
+  aeKid = ev.kid || 'Family';
+  document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){
+    b.classList.toggle('active', b.textContent.trim().includes(aeKid) || (aeKid === 'Family' && b.textContent.includes('Everyone')));
+  });
+  // Change title and save button to indicate editing
+  document.querySelector('.ae-title').textContent = '✏️ Edit Event';
+  var saveBtn = document.getElementById('aeSaveBtn');
+  if (saveBtn) { saveBtn.innerHTML = '💾 Save Changes'; saveBtn.dataset.editId = evId; }
+  document.getElementById('aeModal').classList.add('show');
+}
 
 async function deleteManualEvent(evId) {
   try {
@@ -922,7 +952,7 @@ async function openAE() {
   document.getElementById('aeModal').classList.add('show');
   setTimeout(function(){ document.getElementById('aeTitle').focus(); }, 100);
 }
-function closeAE() { document.getElementById('aeModal').classList.remove('show'); }
+function closeAE() { document.getElementById('aeModal').classList.remove('show'); document.querySelector('.ae-title').textContent = '✏️ Add Family Event'; var sb2=document.getElementById('aeSaveBtn'); if(sb2){sb2.innerHTML='💾 Save Event';delete sb2.dataset.editId;} }
 function setAECat(el, cat) { document.querySelectorAll('.ae-cat').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); aeCategory = cat; }
 function setAERep(el, rep) { document.querySelectorAll('.ae-rep').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); aeRepeat = rep; document.getElementById('aeRepEndWrap').style.display = rep !== 'none' ? 'block' : 'none'; }
 
