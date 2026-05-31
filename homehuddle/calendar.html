@@ -477,7 +477,7 @@ async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON
 async function initPush() {
   if(!familyEmail||!('serviceWorker' in navigator)||!('PushManager' in window))return;
   try {
-    const reg=await navigator.serviceWorker.register('/sw.js');
+    const reg=await navigator.serviceWorker.register('/homehuddle/sw.js');
     await navigator.serviceWorker.ready;
     const perm=Notification.permission;
     if(perm==='granted'){const ex=await reg.pushManager.getSubscription();if(ex){await savePushSub(ex);}else{const s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)});await savePushSub(s);}document.getElementById('notifBanner').style.display='none';}
