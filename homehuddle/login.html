@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeHuddle — Family Login</title>
+  <meta name="description" content="Log in to your HomeHuddle family calendar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE; --green-text: #085041;
+      --gray-50: #F9F9F7; --gray-100: #F1EFE8; --gray-200: #D3D1C7; --gray-400: #888780;
+      --gray-700: #444441; --gray-900: #1a1a18; --red: #E24B4A; --red-light: #FCEBEB;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
+    .wrap { width: 100%; max-width: 400px; }
+
+    /* LOGO */
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; justify-content: center; }
+    .logo-mark { width: 36px; height: 36px; border-radius: 10px; background: var(--green); display: flex; align-items: center; justify-content: center; }
+    .logo-mark svg { width: 20px; height: 20px; fill: white; }
+    .logo-name { font-size: 18px; font-weight: 500; color: var(--gray-900); }
+    .logo-by { font-size: 12px; color: var(--gray-400); }
+
+    /* CARD */
+    .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 2rem; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: .25rem; text-align: center; }
+    .card-sub { font-size: 14px; color: var(--gray-400); text-align: center; margin-bottom: 1.75rem; line-height: 1.5; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* FORM */
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
+    input[type=email], input[type=tel], input[type=text] {
+      width: 100%; padding: 11px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
+      color: var(--gray-900); outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
+    input::placeholder { color: var(--gray-400); }
+
+    /* PIN INPUT */
+    .pin-section { margin: 1.25rem 0; }
+    .pin-label { font-size: 13px; font-weight: 500; color: var(--gray-700); text-align: center; margin-bottom: .75rem; }
+    .pin-wrap { display: flex; gap: 10px; justify-content: center; }
+    .pin-digit { width: 64px; height: 72px; text-align: center; font-size: 32px; font-weight: 700; border: 2px solid var(--gray-200); border-radius: var(--radius-md); background: white; color: var(--gray-900); outline: none; transition: all .15s; -webkit-text-security: disc; }
+    .pin-digit:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
+    .pin-digit.filled { border-color: var(--green); background: var(--green-light); }
+
+    /* BUTTONS */
+    .btn-primary { width: 100%; padding: 13px; background: var(--green); color: white; font-size: 16px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; margin-top: .5rem; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
+    .btn-link { background: none; border: none; color: var(--green); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; text-decoration: underline; }
+    .btn-link:hover { color: var(--green-dark); }
+    .btn-back { background: none; border: none; color: var(--gray-400); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; display: flex; align-items: center; gap: 4px; margin-bottom: 1rem; }
+    .btn-back:hover { color: var(--gray-700); }
+
+    /* DIVIDER */
+    .divider { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+    .divider-text { font-size: 12px; color: var(--gray-400); }
+
+    /* WHO ARE YOU */
+    .member-list { display: flex; flex-direction: column; gap: 8px; margin: 1rem 0; }
+    .member-btn { display: flex; align-items: center; gap: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px 14px; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; text-align: left; width: 100%; }
+    .member-btn:hover { border-color: var(--green); background: var(--green-light); }
+    .member-btn.selected { border-color: var(--green); background: var(--green-light); }
+    .member-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+    .member-avatar.player { background: #3730A3; }
+    .member-name { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+    .member-role { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+    .member-access { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: auto; flex-shrink: 0; }
+    .access-full { background: var(--green-light); color: var(--green-text); }
+    .access-readonly { background: #EEF2FF; color: #3730A3; }
+
+    /* RESET PIN */
+    .reset-sent { text-align: center; padding: 1rem 0; }
+    .reset-icon { font-size: 48px; margin-bottom: 1rem; }
+    .reset-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: .5rem; }
+    .reset-sub { font-size: 14px; color: var(--gray-400); line-height: 1.6; }
+
+    /* ERROR / SUCCESS */
+    .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
+    .success-msg { background: var(--green-light); color: var(--green-text); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
+
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer-links { text-align: center; margin-top: 1.5rem; font-size: 13px; color: var(--gray-400); }
+    .footer-links a { color: var(--green); text-decoration: none; font-weight: 500; }
+    .footer-links a:hover { text-decoration: underline; }
+
+    /* WELCOME BACK */
+    .welcome-back { text-align: center; padding: .5rem 0 1rem; }
+    .welcome-family { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--gray-900); margin-bottom: .25rem; }
+    .welcome-sub { font-size: 13px; color: var(--gray-400); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">HomeHuddle</div>
+      <div class="logo-by">powered by Venuewise</div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- VIEW 1: EMAIL -->
+    <div class="view active" id="view-email">
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub">Enter your family email to get started</div>
+      <div class="field">
+        <label>Family email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" onkeydown="if(event.key==='Enter')checkEmail()" />
+      </div>
+      <div class="error-msg" id="emailErr"></div>
+      <button class="btn-primary" id="emailBtn" onclick="checkEmail()">
+        <span id="emailBtnText">Continue →</span>
+        <div class="spinner" id="emailSpinner"></div>
+      </button>
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">NEW TO HOMEHUDDLE?</div><div class="divider-line"></div></div>
+      <a href="https://venuewise.net/homehuddle/join.html" style="display:block;text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--gray-700);text-decoration:none;transition:all .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--gray-200)'">Create a free family account →</a>
+    </div>
+
+    <!-- VIEW 2: WHO ARE YOU -->
+    <div class="view" id="view-who">
+      <button class="btn-back" onclick="goView('email')">← Back</button>
+      <div class="welcome-back">
+        <div class="welcome-family" id="familyNameDisplay"></div>
+        <div class="welcome-sub">Who's logging in?</div>
+      </div>
+      <div class="member-list" id="memberList"></div>
+      <div class="error-msg" id="whoErr"></div>
+    </div>
+
+    <!-- VIEW 3: PIN -->
+    <div class="view" id="view-pin">
+      <button class="btn-back" onclick="goView('who')">← Back</button>
+      <div class="card-title" id="pinGreeting">Enter your PIN</div>
+      <div class="card-sub">Enter your 4-digit family PIN</div>
+      <div class="pin-section">
+        <div class="pin-wrap">
+          <input class="pin-digit" type="tel" maxlength="1" id="p1" oninput="pd(this,1)" onkeydown="pk(event,1)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p2" oninput="pd(this,2)" onkeydown="pk(event,2)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p3" oninput="pd(this,3)" onkeydown="pk(event,3)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p4" oninput="pd(this,4)" onkeydown="pk(event,4)" />
+        </div>
+      </div>
+      <div class="error-msg" id="pinErr"></div>
+      <button class="btn-primary" id="pinBtn" onclick="checkPin()">
+        <span id="pinBtnText">Sign In →</span>
+        <div class="spinner" id="pinSpinner"></div>
+      </button>
+      <div style="text-align:center;margin-top:1rem">
+        <button class="btn-link" onclick="goView('reset')">Forgot PIN?</button>
+      </div>
+    </div>
+
+    <!-- VIEW 4: RESET PIN -->
+    <div class="view" id="view-reset">
+      <button class="btn-back" onclick="goView('pin')">← Back</button>
+      <div class="card-title">Reset Your PIN</div>
+      <div class="card-sub">We'll send a reset code to your registered phone number</div>
+      <div class="field">
+        <label>Confirm your phone number</label>
+        <input type="tel" id="resetPhone" placeholder="+1 (716) 555-0100" />
+      </div>
+      <div class="error-msg" id="resetErr"></div>
+      <div class="success-msg" id="resetSuccess"></div>
+      <button class="btn-primary" onclick="sendReset()">Send Reset Code →</button>
+    </div>
+
+    <!-- VIEW 5: RESET SENT -->
+    <div class="view" id="view-reset-sent">
+      <div class="reset-sent">
+        <div class="reset-icon">📱</div>
+        <div class="reset-title">Check your phone</div>
+        <p class="reset-sub">We sent a reset code to your registered number.<br><br>Enter the code below to set a new PIN.</p>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label>Reset code</label>
+        <input type="tel" id="resetCode" placeholder="Enter 6-digit code" maxlength="6" />
+      </div>
+      <div class="field">
+        <label>New PIN</label>
+        <div class="pin-wrap" style="justify-content:flex-start;gap:8px">
+          <input class="pin-digit" style="width:52px;height:60px;font-size:26px" type="tel" maxlength="1" id="np1" oninput="npd(this,1)" onkeydown="npk(event,1)" />
+          <input class="pin-digit" style="width:52px;height:60px;font-size:26px" type="tel" maxlength="1" id="np2" oninput="npd(this,2)" onkeydown="npk(event,2)" />
+          <input class="pin-digit" style="width:52px;height:60px;font-size:26px" type="tel" maxlength="1" id="np3" oninput="npd(this,3)" onkeydown="npk(event,3)" />
+          <input class="pin-digit" style="width:52px;height:60px;font-size:26px" type="tel" maxlength="1" id="np4" oninput="npd(this,4)" onkeydown="npk(event,4)" />
+        </div>
+      </div>
+      <div class="error-msg" id="newPinErr"></div>
+      <button class="btn-primary" onclick="confirmReset()">Set New PIN →</button>
+    </div>
+
+  </div>
+
+  <div class="footer-links">
+    <a href="https://venuewise.net/homehuddle/join.html">New family? Sign up free</a>
+    &nbsp;·&nbsp;
+    <a href="https://venuewise.net">Venuewise</a>
+    &nbsp;·&nbsp;
+    <a href="https://venuewise.net/privacy.html">Privacy</a>
+  </div>
+</div>
+
+<script>
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+let currentFamily = null;
+let selectedMember = null;
+let currentEmail = '';
+
+function goView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('view-' + id).classList.add('active');
+  clearErrors();
+  if (id === 'pin') setTimeout(function(){ document.getElementById('p1').focus(); }, 100);
+}
+
+function clearErrors() {
+  document.querySelectorAll('.error-msg, .success-msg').forEach(function(e){ e.style.display = 'none'; });
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// ── CHECK EMAIL ──────────────────────────────────────────
+async function checkEmail() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) return showErr('emailErr', 'Please enter a valid email address.');
+  setLoading('email', true);
+  try {
+    const res = await sbGet('/rest/v1/families?email=eq.' + encodeURIComponent(email) + '&select=id,family_name,email,pin,status&limit=1');
+    const data = await res.json();
+    if (!data || !data.length) return showErr('emailErr', 'No account found for that email. Did you mean to sign up?');
+    currentFamily = data[0];
+    currentEmail = email;
+    document.getElementById('familyNameDisplay').textContent = currentFamily.family_name;
+    await loadMembers(currentFamily.id);
+    goView('who');
+  } catch(e) {
+    showErr('emailErr', 'Something went wrong. Please try again.');
+  } finally {
+    setLoading('email', false);
+  }
+}
+
+// ── LOAD MEMBERS ─────────────────────────────────────────
+async function loadMembers(familyId) {
+  const res = await sbGet('/rest/v1/family_members?family_id=eq.' + familyId + '&select=id,name,role,is_owner,can_add_events&order=is_owner.desc,created_at.asc');
+  const members = await res.json();
+  const list = document.getElementById('memberList');
+  list.innerHTML = members.map(function(m) {
+    const isPlayer = m.role === 'player';
+    const initial = m.name.charAt(0).toUpperCase();
+    const accessLabel = isPlayer ? '<span class="member-access access-readonly">View only</span>' : '<span class="member-access access-full">Full access</span>';
+    const roleLabel = isPlayer ? 'Player · Schedule notifications' : (m.is_owner ? 'Account owner' : m.role.charAt(0).toUpperCase() + m.role.slice(1));
+    return '<button class="member-btn" onclick="selectMember(' + JSON.stringify(m).replace(/"/g,'&quot;') + ',this)">' +
+      '<div class="member-avatar' + (isPlayer ? ' player' : '') + '">' + initial + '</div>' +
+      '<div><div class="member-name">' + m.name + '</div><div class="member-role">' + roleLabel + '</div></div>' +
+      accessLabel +
+    '</button>';
+  }).join('');
+}
+
+function selectMember(member, el) {
+  document.querySelectorAll('.member-btn').forEach(function(b){ b.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedMember = member;
+  setTimeout(function() {
+    document.getElementById('pinGreeting').textContent = 'Hi ' + member.name + ' 👋';
+    clearPins();
+    goView('pin');
+  }, 200);
+}
+
+// ── CHECK PIN ────────────────────────────────────────────
+async function checkPin() {
+  const pin = getPin();
+  if (pin.length !== 4) return showErr('pinErr', 'Please enter your 4-digit PIN.');
+  setLoading('pin', true);
+  try {
+    if (pin !== currentFamily.pin) {
+      clearPins();
+      document.getElementById('p1').focus();
+      return showErr('pinErr', 'Incorrect PIN. Please try again.');
+    }
+    // Success — redirect to calendar at new homehuddle path
+    const calUrl = 'https://venuewise.net/homehuddle/calendar.html?email=' + encodeURIComponent(currentEmail) +
+      '&member=' + encodeURIComponent(selectedMember.name) +
+      '&role=' + encodeURIComponent(selectedMember.role);
+    window.location.href = calUrl;
+  } catch(e) {
+    showErr('pinErr', 'Something went wrong. Please try again.');
+  } finally {
+    setLoading('pin', false);
+  }
+}
+
+// ── RESET PIN ────────────────────────────────────────────
+async function sendReset() {
+  const phone = document.getElementById('resetPhone').value.trim();
+  if (!phone) return showErr('resetErr', 'Please enter your phone number.');
+  try {
+    await fetch(SURL + '/functions/v1/send-pin-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
+      body: JSON.stringify({ email: currentEmail, phone: phone })
+    });
+    goView('reset-sent');
+  } catch(e) {
+    const success = document.getElementById('resetSuccess');
+    success.textContent = 'Reset code sent! Check your phone.';
+    success.style.display = 'block';
+    setTimeout(function(){ goView('reset-sent'); }, 1500);
+  }
+}
+
+async function confirmReset() {
+  const code = document.getElementById('resetCode').value.trim();
+  const newPin = ['np1','np2','np3','np4'].map(function(id){ return document.getElementById(id).value; }).join('');
+  if (!code) return showErr('newPinErr', 'Please enter the reset code.');
+  if (newPin.length !== 4) return showErr('newPinErr', 'Please enter a new 4-digit PIN.');
+  try {
+    await fetch(SURL + '/rest/v1/families?email=eq.' + encodeURIComponent(currentEmail), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+      body: JSON.stringify({ pin: newPin })
+    });
+    currentFamily.pin = newPin;
+    clearPins();
+    goView('pin');
+    setTimeout(function(){
+      const s = document.getElementById('pinErr');
+      s.style.background = 'var(--green-light)';
+      s.style.color = 'var(--green-text)';
+      s.textContent = 'PIN updated successfully! Enter your new PIN.';
+      s.style.display = 'block';
+    }, 300);
+  } catch(e) {
+    showErr('newPinErr', 'Could not update PIN. Please try again.');
+  }
+}
+
+// ── PIN HELPERS ──────────────────────────────────────────
+function pd(el, n) { el.value = el.value.replace(/\D/g,''); el.classList.toggle('filled', !!el.value); if (el.value && n < 4) document.getElementById('p' + (n+1)).focus(); if (getPin().length === 4) checkPin(); }
+function pk(e, n) { if (e.key === 'Backspace' && !document.getElementById('p'+n).value && n > 1) { document.getElementById('p'+(n-1)).classList.remove('filled'); document.getElementById('p'+(n-1)).focus(); } }
+function npd(el, n) { el.value = el.value.replace(/\D/g,''); el.classList.toggle('filled', !!el.value); if (el.value && n < 4) document.getElementById('np' + (n+1)).focus(); }
+function npk(e, n) { if (e.key === 'Backspace' && !document.getElementById('np'+n).value && n > 1) document.getElementById('np'+(n-1)).focus(); }
+function getPin() { return ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
+function clearPins() { ['p1','p2','p3','p4'].forEach(function(id){ const el = document.getElementById(id); el.value = ''; el.classList.remove('filled'); }); }
+
+// ── LOADING ──────────────────────────────────────────────
+function setLoading(view, on) {
+  if (view === 'email') {
+    document.getElementById('emailBtn').disabled = on;
+    document.getElementById('emailBtnText').textContent = on ? 'Looking up account…' : 'Continue →';
+    document.getElementById('emailSpinner').style.display = on ? 'block' : 'none';
+  }
+  if (view === 'pin') {
+    document.getElementById('pinBtn').disabled = on;
+    document.getElementById('pinBtnText').textContent = on ? 'Signing in…' : 'Sign In →';
+    document.getElementById('pinSpinner').style.display = on ? 'block' : 'none';
+  }
+}
+
+// ── SUPABASE ─────────────────────────────────────────────
+function sbGet(path) {
+  return fetch(SURL + path, {
+    headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
+  });
+}
+
+// Auto-focus email on load
+document.getElementById('emailInput').focus();
+
+// Check if email passed in URL
+const params = new URLSearchParams(window.location.search);
+const preEmail = params.get('email');
+if (preEmail) {
+  document.getElementById('emailInput').value = preEmail;
+  checkEmail();
+}
+</script>
+</body>
+</html>
