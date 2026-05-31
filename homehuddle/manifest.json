@@ -1,0 +1,24 @@
+{
+  "name": "HomeHuddle",
+  "short_name": "HomeHuddle",
+  "description": "Your family's schedule, finally organized.",
+  "start_url": "/homehuddle/calendar.html",
+  "display": "standalone",
+  "background_color": "#1E2A38",
+  "theme_color": "#1E2A38",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/homehuddle/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/homehuddle/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
