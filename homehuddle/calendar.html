@@ -478,6 +478,7 @@ const VAPID_PUBLIC = 'BOGLurPmZrhUq4wdTB0YjqLSZBYdrPdGz0rY0wN-OVkTCz3Lb8JAqIxpf-
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
+  showToast('Push check: SW=' + ('serviceWorker' in navigator) + ' PM=' + ('PushManager' in window));
   if(!familyEmail||!('serviceWorker' in navigator)||!('PushManager' in window))return;
   try {
     const reg=await navigator.serviceWorker.register('/homehuddle/sw.js');
