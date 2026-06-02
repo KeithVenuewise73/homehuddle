@@ -330,11 +330,37 @@ function normalizeForCompare(str) {
     .replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
 }
 
+// Sport keywords used to prevent cross-sport grouping
+const SPORT_KEYWORDS = {
+  baseball: ['baseball','bb','softball'],
+  hockey: ['hockey','hky','ice'],
+  soccer: ['soccer','futbol','fc'],
+  basketball: ['basketball','hoops'],
+  football: ['football','fb'],
+  lacrosse: ['lacrosse','lax'],
+  wrestling: ['wrestling','wrst'],
+  swimming: ['swimming','swim'],
+  volleyball: ['volleyball','vball'],
+  dance: ['dance','dancing'],
+};
+
+function detectSport(str) {
+  const lower = str.toLowerCase();
+  for (const [sport, keywords] of Object.entries(SPORT_KEYWORDS)) {
+    if (keywords.some(function(k){ return lower.includes(k); })) return sport;
+  }
+  return 'unknown';
+}
+
 function similarityScore(a, b) {
+  // Never group teams with different detected sports
+  const sportA = detectSport(a), sportB = detectSport(b);
+  if (sportA !== 'unknown' && sportB !== 'unknown' && sportA !== sportB) return 0;
+
   const na = normalizeForCompare(a), nb = normalizeForCompare(b);
   if (na === nb) return 1.0;
-  const wordsA = na.split(' ').filter(Boolean);
-  const wordsB = nb.split(' ').filter(Boolean);
+  const wordsA = na.split(' ').filter(function(w){ return w.length > 2; });
+  const wordsB = nb.split(' ').filter(function(w){ return w.length > 2; });
   if (!wordsA.length || !wordsB.length) return 0;
   let matches = 0;
   wordsA.forEach(function(w) {
@@ -346,13 +372,15 @@ function similarityScore(a, b) {
 function autoDetectGroups(teamNames) {
   const groups = [];
   const assigned = new Set();
+  // Sort longest first so the most descriptive name becomes canonical
   const sorted = [...teamNames].sort(function(a,b){ return b.length - a.length; });
   sorted.forEach(function(name) {
     if (assigned.has(name)) return;
     const group = { canonical: name, autoAliases: [], manualAliases: [] };
     sorted.forEach(function(other) {
       if (other === name || assigned.has(other)) return;
-      if (similarityScore(name, other) >= 0.7) {
+      // Require 75% similarity AND same sport (or unknown sport on one side)
+      if (similarityScore(name, other) >= 0.75) {
         group.autoAliases.push(other);
         assigned.add(other);
       }
