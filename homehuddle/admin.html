@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — HomeHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0D1117;--surface:#161B22;--surface2:#1C2128;--border:#30363D;
+      --red:#C0392B;--red-bright:#E74C3C;--red-dim:rgba(192,57,43,0.15);
+      --white:#F0F4FF;--muted:#7A8FAD;
+      --green:#22C55E;--green-dim:rgba(34,197,94,0.12);
+      --amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);
+      --blue:#3B82F6;--blue-dim:rgba(59,130,246,0.12);
+      --purple:#8B5CF6;--purple-dim:rgba(139,92,246,0.12);
+      --radius:8px;--radius-lg:12px;
+    }
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+    nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white)}
+    .nav-logo-icon{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;background:var(--red);color:white;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+    .nav-logo-name{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:0.02em}
+    .nav-logo-tag{font-size:11px;color:var(--muted);font-weight:500}
+    .nav-right{display:flex;align-items:center;gap:12px}
+    .nav-pill{background:var(--green-dim);color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(34,197,94,0.25)}
+    .nav-signout{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.2s}
+    .nav-signout:hover{color:var(--red-bright)}
+    #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:var(--bg)}
+    .login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:360px;text-align:center}
+    .login-title{font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:var(--white);margin-bottom:0.25rem}
+    .login-sub{font-size:13px;color:var(--muted);margin-bottom:2rem}
+    .pin-row{display:flex;gap:10px;justify-content:center;margin-bottom:1.5rem}
+    .pin-digit{width:52px;height:56px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);font-size:1.4rem;text-align:center;color:var(--white);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
+    .pin-digit:focus{border-color:var(--red)}
+    .pin-error{background:rgba(192,57,43,0.1);color:#f87171;border:1px solid rgba(192,57,43,0.3);border-radius:var(--radius);padding:8px 12px;font-size:12px;margin-bottom:1rem;display:none}
+    .pin-error.show{display:block}
+    #admin-screen{display:none}
+    .page{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+    .page-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:800;color:var(--white);letter-spacing:0.02em}
+    .page-updated{font-size:12px;color:var(--muted);margin-top:2px}
+    .header-actions{display:flex;gap:8px}
+    .btn-action{font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;border:1px solid var(--border);background:var(--surface2);color:var(--muted)}
+    .btn-action:hover{border-color:var(--red);color:var(--white)}
+    .btn-action.primary{background:var(--red-dim);border-color:rgba(192,57,43,0.4);color:var(--red-bright)}
+    .btn-action.primary:hover{background:var(--red);color:white}
+    .btn-action:disabled{opacity:0.5;cursor:not-allowed}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;position:relative;overflow:hidden}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .kpi-card.red::after{background:var(--red)}
+    .kpi-card.green::after{background:var(--green)}
+    .kpi-card.blue::after{background:var(--blue)}
+    .kpi-card.amber::after{background:var(--amber)}
+    .kpi-card.purple::after{background:var(--purple)}
+    .kpi-card.muted::after{background:var(--muted)}
+    .kpi-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+    .kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;color:var(--white);line-height:1}
+    .kpi-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .section{margin-bottom:1.5rem}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+    .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em}
+    .section-badge{font-size:11px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:20px;border:1px solid var(--border)}
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2)}
+    td{font-size:13px;color:var(--muted);padding:11px 14px;border-bottom:1px solid rgba(48,54,61,0.5);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--surface2)}
+    .td-primary{font-weight:600;color:var(--white);font-size:13px}
+    .td-secondary{font-size:11px;color:var(--muted);margin-top:2px}
+    .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;letter-spacing:0.04em}
+    .badge-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+    .badge-trial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+    .badge-cancelled{background:var(--red-dim);color:#f87171;border:1px solid rgba(192,57,43,0.25)}
+    .badge-sport{background:var(--blue-dim);color:#93C5FD;border:1px solid rgba(59,130,246,0.2);margin-right:3px;margin-bottom:3px}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+    .chart-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .bar-label{font-size:12px;color:var(--muted);width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-track{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+    .bar-count{font-size:11px;color:var(--muted);width:20px;text-align:right;flex-shrink:0}
+    .growth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px}
+    .growth-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px;text-align:center}
+    .growth-label{font-size:10px;color:var(--muted);margin-bottom:4px}
+    .growth-val{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red-bright);line-height:1}
+    .growth-new{font-size:10px;color:var(--muted);margin-top:2px}
+    .orgs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+    .org-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;display:flex;align-items:center;gap:12px;transition:border-color 0.2s}
+    .org-card:hover{border-color:var(--red)}
+    .org-emoji{font-size:1.4rem;flex-shrink:0}
+    .org-name{font-size:13px;font-weight:600;color:var(--white)}
+    .org-meta{font-size:11px;color:var(--muted);margin-top:2px}
+    .org-aliases{font-size:10px;color:var(--border);margin-top:3px;font-style:italic}
+    .org-count{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:800;color:var(--red-bright);margin-left:auto;flex-shrink:0}
+    .btn-sm{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+    .btn-push{background:var(--purple-dim);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3)}
+    .btn-push:hover{background:var(--purple);color:white}
+    .btn-followup{background:var(--red-dim);color:var(--red-bright);border:1px solid rgba(192,57,43,0.3)}
+    .btn-followup:hover{background:var(--red);color:white}
+    .btn-members{background:var(--blue-dim);color:#93C5FD;border:1px solid rgba(59,130,246,0.3)}
+    .btn-members:hover{background:var(--blue);color:white}
+    .churn-notes{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;color:var(--muted);width:100%;font-family:'DM Sans',sans-serif;resize:none;outline:none;transition:border-color 0.15s}
+    .churn-notes:focus{border-color:var(--red)}
+
+    /* TEAM ALIAS MANAGER */
+    .alias-manager{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+    .alias-intro{font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.5}
+    .alias-group{border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;background:var(--bg)}
+    .alias-group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+    .alias-canonical{font-size:13px;font-weight:600;color:var(--white)}
+    .alias-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+    .alias-chip{font-size:11px;background:var(--surface2);color:var(--muted);padding:2px 8px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;gap:4px}
+    .alias-chip-remove{cursor:pointer;color:var(--muted);font-size:12px;line-height:1;transition:color 0.15s}
+    .alias-chip-remove:hover{color:#f87171}
+    .alias-auto-chip{font-size:11px;background:var(--amber-dim);color:var(--amber);padding:2px 8px;border-radius:10px;border:1px solid rgba(245,158,11,0.3)}
+    .alias-input-row{display:flex;gap:6px}
+    .alias-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none}
+    .alias-input:focus{border-color:var(--red)}
+    .btn-alias-add{background:var(--red-dim);color:var(--red-bright);border:1px solid rgba(192,57,43,0.3);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
+    .btn-alias-add:hover{background:var(--red);color:white}
+    .alias-add-new{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .alias-new-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none}
+    .alias-new-input:focus{border-color:var(--green)}
+
+    /* MEMBER MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+    .modal-overlay.show{display:flex}
+    .modal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;width:100%;max-width:560px;max-height:85vh;overflow-y:auto}
+    .modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+    .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:800;color:var(--white)}
+    .modal-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;padding:2px;transition:color 0.15s}
+    .modal-close:hover{color:var(--white)}
+    .member-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+    .member-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;flex-shrink:0;color:white}
+    .member-info{flex:1;min-width:0}
+    .member-name{font-size:13px;font-weight:600;color:var(--white)}
+    .member-role{font-size:11px;color:var(--muted);margin-top:1px}
+    .member-phone{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px}
+    .member-badges{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+    .mbadge{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:600}
+    .mbadge-owner{background:var(--red-dim);color:var(--red-bright);border:1px solid rgba(192,57,43,0.3)}
+    .mbadge-player{background:var(--blue-dim);color:#93C5FD;border:1px solid rgba(59,130,246,0.3)}
+    .mbadge-sms{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+    .mbadge-add{background:var(--purple-dim);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3)}
+
+    .loading{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface);border:1px solid var(--border);color:var(--white);padding:10px 18px;border-radius:20px;font-size:13px;transition:transform 0.3s;z-index:999;pointer-events:none;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+    footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;text-align:center;font-size:11px;color:var(--border)}
+    @media(max-width:768px){.charts-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/homehuddle/" class="nav-logo">
+    <div class="nav-logo-icon">HH</div>
+    <div style="display:flex;align-items:baseline;gap:6px">
+      <span class="nav-logo-name">HomeHuddle</span>
+      <span class="nav-logo-tag">Admin</span>
+    </div>
+  </a>
+  <div class="nav-right">
+    <span class="nav-pill">⚡ Live</span>
+    <button class="nav-signout" id="sign-out-btn" style="display:none" onclick="signOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size:2rem;margin-bottom:1rem">🏠</div>
+    <div class="login-title">Admin Dashboard</div>
+    <div class="login-sub">Enter your admin PIN to continue</div>
+    <div class="pin-error" id="pin-error">Incorrect PIN. Please try again.</div>
+    <div class="pin-row">
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0" oninput="pinNav(0)" onkeydown="pinBack(0,event)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1" oninput="pinNav(1)" onkeydown="pinBack(1,event)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNav(2)" onkeydown="pinBack(2,event)"/>
+      <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNav(3)" onkeydown="pinBack(3,event)"/>
+    </div>
+    <div style="font-size:11px;color:var(--border)">Powered by Venuewise</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen">
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">HomeHuddle Dashboard</div>
+        <div class="page-updated" id="last-updated">Loading...</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-action primary" id="sync-btn" onclick="triggerSync()">⚡ Sync Now</button>
+        <button class="btn-action" onclick="loadDashboard()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><span class="section-title">📈 Signups by Month</span></div>
+      <div class="chart-card">
+        <div class="growth-grid" id="growth-grid"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Sports Distribution</div>
+        <div id="sports-chart"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Platform Breakdown</div>
+        <div id="platform-chart"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <!-- TEAM ALIAS MANAGER -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🏷️ Team Name Deduplication</span>
+        <span style="font-size:11px;color:var(--amber)">🟡 = auto-detected · white = manually added</span>
+      </div>
+      <div class="alias-manager" id="alias-manager">
+        <div class="loading"><span class="spinner"></span>Loading...</div>
+      </div>
+    </div>
+
+    <!-- ORGS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🏅 Organizations Tracked</span>
+        <span class="section-badge" id="orgs-count">—</span>
+      </div>
+      <div class="orgs-grid" id="orgs-grid">
+        <div class="loading"><span class="spinner"></span>Loading...</div>
+      </div>
+    </div>
+
+    <!-- ACTIVE FAMILIES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">✅ Active Families</span>
+        <span class="section-badge" id="active-count">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Family</th>
+              <th>Kids</th>
+              <th>Sports</th>
+              <th>Status</th>
+              <th>Signed Up</th>
+              <th>Active Feeds</th>
+              <th>Members</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="families-tbody">
+            <tr><td colspan="8" class="loading"><span class="spinner"></span>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHURNED -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">⚠️ Churned — Follow Up</span>
+        <span class="section-badge" id="churn-count">—</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Family</th><th>Email</th><th>Cancelled</th><th>Was Tracking</th><th>Notes</th><th>Action</th></tr>
+          </thead>
+          <tbody id="churn-tbody">
+            <tr><td colspan="6" class="empty">No churned accounts yet 🎉</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer>HomeHuddle Admin · powered by Venuewise · <a href="mailto:hello@venuewise.net" style="color:var(--muted);text-decoration:none">hello@venuewise.net</a></footer>
+</div>
+
+<!-- MEMBER MODAL -->
+<div class="modal-overlay" id="memberModal" onclick="if(event.target===this)closeMemberModal()">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalFamilyName">Family Members</div>
+        <div class="modal-sub" id="modalFamilyEmail"></div>
+      </div>
+      <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    </div>
+    <div id="modalMemberList"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const ADMIN_PIN = '2426';
+const ALIAS_KEY = 'hh_team_aliases_v2';
+
+// ── FUZZY MATCHING ────────────────────────────────────────
+function normalizeForCompare(str) {
+  return str.toLowerCase()
+    .replace(/\bbaseball\b/g,'bb').replace(/\bhockey\b/g,'hky')
+    .replace(/\bmodified\b/g,'mod').replace(/\bpractice\b/g,'')
+    .replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+}
+
+function similarityScore(a, b) {
+  const na = normalizeForCompare(a), nb = normalizeForCompare(b);
+  if (na === nb) return 1.0;
+  const wordsA = na.split(' ').filter(Boolean);
+  const wordsB = nb.split(' ').filter(Boolean);
+  if (!wordsA.length || !wordsB.length) return 0;
+  let matches = 0;
+  wordsA.forEach(function(w) {
+    if (wordsB.some(function(wb){ return wb.includes(w) || w.includes(wb); })) matches++;
+  });
+  return matches / Math.max(wordsA.length, wordsB.length);
+}
+
+function autoDetectGroups(teamNames) {
+  const groups = [];
+  const assigned = new Set();
+  const sorted = [...teamNames].sort(function(a,b){ return b.length - a.length; });
+  sorted.forEach(function(name) {
+    if (assigned.has(name)) return;
+    const group = { canonical: name, autoAliases: [], manualAliases: [] };
+    sorted.forEach(function(other) {
+      if (other === name || assigned.has(other)) return;
+      if (similarityScore(name, other) >= 0.7) {
+        group.autoAliases.push(other);
+        assigned.add(other);
+      }
+    });
+    assigned.add(name);
+    groups.push(group);
+  });
+  return groups;
+}
+
+// Load saved manual aliases
+function loadSavedAliases() {
+  try { return JSON.parse(localStorage.getItem(ALIAS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveAliases(aliases) { localStorage.setItem(ALIAS_KEY, JSON.stringify(aliases)); }
+
+let teamGroups = [];
+let savedAliases = loadSavedAliases();
+
+function mergeGroups(autoGroups) {
+  return autoGroups.map(function(g) {
+    const manual = savedAliases[g.canonical] || [];
+    return Object.assign({}, g, { manualAliases: manual });
+  });
+}
+
+function renderAliasManager(feeds) {
+  const teamNames = [...new Set(feeds.filter(function(f){ return f.team_name; }).map(function(f){ return f.team_name.trim(); }))];
+  if (!teamNames.length) {
+    document.getElementById('alias-manager').innerHTML = '<div class="empty">No team names found yet</div>';
+    return;
+  }
+  const autoGroups = autoDetectGroups(teamNames);
+  teamGroups = mergeGroups(autoGroups);
+
+  let html = '<div class="alias-intro">HomeHuddle automatically groups similar team names together. 🟡 Auto-detected matches are shown in amber. You can add manual aliases for any variation that wasn\'t caught automatically.</div>';
+
+  teamGroups.forEach(function(g, gi) {
+    const allAliases = g.autoAliases.concat(g.manualAliases);
+    html += '<div class="alias-group">';
+    html += '<div class="alias-group-header"><div class="alias-canonical">'+esc(g.canonical)+'</div>';
+    if (allAliases.length) html += '<span style="font-size:11px;color:var(--green)">✓ '+allAliases.length+' variation'+(allAliases.length===1?'':'s')+' grouped</span>';
+    html += '</div>';
+    if (allAliases.length) {
+      html += '<div class="alias-chips">';
+      g.autoAliases.forEach(function(a){ html += '<span class="alias-auto-chip" title="Auto-detected">🟡 '+esc(a)+'</span>'; });
+      g.manualAliases.forEach(function(a){ html += '<span class="alias-chip">'+esc(a)+'<span class="alias-chip-remove" onclick="removeAlias('+gi+',\''+esc(a)+'\')">×</span></span>'; });
+      html += '</div>';
+    }
+    html += '<div class="alias-input-row">';
+    html += '<input class="alias-input" type="text" placeholder="Add manual alias..." id="alias-inp-'+gi+'" onkeydown="if(event.key===\'Enter\')addManualAlias('+gi+')" />';
+    html += '<button class="btn-alias-add" onclick="addManualAlias('+gi+')">+ Add</button>';
+    html += '</div></div>';
+  });
+
+  // Add new canonical team
+  html += '<div class="alias-add-new">';
+  html += '<input class="alias-new-input" type="text" id="new-canonical-input" placeholder="Add a new canonical team name..." />';
+  html += '<button class="btn-alias-add" onclick="addNewCanonical()">+ New Team</button>';
+  html += '</div>';
+
+  document.getElementById('alias-manager').innerHTML = html;
+}
+
+function addManualAlias(gi) {
+  const inp = document.getElementById('alias-inp-'+gi);
+  const val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  const canonical = teamGroups[gi].canonical;
+  if (!savedAliases[canonical]) savedAliases[canonical] = [];
+  if (!savedAliases[canonical].includes(val)) {
+    savedAliases[canonical].push(val);
+    saveAliases(savedAliases);
+    showToast('Alias added: "'+val+'" → '+canonical);
+    // Re-render
+    teamGroups[gi].manualAliases = savedAliases[canonical];
+    renderAliasManagerFromGroups();
+  }
+}
+
+function removeAlias(gi, alias) {
+  const canonical = teamGroups[gi].canonical;
+  if (savedAliases[canonical]) {
+    savedAliases[canonical] = savedAliases[canonical].filter(function(a){ return a !== alias; });
+    saveAliases(savedAliases);
+    teamGroups[gi].manualAliases = savedAliases[canonical];
+    showToast('Alias removed');
+    renderAliasManagerFromGroups();
+  }
+}
+
+function addNewCanonical() {
+  const inp = document.getElementById('new-canonical-input');
+  const val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  if (!savedAliases[val]) savedAliases[val] = [];
+  saveAliases(savedAliases);
+  teamGroups.push({ canonical: val, autoAliases: [], manualAliases: [] });
+  showToast('Team added: '+val);
+  renderAliasManagerFromGroups();
+}
+
+function renderAliasManagerFromGroups() {
+  // Re-render without re-fetching
+  let html = '<div class="alias-intro">HomeHuddle automatically groups similar team names together. 🟡 Auto-detected matches are shown in amber. You can add manual aliases for any variation that wasn\'t caught automatically.</div>';
+  teamGroups.forEach(function(g, gi) {
+    const allAliases = g.autoAliases.concat(g.manualAliases);
+    html += '<div class="alias-group">';
+    html += '<div class="alias-group-header"><div class="alias-canonical">'+esc(g.canonical)+'</div>';
+    if (allAliases.length) html += '<span style="font-size:11px;color:var(--green)">✓ '+allAliases.length+' variation'+(allAliases.length===1?'':'s')+' grouped</span>';
+    html += '</div>';
+    if (allAliases.length) {
+      html += '<div class="alias-chips">';
+      g.autoAliases.forEach(function(a){ html += '<span class="alias-auto-chip" title="Auto-detected">🟡 '+esc(a)+'</span>'; });
+      g.manualAliases.forEach(function(a){ html += '<span class="alias-chip">'+esc(a)+'<span class="alias-chip-remove" onclick="removeAlias('+gi+',\''+esc(a)+'\')">×</span></span>'; });
+      html += '</div>';
+    }
+    html += '<div class="alias-input-row">';
+    html += '<input class="alias-input" type="text" placeholder="Add manual alias..." id="alias-inp-'+gi+'" onkeydown="if(event.key===\'Enter\')addManualAlias('+gi+')" />';
+    html += '<button class="btn-alias-add" onclick="addManualAlias('+gi+')">+ Add</button>';
+    html += '</div></div>';
+  });
+  html += '<div class="alias-add-new"><input class="alias-new-input" type="text" id="new-canonical-input" placeholder="Add a new canonical team name..." /><button class="btn-alias-add" onclick="addNewCanonical()">+ New Team</button></div>';
+  document.getElementById('alias-manager').innerHTML = html;
+}
+
+// ── NORMALIZE TEAM NAME using groups ─────────────────────
+function normalizeTeamName(raw) {
+  if (!raw) return raw;
+  const lower = raw.toLowerCase().trim();
+  for (const g of teamGroups) {
+    if (g.canonical.toLowerCase() === lower) return g.canonical;
+    const allAliases = g.autoAliases.concat(g.manualAliases);
+    if (allAliases.some(function(a){ return a.toLowerCase() === lower; })) return g.canonical;
+  }
+  return raw.trim();
+}
+
+// ── PIN LOGIN ─────────────────────────────────────────────
+function pinNav(i) {
+  const v = document.getElementById('p'+i).value;
+  if (!/^\d$/.test(v)) { document.getElementById('p'+i).value=''; return; }
+  if (i < 3) document.getElementById('p'+(i+1)).focus();
+  if (i === 3) checkPin();
+}
+function pinBack(i, e) {
+  if (e.key==='Backspace' && !document.getElementById('p'+i).value && i>0) document.getElementById('p'+(i-1)).focus();
+}
+function checkPin() {
+  const pin = [0,1,2,3].map(function(i){ return document.getElementById('p'+i).value; }).join('');
+  if (pin === ADMIN_PIN) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('sign-out-btn').style.display = 'inline';
+    document.getElementById('pin-error').classList.remove('show');
+    loadDashboard();
+  } else {
+    document.getElementById('pin-error').classList.add('show');
+    [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
+    document.getElementById('p0').focus();
+  }
+}
+function signOut() {
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('sign-out-btn').style.display='none';
+  document.getElementById('pin-error').classList.remove('show');
+  [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
+  document.getElementById('p0').focus();
+}
+
+// ── SUPABASE ──────────────────────────────────────────────
+async function sbFetch(path) {
+  const res = await fetch(SURL + '/rest/v1/' + path, {
+    headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
+  });
+  if (!res.ok) throw new Error('Fetch failed: ' + path);
+  return res.json();
+}
+
+// ── SYNC ──────────────────────────────────────────────────
+async function triggerSync() {
+  const btn = document.getElementById('sync-btn');
+  btn.disabled = true; btn.textContent = '⏳ Syncing...';
+  try {
+    const res = await fetch(SURL + '/functions/v1/sync-schedules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    showToast('Sync complete — ' + (data.total_upserted || 0) + ' events upserted');
+    setTimeout(loadDashboard, 2000);
+  } catch(e) { showToast('Sync error: ' + e.message); }
+  finally { setTimeout(function(){ btn.disabled=false; btn.textContent='⚡ Sync Now'; }, 5000); }
+}
+
+// ── PUSH TEST ─────────────────────────────────────────────
+async function testPush(email, name) {
+  try {
+    await fetch(SURL + '/functions/v1/send-notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+      body: JSON.stringify({ type: 'test', email: email })
+    });
+    showToast('Test push sent to ' + name);
+  } catch(e) { showToast('Push error: ' + e.message); }
+}
+
+// ── MEMBER MODAL ──────────────────────────────────────────
+async function openMemberModal(familyId, familyName, familyEmail) {
+  document.getElementById('modalFamilyName').textContent = familyName;
+  document.getElementById('modalFamilyEmail').textContent = familyEmail;
+  document.getElementById('modalMemberList').innerHTML = '<div class="loading"><span class="spinner"></span>Loading members...</div>';
+  document.getElementById('memberModal').classList.add('show');
+  try {
+    const members = await sbFetch('family_members?family_id=eq.' + familyId + '&select=*&order=is_owner.desc,created_at.asc');
+    if (!members || !members.length) {
+      document.getElementById('modalMemberList').innerHTML = '<div class="empty">No members found for this family</div>';
+      return;
+    }
+    const roleColors = { parent:'#E74C3C', player:'#3B82F6', grandparent:'#F59E0B', guardian:'#22C55E', stepparent:'#8B5CF6', other:'#6B7280' };
+    document.getElementById('modalMemberList').innerHTML = members.map(function(m) {
+      const color = roleColors[m.role] || '#6B7280';
+      const initial = (m.name||'?').charAt(0).toUpperCase();
+      return '<div class="member-card">' +
+        '<div class="member-avatar" style="background:'+color+'">'+initial+'</div>' +
+        '<div class="member-info">' +
+          '<div class="member-name">'+esc(m.name||'—')+'</div>' +
+          '<div class="member-role">'+esc(m.role||'—')+'</div>' +
+          (m.phone ? '<div class="member-phone">'+esc(m.phone)+'</div>' : '') +
+          '<div class="member-badges">' +
+            (m.is_owner ? '<span class="mbadge mbadge-owner">Owner</span>' : '') +
+            (m.role==='player' ? '<span class="mbadge mbadge-player">Player</span>' : '') +
+            (m.receives_sms ? '<span class="mbadge mbadge-sms">SMS On</span>' : '') +
+            (m.can_add_events ? '<span class="mbadge mbadge-add">Can Add Events</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('modalMemberList').innerHTML = '<div class="empty">Error loading members: ' + e.message + '</div>';
+  }
+}
+function closeMemberModal() { document.getElementById('memberModal').classList.remove('show'); }
+
+// ── LOAD DASHBOARD ────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('last-updated').textContent = 'Loading...';
+  try {
+    const [feeds, pushSubs, families, members] = await Promise.all([
+      sbFetch('feeds?select=*&order=created_at.asc'),
+      sbFetch('push_subscriptions?select=id,email'),
+      sbFetch('families?select=id,family_name,email,phone,status,created_at'),
+      sbFetch('family_members?select=id,family_id,name,role,is_owner,phone,receives_sms,can_add_events')
+    ]);
+
+    renderKPIs(feeds, pushSubs, families, members);
+    renderGrowth(families);
+    renderCharts(feeds);
+    renderAliasManager(feeds);
+    renderOrgs(feeds);
+    renderFamilies(feeds, pushSubs, families, members);
+    renderChurn(families);
+
+    document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('last-updated').textContent = 'Error: ' + e.message;
+    showToast('Error loading dashboard: ' + e.message);
+  }
+}
+
+// ── KPIs ──────────────────────────────────────────────────
+function renderKPIs(feeds, pushSubs, families, members) {
+  const activeFamilies = (families||[]).filter(function(f){ return f.status !== 'cancelled'; });
+  const churnedFamilies = (families||[]).filter(function(f){ return f.status === 'cancelled'; });
+  const activeFeeds = feeds.filter(function(f){ return f.is_active && f.status !== 'cancelled'; });
+  const kids = [...new Set(feeds.map(function(f){ return f.email+'::'+f.kid_name; }))];
+  const thisMonth = (families||[]).filter(function(f){
+    const d = new Date(f.created_at), now = new Date();
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  document.getElementById('kpi-grid').innerHTML =
+    kpi('red','Total Families',(families||[]).length,activeFamilies.length+' active · '+churnedFamilies.length+' churned') +
+    kpi('green','New This Month',thisMonth.length,'signed up this month') +
+    kpi('blue','Family Members',(members||[]).length,'across all accounts') +
+    kpi('amber','Kids Tracked',kids.length,'across all families') +
+    kpi('purple','Active Feeds',activeFeeds.length,'iCal calendars syncing') +
+    kpi('muted','Push Devices',pushSubs.length,'subscribed devices');
+}
+function kpi(color, label, value, sub) {
+  return '<div class="kpi-card '+color+'"><div class="kpi-label">'+label+'</div><div class="kpi-value">'+value+'</div><div class="kpi-sub">'+sub+'</div></div>';
+}
+
+// ── GROWTH ────────────────────────────────────────────────
+function renderGrowth(families) {
+  const monthCounts = {};
+  (families||[]).forEach(function(f) {
+    const d = new Date(f.created_at);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('en-US', { month:'short', year:'2-digit' });
+    if (!monthCounts[key]) monthCounts[key] = { label, count: 0 };
+    monthCounts[key].count++;
+  });
+  const sorted = Object.entries(monthCounts).sort(function(a,b){ return a[0].localeCompare(b[0]); });
+  let running = 0;
+  document.getElementById('growth-grid').innerHTML = sorted.length ?
+    sorted.map(function(entry) {
+      running += entry[1].count;
+      return '<div class="growth-cell"><div class="growth-label">'+entry[1].label+'</div><div class="growth-val">'+running+'</div><div class="growth-new">+'+entry[1].count+'</div></div>';
+    }).join('') : '<div class="empty">No signup data yet</div>';
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+function renderCharts(feeds) {
+  const active = feeds.filter(function(f){ return f.status!=='cancelled'; });
+  const sportCounts = {};
+  active.forEach(function(f){ if(f.sport) f.sport.split(',').forEach(function(s){ const t=s.trim(); if(t) sportCounts[t]=(sportCounts[t]||0)+1; }); });
+  const sports = Object.entries(sportCounts).sort(function(a,b){ return b[1]-a[1]; });
+  const maxS = sports[0]?.[1] || 1;
+  const sportColors = ['#E74C3C','#3B82F6','#F59E0B','#8B5CF6','#22C55E','#EC4899'];
+  document.getElementById('sports-chart').innerHTML = sports.map(function(e,i){
+    return '<div class="bar-row"><div class="bar-label">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxS*100)+'%;background:'+sportColors[i%sportColors.length]+'"></div></div><div class="bar-count">'+e[1]+'</div></div>';
+  }).join('') || '<div class="empty">No data yet</div>';
+
+  const platCounts = {};
+  const platNames = {gamechanger:'GameChanger',teamsnap:'TeamSnap',leagueapps:'LeagueApps',google:'Google Cal',apple:'Apple Cal',other:'Other/iCal'};
+  active.forEach(function(f){ if(f.platform) platCounts[f.platform]=(platCounts[f.platform]||0)+1; });
+  const plats = Object.entries(platCounts).sort(function(a,b){ return b[1]-a[1]; });
+  const maxP = plats[0]?.[1] || 1;
+  const platColors = ['#3B82F6','#F59E0B','#E74C3C','#8B5CF6','#22C55E','#EC4899'];
+  document.getElementById('platform-chart').innerHTML = plats.map(function(e,i){
+    return '<div class="bar-row"><div class="bar-label">'+(platNames[e[0]]||e[0])+'</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(e[1]/maxP*100)+'%;background:'+platColors[i%platColors.length]+'"></div></div><div class="bar-count">'+e[1]+'</div></div>';
+  }).join('') || '<div class="empty">No data yet</div>';
+}
+
+// ── ORGS (with normalization) ─────────────────────────────
+function renderOrgs(feeds) {
+  const orgMap = {};
+  feeds.filter(function(f){ return f.status!=='cancelled'; }).forEach(function(f) {
+    const raw = f.team_name || (f.sport||'Unknown') + ' (' + (f.platform||'unknown') + ')';
+    const canonical = normalizeTeamName(raw);
+    if (!orgMap[canonical]) orgMap[canonical] = { name: canonical, families: new Set(), sports: new Set(), platform: f.platform, aliases: new Set() };
+    orgMap[canonical].families.add(f.email);
+    if (f.sport) f.sport.split(',').forEach(function(s){ orgMap[canonical].sports.add(s.trim()); });
+    if (raw !== canonical) orgMap[canonical].aliases.add(raw);
+  });
+  const orgs = Object.values(orgMap).sort(function(a,b){ return b.families.size-a.families.size; });
+  document.getElementById('orgs-count').textContent = orgs.length;
+  const emojis = {baseball:'⚾',hockey:'🏒',soccer:'⚽',basketball:'🏀',football:'🏈',lacrosse:'🥍',wrestling:'🤼',swimming:'🏊',volleyball:'🏐',softball:'🥎'};
+  document.getElementById('orgs-grid').innerHTML = orgs.length ? orgs.map(function(org){
+    const sport = [...org.sports][0]?.toLowerCase()||'';
+    const emoji = emojis[sport] || '🏅';
+    const aliasHtml = org.aliases.size ? '<div class="org-aliases">Also: '+[...org.aliases].join(', ')+'</div>' : '';
+    return '<div class="org-card">' +
+      '<div class="org-emoji">'+emoji+'</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="org-name">'+esc(org.name)+'</div>' +
+        '<div class="org-meta">'+([...org.sports].join(', ')||'—')+' · '+(org.platform||'—')+'</div>' +
+        aliasHtml +
+      '</div>' +
+      '<div class="org-count">'+org.families.size+'</div>' +
+    '</div>';
+  }).join('') : '<div class="empty">No organizations yet</div>';
+}
+
+// ── FAMILIES TABLE ────────────────────────────────────────
+function renderFamilies(feeds, pushSubs, families, members) {
+  const pushEmails = new Set((pushSubs||[]).map(function(p){ return p.email; }));
+  const feedMap = {};
+  feeds.filter(function(f){ return f.status!=='cancelled'; }).forEach(function(f){
+    if(!feedMap[f.email]) feedMap[f.email]={kids:new Set(),sports:new Set(),feeds:0};
+    if(f.kid_name) feedMap[f.email].kids.add(f.kid_name);
+    if(f.sport) f.sport.split(',').forEach(function(s){ feedMap[f.email].sports.add(s.trim()); });
+    if(f.is_active) feedMap[f.email].feeds++;
+  });
+  const memberCountByFamily = {};
+  (members||[]).forEach(function(m){ memberCountByFamily[m.family_id] = (memberCountByFamily[m.family_id]||0) + 1; });
+  const activeFamilies = (families||[]).filter(function(f){ return f.status !== 'cancelled'; }).sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  document.getElementById('active-count').textContent = activeFamilies.length;
+  document.getElementById('families-tbody').innerHTML = activeFamilies.length ? activeFamilies.map(function(f){
+    const fd = feedMap[f.email] || {kids:new Set(),sports:new Set(),feeds:0};
+    const hasPush = pushEmails.has(f.email);
+    const memberCount = memberCountByFamily[f.id] || 0;
+    return '<tr>' +
+      '<td><div class="td-primary">'+esc(f.family_name)+'</div><div class="td-secondary">'+esc(f.email)+'</div><div class="td-secondary">'+(f.phone||'No phone')+'</div></td>' +
+      '<td>'+(fd.kids.size ? [...fd.kids].join(', ') : '—')+'</td>' +
+      '<td>'+([...fd.sports].map(function(s){ return '<span class="badge badge-sport">'+s+'</span>'; }).join('')||'—')+'</td>' +
+      '<td><span class="badge '+(f.status==='active'?'badge-active':'badge-trial')+'">'+(f.status||'trial')+'</span></td>' +
+      '<td>'+(f.created_at?new Date(f.created_at).toLocaleDateString():'—')+'</td>' +
+      '<td>'+fd.feeds+' active</td>' +
+      '<td><button class="btn-sm btn-members" onclick="openMemberModal(\''+f.id+'\',\''+esc(f.family_name)+'\',\''+esc(f.email)+'\')">👥 '+memberCount+' member'+(memberCount===1?'':'s')+'</button></td>' +
+      '<td>'+(hasPush ? '<button class="btn-sm btn-push" onclick="testPush(\''+f.email+'\',\''+esc(f.family_name)+'\')">🔔 Push</button>' : '<span style="font-size:11px;color:var(--border)">No push</span>')+'</td>' +
+    '</tr>';
+  }).join('') : '<tr><td colspan="8" class="empty">No active families yet</td></tr>';
+}
+
+// ── CHURN TABLE ───────────────────────────────────────────
+function renderChurn(families) {
+  const churned = (families||[]).filter(function(f){ return f.status==='cancelled'; }).sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  document.getElementById('churn-count').textContent = churned.length;
+  if (!churned.length) { document.getElementById('churn-tbody').innerHTML = '<tr><td colspan="6" class="empty">No churned accounts yet 🎉</td></tr>'; return; }
+  document.getElementById('churn-tbody').innerHTML = churned.map(function(f,i){
+    return '<tr>' +
+      '<td><div class="td-primary">'+(f.family_name||'—')+'</div></td>' +
+      '<td><div class="td-secondary">'+esc(f.email)+'</div></td>' +
+      '<td>'+(f.created_at?new Date(f.created_at).toLocaleDateString():'—')+'</td>' +
+      '<td>—</td>' +
+      '<td><textarea class="churn-notes" id="notes-'+i+'" rows="2" placeholder="Follow-up notes...">'+getNote(f.email)+'</textarea></td>' +
+      '<td><button class="btn-sm btn-followup" onclick="followUp(\''+esc(f.email)+'\',\''+esc(f.family_name)+'\')">✉️ Email</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function getNote(email) { return localStorage.getItem('churn_note_'+email)||''; }
+function followUp(email, name) {
+  const subject = encodeURIComponent('We miss you, '+(name||'HomeHuddle family')+'!');
+  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback.\n\nHomeHuddle is just $4.95/month for your whole family.\n\nTo re-activate, visit venuewise.net/homehuddle/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
+  window.open('mailto:'+email+'?subject='+subject+'&body='+body);
+}
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },3200); }
+
+document.addEventListener('blur', function(e) {
+  if(e.target.classList.contains('churn-notes')) {
+    const row = e.target.closest('tr');
+    const emailEl = row?.querySelector('.td-secondary');
+    if(emailEl) localStorage.setItem('churn_note_'+emailEl.textContent.trim(), e.target.value);
+  }
+}, true);
+
+document.getElementById('p0').focus();
+</script>
+</body>
+</html>
