@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>HomeHuddle · Johnson Family Schedule</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#1E2A38;--navy-mid:#253347;--navy-light:#2E3F52;
+      --gold:#C0392B;--gold-dim:#962d22;
+      --white:#F7F8FA;--muted:#8A95A0;
+      --card-bg:#1A2535;--border:rgba(192,57,43,0.12);--radius:10px;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+    /* DEMO BANNER */
+    .demo-banner{background:var(--gold);padding:8px 20px;text-align:center;font-size:0.78rem;font-weight:700;color:white;letter-spacing:0.06em;position:sticky;top:0;z-index:400}
+    .demo-banner a{color:white;text-decoration:underline;margin-left:8px}
+
+    #siteHeader{position:-webkit-sticky;position:sticky;top:36px;z-index:300;background:var(--navy);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
+    .hlogo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.04em;color:var(--white);line-height:1}
+    .hlogo em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:2rem;letter-spacing:0}
+    .hsub{font-size:0.7rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px}
+    .hsub b{color:var(--gold);font-weight:600}
+    .header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .sync-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+    .sync-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px;color:var(--white);font-size:0.75rem;font-weight:600;cursor:default;font-family:'DM Sans',sans-serif}
+    .sync-updated{font-size:0.58rem;color:var(--muted);letter-spacing:0.03em;padding-right:2px}
+    .sdot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:pdot 1.5s ease-in-out infinite}
+    @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.4}}
+    .icon-btn{background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none}
+
+    #statsBar{position:-webkit-sticky;position:sticky;top:calc(36px + 73px);z-index:200;background:var(--navy-mid);border-bottom:1px solid var(--border);padding:8px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
+    .stat{text-align:center;padding:5px 2px}
+    .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);line-height:1}
+    .stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px}
+    .stat-val.past{color:var(--muted)}
+
+    #controls{position:-webkit-sticky;position:sticky;top:calc(36px + 73px + 68px);z-index:100;background:var(--navy);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+    .pstrip{padding:10px 20px 0;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+    .pstrip::-webkit-scrollbar{display:none}
+    .pchip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;font-size:0.76rem;font-weight:600;color:var(--muted);flex-shrink:0;transition:all 0.18s}
+    .pchip.active{color:var(--white);border-bottom-color:var(--gold)}
+    .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .vrow{padding:8px 12px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+    .left-controls{display:flex;align-items:center;gap:6px}
+    .vbtns{display:flex;background:var(--card-bg);border-radius:8px;padding:3px;gap:2px;flex-shrink:0}
+    .vbtn{padding:5px 12px;border-radius:6px;border:none;background:transparent;font-size:0.75rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+    .vbtn.active{background:var(--navy-light);color:var(--gold)}
+    .mnav-today{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0 8px;height:28px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
+    .mnav-today:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+    .mnav{display:flex;align-items:center;gap:4px;flex-shrink:0}
+    .mnav-arr{background:var(--card-bg);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:'DM Sans',sans-serif;flex-shrink:0}
+    .mnav-arr:hover{border-color:var(--gold);color:var(--gold)}
+    #calPeriod{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.07em;color:var(--white);min-width:100px;text-align:center;flex-shrink:1}
+
+    main{padding:14px 20px 80px}
+    .dgroup{margin-bottom:20px}
+    .dlabel{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .dlabel::after{content:'';flex:1;height:1px;background:var(--border)}
+    .dlabel.today{color:var(--gold)}
+    .tpill{font-size:0.58rem;font-weight:700;background:var(--gold);color:white;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:0.06em}
+
+    .ecard{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;transition:border-color 0.2s,transform 0.15s;cursor:pointer}
+    .ecard:hover{border-color:rgba(192,57,43,0.3);transform:translateX(2px)}
+    .ecard.manual{border-style:dashed;border-color:rgba(192,57,43,0.35)}
+    .etime{min-width:46px;text-align:right;font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:600;color:var(--muted);padding-top:2px;line-height:1.5;flex-shrink:0}
+    .etime small{font-weight:400;display:block}
+    .estripe{width:3px;border-radius:3px;align-self:stretch;flex-shrink:0}
+    .ebody{flex:1;min-width:0}
+    .etitle{font-weight:700;font-size:0.88rem;color:var(--white);margin-bottom:3px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .eloc{display:flex;align-items:center;gap:4px;color:var(--gold-dim);font-size:0.7rem;margin-top:4px}
+    .etags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+    .etag{font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.04em}
+    .etag-manual{font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(192,57,43,0.12);color:var(--gold);border:1px dashed rgba(192,57,43,0.4)}
+
+    .cbanner{border-radius:8px;padding:9px 12px;margin-bottom:8px;font-size:0.74rem;font-weight:600;display:flex;align-items:flex-start;gap:7px;flex-direction:column}
+    .cbanner-red{background:rgba(220,38,38,0.1);border-left:3px solid #DC2626;color:#FCA5A5}
+    .cbanner-yellow{background:rgba(234,179,8,0.1);border-left:3px solid #EAB308;color:#FDE68A}
+    .cbanner-row{display:flex;align-items:center;gap:7px;font-size:0.74rem;font-weight:600}
+
+    .moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+    .moverlay.show{display:flex}
+    .msheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;max-height:80vh;overflow-y:auto;border:1px solid var(--border)}
+    .mhandle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+    .mtitle{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:3px}
+    .morg{font-size:0.74rem;color:var(--muted);font-weight:500}
+    .mrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+    .mrow:last-of-type{border-bottom:none}
+    .mico{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0}
+    .mlbl{color:var(--muted);font-size:0.7rem;font-weight:500;min-width:64px}
+    .mval{color:var(--white);font-weight:600;flex:1}
+    .mcls{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px}
+
+    .smsg{text-align:center;padding:52px 20px;color:var(--muted)}
+    .smsg .ico{font-size:2.8rem;margin-bottom:12px}
+    .smsg h3{font-family:'Playfair Display',serif;font-style:italic;font-size:1.3rem;color:var(--white);margin-bottom:6px}
+    .smsg p{font-size:0.85rem;line-height:1.6;max-width:280px;margin:0 auto}
+
+    /* SMS DEMO TOAST */
+    #smsDemo{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy-light);border:1px solid var(--border);border-radius:16px;padding:12px 18px;max-width:320px;width:90%;z-index:900;transition:transform 0.4s ease;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+    #smsDemo.show{transform:translateX(-50%) translateY(0)}
+    .sms-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .sms-icon{font-size:1.1rem}
+    .sms-from{font-size:0.72rem;font-weight:700;color:var(--gold)}
+    .sms-body{font-size:0.8rem;color:var(--white);line-height:1.5}
+    .sms-time{font-size:0.62rem;color:var(--muted);margin-top:6px;text-align:right}
+
+
+    /* ADD EVENT MODAL */
+    .ae-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+    .ae-overlay.show{display:flex}
+    .ae-sheet{background:var(--navy-mid);border-radius:20px 20px 0 0;padding:16px 20px 40px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border:1px solid var(--border)}
+    .ae-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+    .ae-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:16px}
+    .ae-field{margin-bottom:12px}
+    .ae-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:5px;display:block}
+    .ae-input{width:100%;padding:9px 12px;font-size:0.88rem;font-family:'DM Sans',sans-serif;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:8px;color:var(--white);outline:none;transition:border-color 0.2s}
+    .ae-input:focus{border-color:var(--gold)}
+    .ae-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ae-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+    .ae-cat{padding:5px 12px;border:1px solid var(--border);border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s}
+    .ae-cat.active{background:var(--gold);color:white;border-color:var(--gold)}
+    .ae-save{width:100%;background:var(--gold);color:white;border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px}
+    .ae-cancel{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+
+    @media(max-width:480px){#statsBar{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner">
+  🏠 This is a HomeHuddle demo — sample data only · 
+  <a href="https://venuewise.net/homehuddle/">Learn more</a> · 
+  <a href="https://venuewise.net/homehuddle/join.html">Start your free trial →</a>
+</div>
+
+<header id="siteHeader">
+  <div>
+    <div class="hlogo">Home<em>Huddle</em></div>
+    <div class="hsub">Johnson Family Schedule · powered by <b>Venuewise</b></div>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" onclick="openAE()" title="Add event">✏️</button>
+    <div class="icon-btn" title="Customize colors">🎨</div>
+    <div class="sync-wrap">
+      <div class="sync-btn">
+        <div class="sdot"></div>
+        <span>Synced</span>
+      </div>
+      <div class="sync-updated">Demo Mode</div>
+    </div>
+  </div>
+</header>
+
+<div id="statsBar">
+  <div class="stat"><div class="stat-val" id="stTotal">--</div><div class="stat-lbl">Upcoming</div></div>
+  <div class="stat"><div class="stat-val" id="stWeek">--</div><div class="stat-lbl">This Week</div></div>
+  <div class="stat"><div class="stat-val" id="stConfl">--</div><div class="stat-lbl">Conflicts</div></div>
+  <div class="stat"><div class="stat-val past" id="stPast">--</div><div class="stat-lbl">Past</div></div>
+</div>
+
+<div id="controls">
+  <div class="pstrip" id="platformStrip">
+    <div class="pchip active" onclick="setPlatform('all',this)">
+      <span class="cdot" style="background:var(--gold)"></span>All Events
+    </div>
+    <div class="pchip" onclick="setPlatform('baseball',this)">
+      <span class="cdot" style="background:#E85D04"></span>Ryan · Baseball
+    </div>
+    <div class="pchip" onclick="setPlatform('hockey',this)">
+      <span class="cdot" style="background:#0EA5E9"></span>Ryan · Hockey
+    </div>
+    <div class="pchip" onclick="setPlatform('soccer',this)">
+      <span class="cdot" style="background:#22C55E"></span>Emma · Soccer
+    </div>
+    <div class="pchip" onclick="setPlatform('family',this)">
+      <span class="cdot" style="background:var(--gold);border:1px dashed var(--navy)"></span>Family Events
+    </div>
+  </div>
+  <div class="vrow">
+    <div class="left-controls">
+      <div class="vbtns">
+        <button class="vbtn active" id="btnList" onclick="setView('list')">List</button>
+        <button class="vbtn" id="btnMonth" onclick="setView('month')">Month</button>
+      </div>
+      <button class="mnav-today" onclick="goToday()">Today</button>
+    </div>
+    <div class="mnav">
+      <button class="mnav-arr" onclick="navigate(-1)">&#8249;</button>
+      <div id="calPeriod">--</div>
+      <button class="mnav-arr" onclick="navigate(1)">&#8250;</button>
+    </div>
+  </div>
+</div>
+
+<main id="calContent"></main>
+
+<!-- EVENT MODAL -->
+<div class="moverlay" id="evModal" onclick="if(event.target===this)closeModal()">
+  <div class="msheet" id="mContent"></div>
+</div>
+
+
+<!-- ADD EVENT MODAL -->
+<div class="ae-overlay" id="aeModal" onclick="if(event.target===this)closeAE()">
+  <div class="ae-sheet">
+    <div class="ae-handle"></div>
+    <div class="ae-title">✏️ Add Family Event</div>
+    <div class="ae-field">
+      <label class="ae-label">Event title *</label>
+      <input class="ae-input" type="text" id="aeTitle" placeholder="e.g. CCD, Dance Class, Doctor Appt" />
+    </div>
+    <div class="ae-row">
+      <div class="ae-field"><label class="ae-label">Date *</label><input class="ae-input" type="date" id="aeDate" /></div>
+      <div class="ae-field"><label class="ae-label">Start time</label><input class="ae-input" type="time" id="aeStart" /></div>
+    </div>
+    <div class="ae-row">
+      <div class="ae-field"><label class="ae-label">End time</label><input class="ae-input" type="time" id="aeEnd" /></div>
+      <div class="ae-field"><label class="ae-label">Location</label><input class="ae-input" type="text" id="aeLoc" placeholder="Optional" /></div>
+    </div>
+    <div class="ae-field">
+      <label class="ae-label">Category</label>
+      <div class="ae-cats">
+        <button class="ae-cat active" onclick="setAECat(this,'family')">🏠 Family</button>
+        <button class="ae-cat" onclick="setAECat(this,'baseball')">⚾ Baseball</button>
+        <button class="ae-cat" onclick="setAECat(this,'hockey')">🏒 Hockey</button>
+        <button class="ae-cat" onclick="setAECat(this,'soccer')">⚽ Soccer</button>
+        <button class="ae-cat" onclick="setAECat(this,'school')">🏫 School</button>
+        <button class="ae-cat" onclick="setAECat(this,'medical')">🏥 Medical</button>
+        <button class="ae-cat" onclick="setAECat(this,'religion')">✝️ Religion</button>
+        <button class="ae-cat" onclick="setAECat(this,'other')">📦 Other</button>
+      </div>
+    </div>
+    <div class="ae-field">
+      <label class="ae-label">Who is this for?</label>
+      <div class="ae-cats">
+        <button class="ae-cat active" onclick="setAEMember(this,'Family')">👨‍👩‍👧 Everyone</button>
+        <button class="ae-cat" onclick="setAEMember(this,'Ryan')">👤 Ryan</button>
+        <button class="ae-cat" onclick="setAEMember(this,'Emma')">👤 Emma</button>
+      </div>
+    </div>
+    <div class="ae-field">
+      <label class="ae-label">Notes</label>
+      <input class="ae-input" type="text" id="aeNotes" placeholder="Optional" />
+    </div>
+    <button class="ae-save" onclick="saveAEDemo()">💾 Save Event</button>
+    <button class="ae-cancel" onclick="closeAE()">Cancel</button>
+  </div>
+</div>
+
+<!-- SMS DEMO NOTIFICATION -->
+<div id="smsDemo">
+  <div class="sms-header">
+    <div class="sms-icon">📲</div>
+    <div class="sms-from">HomeHuddle Alert</div>
+  </div>
+  <div class="sms-body" id="smsDemoBody"></div>
+  <div class="sms-time">Just now · tap to view calendar</div>
+</div>
+
+<script>
+// ── DEMO DATA ─────────────────────────────────────────────
+// All events are generated relative to today so the demo always looks current
+const now = new Date();
+const y = now.getFullYear();
+const m = now.getMonth();
+const d = now.getDate();
+
+function daysFromNow(n, h, min) {
+  const dt = new Date(y, m, d + n, h || 0, min || 0);
+  return dt;
+}
+
+const COLORS = {
+  baseball: '#E85D04',
+  hockey: '#0EA5E9',
+  soccer: '#22C55E',
+  family: '#C0392B',
+};
+
+const SMS_ALERTS = [
+  '📅 Schedule update: Ryan\'s Riverside Hawks baseball game moved from 5pm to 6pm Saturday. Check your calendar!',
+  '⚠️ Conflict detected: Emma\'s FC Metro soccer practice (4pm) overlaps with Ryan\'s hockey scrimmage (4:30pm) on Thursday.',
+  '📅 New event added: Ryan\'s Riverside Hawks Baseball — Championship Game Sunday 10am at North Field Complex.',
+];
+
+let allEvents = [
+  // BASEBALL - Ryan
+  { id:1, name:'Riverside Hawks vs Blue Jays', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(-8,10,0), end:daysFromNow(-8,12,0), location:'North Field Complex, Diamond 2', isManual:false, conflicts:[] },
+  { id:2, name:'Riverside Hawks Practice', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(-5,17,0), end:daysFromNow(-5,19,0), location:'Riverside Park Baseball Fields', isManual:false, conflicts:[] },
+  { id:3, name:'Riverside Hawks vs Cardinals', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(-2,10,0), end:daysFromNow(-2,12,0), location:'Greenway Sports Complex', isManual:false, conflicts:[] },
+  { id:4, name:'Riverside Hawks Practice', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(1,17,0), end:daysFromNow(1,19,0), location:'Riverside Park Baseball Fields', isManual:false, conflicts:[] },
+  { id:5, name:'Riverside Hawks vs Tigers', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(3,10,0), end:daysFromNow(3,12,30), location:'North Field Complex, Diamond 1', isManual:false, conflicts:[] },
+  { id:6, name:'Riverside Hawks Practice', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(6,17,0), end:daysFromNow(6,19,0), location:'Riverside Park Baseball Fields', isManual:false, conflicts:[] },
+  { id:7, name:'Riverside Hawks vs Marlins', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(8,9,0), end:daysFromNow(8,11,0), location:'Veterans Memorial Park', isManual:false, conflicts:[] },
+  { id:8, name:'Riverside Hawks Practice', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(13,17,0), end:daysFromNow(13,19,0), location:'Riverside Park Baseball Fields', isManual:false, conflicts:[] },
+  { id:9, name:'Riverside Hawks — Championship Game', kid:'Ryan', sport:'Baseball', platform:'baseball', pmKey:'baseball', color:COLORS.baseball, pmLabel:'Ryan · Baseball', start:daysFromNow(15,10,0), end:daysFromNow(15,13,0), location:'North Field Complex, Main Diamond', isManual:false, conflicts:[] },
+
+  // HOCKEY - Ryan
+  { id:10, name:'Ice Storm Practice', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(-7,18,0), end:daysFromNow(-7,19,30), location:'Lakeside Ice Arena, Rink B', isManual:false, conflicts:[] },
+  { id:11, name:'Ice Storm vs Blizzard', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(-4,14,0), end:daysFromNow(-4,15,30), location:'Lakeside Ice Arena, Rink A', isManual:false, conflicts:[] },
+  { id:12, name:'Ice Storm Practice', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(2,18,0), end:daysFromNow(2,19,30), location:'Lakeside Ice Arena, Rink B', isManual:false, conflicts:[] },
+  { id:13, name:'Ice Storm Scrimmage', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(4,16,30), end:daysFromNow(4,18,0), location:'Eastside Hockey Complex', isManual:false, conflicts:[] },
+  { id:14, name:'Ice Storm vs Polar Bears', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(9,11,0), end:daysFromNow(9,12,30), location:'Lakeside Ice Arena, Rink A', isManual:false, conflicts:[] },
+  { id:15, name:'Ice Storm Practice', kid:'Ryan', sport:'Hockey', platform:'hockey', pmKey:'hockey', color:COLORS.hockey, pmLabel:'Ryan · Hockey', start:daysFromNow(11,18,0), end:daysFromNow(11,19,30), location:'Lakeside Ice Arena, Rink B', isManual:false, conflicts:[] },
+
+  // SOCCER - Emma
+  { id:16, name:'FC Metro Practice', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(-6,16,0), end:daysFromNow(-6,17,30), location:'Greenway Soccer Fields, Field 3', isManual:false, conflicts:[] },
+  { id:17, name:'FC Metro vs Lightning', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(-3,9,0), end:daysFromNow(-3,10,30), location:'Metro Sports Complex, Field 1', isManual:false, conflicts:[] },
+  { id:18, name:'FC Metro Practice', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(1,16,0), end:daysFromNow(1,17,30), location:'Greenway Soccer Fields, Field 3', isManual:false, conflicts:[] },
+  { id:19, name:'FC Metro Practice', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(4,16,0), end:daysFromNow(4,17,30), location:'Greenway Soccer Fields, Field 3', isManual:false, conflicts:[] },
+  { id:20, name:'FC Metro vs Storm', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(6,13,0), end:daysFromNow(6,14,30), location:'Metro Sports Complex, Field 2', isManual:false, conflicts:[] },
+  { id:21, name:'FC Metro Practice', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(11,16,0), end:daysFromNow(11,17,30), location:'Greenway Soccer Fields, Field 3', isManual:false, conflicts:[] },
+  { id:22, name:'FC Metro vs Strikers', kid:'Emma', sport:'Soccer', platform:'soccer', pmKey:'soccer', color:COLORS.soccer, pmLabel:'Emma · Soccer', start:daysFromNow(13,10,0), end:daysFromNow(13,11,30), location:'Metro Sports Complex, Field 1', isManual:false, conflicts:[] },
+
+  // FAMILY EVENTS
+  { id:23, name:'Doctor Appointment — Ryan', kid:'Family', sport:'medical', platform:'family', pmKey:'family', color:COLORS.family, pmLabel:'🏥 Medical', start:daysFromNow(2,10,0), end:daysFromNow(2,11,0), location:'Westside Pediatrics, Suite 204', isManual:true, conflicts:[] },
+  { id:24, name:'School Picture Day — Both Kids', kid:'Family', sport:'school', platform:'family', pmKey:'family', color:COLORS.family, pmLabel:'🏫 School', start:daysFromNow(5,8,0), end:daysFromNow(5,15,0), location:'Lincoln Middle School', isManual:true, conflicts:[] },
+  { id:25, name:'Johnson Family Cookout 🎉', kid:'Family', sport:'family', platform:'family', pmKey:'family', color:COLORS.family, pmLabel:'🏠 Family', start:daysFromNow(7,14,0), end:daysFromNow(7,20,0), location:'Grandma\'s House', isManual:true, conflicts:[] },
+  { id:26, name:'CCD Class — Emma', kid:'Emma', sport:'religion', platform:'family', pmKey:'family', color:COLORS.family, pmLabel:'✝️ Religion', start:daysFromNow(10,9,0), end:daysFromNow(10,10,30), location:'St. Michael\'s Parish', isManual:true, conflicts:[] },
+];
+
+// Detect conflict on day 4 (hockey scrimmage overlaps soccer practice)
+allEvents[12].conflicts = [{ withId:'19', withName:'FC Metro Practice', withKid:'Emma', withStart: daysFromNow(4,16,0).toISOString(), type:'yellow' }];
+allEvents[18].conflicts = [{ withId:'13', withName:'Ice Storm Scrimmage', withKid:'Ryan', withStart: daysFromNow(4,16,30).toISOString(), type:'yellow' }];
+
+allEvents.sort(function(a,b){ return a.start - b.start; });
+
+let activeKey = 'all';
+let currentView = 'list';
+let currentDate = new Date();
+
+function filtered() {
+  if (activeKey === 'all') return allEvents;
+  if (activeKey === 'family') return allEvents.filter(function(e){ return e.isManual; });
+  return allEvents.filter(function(e){ return e.pmKey === activeKey; });
+}
+
+function setPlatform(key, el) {
+  activeKey = key;
+  document.querySelectorAll('.pchip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  updateStats(); render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnList').classList.toggle('active', v==='list');
+  document.getElementById('btnMonth').classList.toggle('active', v==='month');
+  render();
+}
+
+function navigate(dir) {
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
+  render();
+}
+
+function goToday() {
+  currentDate = new Date();
+  if (currentView !== 'list') setView('list');
+  render();
+  setTimeout(function(){
+    var el = document.querySelector('.dlabel.today');
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 80);
+}
+
+function updateStats() {
+  const now = new Date();
+  const dow = now.getDay();
+  const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6-dow), 23, 59, 59);
+  const evts = allEvents;
+  document.getElementById('stTotal').textContent = evts.filter(function(e){ return e.start >= now; }).length;
+  document.getElementById('stWeek').textContent = evts.filter(function(e){ return e.start >= now && e.start <= weekEnd; }).length;
+  const pairs = new Set();
+  evts.forEach(function(e){ (e.conflicts||[]).forEach(function(c){ pairs.add([String(e.id), c.withId].sort().join('|')); }); });
+  document.getElementById('stConfl').textContent = pairs.size;
+  document.getElementById('stPast').textContent = evts.filter(function(e){ return e.start < now; }).length;
+}
+
+function render() { currentView === 'list' ? renderList() : renderMonth(); }
+
+function renderList() {
+  const y = currentDate.getFullYear(), mo = currentDate.getMonth();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('calPeriod').textContent = MONTHS[mo] + ' ' + y;
+  const ms = new Date(y, mo, 1), me = new Date(y, mo+1, 0, 23, 59, 59);
+  const map = {};
+  filtered().filter(function(e){ return e.start >= ms && e.start <= me; }).forEach(function(e){
+    const k = e.start.toDateString(); (map[k]=map[k]||[]).push(e);
+  });
+  const tds = new Date().toDateString();
+  let html = '';
+
+  Object.entries(map).forEach(function(entry) {
+    const ds = entry[0], evs = entry[1];
+    const dt = new Date(ds), isTd = ds===tds, isPast = dt < new Date() && !isTd;
+    html += '<div class="dgroup"' + (isPast?' style="opacity:0.6"':'') + '>';
+    html += '<div class="dlabel'+(isTd?' today':'')+'">'+DN[dt.getDay()]+', '+MO[dt.getMonth()]+' '+dt.getDate()+(isTd?' <span class="tpill">Today</span>':'')+'</div>';
+
+    // Conflict banners
+    const seen = new Set();
+    evs.forEach(function(e) {
+      (e.conflicts||[]).forEach(function(c) {
+        const key = [String(e.id), c.withId].sort().join('-');
+        if (seen.has(key)) return; seen.add(key);
+        if (c.type === 'yellow') {
+          html += '<div class="cbanner cbanner-yellow"><div class="cbanner-row">🟡 Busy time: '+esc(e.name)+' ('+esc(e.kid)+', '+fmtT(e.start)+') overlaps with '+esc(c.withName)+' ('+esc(c.withKid)+', '+fmtT(new Date(c.withStart))+')</div></div>';
+        }
+      });
+    });
+
+    evs.forEach(function(e) {
+      html += '<div class="ecard'+(e.isManual?' manual':'')+'" onclick=\'showModal('+safeJSON(e).replace(/\'/g,"&#39;")+')\'>';
+      html += '<div class="etime">'+fmtT(e.start)+'<small>'+fmtT(e.end)+'</small></div>';
+      html += '<div class="estripe" style="background:'+e.color+'"></div>';
+      html += '<div class="ebody"><div class="etitle">'+esc(e.name)+'</div>';
+      if (e.location) html += '<div class="eloc">📍 '+esc(e.location)+'</div>';
+      html += '<div class="etags">';
+      if (e.isManual) {
+        html += '<span class="etag-manual">'+esc(e.pmLabel)+' ✏️</span>';
+      } else {
+        html += '<span class="etag" style="background:'+e.color+'22;color:'+e.color+'">'+esc(e.pmLabel)+'</span>';
+      }
+      if (e.kid && e.kid !== 'Family') html += '<span class="etag" style="background:rgba(255,255,255,0.06);color:var(--muted)">'+esc(e.kid)+'</span>';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
+  });
+
+  if (!html) html = '<div class="smsg"><div class="ico">📅</div><h3>No events this month</h3><p>Use the arrows to browse other months.</p></div>';
+  document.getElementById('calContent').innerHTML = html;
+}
+
+function renderMonth() {
+  const y = currentDate.getFullYear(), mo = currentDate.getMonth();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calPeriod').textContent = MONTHS[mo] + ' ' + y;
+  const firstDow = new Date(y,mo,1).getDay(), dim = new Date(y,mo+1,0).getDate();
+  const today = new Date(), dows = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const total = Math.ceil((dim+firstDow)/7)*7;
+  let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">'+dows.map(function(d){ return '<div style="text-align:center;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);padding:7px 0">'+d+'</div>'; }).join('')+'</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  for (let i=0, day=1-firstDow; i<total; i++, day++) {
+    const cd = new Date(y,mo,day), tm = cd.getMonth()===mo, isTd = cd.toDateString()===today.toDateString();
+    const evs = filtered().filter(function(e){ return e.start.toDateString()===cd.toDateString(); });
+    html += '<div style="border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:76px;padding:4px;cursor:pointer;'+(isTd?'background:rgba(192,57,43,0.07)':'')+(tm?'':'opacity:0.3')+'" onclick="goToDate('+cd.getTime()+')">';
+    html += '<div style="font-size:0.7rem;font-weight:600;color:var(--muted);margin-bottom:3px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;'+(isTd?'background:var(--gold);color:white;font-weight:800':'')+'">'+cd.getDate()+'</div>';
+    evs.slice(0,3).forEach(function(e){
+      html += '<div style="font-size:0.58rem;font-weight:600;border-radius:3px;padding:2px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:'+e.color+'22;color:'+e.color+';border-left:2px solid '+e.color+(e.isManual?';border-style:dashed':'')+'" onclick="event.stopPropagation();showModal('+safeJSON(e).replace(/\'/g,'&#39;')+')">'+esc(e.name)+'</div>';
+    });
+    if (evs.length > 3) html += '<div style="font-size:0.58rem;color:var(--muted);font-weight:600;padding:1px 4px">+' + (evs.length-3)+' more</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('calContent').innerHTML = html;
+}
+
+function goToDate(ts) { currentDate = new Date(ts); setView('list'); }
+
+function showModal(ev) {
+  if (typeof ev === 'string') ev = JSON.parse(ev);
+  const s = new Date(ev.start), e = new Date(ev.end);
+  const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let conflictHtml = '';
+  (ev.conflicts||[]).forEach(function(c){
+    conflictHtml += '<div class="cbanner cbanner-yellow" style="margin-bottom:12px"><div class="cbanner-row">🟡 Busy time — '+esc(c.withKid||'Family')+' has '+esc(c.withName)+' at '+fmtT(new Date(c.withStart))+'</div></div>';
+  });
+  document.getElementById('mContent').innerHTML =
+    '<div class="mhandle"></div>' +
+    conflictHtml +
+    '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px"><div style="width:3px;border-radius:3px;align-self:stretch;flex-shrink:0;background:'+ev.color+'"></div><div><div class="mtitle">'+esc(ev.name)+'</div><div class="morg">'+esc(ev.pmLabel)+(ev.kid&&ev.kid!=='Family'?' · '+esc(ev.kid):'')+(ev.isManual?' · ✏️ Family event':'')+'</div></div></div>' +
+    '<div class="mrow"><div class="mico">📅</div><div class="mlbl">Date</div><div class="mval">'+DN[s.getDay()]+', '+MO[s.getMonth()]+' '+s.getDate()+'</div></div>' +
+    '<div class="mrow"><div class="mico">🕐</div><div class="mlbl">Time</div><div class="mval">'+fmtT(s)+' – '+fmtT(e)+'</div></div>' +
+    (ev.location ? '<div class="mrow"><div class="mico">📍</div><div class="mlbl">Location</div><div class="mval">'+esc(ev.location)+'</div></div>' : '') +
+    (ev.sport && !ev.isManual ? '<div class="mrow"><div class="mico">🏅</div><div class="mlbl">Sport</div><div class="mval">'+esc(ev.sport)+'</div></div>' : '') +
+    '<button class="mcls" onclick="closeModal()">Close</button>';
+  document.getElementById('evModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('evModal').classList.remove('show'); }
+
+function fmtT(d) { const h=d.getHours(),mi=d.getMinutes(); return (h%12||12)+(mi?':'+String(mi).padStart(2,'0'):'')+(h>=12?'PM':'AM'); }
+function esc(s) { return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
+function safeJSON(e) {
+  return JSON.stringify({id:e.id,name:e.name,kid:e.kid||'',start:e.start,end:e.end,location:e.location||'',sport:e.sport||'',color:e.color,pmLabel:e.pmLabel||'',pmKey:e.pmKey||'',isManual:!!e.isManual,conflicts:(e.conflicts||[]).map(function(c){return{withId:c.withId,withName:c.withName,withKid:c.withKid,withStart:c.withStart,type:c.type};})});
+}
+
+
+// ── ADD EVENT (DEMO) ──────────────────────────────────────
+const CAT_COLORS = {family:'#C0392B',baseball:'#E85D04',hockey:'#0EA5E9',soccer:'#22C55E',school:'#0EA5E9',dance:'#EC4899',religion:'#8B5CF6',medical:'#EF4444',other:'#94A3B8'};
+const CAT_LABELS = {family:'🏠 Family',baseball:'⚾ Baseball',hockey:'🏒 Hockey',soccer:'⚽ Soccer',school:'🏫 School',dance:'💃 Dance',religion:'✝️ Religion',medical:'🏥 Medical',other:'📦 Other'};
+let aeCategory = 'family';
+let aeMember = 'Family';
+let nextId = 100;
+
+function openAE() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('aeDate').value = today;
+  document.getElementById('aeTitle').value = '';
+  document.getElementById('aeStart').value = '';
+  document.getElementById('aeEnd').value = '';
+  document.getElementById('aeLoc').value = '';
+  document.getElementById('aeNotes').value = '';
+  aeCategory = 'family'; aeMember = 'Family';
+  document.querySelectorAll('.ae-cat').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.ae-cat').classList.add('active');
+  document.getElementById('aeModal').classList.add('show');
+  setTimeout(function(){ document.getElementById('aeTitle').focus(); }, 100);
+}
+
+function closeAE() { document.getElementById('aeModal').classList.remove('show'); }
+
+function setAECat(el, cat) {
+  document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  aeCategory = cat;
+}
+
+function setAEMember(el, member) {
+  el.closest('.ae-cats').querySelectorAll('.ae-cat').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  aeMember = member;
+}
+
+function saveAEDemo() {
+  const title = document.getElementById('aeTitle').value.trim();
+  const date = document.getElementById('aeDate').value;
+  const startT = document.getElementById('aeStart').value;
+  const endT = document.getElementById('aeEnd').value;
+  const loc = document.getElementById('aeLoc').value.trim();
+
+  if (!title) { alert('Please enter an event title'); return; }
+  if (!date) { alert('Please select a date'); return; }
+
+  const eventStart = startT ? new Date(date + 'T' + startT) : new Date(date + 'T00:00:00');
+  const eventEnd = endT ? new Date(date + 'T' + endT) : new Date(date + 'T23:59:00');
+
+  const newEv = {
+    id: nextId++,
+    name: title,
+    kid: aeMember,
+    sport: aeCategory,
+    platform: 'family',
+    pmKey: 'family',
+    color: CAT_COLORS[aeCategory] || '#C0392B',
+    pmLabel: CAT_LABELS[aeCategory] || '🏠 Family',
+    start: eventStart,
+    end: eventEnd,
+    location: loc,
+    isManual: true,
+    conflicts: []
+  };
+
+  allEvents.push(newEv);
+  allEvents.sort(function(a,b){ return a.start - b.start; });
+  closeAE();
+  currentDate = new Date(eventStart);
+  setView('list');
+  updateStats();
+  render();
+
+  // Show demo SMS alert
+  const body = document.getElementById('smsDemoBody');
+  body.textContent = '✏️ New event added to Johnson Family calendar: "' + title + '" on ' + eventStart.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + (startT ? ' at ' + fmtT(eventStart) : '') + '. Tap to view.';
+  const el = document.getElementById('smsDemo');
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 5000);
+}
+
+// ── DEMO SMS ALERTS ───────────────────────────────────────
+let smsIndex = 0;
+function showSmsDemo() {
+  const body = document.getElementById('smsDemoBody');
+  body.textContent = SMS_ALERTS[smsIndex % SMS_ALERTS.length];
+  smsIndex++;
+  const el = document.getElementById('smsDemo');
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 5000);
+}
+
+// Show SMS demos periodically to illustrate the feature
+setTimeout(function(){ showSmsDemo(); }, 4000);
+setTimeout(function(){ showSmsDemo(); }, 14000);
+setTimeout(function(){ showSmsDemo(); }, 24000);
+
+// ── INIT ─────────────────────────────────────────────────
+updateStats();
+render();
+setTimeout(function(){
+  var el = document.querySelector('.dlabel.today');
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}, 300);
+</script>
+</body>
+</html>
