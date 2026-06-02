@@ -511,13 +511,26 @@ async function dismissBanner(id){const el=document.getElementById('rbanner-'+id)
 // ── LOAD SPORTS EVENTS ────────────────────────────────────
 async function loadEvents(showToastMsg) {
   try {
-    let feedQ = sb.from('feeds').select('*').eq('is_active', true);
-    if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
+   if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
     else if (familyId) feedQ = feedQ.eq('id', familyId);
-    else if (familyPhone) feedQ = feedQ.eq('phone', familyPhone);
+    else if (familyPhone) {
+      // Multi-family: find all families this phone belongs to
+      const { data: memberRows } = await sb.from('family_members').select('family_id').eq('phone', familyPhone);
+      const { data: familyRows } = await sb.from('families').select('email').eq('phone', familyPhone);
+      const emails = new Set();
+      if (familyRows) familyRows.forEach(function(f){ emails.add(f.email); });
+      if (memberRows && memberRows.length) {
+        const fids = memberRows.map(function(r){ return r.family_id; }).filter(Boolean);
+        if (fids.length) {
+          const { data: fams } = await sb.from('families').select('email').in('id', fids);
+          if (fams) fams.forEach(function(f){ emails.add(f.email); });
+        }
+      }
+      if (emails.size) feedQ = feedQ.in('email', [...emails]);
+      else { showNoFamily(); return; }
+    }
     const { data: feeds, error: feedErr } = await feedQ;
     if (feedErr || !feeds || !feeds.length) { showNoFamily(); return; }
-
     platformMap = {};
     const seen = new Set();
     feeds.forEach(function(f) {
