@@ -1090,6 +1090,12 @@ function openMaps(location){const enc=encodeURIComponent(location);const opts=[{
 function closeMaps(){document.getElementById('mapsModal').classList.remove('show');}
 
 function showNoFamily(){setSync('err','Not found');document.getElementById('calContent').innerHTML='<div class="smsg"><div class="ico">&#x1F3E0;</div><h3>No schedule found</h3><p>We could not find a schedule for this link.<br><br><a href="https://venuewise.net/login.html">Log in to HomeHuddle &rarr;</a></p></div>';}
+function getViewerName(){
+  if (familyPhone) {
+    const { data } = sb.from('family_members').select('name').eq('phone', familyPhone).limit(1).single();
+    return data ? data.name + '\'s View' : 'Shared View';
+  }
+  return 'Your';
 function fmtT(d){const h=d.getHours(),m=d.getMinutes();return(h%12||12)+(m?':'+String(m).padStart(2,'0'):'')+(h>=12?'PM':'AM');}
 function safeJSON(e){
   var safe={id:e.id,name:e.name,kid:e.kid||'',start:e.start,end:e.end,location:e.location||'',sport:e.sport||'',team_name:e.team_name||'',color:e.color,pmLabel:e.pmLabel||'',pmKey:e.pmKey||'',isManual:!!e.isManual,notes:e.notes||'',description:e.description||'',platform:e.platform||'',conflicts:(e.conflicts||[]).map(function(c){return{withId:c.withId,withName:c.withName,withKid:c.withKid,withStart:c.withStart,type:c.type};})};
