@@ -512,7 +512,8 @@ async function dismissBanner(id){const el=document.getElementById('rbanner-'+id)
 // ── LOAD SPORTS EVENTS ────────────────────────────────────
 async function loadEvents(showToastMsg) {
   try {
-   if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
+  let feedQ = sb.from('feeds').select('*').eq('is_active', true);
+    if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
     else if (familyId) feedQ = feedQ.eq('id', familyId);
     else if (familyPhone) {
       // Multi-family: find all families this phone belongs to
