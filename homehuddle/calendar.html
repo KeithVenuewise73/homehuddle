@@ -9,34 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="manifest" id="pwa-manifest" href="/homehuddle/manifest.json" />
-  <script>
-    // Generate a per-family manifest so "Add to Home Screen" always
-    // opens the correct family's calendar, not a generic start_url.
-    (function() {
-      const p = new URLSearchParams(window.location.search);
-      const em = p.get('email'), ph = p.get('phone');
-      if (em || ph) {
-        const param = em ? 'email=' + encodeURIComponent(em) : 'phone=' + encodeURIComponent(ph);
-        const manifest = {
-          name: 'HomeHuddle',
-          short_name: 'HomeHuddle',
-          description: "Your family's schedule, finally organized.",
-          start_url: '/homehuddle/calendar.html?' + param,
-          display: 'standalone',
-          background_color: '#1E2A38',
-          theme_color: '#1E2A38',
-          orientation: 'portrait',
-          icons: [
-            { src: '/homehuddle/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-            { src: '/homehuddle/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-          ]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        document.getElementById('pwa-manifest').setAttribute('href', url);
-      }
-    })();
-  </script>
   <link rel="apple-touch-icon" href="/homehuddle/icon-192.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <style>
@@ -558,16 +530,13 @@ const VAPID_PUBLIC = 'BOGLurPmZrhUq4wdTB0YjqLSZBYdrPdGz0rY0wN-OVkTCz3Lb8JAqIxpf-
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
-  showToast('Push check: SW=' + ('serviceWorker' in navigator) + ' PM=' + ('PushManager' in window));
-  if(!familyEmail||!('serviceWorker' in navigator)||!('PushManager' in window))return;
+  // Service worker disabled until push notifications go live.
+  // Unregister any previously installed SW so it can't cache stale HTML.
+  if (!('serviceWorker' in navigator)) return;
   try {
-    const reg=await navigator.serviceWorker.register('/homehuddle/sw.js');
-    await navigator.serviceWorker.ready;
-    const perm=Notification.permission;
-    if(perm==='granted'){const ex=await reg.pushManager.getSubscription();if(ex){await savePushSub(ex);}else{const s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)});await savePushSub(s);}document.getElementById('notifBanner').style.display='none';}
-    else if(perm==='default'){document.getElementById('notifBanner').style.display='block';applySticky();}
-    else{document.getElementById('notifBanner').style.display='none';}
-  }catch(e){}
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const r of regs) { await r.unregister(); }
+  } catch(e) {}
 }
 async function requestNotifPermission() {
   if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
