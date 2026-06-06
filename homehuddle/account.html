@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>My Account — HomeHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#1E2A38;--navy-mid:#253347;--navy-light:#2E3F52;
+      --gold:#C0392B;--gold-dim:#962d22;
+      --white:#F7F8FA;--muted:#8A95A0;
+      --card-bg:#1A2535;--border:rgba(192,57,43,0.12);--radius:10px;
+      --green:#22C55E;--red:#EF4444;
+    }
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+
+    /* NAV */
+    nav{background:var(--navy);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
+    .nav-logo{display:flex;align-items:center;gap:0;text-decoration:none}
+    .nav-logo-name{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.04em;color:var(--white);line-height:1}
+    .nav-logo-name em{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:1.8rem;letter-spacing:0}
+    .nav-logo-sub{font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px}
+    .nav-logo-sub b{color:var(--gold);font-weight:600}
+    .nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .nav-back{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px;color:var(--white);font-size:0.75rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+    .nav-back:hover{border-color:var(--gold)}
+    .nav-user{font-size:0.75rem;color:var(--muted)}
+    .nav-signout{font-size:0.75rem;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;transition:color 0.15s}
+    .nav-signout:hover{color:var(--red)}
+
+    /* LOGIN */
+    #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 73px);padding:2rem}
+    .login-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:420px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.4)}
+    .login-card h2{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--white);margin-bottom:0.5rem}
+    .login-card p{font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+    .login-step{display:none}
+    .login-step.active{display:block}
+
+    /* ALERTS */
+    .alert{padding:10px 14px;border-radius:var(--radius);font-size:0.82rem;margin-bottom:1rem;display:none;text-align:left;line-height:1.5}
+    .alert.show{display:block}
+    .alert-success{background:rgba(34,197,94,0.12);color:#86EFAC;border:1px solid rgba(34,197,94,0.25)}
+    .alert-error{background:rgba(239,68,68,0.12);color:#FCA5A5;border:1px solid rgba(239,68,68,0.25)}
+
+    /* FORM ELEMENTS */
+    .field{margin-bottom:1rem}
+    .field label{display:block;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:5px}
+    .field input,.field select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;color:var(--white);background:rgba(255,255,255,0.07);transition:border-color 0.2s;outline:none}
+    .field input:focus,.field select:focus{border-color:var(--gold)}
+    .field input[readonly]{background:rgba(255,255,255,0.03);color:var(--muted);cursor:default}
+    .field input::placeholder{color:var(--muted)}
+    .field select option{background:var(--navy-mid);color:var(--white)}
+    .field-hint{font-size:0.68rem;color:var(--muted);margin-top:4px}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+    /* PINS */
+    .pin-row{display:flex;gap:8px;justify-content:center;margin:0.75rem 0}
+    .pin-digit{width:52px;height:56px;border:1px solid var(--border);border-radius:8px;font-size:1.5rem;text-align:center;font-family:'DM Mono',monospace;color:var(--white);background:rgba(255,255,255,0.07);outline:none;transition:border-color 0.2s}
+    .pin-digit:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(192,57,43,0.2)}
+    .pin-digit-sm{width:44px;height:48px;font-size:1.2rem}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;padding:9px 18px;border-radius:var(--radius);border:none;cursor:pointer;transition:all 0.15s;text-decoration:none}
+    .btn-primary{background:var(--gold);color:var(--navy)}
+    .btn-primary:hover{filter:brightness(1.1)}
+    .btn-secondary{background:rgba(255,255,255,0.07);color:var(--white);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-danger{background:rgba(239,68,68,0.1);color:#FCA5A5;border:1px solid rgba(239,68,68,0.3)}
+    .btn-danger:hover{background:rgba(239,68,68,0.2)}
+    .btn-sm{padding:6px 12px;font-size:0.78rem}
+    .btn-full{width:100%}
+    .btn-link{background:none;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;transition:color 0.15s}
+    .btn-link:hover{color:var(--gold)}
+
+    /* PAGE */
+    #account-screen{display:none}
+    .page{max-width:720px;margin:0 auto;padding:2rem 1.25rem 6rem}
+    .page-header{margin-bottom:1.75rem}
+    .page-header h1{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:0.04em;color:var(--white);line-height:1}
+    .page-header p{font-size:0.8rem;color:var(--muted);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase}
+
+    /* CARDS */
+    .card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+    .card-title{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+
+    /* MEMBER ROWS */
+    .member-row{display:flex;align-items:center;gap:12px;padding:0.875rem 1rem;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;background:rgba(255,255,255,0.02);transition:border-color 0.15s}
+    .member-row:hover{border-color:rgba(192,57,43,0.3)}
+    .member-avatar{width:36px;height:36px;border-radius:50%;background:rgba(192,57,43,0.15);color:var(--gold);font-size:0.9rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em}
+    .member-info{flex:1;min-width:0}
+    .member-name{font-size:0.9rem;font-weight:600;color:var(--white)}
+    .member-meta{font-size:0.72rem;color:var(--muted);margin-top:2px}
+    .tag{font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0}
+    .tag-owner{background:rgba(192,57,43,0.15);color:var(--gold);border:1px solid rgba(192,57,43,0.3)}
+    .tag-member{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
+    .tag-sms{background:rgba(34,197,94,0.1);color:#86EFAC;border:1px solid rgba(34,197,94,0.25)}
+
+    /* ADD MEMBER FORM */
+    .add-member-form{border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;display:none;background:rgba(255,255,255,0.02)}
+    .add-member-form.open{display:block}
+    .add-dashed{border:2px dashed var(--border);border-radius:var(--radius);padding:0.875rem;text-align:center;cursor:pointer;color:var(--muted);font-size:0.82rem;font-weight:600;transition:all 0.15s;background:none;width:100%;font-family:'DM Sans',sans-serif;margin-top:0.25rem}
+    .add-dashed:hover{border-color:var(--gold);color:var(--gold);background:rgba(192,57,43,0.05)}
+
+    /* KID ROWS */
+    .kid-row{border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;background:rgba(255,255,255,0.02)}
+    .kid-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
+    .kid-name-label{font-size:0.9rem;font-weight:600;color:var(--white);display:flex;align-items:center;gap:8px}
+    .sport-tag{font-size:0.62rem;font-weight:700;background:rgba(192,57,43,0.12);color:var(--gold);padding:2px 8px;border-radius:10px;border:1px solid rgba(192,57,43,0.25)}
+
+    /* SHARE BOX */
+    .share-message-box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.78rem;color:var(--white);line-height:1.7;margin-bottom:0.75rem;white-space:pre-wrap;font-family:'DM Sans',sans-serif}
+    .copy-share-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;font-weight:600;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .copy-share-btn:hover{background:rgba(192,57,43,0.1);border-color:var(--gold)}
+    .copy-share-btn.copied{background:rgba(34,197,94,0.1);color:#86EFAC;border-color:rgba(34,197,94,0.4)}
+
+    /* SAVE BAR */
+    .save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy-mid);border-top:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transform:translateY(100%);transition:transform 0.25s;z-index:150;box-shadow:0 -4px 20px rgba(0,0,0,0.4)}
+    .save-bar.visible{transform:translateY(0)}
+    .save-bar-msg{font-size:0.78rem;color:var(--muted)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy-light);border:1px solid var(--border);color:var(--white);padding:10px 18px;border-radius:20px;font-size:0.8rem;font-weight:500;transition:transform 0.3s ease;z-index:900;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+    #toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* FOOTER */
+    footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:1.5rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+    .footer-logo{font-size:0.75rem;color:var(--muted)}
+    .footer-logo strong{color:var(--white)}
+    .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+    .footer-links a{font-size:0.75rem;color:var(--muted);text-decoration:none;transition:color 0.15s}
+    .footer-links a:hover{color:var(--gold)}
+
+    @media(max-width:600px){
+      .field-row{grid-template-columns:1fr}
+      .save-bar{flex-direction:column;text-align:center}
+      .pin-digit{width:44px;height:50px;font-size:1.3rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/homehuddle/" class="nav-logo">
+    <div>
+      <div class="nav-logo-name">Home<em>Huddle</em></div>
+      <div class="nav-logo-sub">powered by <b>Venuewise</b></div>
+    </div>
+  </a>
+  <div class="nav-right">
+    <a href="javascript:history.back()" class="nav-back">← Calendar</a>
+    <span class="nav-user" id="nav-user-label"></span>
+    <button class="nav-signout" id="sign-out-btn" style="display:none" onclick="signOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- ── LOGIN ──────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+
+    <div class="login-step active" id="step-email">
+      <div style="font-size:2.2rem;margin-bottom:1rem">🏠</div>
+      <h2>My Account</h2>
+      <p>Enter your family email to access your HomeHuddle account.</p>
+      <div class="alert alert-error" id="email-error"></div>
+      <div class="field" style="text-align:left">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="submitEmail()">Continue →</button>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:1rem">
+        No account? <a href="/homehuddle/join.html" style="color:var(--gold)">Sign up free →</a>
+      </p>
+    </div>
+
+    <div class="login-step" id="step-pin">
+      <div style="font-size:2.2rem;margin-bottom:1rem">🔐</div>
+      <h2>Enter your PIN</h2>
+      <p id="pin-prompt">Enter your 4-digit PIN.</p>
+      <div class="alert alert-error" id="pin-error"></div>
+      <div class="pin-row">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0" oninput="pinNav('p',0)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1" oninput="pinNav('p',1)" onkeydown="pinBack('p',1,event)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNav('p',2)" onkeydown="pinBack('p',2,event)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNav('p',3)" onkeydown="pinBack('p',3,event)"/>
+      </div>
+      <p style="margin-top:1.25rem">
+        <a href="#" onclick="forgotPin(event)" style="font-size:0.78rem;color:var(--muted)">Forgot PIN? Send reset code →</a>
+      </p>
+      <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="showStep('step-email')">← Back</button>
+    </div>
+
+    <div class="login-step" id="step-set-pin">
+      <div style="font-size:2.2rem;margin-bottom:1rem">🔐</div>
+      <h2>Set your PIN</h2>
+      <p>Create a 4-digit PIN to secure your account.</p>
+      <div class="alert alert-error" id="set-pin-error"></div>
+      <div class="pin-row">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp0" oninput="pinNav('sp',0)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp1" oninput="pinNav('sp',1)" onkeydown="pinBack('sp',1,event)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp2" oninput="pinNav('sp',2)" onkeydown="pinBack('sp',2,event)"/>
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp3" oninput="pinNav('sp',3)" onkeydown="pinBack('sp',3,event)"/>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:1.5rem" onclick="saveNewPin()">Save PIN & Continue →</button>
+      <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="showStep('step-email')">← Back</button>
+    </div>
+
+    <div class="login-step" id="step-reset-sent">
+      <div style="font-size:2.2rem;margin-bottom:1rem">📧</div>
+      <h2>Check your email</h2>
+      <p id="reset-msg">A PIN reset code has been sent to your email.</p>
+      <button class="btn btn-secondary btn-sm" style="margin-top:1rem" onclick="showStep('step-email')">← Back</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ACCOUNT ─────────────────────────────────────────── -->
+<div id="account-screen">
+  <div class="page">
+    <div class="page-header">
+      <h1>My Account</h1>
+      <p id="account-subtitle">Manage your family's HomeHuddle settings</p>
+    </div>
+
+    <div class="alert alert-success" id="global-success"></div>
+
+    <!-- SHARE WITH FAMILY -->
+    <div class="card">
+      <div class="card-title">📤 Share with Family</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.7">Send this to anyone who should follow the schedule — spouse, grandparents, siblings. They tap the link and they're in.</p>
+      <div class="share-message-box" id="share-message-box">Loading…</div>
+      <button class="copy-share-btn" id="copy-share-btn" onclick="copyShareMsg()">📋 Copy message to share</button>
+    </div>
+
+    <!-- CONTACT INFO -->
+    <div class="card">
+      <div class="card-title">👤 Contact Info</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Family name</label>
+          <input type="text" id="f-family-name" placeholder="e.g. Herman Family" oninput="markDirty()"/>
+        </div>
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="f-email" readonly/>
+          <div class="field-hint">Contact support to change your email</div>
+        </div>
+      </div>
+      <div class="field" style="max-width:300px">
+        <label>Mobile phone (for SMS alerts)</label>
+        <input type="tel" id="f-phone" placeholder="+1 (555) 000-0000" oninput="markDirty()"/>
+      </div>
+    </div>
+
+    <!-- KIDS & SCHEDULES -->
+    <div class="card">
+      <div class="card-title">🏃 Kids &amp; Schedules</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">Add iCal feeds from GameChanger, TeamSnap, or any scheduling platform. Each kid can have multiple teams.</p>
+      <div id="kid-list"></div>
+      <button class="add-dashed" onclick="addKid()">+ Add another kid</button>
+    </div>
+
+    <!-- FAMILY MEMBERS -->
+    <!-- FIX: renderMembers() now queries family_members by family_id (not family_email) -->
+    <div class="card">
+      <div class="card-title">👨‍👩‍👧‍👦 Family Members</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">Add anyone who should get notifications — spouse, grandparents, siblings. They'll receive SMS alerts once messaging launches.</p>
+      <div id="user-list"></div>
+
+      <div class="add-member-form" id="add-member-form">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--white);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.07em">Add family member</div>
+        <div class="field-row">
+          <div class="field"><label>Name</label><input type="text" id="new-name" placeholder="e.g. Dominic"/></div>
+          <div class="field"><label>Mobile phone</label><input type="tel" id="new-phone" placeholder="+1 (716) 000-0000"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Role</label>
+            <select id="new-role">
+              <option value="parent">Parent / Co-parent</option>
+              <option value="player">Player</option>
+              <option value="grandparent">Grandparent</option>
+              <option value="sibling">Sibling</option>
+              <option value="other">Other family member</option>
+            </select>
+          </div>
+          <div class="field"><label>Email (optional)</label><input type="email" id="new-email" placeholder="optional"/></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary btn-sm" onclick="confirmAddMember()">Add member</button>
+          <button class="btn btn-secondary btn-sm" onclick="cancelAddMember()">Cancel</button>
+        </div>
+      </div>
+
+      <button class="add-dashed" id="add-member-btn" onclick="showAddMember()">+ Add family member</button>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="card">
+      <div class="card-title">🔐 Security</div>
+      <div class="field" style="max-width:320px">
+        <label>Change PIN</label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="pin-row" style="margin:0">
+            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp0" oninput="pinNav('cp',0)"/>
+            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp1" oninput="pinNav('cp',1)" onkeydown="pinBack('cp',1,event)"/>
+            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp2" oninput="pinNav('cp',2)" onkeydown="pinBack('cp',2,event)"/>
+            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp3" oninput="pinNav('cp',3)" onkeydown="pinBack('cp',3,event)"/>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="saveChangedPin()">Save</button>
+        </div>
+        <div class="field-hint">Enter a new 4-digit PIN and tap Save</div>
+      </div>
+      <div class="alert alert-success" id="pin-success" style="margin-top:0.75rem;max-width:320px">PIN updated successfully!</div>
+      <div class="alert alert-error" id="pin-error-acct" style="margin-top:0.75rem;max-width:320px"></div>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="card" style="border-color:rgba(239,68,68,0.3)">
+      <div class="card-title" style="color:#FCA5A5">⚠️ Danger Zone</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">Canceling your account will stop all notifications and remove your data. This cannot be undone.</p>
+      <button class="btn btn-danger btn-sm" onclick="confirmCancel()">Cancel my account</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo"><strong>HomeHuddle</strong> · powered by Venuewise &copy; 2026</div>
+    <div class="footer-links">
+      <a href="/homehuddle/privacy.html">Privacy Policy</a>
+      <a href="/homehuddle/terms.html">Terms of Service</a>
+      <a href="mailto:hello@venuewise.net">Contact</a>
+    </div>
+  </footer>
+</div>
+
+<div class="save-bar" id="save-bar">
+  <span class="save-bar-msg">You have unsaved changes</span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-secondary btn-sm" onclick="discardChanges()">Discard</button>
+    <button class="btn btn-primary btn-sm" onclick="saveChanges()">Save changes</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+let currentEmail = '';
+let currentFeeds = [];
+let currentFamilyId = null;  // FIX: track family_id for correct member queries
+let familyMembersData = [];
+let isDirty = false;
+let shareMsg = '';
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SURL + '/rest/v1/' + path, {
+    ...opts,
+    headers: {
+      'apikey': SKEY,
+      'Authorization': 'Bearer ' + SKEY,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok && res.status !== 204) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
+// ── LOAD FAMILY ID ────────────────────────────────────────
+// FIX: was querying family_members by family_email — table uses family_id.
+// Now looks up families table first to get the correct UUID.
+async function loadFamilyId() {
+  if (currentFamilyId) return;
+  try {
+    const data = await sbFetch('families?email=eq.' + encodeURIComponent(currentEmail) + '&select=id&limit=1');
+    if (data && data.length) currentFamilyId = data[0].id;
+  } catch(e) { console.error('Could not load family ID:', e); }
+}
+
+// ── PIN HELPERS ───────────────────────────────────────────
+function pinNav(prefix, i) {
+  const v = document.getElementById(prefix + i).value;
+  if (!/^\d$/.test(v)) { document.getElementById(prefix + i).value = ''; return; }
+  if (i < 3) document.getElementById(prefix + (i + 1)).focus();
+  if (prefix === 'p' && i === 3) verifyPin();
+}
+function pinBack(prefix, i, e) {
+  if (e.key === 'Backspace' && !document.getElementById(prefix + i).value && i > 0)
+    document.getElementById(prefix + (i - 1)).focus();
+}
+function getPin(prefix) { return [0,1,2,3].map(function(i){ return document.getElementById(prefix + i).value; }).join(''); }
+function clearPin(prefix) { [0,1,2,3].forEach(function(i){ document.getElementById(prefix + i).value = ''; }); }
+
+// ── LOGIN FLOW ────────────────────────────────────────────
+function showStep(id) {
+  document.querySelectorAll('.login-step').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+async function submitEmail() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  if (!email) return showErr('email-error', 'Please enter your email address.');
+  hideErr('email-error');
+  try {
+    const feeds = await sbFetch('feeds?email=eq.' + encodeURIComponent(email) + '&select=*&limit=20');
+    if (!feeds || !feeds.length) return showErr('email-error', 'No account found. <a href="/homehuddle/join.html" style="color:#FCA5A5">Sign up free →</a>');
+    currentEmail = email;
+    currentFeeds = feeds;
+    const hasPIN = feeds[0].pin && feeds[0].pin.trim().length >= 4;
+    if (hasPIN) {
+      document.getElementById('pin-prompt').textContent = 'Welcome back, ' + (feeds[0].family_name || email) + '! Enter your 4-digit PIN.';
+      showStep('step-pin');
+      setTimeout(function(){ document.getElementById('p0').focus(); }, 100);
+    } else {
+      showStep('step-set-pin');
+      setTimeout(function(){ document.getElementById('sp0').focus(); }, 100);
+    }
+  } catch(e) { showErr('email-error', 'Error looking up account. Please try again.'); }
+}
+
+async function verifyPin() {
+  const entered = getPin('p');
+  if (entered.length < 4) return;
+  if (entered === currentFeeds[0].pin) {
+    enterAccount();
+  } else {
+    showErr('pin-error', 'Incorrect PIN. Please try again.');
+    clearPin('p');
+    document.getElementById('p0').focus();
+  }
+}
+
+async function saveNewPin() {
+  const pin = getPin('sp');
+  if (!/^\d{4}$/.test(pin)) return showErr('set-pin-error', 'Please enter all 4 digits.');
+  hideErr('set-pin-error');
+  await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail), { method: 'PATCH', body: JSON.stringify({ pin }) });
+  currentFeeds = currentFeeds.map(function(f){ return Object.assign({}, f, { pin }); });
+  enterAccount();
+}
+
+async function forgotPin(e) {
+  e.preventDefault();
+  if (!currentEmail) return showStep('step-email');
+  try {
+    await fetch(SURL + '/functions/v1/smart-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
+      body: JSON.stringify({ email: currentEmail })
+    });
+  } catch(err) { console.error(err); }
+  document.getElementById('reset-msg').textContent = 'A PIN reset code has been sent to ' + currentEmail + '. Use it as your PIN to log in, then change it once you\'re in.';
+  showStep('step-reset-sent');
+}
+
+function enterAccount() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('account-screen').style.display = 'block';
+  document.getElementById('nav-user-label').textContent = currentFeeds[0].family_name || currentEmail;
+  document.getElementById('sign-out-btn').style.display = 'inline';
+  loadAccount();
+}
+
+function signOut() {
+  currentEmail = ''; currentFeeds = []; currentFamilyId = null; isDirty = false;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('account-screen').style.display = 'none';
+  document.getElementById('nav-user-label').textContent = '';
+  document.getElementById('sign-out-btn').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  hideSaveBar(); showStep('step-email');
+}
+
+// ── LOAD ACCOUNT ──────────────────────────────────────────
+async function loadAccount() {
+  const f = currentFeeds[0];
+  document.getElementById('f-family-name').value = f.family_name || '';
+  document.getElementById('f-email').value = f.email || '';
+  document.getElementById('f-phone').value = f.phone || '';
+  document.getElementById('account-subtitle').textContent = 'Managing ' + (f.family_name || 'your family') + '\'s HomeHuddle settings';
+  buildShareMessage();
+  renderKids();
+  // Load family ID then render members
+  await loadFamilyId();
+  renderMembers();
+}
+
+// ── SHARE MESSAGE ─────────────────────────────────────────
+function buildShareMessage() {
+  const f = currentFeeds[0];
+  const calUrl = 'https://venuewise.net/homehuddle/calendar.html?email=' + encodeURIComponent(currentEmail);
+  const kidMap = {};
+  currentFeeds.forEach(function(feed) {
+    if (!kidMap[feed.kid_name]) kidMap[feed.kid_name] = { sports: new Set(), teams: [] };
+    if (feed.sport) feed.sport.split(',').forEach(function(s){ kidMap[feed.kid_name].sports.add(s.trim()); });
+    if (feed.team_name) kidMap[feed.kid_name].teams.push(feed.team_name);
+  });
+  const kidDescs = Object.entries(kidMap).map(function(entry) {
+    const name = entry[0], data = entry[1];
+    const sports = [...data.sports].join(' & ') || 'sports';
+    const team = data.teams.length ? ' (' + data.teams[0] + ')' : '';
+    return name + "'s " + sports + team;
+  });
+  let kidText = '';
+  if (kidDescs.length === 1) kidText = kidDescs[0];
+  else if (kidDescs.length === 2) kidText = kidDescs[0] + ' and ' + kidDescs[1];
+  else kidText = kidDescs.slice(0, -1).join(', ') + ', and ' + kidDescs[kidDescs.length - 1];
+  shareMsg = "Hey! I'm using HomeHuddle to share " + kidText + " schedule with the family. Tap the link to see games and get push notifications — no app needed!\n\n" + calUrl + "\n\nOnce you open it, tap \"Enable notifications\" to get alerts when games are added or times change. 🏅";
+  document.getElementById('share-message-box').textContent = shareMsg;
+}
+
+function copyShareMsg() {
+  navigator.clipboard.writeText(shareMsg).then(function() {
+    const btn = document.getElementById('copy-share-btn');
+    btn.textContent = '✅ Copied! Paste it in a text message';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+  }).catch(function() {
+    const el = document.createElement('textarea');
+    el.value = shareMsg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    const btn = document.getElementById('copy-share-btn');
+    btn.textContent = '✅ Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = '📋 Copy message to share'; btn.classList.remove('copied'); }, 3000);
+  });
+}
+
+// ── KIDS ──────────────────────────────────────────────────
+function renderKids() {
+  const list = document.getElementById('kid-list');
+  list.innerHTML = '';
+  const kidMap = {};
+  currentFeeds.forEach(function(f) {
+    if (!kidMap[f.kid_name]) kidMap[f.kid_name] = [];
+    kidMap[f.kid_name].push(f);
+  });
+  Object.entries(kidMap).forEach(function(entry) {
+    const kidName = entry[0], feeds = entry[1];
+    const div = document.createElement('div');
+    div.className = 'kid-row';
+    const sports = [...new Set(feeds.map(function(f){ return f.sport; }).filter(Boolean))].join(', ');
+    div.innerHTML =
+      '<div class="kid-row-header">' +
+        '<div class="kid-name-label">🏅 ' +
+          '<input type="text" value="' + esc(kidName) + '" placeholder="Kid\'s name" ' +
+            'style="border:none;outline:none;font-size:0.9rem;font-weight:600;font-family:\'DM Sans\',sans-serif;background:transparent;color:var(--white);min-width:80px;width:auto" ' +
+            'oninput="renameKid(\'' + esc(kidName) + '\',this);markDirty()"/>' +
+          (sports ? '<span class="sport-tag">' + esc(sports) + '</span>' : '') +
+        '</div>' +
+        '<button class="btn btn-danger btn-sm" onclick="removeKid(\'' + esc(kidName) + '\')">Remove</button>' +
+      '</div>' +
+      feeds.map(function(feed, fi){ return feedRow(kidName, fi, feed, feeds.length > 1); }).join('') +
+      '<button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="addTeam(\'' + esc(kidName) + '\')">+ Add another team / iCal feed</button>';
+    list.appendChild(div);
+  });
+}
+
+function feedRow(kidName, fi, feed, removable) {
+  return '<div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div style="font-size:0.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.07em">Team ' + (fi + 1) + '</div>' +
+      (removable ? '<button class="btn btn-danger btn-sm" onclick="removeFeed(\'' + esc(kidName) + '\',' + fi + ')">✕ Remove</button>' : '') +
+    '</div>' +
+    '<div class="field"><label>Team name</label><input type="text" value="' + esc(feed.team_name || '') + '" placeholder="e.g. West Seneca Modified Baseball" data-kid="' + esc(kidName) + '" data-fi="' + fi + '" data-col="team_name" oninput="updateFeed(this);markDirty()"/></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+      '<div class="field" style="margin:0"><label>Sport</label><input type="text" value="' + esc(feed.sport || '') + '" placeholder="Baseball" data-kid="' + esc(kidName) + '" data-fi="' + fi + '" data-col="sport" oninput="updateFeed(this);markDirty()"/></div>' +
+      '<div class="field" style="margin:0"><label>Platform</label>' +
+        '<select data-kid="' + esc(kidName) + '" data-fi="' + fi + '" data-col="platform" onchange="updateFeed(this);markDirty()">' +
+          '<option value="gamechanger"' + (feed.platform === 'gamechanger' ? ' selected' : '') + '>GameChanger</option>' +
+          '<option value="teamsnap"' + (feed.platform === 'teamsnap' ? ' selected' : '') + '>TeamSnap</option>' +
+          '<option value="leagueapps"' + (feed.platform === 'leagueapps' ? ' selected' : '') + '>LeagueApps</option>' +
+          '<option value="other"' + (feed.platform === 'other' ? ' selected' : '') + '>Other</option>' +
+        '</select>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field" style="margin-top:8px;margin-bottom:0"><label>iCal URL</label><input type="url" value="' + esc(feed.ical_url || '') + '" placeholder="https://..." data-kid="' + esc(kidName) + '" data-fi="' + fi + '" data-col="ical_url" oninput="updateFeed(this);markDirty()"/></div>' +
+  '</div>';
+}
+
+function updateFeed(el) {
+  const kid = el.dataset.kid, fi = parseInt(el.dataset.fi), col = el.dataset.col;
+  const kidFeeds = currentFeeds.filter(function(f){ return f.kid_name === kid; });
+  if (kidFeeds[fi]) kidFeeds[fi][col] = el.value;
+}
+function renameKid(oldName, inp) {
+  currentFeeds.filter(function(f){ return f.kid_name === oldName; }).forEach(function(f){ f.kid_name = inp.value; });
+}
+function removeKid(kidName) {
+  if (!confirm('Remove ' + kidName + ' and all their schedules?')) return;
+  currentFeeds = currentFeeds.filter(function(f){ return f.kid_name !== kidName; });
+  renderKids(); markDirty();
+}
+function addTeam(kidName) {
+  const ref = currentFeeds.find(function(f){ return f.kid_name === kidName; });
+  currentFeeds.push(Object.assign({}, ref, { id: null, sport: '', ical_url: '', platform: 'gamechanger', team_name: '' }));
+  renderKids(); markDirty();
+}
+function addKid() {
+  const ref = currentFeeds[0];
+  currentFeeds.push(Object.assign({}, ref, { id: null, kid_name: 'New Kid', sport: '', ical_url: '', platform: 'gamechanger', team_name: '' }));
+  renderKids(); markDirty();
+}
+function removeFeed(kidName, fi) {
+  const kidFeeds = currentFeeds.filter(function(f){ return f.kid_name === kidName; });
+  if (kidFeeds.length <= 1) return alert('Use "Remove" to remove the whole kid.');
+  currentFeeds = currentFeeds.filter(function(f){ return f !== kidFeeds[fi]; });
+  renderKids(); markDirty();
+}
+
+// ── FAMILY MEMBERS ────────────────────────────────────────
+// FIX: was querying by family_email — now queries by family_id (correct schema)
+async function renderMembers() {
+  const list = document.getElementById('user-list');
+  list.innerHTML = '';
+  const f = currentFeeds[0];
+
+  // Owner row always shown first
+  const ownerDiv = document.createElement('div');
+  ownerDiv.className = 'member-row';
+  ownerDiv.innerHTML =
+    '<div class="member-avatar">' + (f.family_name || '?')[0].toUpperCase() + '</div>' +
+    '<div class="member-info">' +
+      '<div class="member-name">' + esc(f.family_name || 'Account owner') + '</div>' +
+      '<div class="member-meta">' + esc(f.email) + (f.phone ? ' · ' + esc(f.phone) : '') + '</div>' +
+    '</div>' +
+    '<span class="tag tag-owner">Owner</span>';
+  list.appendChild(ownerDiv);
+
+  if (!currentFamilyId) {
+    const msg = document.createElement('p');
+    msg.style.cssText = 'font-size:0.78rem;color:var(--muted);padding:8px 0';
+    msg.textContent = 'Could not load family members — family ID not found.';
+    list.appendChild(msg);
+    return;
+  }
+
+  try {
+    // FIX: query by family_id, not family_email
+    familyMembersData = await sbFetch(
+      'family_members?family_id=eq.' + encodeURIComponent(currentFamilyId) + '&order=created_at.asc'
+    );
+
+    if (!familyMembersData || !familyMembersData.length) {
+      const msg = document.createElement('p');
+      msg.style.cssText = 'font-size:0.78rem;color:var(--muted);padding:8px 0';
+      msg.textContent = 'No additional family members yet. Add someone below.';
+      list.appendChild(msg);
+      return;
+    }
+
+    familyMembersData.forEach(function(m) {
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      const roleLabel = { parent: 'Parent', player: 'Player', grandparent: 'Grandparent', sibling: 'Sibling', other: 'Family' }[m.role] || m.role || '';
+      const smsActive = m.sms_opt_in !== false;
+      row.innerHTML =
+        '<div class="member-avatar">' + esc(m.name[0].toUpperCase()) + '</div>' +
+        '<div class="member-info">' +
+          '<div class="member-name">' + esc(m.name) + '</div>' +
+          '<div class="member-meta">' + (m.phone ? esc(m.phone) : 'No phone') + (roleLabel ? ' · ' + roleLabel : '') + '</div>' +
+        '</div>' +
+        '<span class="tag ' + (m.role === 'player' ? 'tag-member' : 'tag-sms') + '">' + (m.role === 'player' ? 'Player' : (smsActive ? 'SMS on' : 'SMS off')) + '</span>' +
+        '<button class="btn btn-danger btn-sm" onclick="removeMember(\'' + m.id + '\')">Remove</button>';
+      list.appendChild(row);
+    });
+  } catch(e) {
+    console.error('Error loading family members:', e);
+    const msg = document.createElement('p');
+    msg.style.cssText = 'font-size:0.78rem;color:#FCA5A5;padding:8px 0';
+    msg.textContent = 'Error loading family members.';
+    list.appendChild(msg);
+  }
+}
+
+function showAddMember() {
+  document.getElementById('add-member-form').classList.add('open');
+  document.getElementById('add-member-btn').style.display = 'none';
+}
+function cancelAddMember() {
+  document.getElementById('add-member-form').classList.remove('open');
+  document.getElementById('add-member-btn').style.display = '';
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-phone').value = '';
+  document.getElementById('new-email').value = '';
+}
+
+async function confirmAddMember() {
+  const name = document.getElementById('new-name').value.trim();
+  const phone = document.getElementById('new-phone').value.trim();
+  const role = document.getElementById('new-role').value;
+  const email = document.getElementById('new-email').value.trim();
+  if (!name || !phone) return showToast('Please enter a name and phone number');
+  if (!currentFamilyId) return showToast('Could not add member — family ID missing');
+  try {
+    // FIX: insert with family_id, not family_email
+    await sbFetch('family_members', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        name,
+        phone,
+        role,
+        email: email || null,
+        family_id: currentFamilyId,        // FIX: correct column
+        family_email: currentEmail          // keep for backward compat
+      })
+    });
+    cancelAddMember();
+    await renderMembers();
+    showToast('✅ ' + name + ' added');
+  } catch(e) {
+    console.error(e);
+    showToast('Error adding family member — please try again');
+  }
+}
+
+async function removeMember(id) {
+  if (!confirm('Remove this family member?')) return;
+  try {
+    await sbFetch('family_members?id=eq.' + id, { method: 'DELETE' });
+    await renderMembers();
+    showToast('Member removed');
+  } catch(e) { showToast('Error removing family member'); }
+}
+
+// ── CHANGE PIN ────────────────────────────────────────────
+async function saveChangedPin() {
+  const pin = getPin('cp');
+  if (!/^\d{4}$/.test(pin)) return showErr('pin-error-acct', 'Please enter all 4 digits.');
+  hideErr('pin-error-acct');
+  await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail), { method: 'PATCH', body: JSON.stringify({ pin }) });
+  currentFeeds = currentFeeds.map(function(f){ return Object.assign({}, f, { pin }); });
+  clearPin('cp');
+  showAlert('pin-success');
+  setTimeout(function(){ hideAlert('pin-success'); }, 3000);
+}
+
+// ── SAVE CHANGES ──────────────────────────────────────────
+function markDirty() { isDirty = true; document.getElementById('save-bar').classList.add('visible'); }
+function hideSaveBar() { isDirty = false; document.getElementById('save-bar').classList.remove('visible'); }
+
+function discardChanges() {
+  sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail) + '&select=*&limit=20').then(function(feeds) {
+    currentFeeds = feeds;
+    loadAccount();
+    hideSaveBar();
+  }).catch(function(){ hideSaveBar(); });
+}
+
+async function saveChanges() {
+  const familyName = document.getElementById('f-family-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+
+  await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail), {
+    method: 'PATCH',
+    body: JSON.stringify({ family_name: familyName, phone })
+  });
+
+  for (const feed of currentFeeds) {
+    if (feed.id) {
+      await sbFetch('feeds?id=eq.' + feed.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          kid_name: feed.kid_name,
+          sport: feed.sport,
+          platform: feed.platform,
+          ical_url: feed.ical_url,
+          team_name: feed.team_name || null
+        })
+      });
+    } else if (feed.ical_url && feed.kid_name) {
+      const newFeed = await sbFetch('feeds', {
+        method: 'POST',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          email: currentEmail,
+          family_name: familyName,
+          phone: phone,
+          kid_name: feed.kid_name,
+          sport: feed.sport || '',
+          platform: feed.platform || 'gamechanger',
+          ical_url: feed.ical_url,
+          team_name: feed.team_name || null,
+          is_active: true,
+          pin: currentFeeds.find(function(f){ return f.pin; })?.pin || ''
+        })
+      });
+      if (newFeed && newFeed[0]) feed.id = newFeed[0].id;
+    }
+  }
+
+  hideSaveBar();
+  showAlert('global-success', 'Changes saved! New feeds will sync within 30 minutes.');
+  setTimeout(function(){ hideAlert('global-success'); }, 4000);
+  document.getElementById('nav-user-label').textContent = familyName || currentEmail;
+  buildShareMessage();
+}
+
+function confirmCancel() {
+  if (confirm('Are you sure you want to cancel your HomeHuddle account? This cannot be undone.'))
+    alert('Please email hello@venuewise.net to cancel your account and we\'ll take care of it right away.');
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
+function showErr(id, msg){ const el=document.getElementById(id); el.innerHTML=msg; el.classList.add('show'); }
+function hideErr(id){ document.getElementById(id).classList.remove('show'); }
+function showAlert(id, msg){ const el=document.getElementById(id); if(msg) el.textContent=msg; el.classList.add('show'); }
+function hideAlert(id){ document.getElementById(id).classList.remove('show'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 3200); }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.querySelector('#step-email.active')) submitEmail();
+});
+
+// Auto-login if email passed in URL (e.g. from calendar ?email= link)
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const emailParam = params.get('email');
+  if (emailParam) {
+    document.getElementById('login-email').value = emailParam;
+    submitEmail();
+  }
+})();
+</script>
+</body>
+</html>
