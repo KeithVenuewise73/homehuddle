@@ -218,6 +218,20 @@
     .ae-save{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px}
     .ae-cancel{width:100%;background:var(--card-bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
 
+    /* LOCATION AUTOCOMPLETE */
+    .loc-wrap{position:relative}
+    .loc-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;z-index:999;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);display:none}
+    .loc-dropdown.show{display:block}
+    .loc-item{display:flex;align-items:center;gap:10px;padding:10px 13px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid rgba(255,255,255,0.04)}
+    .loc-item:last-child{border-bottom:none}
+    .loc-item:hover,.loc-item.focused{background:rgba(255,255,255,0.06)}
+    .loc-item-ico{font-size:1rem;flex-shrink:0;width:20px;text-align:center}
+    .loc-item-body{flex:1;min-width:0}
+    .loc-item-name{font-size:0.82rem;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .loc-item-sub{font-size:0.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+    .loc-item-badge{font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(245,197,24,0.12);color:var(--gold);border:1px solid rgba(245,197,24,0.25);flex-shrink:0}
+    .loc-spinner{text-align:center;padding:12px;color:var(--muted);font-size:0.75rem}
+
     /* MISC */
     .smsg{text-align:center;padding:52px 20px;color:var(--muted)}
     .smsg .ico{font-size:2.8rem;margin-bottom:12px}
@@ -324,7 +338,13 @@
     </div>
     <div class="ae-field ae-row">
       <div><label class="ae-label">End time</label><input class="ae-input" type="time" id="aeEnd" /></div>
-      <div><label class="ae-label">Location</label><input class="ae-input" type="text" id="aeLoc" placeholder="Optional" /></div>
+    </div>
+    <div class="ae-field">
+      <label class="ae-label">Location</label>
+      <div class="loc-wrap">
+        <input class="ae-input" type="text" id="aeLoc" placeholder="Start typing an address or place…" autocomplete="off" oninput="onLocInput()" onkeydown="onLocKey(event)" onfocus="onLocFocus()" onblur="onLocBlur()" />
+        <div class="loc-dropdown" id="locDropdown"></div>
+      </div>
     </div>
     <div class="ae-field">
       <label class="ae-label">Category</label>
@@ -593,6 +613,9 @@ async function processSportsEvents(data, feeds) {
 
   // Await family events so render fires once with everything merged — no more flicker or lost events
   await loadFamilyEvents();
+
+  // Seed location history from all loaded events so Recent suggestions work immediately
+  seedLocHistoryFromEvents();
 
   // Single render pass after everything is loaded
   detectConflicts();
@@ -933,6 +956,183 @@ function dlICS(evId) {
   showToast('Open the .ics file to add to your calendar');
 }
 
+// ── LOCATION AUTOCOMPLETE ─────────────────────────────────
+// Shows recent locations first (localStorage), then falls back to
+// Nominatim (OpenStreetMap) for new address searches. Zero API cost.
+
+const LOC_HISTORY_KEY = 'hh_loc_history_' + (familyEmail || familyPhone || 'x');
+const LOC_HISTORY_MAX = 10;
+let locDebounceTimer = null;
+let locFocusedIndex = -1;
+let locResults = [];
+
+function getLocHistory() {
+  try { return JSON.parse(localStorage.getItem(LOC_HISTORY_KEY) || '[]'); } catch(e) { return []; }
+}
+
+// Seed history from existing events so suggestions work on first use.
+// Only adds locations not already in history; doesn't exceed the max.
+function seedLocHistoryFromEvents() {
+  const hist = getLocHistory();
+  const existing = new Set(hist.map(function(h){ return h.toLowerCase(); }));
+  const toAdd = [];
+  allEvents.forEach(function(e) {
+    if (e.location && e.location.trim().length > 3 && !existing.has(e.location.trim().toLowerCase())) {
+      existing.add(e.location.trim().toLowerCase());
+      toAdd.push(e.location.trim());
+    }
+  });
+  if (!toAdd.length) return;
+  // Append to end so user-saved ones stay at top
+  const merged = hist.concat(toAdd).slice(0, LOC_HISTORY_MAX);
+  try { localStorage.setItem(LOC_HISTORY_KEY, JSON.stringify(merged)); } catch(e) {}
+}
+
+function saveLocToHistory(loc) {
+  if (!loc || loc.trim().length < 3) return;
+  let hist = getLocHistory();
+  // Remove duplicate (case-insensitive), put newest first
+  hist = hist.filter(function(h){ return h.toLowerCase() !== loc.toLowerCase(); });
+  hist.unshift(loc.trim());
+  if (hist.length > LOC_HISTORY_MAX) hist = hist.slice(0, LOC_HISTORY_MAX);
+  try { localStorage.setItem(LOC_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
+}
+
+function showLocDropdown(items) {
+  locResults = items;
+  locFocusedIndex = -1;
+  const dd = document.getElementById('locDropdown');
+  if (!items.length) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
+  dd.innerHTML = items.map(function(item, i) {
+    return '<div class="loc-item" data-index="' + i + '" onmousedown="pickLoc(' + i + ')">' +
+      '<div class="loc-item-ico">' + (item.isRecent ? '🕐' : '📍') + '</div>' +
+      '<div class="loc-item-body">' +
+        '<div class="loc-item-name">' + esc(item.name) + '</div>' +
+        (item.sub ? '<div class="loc-item-sub">' + esc(item.sub) + '</div>' : '') +
+      '</div>' +
+      (item.isRecent ? '<div class="loc-item-badge">Recent</div>' : '') +
+    '</div>';
+  }).join('');
+  dd.classList.add('show');
+}
+
+function hideLocDropdown() {
+  const dd = document.getElementById('locDropdown');
+  dd.classList.remove('show');
+  locFocusedIndex = -1;
+}
+
+function pickLoc(index) {
+  const item = locResults[index];
+  if (!item) return;
+  document.getElementById('aeLoc').value = item.full || item.name;
+  hideLocDropdown();
+}
+
+function onLocFocus() {
+  // On focus with empty or short input, show recent locations
+  const val = document.getElementById('aeLoc').value.trim();
+  if (val.length < 2) showRecentLocs(val);
+}
+
+function onLocBlur() {
+  // Delay hide so mousedown on item fires first
+  setTimeout(hideLocDropdown, 180);
+}
+
+function showRecentLocs(filter) {
+  const hist = getLocHistory();
+  const filtered = filter
+    ? hist.filter(function(h){ return h.toLowerCase().includes(filter.toLowerCase()); })
+    : hist;
+  if (!filtered.length) { hideLocDropdown(); return; }
+  showLocDropdown(filtered.slice(0, 5).map(function(h) {
+    return { name: h, full: h, isRecent: true };
+  }));
+}
+
+function onLocInput() {
+  const val = document.getElementById('aeLoc').value.trim();
+  clearTimeout(locDebounceTimer);
+
+  if (val.length < 2) {
+    showRecentLocs(val);
+    return;
+  }
+
+  // Show matching recent locations instantly while waiting for Nominatim
+  const hist = getLocHistory();
+  const recentMatches = hist.filter(function(h){
+    return h.toLowerCase().includes(val.toLowerCase());
+  }).slice(0, 3).map(function(h){ return { name: h, full: h, isRecent: true }; });
+
+  if (recentMatches.length) showLocDropdown(recentMatches);
+
+  // Debounce Nominatim call — only fire after 400ms of no typing
+  locDebounceTimer = setTimeout(function() {
+    searchNominatim(val, recentMatches);
+  }, 400);
+}
+
+async function searchNominatim(query, existingItems) {
+  const dd = document.getElementById('locDropdown');
+  // Show spinner only if dropdown is already open
+  if (dd.classList.contains('show') && existingItems.length === 0) {
+    dd.innerHTML = '<div class="loc-spinner">Searching…</div>';
+    dd.classList.add('show');
+  }
+
+  try {
+    const url = 'https://nominatim.openstreetmap.org/search?q=' +
+      encodeURIComponent(query) +
+      '&format=json&addressdetails=1&limit=5&countrycodes=us';
+    const res = await fetch(url, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'HomeHuddle/1.0' }
+    });
+    const data = await res.json();
+
+    const nominatimItems = data.map(function(r) {
+      // Build a clean short name from the display_name
+      const parts = r.display_name.split(',');
+      const name = parts.slice(0, 2).join(',').trim();
+      const sub = parts.slice(2, 4).join(',').trim();
+      return { name: name, sub: sub, full: r.display_name.split(',').slice(0,4).join(',').trim(), isRecent: false };
+    });
+
+    // Merge: recent matches first, then Nominatim results (deduplicated)
+    const seen = new Set(existingItems.map(function(i){ return i.full.toLowerCase(); }));
+    const merged = existingItems.concat(nominatimItems.filter(function(i){
+      return !seen.has(i.full.toLowerCase());
+    }));
+
+    showLocDropdown(merged.slice(0, 7));
+  } catch(e) {
+    // Nominatim failed — just keep showing recent matches if any
+    if (existingItems.length) showLocDropdown(existingItems);
+    else hideLocDropdown();
+  }
+}
+
+function onLocKey(e) {
+  const dd = document.getElementById('locDropdown');
+  if (!dd.classList.contains('show')) return;
+  const items = dd.querySelectorAll('.loc-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    locFocusedIndex = Math.min(locFocusedIndex + 1, items.length - 1);
+    items.forEach(function(el, i){ el.classList.toggle('focused', i === locFocusedIndex); });
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    locFocusedIndex = Math.max(locFocusedIndex - 1, 0);
+    items.forEach(function(el, i){ el.classList.toggle('focused', i === locFocusedIndex); });
+  } else if (e.key === 'Enter' && locFocusedIndex >= 0) {
+    e.preventDefault();
+    pickLoc(locFocusedIndex);
+  } else if (e.key === 'Escape') {
+    hideLocDropdown();
+  }
+}
+
 // ── ADD EVENT ─────────────────────────────────────────────
 // FIX 2b: loadMembersForAE now works for phone-based sessions because
 // loadFamilyId() can resolve currentFamilyId via the family_members table.
@@ -1049,6 +1249,8 @@ async function saveAE() {
     const saved = await res.json();
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
     const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+    // Persist location to history so it appears as a Recent suggestion next time
+    if (loc) saveLocToHistory(loc);
 
     allEvents.push(newEv);
 
