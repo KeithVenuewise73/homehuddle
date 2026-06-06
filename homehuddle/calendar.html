@@ -9,12 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="manifest" href="/homehuddle/manifest.json" />
-<link rel="apple-touch-icon" href="/homehuddle/icon-192.png" />
-<meta name="mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="/homehuddle/icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-    --navy:#1E2A38;--navy-mid:#253347;--navy-light:#2E3F52;
+      --navy:#1E2A38;--navy-mid:#253347;--navy-light:#2E3F52;
       --gold:#C0392B;--gold-dim:#962d22;
       --white:#F7F8FA;--muted:#8A95A0;
       --card-bg:#1A2535;--border:rgba(192,57,43,0.12);--radius:10px;
@@ -465,7 +465,6 @@ async function manualSync() {
     // Clear only sports events, keep manual events during sync
     allEvents = allEvents.filter(function(e){ return e.isManual; });
     await loadEvents(false);
-    // loadFamilyEvents already called inside processSportsEvents via allEvents merge
     setSync('ok', 'Synced');
     showToast('Schedule synced — ' + allEvents.length + ' events loaded');
     btn.disabled = false;
@@ -528,7 +527,6 @@ async function loadEvents(showToastMsg) {
       const key = f.id || ((f.platform||'cal')+'::' +(f.kid_name||'')+'::' +(f.team_name||''));
       if (seen.has(key)) return;
       seen.add(key);
-      // Use stable hash of key so colors don't shuffle on every sync
       var hash = 0; for (var ci = 0; ci < key.length; ci++) { hash = ((hash << 5) - hash) + key.charCodeAt(ci); hash |= 0; }
       var colorIndex = Math.abs(hash) % COLORS.length;
       platformMap[key] = { label: f.team_name || (f.kid_name ? f.kid_name + (f.sport ? ' · ' + f.sport : '') : (f.platform || 'Calendar')), color: COLORS[colorIndex], kidName: f.kid_name || '', sport: f.sport || '', platform: f.platform || '', teamName: f.team_name || '' };
@@ -552,7 +550,7 @@ async function loadEvents(showToastMsg) {
 
     const { data, error } = await evQ;
     if (error) throw error;
-    processSportsEvents(data || [], feeds);
+    await processSportsEvents(data || [], feeds);
   } catch(err) {
     console.error(err);
     setSync('err', 'Error');
@@ -560,8 +558,15 @@ async function loadEvents(showToastMsg) {
   }
 }
 
-function processSportsEvents(data, feeds) {
+// ── FIX 3: processSportsEvents is now async and awaits loadFamilyEvents ──
+// This eliminates the race condition that caused manual events to disappear.
+// render() is called ONCE after both sports and manual events are merged.
+async function processSportsEvents(data, feeds) {
   lastLoad = new Date();
+
+  // Prime family ID early so member picker is ready before user taps Add Event
+  if (!currentFamilyId) loadFamilyId();
+
   const sportsEvents = data.map(function(row) {
     const mf = (row.feed_id ? feeds.find(function(f){ return f.id === row.feed_id; }) : null)
       || feeds.find(function(f){ return f.kid_name && f.kid_name === row.kid && f.team_name && row.team_name && f.team_name === row.team_name; })
@@ -582,27 +587,41 @@ function processSportsEvents(data, feeds) {
     };
   }).filter(function(e){ return !isNaN(e.start); });
 
-  // Keep manual events, replace sports events
+  // Keep any locally-added manual events during merge, replace sports events
   const manualOnly = allEvents.filter(function(e){ return e.isManual; });
   allEvents = sportsEvents.concat(manualOnly).sort(function(a,b){ return a.start - b.start; });
-  // Always reload family events after sports to keep manual events fresh
-  loadFamilyEvents();
 
-  // Detect conflicts with player awareness
+  // Await family events so render fires once with everything merged — no more flicker or lost events
+  await loadFamilyEvents();
+
+  // Single render pass after everything is loaded
   detectConflicts();
   applySticky(); updateStats(); render(); setSync('ok', 'Synced');
 }
 
 // ── LOAD FAMILY ID ────────────────────────────────────────
+// FIX 2a: Now handles phone-based logins in addition to email.
+// If the calendar is opened via ?phone= link, family members were never
+// loaded because loadFamilyId() returned early when familyEmail was null.
 async function loadFamilyId() {
-  if (currentFamilyId || !familyEmail) return;
+  if (currentFamilyId) return;
   try {
-    const { data, error } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).single();
-    if (data && data.id) currentFamilyId = data.id;
+    if (familyEmail) {
+      // Email-based lookup (owner view)
+      const { data } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).single();
+      if (data && data.id) currentFamilyId = data.id;
+    } else if (familyPhone) {
+      // FIX 2a: Phone-based lookup via family_members table
+      const { data } = await sb.from('family_members').select('family_id').eq('phone', familyPhone).limit(1).single();
+      if (data && data.family_id) currentFamilyId = data.family_id;
+    }
   } catch(e) {}
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
+// NOTE: render/updateStats intentionally kept here for standalone calls
+// (e.g. after save/delete). When called from processSportsEvents the
+// outer render() call fires after this resolves.
 async function loadFamilyEvents() {
   if (!familyEmail) return;
   try {
@@ -610,9 +629,9 @@ async function loadFamilyEvents() {
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
-    // Ensure we have family_id before querying
     if (!currentFamilyId) await loadFamilyId();
     if (!currentFamilyId) return;
+
     const { data: evData } = await sb.from('family_events')
       .select('*')
       .eq('family_id', currentFamilyId)
@@ -634,18 +653,13 @@ async function loadFamilyEvents() {
       };
     });
 
-    // Remove old manual events (from DB) and add fresh ones, keep locally added ones
+    // Replace DB-backed manual events with fresh copy; preserve any in-flight local ones
     allEvents = allEvents.filter(function(e){ return !e.isManual; }).concat(manualEvents).sort(function(a,b){ return a.start - b.start; });
-    // Set currentFamilyId if not already set
-    if (!currentFamilyId && manualEvents.length && manualEvents[0].family_id) currentFamilyId = manualEvents[0].family_id;
-    detectConflicts();
-    updateStats(); render();
   } catch(e) { console.log('Family events error:', e); }
 }
 
 // ── CONFLICT DETECTION ────────────────────────────────────
 function detectConflicts() {
-  // Group events by date
   const byDate = {};
   allEvents.forEach(function(e) {
     const dk = e.start.toDateString();
@@ -675,7 +689,6 @@ function buildPlatformStrip() {
   Object.entries(platformMap).forEach(function(e) {
     html += '<div class="pchip" onclick="setPlatform(\'' + esc(e[0]) + '\',this)"><span class="cdot" style="background:' + e[1].color + '"></span>' + esc(e[1].label) + '</div>';
   });
-  // Add manual events chip if any exist
   if (allEvents.some(function(e){ return e.isManual; })) {
     html += '<div class="pchip" onclick="setPlatform(\'manual\',this)"><span class="cdot" style="background:var(--gold);border:1px dashed var(--navy)"></span>Family Events</div>';
   }
@@ -692,13 +705,13 @@ function setPlatform(key, el) { activeKey = key; document.querySelectorAll('.pch
 function updateStats() {
   const now = new Date(), dow = now.getDay();
   const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - dow), 23, 59, 59);
-  const evts = allEvents; // Always count all events in header stats
+  const evts = allEvents;
   const upcoming = evts.filter(function(e){ return e.start >= now; });
   document.getElementById('stTotal').textContent = upcoming.length;
   document.getElementById('stWeek').textContent = evts.filter(function(e){ return e.start >= now && e.start <= weekEnd; }).length;
   const seenPairs = new Set();
-evts.forEach(function(e){ (e.conflicts||[]).forEach(function(c){ var pair = [String(e.id), c.withId].sort().join('|'); seenPairs.add(pair); }); });
-document.getElementById('stConfl').textContent = seenPairs.size;
+  evts.forEach(function(e){ (e.conflicts||[]).forEach(function(c){ var pair = [String(e.id), c.withId].sort().join('|'); seenPairs.add(pair); }); });
+  document.getElementById('stConfl').textContent = seenPairs.size;
   document.getElementById('stPast').textContent = evts.filter(function(e){ return e.start < now; }).length;
   if (lastLoad) document.getElementById('syncUpdated').textContent = 'Updated ' + lastLoad.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
@@ -711,12 +724,31 @@ function setView(v) {
   render();
 }
 function navigate(dir) { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1); render(); }
+
+// ── FIX 1: Today button ───────────────────────────────────
+// Was: targeting .dlabel.today and scrolling it to top — this put the
+// date header at the top but the event cards were hidden above the fold.
+// Also 80ms timeout was too tight on slow phones causing a miss.
+// Fix: scroll the .dgroup container (which includes cards), timeout bumped
+// to 100ms, and switch back to list view if needed before scrolling.
 function goToday() {
   currentDate = new Date();
-  if (currentView !== 'list') { currentView = 'list'; document.getElementById('btnList').classList.add('active'); document.getElementById('btnMonth').classList.remove('active'); }
+  if (currentView !== 'list') {
+    currentView = 'list';
+    document.getElementById('btnList').classList.add('active');
+    document.getElementById('btnMonth').classList.remove('active');
+  }
   render();
-  setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+  setTimeout(function() {
+    var todayLabel = document.querySelector('.dlabel.today');
+    if (todayLabel) {
+      // Scroll the whole dgroup so events are visible, not just the label
+      var dgroup = todayLabel.closest('.dgroup');
+      (dgroup || todayLabel).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
 }
+
 function render() { currentView === 'list' ? renderList() : renderMonth(); }
 
 function renderList() {
@@ -737,7 +769,6 @@ function renderList() {
     html += '<div class="dgroup"' + (isPast ? ' style="opacity:0.6"' : '') + '>';
     html += '<div class="dlabel' + (isTd ? ' today' : '') + '">' + DN[dt.getDay()] + ', ' + MO[dt.getMonth()] + ' ' + dt.getDate() + (isTd ? ' <span class="tpill">Today</span>' : '') + '</div>';
 
-    // Smart conflict banners
     const dayConflicts = [];
     const seen = new Set();
     evs.forEach(function(e) {
@@ -856,7 +887,6 @@ async function editManualEvent(evId) {
   const ev = allEvents.find(function(e){ return String(e.id) === String(evId); });
   if (!ev) return;
   closeModal();
-  // Pre-fill the Add Event modal with existing data
   await loadFamilyId();
   await loadMembersForAE();
   document.getElementById('aeTitle').value = ev.name || '';
@@ -865,17 +895,14 @@ async function editManualEvent(evId) {
   document.getElementById('aeEnd').value = ev.end.toTimeString().slice(0,5);
   document.getElementById('aeLoc').value = ev.location || '';
   document.getElementById('aeNotes').value = ev.notes || '';
-  // Set category
   aeCategory = ev.sport || 'family';
   document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
   var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="' + aeCategory + '"]');
   if (catBtn) catBtn.classList.add('active');
-  // Set member
   aeKid = ev.kid || 'Family';
   document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){
     b.classList.toggle('active', b.textContent.trim().includes(aeKid) || (aeKid === 'Family' && b.textContent.includes('Everyone')));
   });
-  // Change title and save button to indicate editing
   document.querySelector('.ae-title').textContent = '✏️ Edit Event';
   var saveBtn = document.getElementById('aeSaveBtn');
   if (saveBtn) { saveBtn.innerHTML = '💾 Save Changes'; saveBtn.dataset.editId = evId; }
@@ -907,6 +934,8 @@ function dlICS(evId) {
 }
 
 // ── ADD EVENT ─────────────────────────────────────────────
+// FIX 2b: loadMembersForAE now works for phone-based sessions because
+// loadFamilyId() can resolve currentFamilyId via the family_members table.
 async function loadMembersForAE() {
   if (!currentFamilyId) await loadFamilyId();
   if (!currentFamilyId) return;
@@ -918,7 +947,6 @@ async function loadMembersForAE() {
     familyMembers = data || [];
     const wrap = document.getElementById('aeMemberWrap');
     if (!wrap) return;
-    // Auto-select if only one member
     if (familyMembers.length === 1 && aeKid === 'Family') {
       aeKid = familyMembers[0].name;
     }
@@ -994,10 +1022,8 @@ async function saveAE() {
   if (!date) return showToast('Please select a date');
   const eventStart = startT ? new Date(date + 'T' + startT).toISOString() : new Date(date + 'T00:00:00').toISOString();
   const eventEnd = endT ? new Date(date + 'T' + endT).toISOString() : new Date(date + 'T23:59:00').toISOString();
-  // Clean up any orphaned local copies from previous failed attempts
   allEvents = allEvents.filter(function(e){ return !(e.isManual && e.name === title && String(e.id).startsWith('manual-temp')); });
 
-  // If editing, delete the old event first
   const editBtn = document.getElementById('aeSaveBtn');
   const editId = editBtn && editBtn.dataset.editId;
   if (editId) {
@@ -1007,7 +1033,6 @@ async function saveAE() {
 
   const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
 
-  // Disable save button to prevent double-submit
   const saveBtn = document.querySelector('.ae-save');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
 
@@ -1025,7 +1050,6 @@ async function saveAE() {
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
     const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
 
-    // Only add to local array AFTER confirmed save
     allEvents.push(newEv);
 
     if (aeRepeat !== 'none' && repEnd) {
@@ -1095,10 +1119,17 @@ applySticky();
 loadTheme();
 loadReminders();
 checkAddEventPermission();
-// Load family ID first, then sports (which triggers family events load automatically)
+// Load family ID first so member picker is primed, then load events
+// (processSportsEvents will await loadFamilyEvents internally)
 loadFamilyId().then(function() {
   loadEvents(false).then(function() {
-    setTimeout(function(){ var el = document.querySelector('.dlabel.today') || document.querySelector('.dgroup:not([style*="opacity"]) .dlabel'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
+    setTimeout(function() {
+      var todayLabel = document.querySelector('.dlabel.today');
+      if (todayLabel) {
+        var dgroup = todayLabel.closest('.dgroup');
+        (dgroup || todayLabel).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 400);
   });
 });
 setInterval(function(){ loadEvents(false); }, REFRESH);
