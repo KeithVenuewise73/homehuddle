@@ -2,7 +2,7 @@
   "name": "HomeHuddle",
   "short_name": "HomeHuddle",
   "description": "Your family's schedule, finally organized.",
-  "start_url": "/homehuddle/calendar.html",
+  "start_url": "/homehuddle/calendar.html?email=kherman7373%40gmail.com",
   "display": "standalone",
   "background_color": "#1E2A38",
   "theme_color": "#1E2A38",
