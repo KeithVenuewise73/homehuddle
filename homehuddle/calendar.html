@@ -402,6 +402,35 @@ const CAT_LABELS = {family:'🏠 Family',baseball:'⚾ Baseball',football:'🏈 
 
 const sb = window.supabase.createClient(SURL, SKEY);
 const params = new URLSearchParams(window.location.search);
+
+// ── PWA HOME SCREEN LAUNCH FIX ────────────────────────────
+// manifest.json start_url can't carry ?email= so we save it to
+// localStorage whenever the calendar loads with an email param,
+// then restore it on bare launches (e.g. from home screen icon).
+(function() {
+  const emailParam = params.get('email');
+  const phoneParam = params.get('phone');
+  if (emailParam) {
+    // Save for future home screen launches
+    localStorage.setItem('hh_last_email', emailParam);
+  } else if (phoneParam) {
+    localStorage.setItem('hh_last_phone', phoneParam);
+  } else if (!params.get('id')) {
+    // Bare launch — check if this looks like a PWA standalone launch
+    const isStandalone = window.navigator.standalone ||
+      window.matchMedia('(display-mode: standalone)').matches;
+    const savedEmail = localStorage.getItem('hh_last_email');
+    const savedPhone = localStorage.getItem('hh_last_phone');
+    if (savedEmail) {
+      // Redirect to the correct family calendar
+      window.location.replace('/homehuddle/calendar.html?email=' + encodeURIComponent(savedEmail));
+    } else if (savedPhone) {
+      window.location.replace('/homehuddle/calendar.html?phone=' + encodeURIComponent(savedPhone));
+    }
+    // If nothing saved, fall through and show "No schedule found"
+  }
+})();
+
 const familyEmail = params.get('email');
 const familyId = params.get('id');
 const familyPhone = params.get('phone');
