@@ -405,29 +405,33 @@ const params = new URLSearchParams(window.location.search);
 
 // ── PWA HOME SCREEN LAUNCH FIX ────────────────────────────
 // manifest.json start_url can't carry ?email= so we save it to
-// localStorage whenever the calendar loads with an email param,
-// then restore it on bare launches (e.g. from home screen icon).
+// localStorage whenever the real calendar loads with a real email.
+// Key is prefixed 'hh_owner_' so the demo page can NEVER overwrite it.
 (function() {
   const emailParam = params.get('email');
   const phoneParam = params.get('phone');
-  if (emailParam) {
-    // Save for future home screen launches
-    localStorage.setItem('hh_last_email', emailParam);
-  } else if (phoneParam) {
-    localStorage.setItem('hh_last_phone', phoneParam);
-  } else if (!params.get('id')) {
-    // Bare launch — check if this looks like a PWA standalone launch
-    const isStandalone = window.navigator.standalone ||
-      window.matchMedia('(display-mode: standalone)').matches;
-    const savedEmail = localStorage.getItem('hh_last_email');
-    const savedPhone = localStorage.getItem('hh_last_phone');
-    if (savedEmail) {
-      // Redirect to the correct family calendar
-      window.location.replace('/homehuddle/calendar.html?email=' + encodeURIComponent(savedEmail));
-    } else if (savedPhone) {
-      window.location.replace('/homehuddle/calendar.html?phone=' + encodeURIComponent(savedPhone));
+
+  // Only save if this is a real family calendar (not demo.html)
+  const isDemo = window.location.pathname.includes('demo');
+  if (!isDemo) {
+    if (emailParam) {
+      localStorage.setItem('hh_owner_email', emailParam);
+      // Clear any stale phone entry so they don't conflict
+      localStorage.removeItem('hh_owner_phone');
+    } else if (phoneParam) {
+      localStorage.setItem('hh_owner_phone', phoneParam);
+      localStorage.removeItem('hh_owner_email');
+    } else if (!params.get('id')) {
+      // Bare launch (home screen tap) — restore saved identity
+      const savedEmail = localStorage.getItem('hh_owner_email');
+      const savedPhone = localStorage.getItem('hh_owner_phone');
+      if (savedEmail) {
+        window.location.replace('/homehuddle/calendar.html?email=' + encodeURIComponent(savedEmail));
+      } else if (savedPhone) {
+        window.location.replace('/homehuddle/calendar.html?phone=' + encodeURIComponent(savedPhone));
+      }
+      // Nothing saved — fall through and show "No schedule found"
     }
-    // If nothing saved, fall through and show "No schedule found"
   }
 })();
 
