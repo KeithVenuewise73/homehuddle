@@ -530,12 +530,31 @@ const VAPID_PUBLIC = 'BOGLurPmZrhUq4wdTB0YjqLSZBYdrPdGz0rY0wN-OVkTCz3Lb8JAqIxpf-
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
-  // Service worker disabled until push notifications go live.
-  // Unregister any previously installed SW so it can't cache stale HTML.
   if (!('serviceWorker' in navigator)) return;
   try {
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for (const r of regs) { await r.unregister(); }
+    // Register service worker — handles push notifications and cache versioning.
+    // HTML files are NEVER cached so the PWA always gets fresh content.
+    const reg = await navigator.serviceWorker.register('/homehuddle/sw.js');
+    await navigator.serviceWorker.ready;
+    if (!familyEmail || !('PushManager' in window)) return;
+    const perm = Notification.permission;
+    if (perm === 'granted') {
+      const ex = await reg.pushManager.getSubscription();
+      if (ex) { await savePushSub(ex); }
+      else {
+        const s = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+        });
+        await savePushSub(s);
+      }
+      document.getElementById('notifBanner').style.display = 'none';
+    } else if (perm === 'default') {
+      document.getElementById('notifBanner').style.display = 'block';
+      applySticky();
+    } else {
+      document.getElementById('notifBanner').style.display = 'none';
+    }
   } catch(e) {}
 }
 async function requestNotifPermission() {
