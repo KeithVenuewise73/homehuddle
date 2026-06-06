@@ -9,6 +9,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="manifest" id="pwa-manifest" href="/homehuddle/manifest.json" />
+  <script>
+    // Dynamically set manifest start_url to include the family email/phone
+    // so the home screen icon always opens the correct family calendar.
+    (function() {
+      var p = new URLSearchParams(window.location.search);
+      var em = p.get('email'), ph = p.get('phone');
+      if (em || ph) {
+        var param = em ? 'email=' + encodeURIComponent(em) : 'phone=' + encodeURIComponent(ph);
+        var mf = {
+          name: 'HomeHuddle', short_name: 'HomeHuddle',
+          description: "Your family schedule.",
+          start_url: '/homehuddle/calendar.html?' + param,
+          display: 'standalone',
+          background_color: '#1E2A38', theme_color: '#1E2A38',
+          orientation: 'portrait',
+          icons: [
+            { src: '/homehuddle/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: '/homehuddle/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+        var blob = new Blob([JSON.stringify(mf)], { type: 'application/json' });
+        document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+      }
+    })();
+  </script>
   <link rel="apple-touch-icon" href="/homehuddle/icon-192.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <style>
@@ -429,8 +454,11 @@ const params = new URLSearchParams(window.location.search);
         window.location.replace('/homehuddle/calendar.html?email=' + encodeURIComponent(savedEmail));
       } else if (savedPhone) {
         window.location.replace('/homehuddle/calendar.html?phone=' + encodeURIComponent(savedPhone));
+      } else {
+        // PWA launched fresh with no saved identity (first install or cleared storage)
+        // Redirect to login so user can authenticate — saves email for future launches
+        window.location.replace('/homehuddle/login.html?pwa=1');
       }
-      // Nothing saved — fall through and show "No schedule found"
     }
   }
 })();
