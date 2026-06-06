@@ -454,11 +454,8 @@ const params = new URLSearchParams(window.location.search);
         window.location.replace('/homehuddle/calendar.html?email=' + encodeURIComponent(savedEmail));
       } else if (savedPhone) {
         window.location.replace('/homehuddle/calendar.html?phone=' + encodeURIComponent(savedPhone));
-      } else {
-        // PWA launched fresh with no saved identity (first install or cleared storage)
-        // Redirect to login so user can authenticate — saves email for future launches
-        window.location.replace('/homehuddle/login.html?pwa=1');
       }
+      // Nothing saved — fall through, loadEvents will show "No schedule found" 
     }
   }
 })();
