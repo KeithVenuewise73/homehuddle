@@ -697,26 +697,35 @@ async function confirmAddMember() {
   const email = document.getElementById('new-email').value.trim();
   if (!name || !phone) return showToast('Please enter a name and phone number');
   if (!currentFamilyId) return showToast('Could not add member — family ID missing');
+
+  // Only send columns we know exist on the table
+  const payload = { family_id: currentFamilyId, name: name, phone: phone, role: role };
+  if (email) payload.email = email;
+
   try {
-    // FIX: insert with family_id, not family_email
-    await sbFetch('family_members', {
+    const res = await fetch(SURL + '/rest/v1/family_members', {
       method: 'POST',
-      headers: { 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        name,
-        phone,
-        role,
-        email: email || null,
-        family_id: currentFamilyId,        // FIX: correct column
-        family_email: currentEmail          // keep for backward compat
-      })
+      headers: {
+        'apikey': SKEY,
+        'Authorization': 'Bearer ' + SKEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
     });
+    if (!res.ok) {
+      let errMsg = 'Save failed (' + res.status + ')';
+      try { const j = await res.json(); errMsg = j.message || j.details || j.hint || errMsg; } catch(x) {}
+      console.error('Add member error:', res.status, errMsg);
+      showToast('Error: ' + errMsg);
+      return;
+    }
     cancelAddMember();
     await renderMembers();
     showToast('✅ ' + name + ' added');
   } catch(e) {
-    console.error(e);
-    showToast('Error adding family member — please try again');
+    console.error('Add member exception:', e);
+    showToast('Network error — please try again');
   }
 }
 
