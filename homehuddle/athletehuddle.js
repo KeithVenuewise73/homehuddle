@@ -1,480 +1,285 @@
-/**
- * AthleteHuddle.js
- * Shared JavaScript library for all AthleteHuddle pages.
- * Handles Supabase CRUD, session management, and utilities.
- *
- * Dependencies:
- *   - Supabase JS v2 (loaded via CDN in each HTML page)
- *   - SUPABASE_URL and SUPABASE_ANON_KEY must be set before this script loads
- */
-
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-// Replace these with your actual Supabase project values
-const SUPABASE_URL = window.SUPABASE_URL || 'https://urwnbskrtoplgnkkxuvl.supabase.co';
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT';
-
-// Initialize Supabase client (v2 CDN global)
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ─── SESSION ─────────────────────────────────────────────────────────────────
-
-/**
- * Get the current authenticated session.
- * In HomeHuddle's PIN/email auth, adapt this to match your auth flow.
- */
-async function getSession() {
-  const { data: { session }, error } = await db.auth.getSession();
-  if (error) console.error('Session error:', error);
-  return session;
-}
-
-/**
- * Get the family record for the current user.
- * Uses email from session to look up family.
- */
-async function getCurrentFamily() {
-  // Primary: read from localStorage session saved by login.html after PIN verified
-  const stored = localStorage.getItem('hh_family');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed?.id) return parsed;
-    } catch(e) {}
-  }
-
-  // Secondary: check URL params (login.html passes email in redirect URL)
-  const params = new URLSearchParams(window.location.search);
-  const emailParam = params.get('email');
-  if (emailParam) {
-    const { data, error } = await db
-      .from('families')
-      .select('*')
-      .eq('email', emailParam)
-      .single();
-    if (!error && data) {
-      localStorage.setItem('hh_family', JSON.stringify(data));
-      return data;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeHuddle — Family Login</title>
+  <meta name="description" content="Log in to your HomeHuddle family calendar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE; --green-text: #085041;
+      --gray-50: #F9F9F7; --gray-100: #F1EFE8; --gray-200: #D3D1C7; --gray-400: #888780;
+      --gray-700: #444441; --gray-900: #1a1a18; --red: #E24B4A; --red-light: #FCEBEB;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
     }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
+    .wrap { width: 100%; max-width: 400px; }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; justify-content: center; }
+    .logo-mark { width: 36px; height: 36px; border-radius: 10px; background: var(--green); display: flex; align-items: center; justify-content: center; }
+    .logo-mark svg { width: 20px; height: 20px; fill: white; }
+    .logo-name { font-size: 18px; font-weight: 500; color: var(--gray-900); }
+    .logo-by { font-size: 12px; color: var(--gray-400); }
+    .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 2rem; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: .25rem; text-align: center; }
+    .card-sub { font-size: 14px; color: var(--gray-400); text-align: center; margin-bottom: 1.75rem; line-height: 1.5; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 5px; }
+    input[type=email], input[type=tel], input[type=text] { width: 100%; padding: 11px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-900); outline: none; transition: border-color .15s, box-shadow .15s; }
+    input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
+    input::placeholder { color: var(--gray-400); }
+    .pin-section { margin: 1.25rem 0; }
+    .pin-wrap { display: flex; gap: 10px; justify-content: center; }
+    .pin-digit { width: 64px; height: 72px; text-align: center; font-size: 32px; font-weight: 700; border: 2px solid var(--gray-200); border-radius: var(--radius-md); background: white; color: var(--gray-900); outline: none; transition: all .15s; -webkit-text-security: disc; }
+    .pin-digit:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,.1); }
+    .pin-digit.filled { border-color: var(--green); background: var(--green-light); }
+    .btn-primary { width: 100%; padding: 13px; background: var(--green); color: white; font-size: 16px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; margin-top: .5rem; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:disabled { background: var(--gray-200); cursor: not-allowed; }
+    .btn-link { background: none; border: none; color: var(--green); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; text-decoration: underline; }
+    .btn-back { background: none; border: none; color: var(--gray-400); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 0; display: flex; align-items: center; gap: 4px; margin-bottom: 1rem; }
+    .btn-back:hover { color: var(--gray-700); }
+    .divider { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+    .divider-text { font-size: 12px; color: var(--gray-400); }
+    .member-list { display: flex; flex-direction: column; gap: 8px; margin: 1rem 0; }
+    .member-btn { display: flex; align-items: center; gap: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px 14px; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; text-align: left; width: 100%; }
+    .member-btn:hover { border-color: var(--green); background: var(--green-light); }
+    .member-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+    .member-avatar.player { background: #3730A3; }
+    .member-name { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+    .member-role { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+    .member-access { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: auto; flex-shrink: 0; }
+    .access-full { background: var(--green-light); color: var(--green-text); }
+    .access-readonly { background: #EEF2FF; color: #3730A3; }
+    .error-msg { background: var(--red-light); color: var(--red); font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 1rem; display: none; }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer-links { text-align: center; margin-top: 1.5rem; font-size: 13px; color: var(--gray-400); }
+    .footer-links a { color: var(--green); text-decoration: none; font-weight: 500; }
+    .welcome-back { text-align: center; padding: .5rem 0 1rem; }
+    .welcome-family { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--gray-900); margin-bottom: .25rem; }
+    .welcome-sub { font-size: 13px; color: var(--gray-400); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">HomeHuddle</div>
+      <div class="logo-by">powered by Venuewise</div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- VIEW 1: EMAIL -->
+    <div class="view active" id="view-email">
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub">Enter your family email to get started</div>
+      <div class="field">
+        <label>Family email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" onkeydown="if(event.key==='Enter')checkEmail()" />
+      </div>
+      <div class="error-msg" id="emailErr"></div>
+      <button class="btn-primary" id="emailBtn" onclick="checkEmail()">
+        <span id="emailBtnText">Continue →</span>
+        <div class="spinner" id="emailSpinner"></div>
+      </button>
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">NEW TO HOMEHUDDLE?</div><div class="divider-line"></div></div>
+      <a href="https://venuewise.net/homehuddle/join.html" style="display:block;text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--gray-700);text-decoration:none;">Create a free family account →</a>
+    </div>
+
+    <!-- VIEW 2: WHO ARE YOU -->
+    <div class="view" id="view-who">
+      <button class="btn-back" onclick="goView('email')">← Back</button>
+      <div class="welcome-back">
+        <div class="welcome-family" id="familyNameDisplay"></div>
+        <div class="welcome-sub">Who's logging in?</div>
+      </div>
+      <div class="member-list" id="memberList"></div>
+      <div class="error-msg" id="whoErr"></div>
+    </div>
+
+    <!-- VIEW 3: PIN -->
+    <div class="view" id="view-pin">
+      <button class="btn-back" onclick="goView('who')">← Back</button>
+      <div class="card-title" id="pinGreeting">Enter your PIN</div>
+      <div class="card-sub">Enter your 4-digit family PIN</div>
+      <div class="pin-section">
+        <div class="pin-wrap">
+          <input class="pin-digit" type="tel" maxlength="1" id="p1" oninput="pd(this,1)" onkeydown="pk(event,1)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p2" oninput="pd(this,2)" onkeydown="pk(event,2)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p3" oninput="pd(this,3)" onkeydown="pk(event,3)" />
+          <input class="pin-digit" type="tel" maxlength="1" id="p4" oninput="pd(this,4)" onkeydown="pk(event,4)" />
+        </div>
+      </div>
+      <div class="error-msg" id="pinErr"></div>
+      <button class="btn-primary" id="pinBtn" onclick="checkPin()">
+        <span id="pinBtnText">Sign In →</span>
+        <div class="spinner" id="pinSpinner"></div>
+      </button>
+      <div style="text-align:center;margin-top:1rem">
+        <p style="font-size:12px;color:var(--gray-400);">Contact your family account owner to reset your PIN.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-links">
+    <a href="https://venuewise.net/homehuddle/join.html">New family? Sign up free</a>
+    &nbsp;·&nbsp;
+    <a href="https://venuewise.net">Venuewise</a>
+    &nbsp;·&nbsp;
+    <a href="https://venuewise.net/privacy.html">Privacy</a>
+  </div>
+</div>
+
+<script>
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+
+let currentFamily = null;
+let selectedMember = null;
+let currentEmail = '';
+
+function goView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('view-' + id).classList.add('active');
+  clearErrors();
+  if (id === 'pin') setTimeout(function(){ document.getElementById('p1').focus(); }, 100);
+}
+
+function clearErrors() {
+  document.querySelectorAll('.error-msg').forEach(function(e){ e.style.display = 'none'; });
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function checkEmail() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) return showErr('emailErr', 'Please enter a valid email address.');
+  setLoading('email', true);
+  try {
+    const res = await sbGet('/rest/v1/families?email=eq.' + encodeURIComponent(email) + '&select=id,family_name,email,pin,status&limit=1');
+    const data = await res.json();
+    if (!data || !data.length) return showErr('emailErr', 'No account found for that email.');
+    currentFamily = data[0];
+    currentEmail = email;
+    document.getElementById('familyNameDisplay').textContent = currentFamily.family_name;
+    await loadMembers(currentFamily.id);
+    goView('who');
+  } catch(e) {
+    showErr('emailErr', 'Something went wrong. Please try again.');
+  } finally {
+    setLoading('email', false);
   }
-
-  // Dev fallback: use first active family (remove after login is fully deployed)
-  const { data: fallback } = await db
-    .from('families')
-    .select('*')
-    .eq('status', 'active')
-    .limit(1)
-    .single();
-
-  return fallback || null;
 }
 
-  // Dev/demo fallback: use the first active family (Herman Family)
-  // Remove once auth is fully wired in HomeHuddle
-  const { data: fallback } = await db
-    .from('families')
-    .select('*')
-    .eq('status', 'active')
-    .limit(1)
-    .single();
-
-  return fallback || null;
+async function loadMembers(familyId) {
+  const res = await sbGet('/rest/v1/family_members?family_id=eq.' + familyId + '&select=id,name,role,is_owner,can_add_events&order=is_owner.desc,created_at.asc');
+  const members = await res.json();
+  const list = document.getElementById('memberList');
+  list.innerHTML = members.map(function(m) {
+    const isPlayer = m.role === 'player';
+    const initial = m.name.charAt(0).toUpperCase();
+    const accessLabel = isPlayer ? '<span class="member-access access-readonly">View only</span>' : '<span class="member-access access-full">Full access</span>';
+    const roleLabel = isPlayer ? 'Player · Schedule notifications' : (m.is_owner ? 'Account owner' : m.role.charAt(0).toUpperCase() + m.role.slice(1));
+    return '<button class="member-btn" onclick="selectMember(' + JSON.stringify(m).replace(/"/g,'&quot;') + ',this)">' +
+      '<div class="member-avatar' + (isPlayer ? ' player' : '') + '">' + initial + '</div>' +
+      '<div><div class="member-name">' + m.name + '</div><div class="member-role">' + roleLabel + '</div></div>' +
+      accessLabel +
+    '</button>';
+  }).join('');
 }
 
-/**
- * Convenience: get family_id for current session.
- * Used throughout as the anchor for all athlete queries.
- */
-async function getFamilyId() {
-  const family = await getCurrentFamily();
-  return family?.id || null;
+function selectMember(member, el) {
+  document.querySelectorAll('.member-btn').forEach(function(b){ b.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedMember = member;
+  setTimeout(function() {
+    document.getElementById('pinGreeting').textContent = 'Hi ' + member.name + ' 👋';
+    clearPins();
+    goView('pin');
+  }, 200);
 }
 
-// ─── ATHLETES ─────────────────────────────────────────────────────────────────
+async function checkPin() {
+  const pin = getPin();
+  if (pin.length !== 4) return showErr('pinErr', 'Please enter your 4-digit PIN.');
+  setLoading('pin', true);
+  try {
+    if (pin !== currentFamily.pin) {
+      clearPins();
+      document.getElementById('p1').focus();
+      return showErr('pinErr', 'Incorrect PIN. Please try again.');
+    }
 
-/**
- * Get all athletes for the current family.
- */
-async function getAthletes(familyId) {
-  const { data, error } = await db
-    .from('athletes')
-    .select('*')
-    .eq('family_id', familyId)
-    .order('first_name');
+    // ── SAVE SESSION TO localStorage ──────────────────────────
+    // This is what AthleteHuddle reads to know who is logged in
+    localStorage.setItem('hh_family', JSON.stringify(currentFamily));
+    localStorage.setItem('hh_member', JSON.stringify(selectedMember));
+    localStorage.setItem('hh_email', currentEmail);
+    // ──────────────────────────────────────────────────────────
 
-  if (error) { console.error('getAthletes error:', error); return []; }
-  return data || [];
+    // Check where to redirect
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || 'calendar.html';
+
+    window.location.href = 'https://venuewise.net/homehuddle/' + redirect +
+      '?email=' + encodeURIComponent(currentEmail) +
+      '&member=' + encodeURIComponent(selectedMember.name) +
+      '&role=' + encodeURIComponent(selectedMember.role);
+
+  } catch(e) {
+    showErr('pinErr', 'Something went wrong. Please try again.');
+  } finally {
+    setLoading('pin', false);
+  }
 }
 
-/**
- * Get a single athlete by ID.
- */
-async function getAthlete(athleteId) {
-  const { data, error } = await db
-    .from('athletes')
-    .select('*')
-    .eq('id', athleteId)
-    .single();
+function pd(el, n) { el.value = el.value.replace(/\D/g,''); el.classList.toggle('filled', !!el.value); if (el.value && n < 4) document.getElementById('p' + (n+1)).focus(); if (getPin().length === 4) checkPin(); }
+function pk(e, n) { if (e.key === 'Backspace' && !document.getElementById('p'+n).value && n > 1) { document.getElementById('p'+(n-1)).classList.remove('filled'); document.getElementById('p'+(n-1)).focus(); } }
+function getPin() { return ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
+function clearPins() { ['p1','p2','p3','p4'].forEach(function(id){ const el = document.getElementById(id); el.value = ''; el.classList.remove('filled'); }); }
 
-  if (error) { console.error('getAthlete error:', error); return null; }
-  return data;
+function setLoading(view, on) {
+  if (view === 'email') {
+    document.getElementById('emailBtn').disabled = on;
+    document.getElementById('emailBtnText').textContent = on ? 'Looking up account…' : 'Continue →';
+    document.getElementById('emailSpinner').style.display = on ? 'block' : 'none';
+  }
+  if (view === 'pin') {
+    document.getElementById('pinBtn').disabled = on;
+    document.getElementById('pinBtnText').textContent = on ? 'Signing in…' : 'Sign In →';
+    document.getElementById('pinSpinner').style.display = on ? 'block' : 'none';
+  }
 }
 
-/**
- * Create a new athlete profile.
- * @param {object} athleteData - fields matching the athletes table
- */
-async function createAthlete(athleteData) {
-  const familyId = await getFamilyId();
-  if (!familyId) throw new Error('No family found for current user');
-
-  const payload = { ...athleteData, family_id: familyId };
-
-  const { data, error } = await db
-    .from('athletes')
-    .insert(payload)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-/**
- * Update an existing athlete profile.
- */
-async function updateAthlete(athleteId, updates) {
-  const { data, error } = await db
-    .from('athletes')
-    .update(updates)
-    .eq('id', athleteId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-/**
- * Delete an athlete (cascades to all child tables via FK).
- */
-async function deleteAthlete(athleteId) {
-  const { error } = await db
-    .from('athletes')
-    .delete()
-    .eq('id', athleteId);
-
-  if (error) throw error;
-  return true;
-}
-
-// ─── ATHLETE SPORTS ───────────────────────────────────────────────────────────
-
-async function getAthleteSports(athleteId) {
-  const { data, error } = await db
-    .from('athlete_sports')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .order('created_at', { ascending: false });
-
-  if (error) { console.error('getAthleteSports error:', error); return []; }
-  return data || [];
-}
-
-async function addAthleteSport(sportData) {
-  const { data, error } = await db
-    .from('athlete_sports')
-    .insert(sportData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function updateAthleteSport(sportId, updates) {
-  const { data, error } = await db
-    .from('athlete_sports')
-    .update(updates)
-    .eq('id', sportId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function deleteAthleteSport(sportId) {
-  const { error } = await db.from('athlete_sports').delete().eq('id', sportId);
-  if (error) throw error;
-  return true;
-}
-
-// ─── ATHLETE EVENTS ───────────────────────────────────────────────────────────
-
-async function getAthleteEvents(athleteId, limit = 10) {
-  const now = new Date().toISOString();
-  const { data, error } = await db
-    .from('athlete_events')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .gte('start_time', now)
-    .order('start_time')
-    .limit(limit);
-
-  if (error) { console.error('getAthleteEvents error:', error); return []; }
-  return data || [];
-}
-
-async function linkEventToAthlete(eventData) {
-  const { data, error } = await db
-    .from('athlete_events')
-    .insert(eventData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function unlinkEventFromAthlete(id) {
-  const { error } = await db.from('athlete_events').delete().eq('id', id);
-  if (error) throw error;
-  return true;
-}
-
-// ─── ATHLETE GOALS ─────────────────────────────────────────────────────────────
-
-async function getAthleteGoals(athleteId) {
-  const { data, error } = await db
-    .from('athlete_goals')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .order('created_at', { ascending: false });
-
-  if (error) { console.error('getAthleteGoals error:', error); return []; }
-  return data || [];
-}
-
-async function addAthleteGoal(goalData) {
-  const { data, error } = await db
-    .from('athlete_goals')
-    .insert(goalData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function updateGoalStatus(goalId, status) {
-  const { data, error } = await db
-    .from('athlete_goals')
-    .update({ progress_status: status })
-    .eq('id', goalId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function deleteAthleteGoal(goalId) {
-  const { error } = await db.from('athlete_goals').delete().eq('id', goalId);
-  if (error) throw error;
-  return true;
-}
-
-// ─── ATHLETE STATS ─────────────────────────────────────────────────────────────
-
-async function getAthleteStats(athleteId, sport = null) {
-  let query = db
-    .from('athlete_stats')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .order('recorded_at', { ascending: false });
-
-  if (sport) query = query.eq('sport', sport);
-
-  const { data, error } = await query;
-  if (error) { console.error('getAthleteStats error:', error); return []; }
-  return data || [];
-}
-
-async function addAthleteStat(statData) {
-  const { data, error } = await db
-    .from('athlete_stats')
-    .insert(statData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function deleteAthleteStat(statId) {
-  const { error } = await db.from('athlete_stats').delete().eq('id', statId);
-  if (error) throw error;
-  return true;
-}
-
-// ─── ATHLETE VIDEOS ───────────────────────────────────────────────────────────
-
-async function getAthleteVideos(athleteId) {
-  const { data, error } = await db
-    .from('athlete_videos')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .order('created_at', { ascending: false });
-
-  if (error) { console.error('getAthleteVideos error:', error); return []; }
-  return data || [];
-}
-
-async function addAthleteVideo(videoData) {
-  const { data, error } = await db
-    .from('athlete_videos')
-    .insert(videoData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function deleteAthleteVideo(videoId) {
-  const { error } = await db.from('athlete_videos').delete().eq('id', videoId);
-  if (error) throw error;
-  return true;
-}
-
-// ─── COACH CONNECTIONS ────────────────────────────────────────────────────────
-
-async function getCoachConnections(athleteId) {
-  const { data, error } = await db
-    .from('coach_connections')
-    .select('*')
-    .eq('athlete_id', athleteId)
-    .order('created_at', { ascending: false });
-
-  if (error) { console.error('getCoachConnections error:', error); return []; }
-  return data || [];
-}
-
-async function addCoachConnection(connectionData) {
-  const { data, error } = await db
-    .from('coach_connections')
-    .insert(connectionData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-// ─── UTILITIES ────────────────────────────────────────────────────────────────
-
-/**
- * Calculate age from birthdate string.
- */
-function calcAge(birthdate) {
-  if (!birthdate) return null;
-  const today = new Date();
-  const birth = new Date(birthdate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
-
-/**
- * Format a date/time for display.
- */
-function formatDateTime(isoString) {
-  if (!isoString) return '—';
-  const d = new Date(isoString);
-  return d.toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric',
-    hour: 'numeric', minute: '2-digit'
+function sbGet(path) {
+  return fetch(SURL + path, {
+    headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
   });
 }
 
-/**
- * Format height from inches to ft/in display.
- */
-function formatHeight(inches) {
-  if (!inches) return '—';
-  const ft = Math.floor(inches / 12);
-  const inch = Math.round(inches % 12);
-  return `${ft}'${inch}"`;
+document.getElementById('emailInput').focus();
+
+const params = new URLSearchParams(window.location.search);
+const preEmail = params.get('email');
+if (preEmail) {
+  document.getElementById('emailInput').value = preEmail;
+  checkEmail();
 }
-
-/**
- * Get initials from first/last name.
- */
-function getInitials(firstName, lastName) {
-  return `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase();
-}
-
-/**
- * Goal status badge color helper.
- */
-function goalStatusColor(status) {
-  const map = {
-    not_started: '#94a3b8',
-    in_progress: '#3b82f6',
-    achieved: '#22c55e',
-    paused: '#f59e0b'
-  };
-  return map[status] || '#94a3b8';
-}
-
-/**
- * Goal status label.
- */
-function goalStatusLabel(status) {
-  const map = {
-    not_started: 'Not Started',
-    in_progress: 'In Progress',
-    achieved: 'Achieved ✓',
-    paused: 'Paused'
-  };
-  return map[status] || status;
-}
-
-/**
- * Show a toast notification.
- */
-function showToast(message, type = 'success') {
-  const existing = document.getElementById('ah-toast');
-  if (existing) existing.remove();
-
-  const toast = document.createElement('div');
-  toast.id = 'ah-toast';
-  toast.style.cssText = `
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: ${type === 'error' ? '#ef4444' : '#22c55e'};
-    color: #fff; padding: 12px 24px; border-radius: 8px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: slideUp 0.3s ease;
-  `;
-  toast.textContent = message;
-
-  const style = document.createElement('style');
-  style.textContent = `@keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(20px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }`;
-  document.head.appendChild(style);
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
-}
-
-/**
- * Save athleteId to sessionStorage for cross-page navigation.
- */
-function setActiveAthlete(athleteId) {
-  sessionStorage.setItem('ah_athlete_id', athleteId);
-}
-
-function getActiveAthlete() {
-  return sessionStorage.getItem('ah_athlete_id');
-}
+</script>
+</body>
+</html>
