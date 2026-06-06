@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athlete Dashboard — AthleteHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --navy-2:  #0f2044;
+      --blue:    #1e4fd8;
+      --blue-lt: #3b6ff5;
+      --gold:    #f5a623;
+      --white:   #ffffff;
+      --green:   #22c55e;
+      --orange:  #f59e0b;
+      --red:     #ef4444;
+      --surface: rgba(255,255,255,0.04);
+      --surface2:rgba(255,255,255,0.07);
+      --border:  rgba(255,255,255,0.09);
+      --radius:  14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(10,22,40,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand { font-family: 'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; }
+    .nav-brand span { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-link {
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      text-decoration: none; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--white); }
+
+    /* LAYOUT */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 720px) {
+      .app-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    .sidebar {
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .sidebar-section { padding: 0 16px 24px; }
+    .sidebar-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; padding: 0 8px; margin-bottom: 8px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      text-decoration: none; font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .sidebar-link.active { background: rgba(30,79,216,0.2); color: var(--white); }
+
+    /* MAIN */
+    .main { padding: 28px; overflow-x: hidden; }
+
+    /* HERO PROFILE */
+    .profile-hero {
+      background: linear-gradient(135deg, rgba(30,79,216,0.25), rgba(15,32,68,0.8));
+      border: 1px solid rgba(30,79,216,0.3);
+      border-radius: var(--radius);
+      padding: 28px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 24px;
+      flex-wrap: wrap;
+    }
+    .profile-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 3px solid rgba(30,79,216,0.5);
+      background: var(--navy-2);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed',sans-serif;
+      font-size: 2rem; font-weight: 900; color: var(--gold);
+      overflow: hidden;
+    }
+    .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+    .profile-info { flex: 1; min-width: 180px; }
+    .profile-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 900; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .profile-meta {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      margin-bottom: 12px; line-height: 1.6;
+    }
+    .profile-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .profile-tag {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 700;
+    }
+    .tag-sport {
+      background: rgba(30,79,216,0.25);
+      border: 1px solid rgba(59,111,245,0.3);
+      color: #93b4ff;
+    }
+    .tag-team {
+      background: rgba(245,166,35,0.15);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--gold);
+    }
+    .profile-actions { display: flex; gap: 10px; align-items: flex-start; }
+    .btn-edit {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,0.75);
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-edit:hover { background: rgba(255,255,255,0.14); }
+
+    /* QUICK STATS ROW */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 24px;
+    }
+    @media (max-width: 600px) { .quick-stats { grid-template-columns: repeat(2,1fr); } }
+    .qs-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+      text-align: center;
+    }
+    .qs-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 900; color: var(--gold);
+      line-height: 1;
+    }
+    .qs-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 0.5px; }
+
+    /* DASHBOARD GRID */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 860px) { .dash-grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card.span-2 { grid-column: 1 / -1; }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem; font-weight: 800;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-action {
+      font-size: 12px; font-weight: 700;
+      color: var(--blue-lt); text-decoration: none; cursor: pointer;
+      background: none; border: none; padding: 0;
+    }
+    .card-action:hover { color: var(--white); }
+
+    .card-body { padding: 16px 20px; }
+
+    /* EVENTS */
+    .event-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .event-item:last-child { border-bottom: none; }
+    .event-date-box {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: rgba(30,79,216,0.2);
+      border-radius: 8px; text-align: center;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .event-date-box .mo { font-size: 9px; font-weight: 700; color: var(--blue-lt); text-transform: uppercase; }
+    .event-date-box .dy { font-family: 'Barlow Condensed',sans-serif; font-size: 1.3rem; font-weight: 900; line-height:1; }
+    .event-info { flex:1; }
+    .event-title { font-size:14px; font-weight:600; margin-bottom:2px; }
+    .event-sub { font-size:12px; color:rgba(255,255,255,0.45); }
+    .event-type-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .type-game { background: rgba(34,197,94,0.15); color: var(--green); }
+    .type-practice { background: rgba(30,79,216,0.2); color: #93b4ff; }
+    .type-tournament { background: rgba(245,166,35,0.15); color: var(--gold); }
+
+    /* GOALS */
+    .goal-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .goal-item:last-child { border-bottom: none; }
+    .goal-status-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .goal-info { flex:1; }
+    .goal-title { font-size:14px; font-weight:600; margin-bottom:2px; }
+    .goal-meta { font-size:12px; color:rgba(255,255,255,0.4); }
+    .goal-status-label {
+      font-size:11px; font-weight:700; padding: 3px 9px; border-radius:100px;
+      white-space: nowrap;
+    }
+
+    /* STATS */
+    .stats-table { width: 100%; border-collapse: collapse; }
+    .stats-table th {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      color: rgba(255,255,255,0.35); text-transform: uppercase;
+      padding: 6px 8px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-table td {
+      padding: 10px 8px; font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stats-table tr:last-child td { border-bottom: none; }
+    .stat-val { font-family:'Barlow Condensed',sans-serif; font-size:1.2rem; font-weight:800; color:var(--gold); }
+
+    /* VIDEOS */
+    .video-grid-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    @media (max-width: 480px) { .video-grid-inner { grid-template-columns: 1fr; } }
+    .video-item {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .video-item:hover { border-color: rgba(59,111,245,0.5); }
+    .video-thumb {
+      height: 80px; background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; position: relative;
+    }
+    .video-play {
+      position: absolute; inset:0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3);
+      opacity:0; transition: opacity 0.2s;
+    }
+    .video-item:hover .video-play { opacity:1; }
+    .video-meta { padding: 8px 10px; }
+    .video-meta-title { font-size:13px; font-weight:600; margin-bottom:2px; }
+    .video-meta-sub { font-size:11px; color:rgba(255,255,255,0.4); }
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: #c084fc; font-size:10px; font-weight:700;
+      padding: 2px 8px; border-radius:100px; margin-top:5px;
+    }
+
+    /* COACHES */
+    .coach-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .coach-item:last-child { border-bottom: none; }
+    .coach-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(30,79,216,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink:0;
+    }
+    .coach-info { flex:1; }
+    .coach-name { font-size:14px; font-weight:600; }
+    .coach-meta { font-size:12px; color:rgba(255,255,255,0.4); }
+    .coach-status {
+      font-size:11px; font-weight:700; padding:3px 8px; border-radius:100px;
+    }
+    .status-active { background:rgba(34,197,94,0.15); color:var(--green); }
+    .status-pending { background:rgba(245,158,11,0.15); color:var(--orange); }
+
+    /* QUICK ADD BAR */
+    .quick-add {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(10,22,40,0.97);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex; gap: 10px; justify-content: center;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+    }
+    .qa-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,0.75);
+      padding: 9px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .qa-btn:hover { background: rgba(30,79,216,0.3); color: var(--white); }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed; inset:0;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--navy-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px; width: 100%; max-width: 460px;
+    }
+    .modal-title {
+      font-family: 'Barlow Condensed',sans-serif;
+      font-size: 1.5rem; font-weight: 900; margin-bottom: 20px;
+    }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .modal-field input, .modal-field select, .modal-field textarea {
+      width:100%; background:rgba(255,255,255,0.07);
+      border: 1px solid var(--border); border-radius:8px;
+      padding: 10px 14px; color: var(--white);
+      font-family:'DM Sans',sans-serif; font-size:14px;
+    }
+    .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus {
+      outline:none; border-color:var(--blue-lt);
+    }
+    .modal-field select option { background:var(--navy-2); }
+    .modal-field textarea { min-height:70px; resize:vertical; }
+    .modal-actions { display:flex; gap:10px; margin-top:20px; }
+    .btn-modal-save {
+      flex:1; background:linear-gradient(135deg,var(--blue),var(--blue-lt));
+      color:var(--white); padding:12px; border-radius:8px;
+      font-size:14px; font-weight:700; border:none; cursor:pointer;
+    }
+    .btn-modal-cancel {
+      background:transparent; border:1px solid var(--border);
+      color:rgba(255,255,255,0.6); padding:12px 18px; border-radius:8px;
+      font-size:14px; font-weight:600; cursor:pointer;
+    }
+
+    .pb-safe { height: 72px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Athlete<span>Huddle</span></div>
+  <div class="nav-right">
+    <a href="family-athletes.html" class="nav-link">← My Athletes</a>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Athletes</div>
+      <a href="family-athletes.html" class="sidebar-link">🏅 My Athletes</a>
+      <a href="athlete-onboarding.html" class="sidebar-link">➕ Add Athlete</a>
+      <a href="athlete-calendar-link.html" class="sidebar-link">📅 Link Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Track</div>
+      <a href="athlete-dashboard.html" class="sidebar-link active">📊 Dashboard</a>
+      <a href="#" class="sidebar-link" onclick="openModal('goals-modal')">🎯 Add Goal</a>
+      <a href="#" class="sidebar-link" onclick="openModal('stats-modal')">📈 Add Stat</a>
+      <a href="#" class="sidebar-link" onclick="openModal('video-modal')">🎥 Add Video</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Connect</div>
+      <a href="#" class="sidebar-link" onclick="openModal('coach-modal')">🤝 Connect Coach</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- PROFILE HERO -->
+    <div class="profile-hero" id="profile-hero">
+      <div class="profile-avatar" id="profile-avatar">DJ</div>
+      <div class="profile-info">
+        <div class="profile-name" id="profile-name">Loading...</div>
+        <div class="profile-meta" id="profile-meta">—</div>
+        <div class="profile-tags" id="profile-tags"></div>
+      </div>
+      <div class="profile-actions">
+        <a href="athlete-onboarding.html?edit=true" class="btn-edit">✏️ Edit Profile</a>
+      </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="quick-stats">
+      <div class="qs-card">
+        <div class="qs-num" id="qs-events">0</div>
+        <div class="qs-label">Upcoming Events</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num" id="qs-goals">0</div>
+        <div class="qs-label">Active Goals</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num" id="qs-stats">0</div>
+        <div class="qs-label">Stats Tracked</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num" id="qs-videos">0</div>
+        <div class="qs-label">Videos</div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD GRID -->
+    <div class="dash-grid">
+
+      <!-- UPCOMING EVENTS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Upcoming Events</div>
+          <a href="athlete-calendar-link.html" class="card-action">Link Event</a>
+        </div>
+        <div class="card-body" id="events-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading events...</p>
+        </div>
+      </div>
+
+      <!-- GOALS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎯 Current Goals</div>
+          <button class="card-action" onclick="openModal('goals-modal')">+ Add Goal</button>
+        </div>
+        <div class="card-body" id="goals-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading goals...</p>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📊 Recent Stats</div>
+          <button class="card-action" onclick="openModal('stats-modal')">+ Add Stat</button>
+        </div>
+        <div class="card-body" id="stats-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading stats...</p>
+        </div>
+      </div>
+
+      <!-- VIDEOS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎥 Video Library</div>
+          <button class="card-action" onclick="openModal('video-modal')">+ Add Video</button>
+        </div>
+        <div class="card-body" id="videos-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading videos...</p>
+        </div>
+      </div>
+
+      <!-- COACH CONNECTIONS -->
+      <div class="card span-2">
+        <div class="card-header">
+          <div class="card-title">🤝 Coach Connections</div>
+          <button class="card-action" onclick="openModal('coach-modal')">+ Connect Coach</button>
+        </div>
+        <div class="card-body" id="coaches-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading connections...</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="pb-safe"></div>
+  </main>
+</div>
+
+<!-- QUICK ADD BAR -->
+<div class="quick-add">
+  <button class="qa-btn" onclick="openModal('goals-modal')">🎯 Goal</button>
+  <button class="qa-btn" onclick="openModal('stats-modal')">📊 Stat</button>
+  <button class="qa-btn" onclick="openModal('video-modal')">🎥 Video</button>
+  <button class="qa-btn" onclick="window.location='athlete-calendar-link.html'">📅 Event</button>
+</div>
+
+<!-- MODALS -->
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goals-modal">
+  <div class="modal">
+    <div class="modal-title">🎯 Add Goal</div>
+    <div class="modal-field">
+      <label>Goal Title *</label>
+      <input type="text" id="goal-title" placeholder="Hit .300 this season" />
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <textarea id="goal-desc" placeholder="More details about this goal..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <select id="goal-cat">
+        <option value="skill">Skill</option>
+        <option value="fitness">Fitness</option>
+        <option value="academic">Academic</option>
+        <option value="mental">Mental</option>
+        <option value="team">Team</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Target Date</label>
+      <input type="date" id="goal-date" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('goals-modal')">Cancel</button>
+      <button class="btn-modal-save" onclick="saveGoal()">Save Goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- STAT MODAL -->
+<div class="modal-overlay" id="stats-modal">
+  <div class="modal">
+    <div class="modal-title">📊 Add Stat</div>
+    <div class="modal-field">
+      <label>Sport *</label>
+      <input type="text" id="stat-sport" placeholder="Baseball" />
+    </div>
+    <div class="modal-field">
+      <label>Stat Name *</label>
+      <input type="text" id="stat-name" placeholder="Batting Average, ERA, 40-yard..." />
+    </div>
+    <div class="modal-field">
+      <label>Value *</label>
+      <input type="text" id="stat-value" placeholder=".315" />
+    </div>
+    <div class="modal-field">
+      <label>Season</label>
+      <input type="text" id="stat-season" placeholder="Spring 2025" />
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <input type="text" id="stat-notes" placeholder="Optional context" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('stats-modal')">Cancel</button>
+      <button class="btn-modal-save" onclick="saveStat()">Save Stat</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="video-modal">
+  <div class="modal">
+    <div class="modal-title">🎥 Add Video</div>
+    <div class="modal-field">
+      <label>Title *</label>
+      <input type="text" id="vid-title" placeholder="Spring Tournament Highlight Reel" />
+    </div>
+    <div class="modal-field">
+      <label>Video URL *</label>
+      <input type="url" id="vid-url" placeholder="https://youtube.com/watch?v=..." />
+    </div>
+    <div class="modal-field">
+      <label>Sport</label>
+      <input type="text" id="vid-sport" placeholder="Baseball" />
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <select id="vid-cat">
+        <option value="highlight">Highlight</option>
+        <option value="game_film">Game Film</option>
+        <option value="drill">Drill</option>
+        <option value="evaluation">Evaluation</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Notes</label>
+      <textarea id="vid-notes" placeholder="What should coaches see in this video?"></textarea>
+    </div>
+    <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:12px;margin-bottom:4px;">
+      <p style="font-size:12px;color:#c084fc;font-weight:600;">🤖 AI Video Analysis — Coming Soon</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Videos will be ready for AI biomechanical analysis when this feature launches.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('video-modal')">Cancel</button>
+      <button class="btn-modal-save" onclick="saveVideo()">Save Video</button>
+    </div>
+  </div>
+</div>
+
+<!-- COACH MODAL -->
+<div class="modal-overlay" id="coach-modal">
+  <div class="modal">
+    <div class="modal-title">🤝 Connect with Coach</div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Invite a coach to view this athlete's profile. They'll receive an email with a secure link.</p>
+    <div class="modal-field">
+      <label>Coach Name *</label>
+      <input type="text" id="coach-name" placeholder="Coach Smith" />
+    </div>
+    <div class="modal-field">
+      <label>Coach Email *</label>
+      <input type="email" id="coach-email" placeholder="coach@organization.com" />
+    </div>
+    <div class="modal-field">
+      <label>Sport</label>
+      <input type="text" id="coach-sport" placeholder="Baseball" />
+    </div>
+    <div class="modal-field">
+      <label>Organization</label>
+      <input type="text" id="coach-org" placeholder="Travel team, school, club..." />
+    </div>
+    <div style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:8px;padding:12px;margin-bottom:4px;">
+      <p style="font-size:12px;color:var(--gold);font-weight:600;">🏫 CoachesHuddle Integration Coming</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Full two-way coaching platform with evaluations and goal recommendations launching soon.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('coach-modal')">Cancel</button>
+      <button class="btn-modal-save" onclick="saveCoach()">Send Invite</button>
+    </div>
+  </div>
+</div>
+
+<script src="athletehuddle.js"></script>
+<script>
+  // ─── DEMO DATA ───────────────────────────────────────────────
+  const demoAthlete = {
+    id: 'demo-1', first_name: 'Dominic', last_name: 'Johnson',
+    birthdate: '2012-05-14', graduation_year: 2030,
+    school: 'Lincoln Middle School', city: 'Buffalo', state: 'NY',
+    primary_sport: 'Baseball', secondary_sports: ['Basketball'],
+    profile_photo_url: null, height_inches: 62, weight_lbs: 115,
+    dominant_hand: 'right'
+  };
+  const demoEvents = [
+    { event_title: 'Eagles Baseball Practice', event_type: 'practice', sport:'Baseball', team:'Eagles 12U', start_time: new Date(Date.now() + 86400000*2).toISOString() },
+    { event_title: 'Tournament — Buffalo Classic', event_type: 'tournament', sport:'Baseball', team:'Eagles 12U', start_time: new Date(Date.now() + 86400000*5).toISOString() },
+    { event_title: 'AAU Basketball Tryout', event_type: 'practice', sport:'Basketball', team:'', start_time: new Date(Date.now() + 86400000*10).toISOString() },
+  ];
+  const demoGoals = [
+    { id:'g1', goal_title:'Hit .300 this season', category:'skill', progress_status:'in_progress', target_date:'2025-07-01' },
+    { id:'g2', goal_title:'Improve 60-yard dash to 7.5s', category:'fitness', progress_status:'not_started', target_date:'2025-09-01' },
+    { id:'g3', goal_title:'Make travel team', category:'team', progress_status:'achieved', target_date:'2025-04-15' },
+  ];
+  const demoStats = [
+    { id:'s1', sport:'Baseball', stat_name:'Batting Average', stat_value:'.285', season:'Spring 2025' },
+    { id:'s2', sport:'Baseball', stat_name:'On-Base %', stat_value:'.360', season:'Spring 2025' },
+    { id:'s3', sport:'Baseball', stat_name:'ERA', stat_value:'2.40', season:'Spring 2025' },
+    { id:'s4', sport:'Basketball', stat_name:'PPG', stat_value:'12.5', season:'Winter 2024-25' },
+  ];
+  const demoVideos = [
+    { id:'v1', title:'Spring Tournament Highlights', sport:'Baseball', category:'highlight', video_url:'https://youtube.com', ai_analysis_status:'not_submitted' },
+    { id:'v2', title:'Pitching Mechanics Drill', sport:'Baseball', category:'drill', video_url:'https://youtube.com', ai_analysis_status:'not_submitted' },
+  ];
+  const demoCoaches = [
+    { id:'c1', coach_name:'Coach Martinez', sport:'Baseball', organization:'Eagles 12U', connection_status:'active' },
+    { id:'c2', coach_name:'Coach Davis', sport:'Basketball', organization:'YMCA AAU', connection_status:'pending' },
+  ];
+
+  // Local store for new items
+  let localGoals = [...demoGoals];
+  let localStats = [...demoStats];
+  let localVideos = [...demoVideos];
+  let localCoaches = [...demoCoaches];
+
+  // ─── RENDER PROFILE ──────────────────────────────────────────
+  function renderProfile(a) {
+    const age = calcAge(a.birthdate);
+    const initials = getInitials(a.first_name, a.last_name);
+
+    document.title = `${a.first_name} ${a.last_name} — AthleteHuddle`;
+
+    const avatarEl = document.getElementById('profile-avatar');
+    if (a.profile_photo_url) {
+      avatarEl.innerHTML = `<img src="${a.profile_photo_url}" alt="${a.first_name}" />`;
+    } else {
+      avatarEl.textContent = initials;
+    }
+
+    document.getElementById('profile-name').textContent = `${a.first_name} ${a.last_name}`;
+
+    const metaParts = [
+      age ? `Age ${age}` : null,
+      a.graduation_year ? `Class of ${a.graduation_year}` : null,
+      a.school,
+      a.city && a.state ? `${a.city}, ${a.state}` : null,
+      a.height_inches ? formatHeight(a.height_inches) : null,
+      a.weight_lbs ? `${a.weight_lbs} lbs` : null,
+    ].filter(Boolean);
+    document.getElementById('profile-meta').textContent = metaParts.join(' · ');
+
+    let tagsHtml = '';
+    if (a.primary_sport) tagsHtml += `<span class="profile-tag tag-sport">${a.primary_sport}</span>`;
+    (a.secondary_sports || []).forEach(s => {
+      tagsHtml += `<span class="profile-tag tag-sport">${s}</span>`;
+    });
+    document.getElementById('profile-tags').innerHTML = tagsHtml;
+  }
+
+  // ─── RENDER EVENTS ───────────────────────────────────────────
+  function renderEvents(events) {
+    const el = document.getElementById('events-body');
+    document.getElementById('qs-events').textContent = events.length;
+
+    if (!events.length) {
+      el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.35);">No upcoming events</p>
+        <a href="athlete-calendar-link.html" style="font-size:13px;color:var(--blue-lt);text-decoration:none;font-weight:600;">+ Link from Calendar</a>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = events.map(e => {
+      const d = new Date(e.start_time);
+      const mo = d.toLocaleString('en-US', {month:'short'});
+      const dy = d.getDate();
+      const typeClass = `type-${e.event_type}`;
+      return `
+        <div class="event-item">
+          <div class="event-date-box">
+            <div class="mo">${mo}</div>
+            <div class="dy">${dy}</div>
+          </div>
+          <div class="event-info">
+            <div class="event-title">${e.event_title}</div>
+            <div class="event-sub">${e.team || ''} ${e.team && e.sport ? '·' : ''} ${e.sport || ''}</div>
+          </div>
+          <span class="event-type-badge ${typeClass}">${e.event_type}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── RENDER GOALS ─────────────────────────────────────────────
+  function renderGoals(goals) {
+    const el = document.getElementById('goals-body');
+    const active = goals.filter(g => g.progress_status !== 'achieved').length;
+    document.getElementById('qs-goals').textContent = active;
+
+    if (!goals.length) {
+      el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.35);">No goals yet</p>
+        <button onclick="openModal('goals-modal')" style="background:none;border:none;color:var(--blue-lt);font-size:13px;font-weight:600;cursor:pointer;">+ Add First Goal</button>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = goals.map(g => {
+      const color = goalStatusColor(g.progress_status);
+      const label = goalStatusLabel(g.progress_status);
+      return `
+        <div class="goal-item">
+          <div class="goal-status-dot" style="background:${color};"></div>
+          <div class="goal-info">
+            <div class="goal-title">${g.goal_title}</div>
+            <div class="goal-meta">${g.category} ${g.target_date ? '· Target: ' + new Date(g.target_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
+          </div>
+          <span class="goal-status-label" style="background:${color}22;color:${color};">${label}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── RENDER STATS ─────────────────────────────────────────────
+  function renderStats(stats) {
+    const el = document.getElementById('stats-body');
+    document.getElementById('qs-stats').textContent = stats.length;
+
+    if (!stats.length) {
+      el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.35);">No stats recorded yet</p>
+        <button onclick="openModal('stats-modal')" style="background:none;border:none;color:var(--blue-lt);font-size:13px;font-weight:600;cursor:pointer;">+ Add First Stat</button>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = `<table class="stats-table">
+      <thead><tr><th>Stat</th><th>Value</th><th>Sport</th><th>Season</th></tr></thead>
+      <tbody>
+        ${stats.map(s => `
+          <tr>
+            <td>${s.stat_name}</td>
+            <td><span class="stat-val">${s.stat_value}</span></td>
+            <td style="color:rgba(255,255,255,0.5);font-size:13px;">${s.sport}</td>
+            <td style="color:rgba(255,255,255,0.4);font-size:12px;">${s.season || '—'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  // ─── RENDER VIDEOS ────────────────────────────────────────────
+  function renderVideos(videos) {
+    const el = document.getElementById('videos-body');
+    document.getElementById('qs-videos').textContent = videos.length;
+
+    if (!videos.length) {
+      el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.35);">No videos yet</p>
+        <button onclick="openModal('video-modal')" style="background:none;border:none;color:var(--blue-lt);font-size:13px;font-weight:600;cursor:pointer;">+ Add First Video</button>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = `<div class="video-grid-inner">
+      ${videos.map(v => `
+        <div class="video-item" onclick="window.open('${v.video_url}','_blank')">
+          <div class="video-thumb">
+            <span>🎥</span>
+            <div class="video-play">▶</div>
+          </div>
+          <div class="video-meta">
+            <div class="video-meta-title">${v.title}</div>
+            <div class="video-meta-sub">${v.sport || ''} ${v.sport && v.category ? '·' : ''} ${v.category || ''}</div>
+            <div class="ai-badge">🤖 AI Analysis: ${v.ai_analysis_status.replace('_',' ')}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  // ─── RENDER COACHES ───────────────────────────────────────────
+  function renderCoaches(coaches) {
+    const el = document.getElementById('coaches-body');
+
+    if (!coaches.length) {
+      el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;color:rgba(255,255,255,0.35);">No coach connections yet</p>
+        <button onclick="openModal('coach-modal')" style="background:none;border:none;color:var(--blue-lt);font-size:13px;font-weight:600;cursor:pointer;">+ Connect First Coach</button>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = coaches.map(c => {
+      const statusClass = c.connection_status === 'active' ? 'status-active' : 'status-pending';
+      return `
+        <div class="coach-item">
+          <div class="coach-avatar">👤</div>
+          <div class="coach-info">
+            <div class="coach-name">${c.coach_name}</div>
+            <div class="coach-meta">${c.sport} ${c.organization ? '· ' + c.organization : ''}</div>
+          </div>
+          <span class="coach-status ${statusClass}">${c.connection_status}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── MODALS ───────────────────────────────────────────────────
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) {
+      if (e.target === this) closeModal(this.id);
+    });
+  });
+
+  // ─── SAVE ACTIONS ─────────────────────────────────────────────
+  async function saveGoal() {
+    const title = document.getElementById('goal-title').value.trim();
+    if (!title) { showToast('Enter a goal title', 'error'); return; }
+
+    const goal = {
+      id: 'local-' + Date.now(),
+      goal_title: title,
+      goal_description: document.getElementById('goal-desc').value,
+      category: document.getElementById('goal-cat').value,
+      target_date: document.getElementById('goal-date').value || null,
+      progress_status: 'not_started',
+      athlete_id: getActiveAthlete()
+    };
+
+    // Try Supabase, fall back to local
+    try { await addAthleteGoal(goal); } catch(e) {}
+    localGoals.unshift(goal);
+    renderGoals(localGoals);
+    closeModal('goals-modal');
+    showToast('Goal added!');
+    // Reset
+    ['goal-title','goal-desc','goal-date'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  async function saveStat() {
+    const sport = document.getElementById('stat-sport').value.trim();
+    const name = document.getElementById('stat-name').value.trim();
+    const value = document.getElementById('stat-value').value.trim();
+    if (!sport || !name || !value) { showToast('Sport, stat name and value are required', 'error'); return; }
+
+    const stat = {
+      id: 'local-' + Date.now(),
+      sport, stat_name: name, stat_value: value,
+      season: document.getElementById('stat-season').value,
+      notes: document.getElementById('stat-notes').value,
+      athlete_id: getActiveAthlete()
+    };
+    try { await addAthleteStat(stat); } catch(e) {}
+    localStats.unshift(stat);
+    renderStats(localStats);
+    closeModal('stats-modal');
+    showToast('Stat saved!');
+    ['stat-sport','stat-name','stat-value','stat-season','stat-notes'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  async function saveVideo() {
+    const title = document.getElementById('vid-title').value.trim();
+    const url = document.getElementById('vid-url').value.trim();
+    if (!title || !url) { showToast('Title and URL are required', 'error'); return; }
+
+    const video = {
+      id: 'local-' + Date.now(),
+      title, video_url: url,
+      sport: document.getElementById('vid-sport').value,
+      category: document.getElementById('vid-cat').value,
+      notes: document.getElementById('vid-notes').value,
+      ai_analysis_status: 'not_submitted',
+      athlete_id: getActiveAthlete()
+    };
+    try { await addAthleteVideo(video); } catch(e) {}
+    localVideos.unshift(video);
+    renderVideos(localVideos);
+    closeModal('video-modal');
+    showToast('Video added!');
+    ['vid-title','vid-url','vid-sport','vid-notes'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  async function saveCoach() {
+    const name = document.getElementById('coach-name').value.trim();
+    const email = document.getElementById('coach-email').value.trim();
+    if (!name || !email) { showToast('Name and email are required', 'error'); return; }
+
+    const conn = {
+      id: 'local-' + Date.now(),
+      coach_name: name, coach_email: email,
+      sport: document.getElementById('coach-sport').value,
+      organization: document.getElementById('coach-org').value,
+      connection_status: 'pending',
+      athlete_id: getActiveAthlete()
+    };
+    try { await addCoachConnection(conn); } catch(e) {}
+    localCoaches.unshift(conn);
+    renderCoaches(localCoaches);
+    closeModal('coach-modal');
+    showToast('Invite sent to ' + name + '!');
+    ['coach-name','coach-email','coach-sport','coach-org'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────────
+  async function init() {
+    const athleteId = getActiveAthlete();
+    let athlete = demoAthlete;
+    let events = demoEvents;
+
+    if (athleteId && !athleteId.startsWith('demo')) {
+      try {
+        const fetched = await getAthlete(athleteId);
+        if (fetched) { athlete = fetched; }
+        const fetchedEvents = await getAthleteEvents(athleteId);
+        if (fetchedEvents.length) events = fetchedEvents;
+        const fetchedGoals = await getAthleteGoals(athleteId);
+        if (fetchedGoals.length) localGoals = fetchedGoals;
+        const fetchedStats = await getAthleteStats(athleteId);
+        if (fetchedStats.length) localStats = fetchedStats;
+        const fetchedVideos = await getAthleteVideos(athleteId);
+        if (fetchedVideos.length) localVideos = fetchedVideos;
+        const fetchedCoaches = await getCoachConnections(athleteId);
+        if (fetchedCoaches.length) localCoaches = fetchedCoaches;
+      } catch(e) { /* use demo data */ }
+    }
+
+    renderProfile(athlete);
+    renderEvents(events);
+    renderGoals(localGoals);
+    renderStats(localStats);
+    renderVideos(localVideos);
+    renderCoaches(localCoaches);
+  }
+
+  init();
+</script>
+</body>
+</html>

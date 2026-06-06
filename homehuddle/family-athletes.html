@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Athletes — AthleteHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --navy-2:  #0f2044;
+      --blue:    #1e4fd8;
+      --blue-lt: #3b6ff5;
+      --gold:    #f5a623;
+      --white:   #ffffff;
+      --gray:    #64748b;
+      --green:   #22c55e;
+      --surface: rgba(255,255,255,0.05);
+      --border:  rgba(255,255,255,0.1);
+      --radius:  14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(10,22,40,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 20px;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-link {
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      text-decoration: none; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--white); }
+
+    /* SIDEBAR + LAYOUT */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 720px) {
+      .app-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    .sidebar {
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .sidebar-section {
+      padding: 0 16px 24px;
+    }
+    .sidebar-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; padding: 0 8px;
+      margin-bottom: 8px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      text-decoration: none; font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .sidebar-link.active { background: rgba(30,79,216,0.2); color: var(--white); }
+
+    /* MAIN */
+    .main { padding: 32px 28px; }
+
+    .page-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 32px;
+      flex-wrap: wrap; gap: 14px;
+    }
+    .page-header h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 900;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-lt));
+      color: var(--white); padding: 11px 22px; border-radius: 8px;
+      font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+      box-shadow: 0 3px 16px rgba(30,79,216,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 24px rgba(30,79,216,0.55); }
+
+    /* ATHLETES GRID */
+    #athletes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .athlete-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .athlete-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(59,111,245,0.4);
+    }
+
+    .athlete-card-banner {
+      height: 80px;
+      background: linear-gradient(135deg, var(--blue), #1a3a9e);
+      position: relative;
+    }
+    .athlete-card-banner.gold {
+      background: linear-gradient(135deg, #b45309, #d97706);
+    }
+    .athlete-card-banner.green {
+      background: linear-gradient(135deg, #065f46, #059669);
+    }
+    .athlete-card-banner.purple {
+      background: linear-gradient(135deg, #4c1d95, #7c3aed);
+    }
+
+    .athlete-avatar {
+      position: absolute; bottom: -24px; left: 20px;
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 3px solid var(--navy);
+      background: var(--navy-2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem; font-weight: 900;
+      color: var(--gold);
+      overflow: hidden;
+    }
+    .athlete-avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .athlete-card-body {
+      padding: 32px 20px 20px;
+    }
+    .athlete-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem; font-weight: 800; margin-bottom: 2px;
+    }
+    .athlete-meta {
+      font-size: 12px; color: rgba(255,255,255,0.5);
+      margin-bottom: 14px; line-height: 1.5;
+    }
+
+    .athlete-sports-list {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .sport-tag {
+      background: rgba(30,79,216,0.2);
+      border: 1px solid rgba(59,111,245,0.3);
+      color: #93b4ff; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+    }
+
+    .athlete-card-actions {
+      display: flex; gap: 8px;
+    }
+    .btn-card {
+      flex: 1; padding: 8px 0; border-radius: 7px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      text-align: center; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      border: none; transition: background 0.15s;
+    }
+    .btn-card-primary {
+      background: rgba(30,79,216,0.25);
+      color: #93b4ff;
+    }
+    .btn-card-primary:hover { background: rgba(30,79,216,0.4); }
+    .btn-card-outline {
+      background: transparent;
+      border: 1px solid var(--border) !important;
+      color: rgba(255,255,255,0.55);
+    }
+    .btn-card-outline:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+
+    /* ADD ATHLETE CARD */
+    .add-athlete-card {
+      background: rgba(30,79,216,0.06);
+      border: 2px dashed rgba(59,111,245,0.3);
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 20px; cursor: pointer;
+      text-decoration: none;
+      min-height: 220px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .add-athlete-card:hover {
+      background: rgba(30,79,216,0.12);
+      border-color: rgba(59,111,245,0.55);
+    }
+    .add-icon { font-size: 2rem; margin-bottom: 12px; color: var(--blue-lt); }
+    .add-athlete-card span {
+      font-weight: 700; font-size: 15px; color: var(--blue-lt);
+    }
+    .add-athlete-card small {
+      font-size: 12px; color: rgba(255,255,255,0.35);
+      margin-top: 6px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+      grid-column: 1 / -1;
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-state h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;
+    }
+    .empty-state p {
+      font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 24px;
+    }
+
+    /* LOADING */
+    .loading-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .skeleton {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      height: 220px;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { opacity:0.5; } 50% { opacity:1; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Athlete<span>Huddle</span></div>
+  <div class="nav-right">
+    <a href="athletehuddle.html" class="nav-link">Home</a>
+    <a href="#" class="nav-link">Family Calendar</a>
+  </div>
+</nav>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Athletes</div>
+      <a href="family-athletes.html" class="sidebar-link active">🏅 My Athletes</a>
+      <a href="athlete-onboarding.html" class="sidebar-link">➕ Add Athlete</a>
+      <a href="athlete-calendar-link.html" class="sidebar-link">📅 Link Calendar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Track</div>
+      <a href="athlete-dashboard.html" class="sidebar-link">📊 Dashboard</a>
+      <a href="#" class="sidebar-link">🎯 Goals</a>
+      <a href="#" class="sidebar-link">📈 Stats</a>
+      <a href="#" class="sidebar-link">🎥 Videos</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Connect</div>
+      <a href="#" class="sidebar-link">🤝 Coach Connections</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <h1>My Athletes</h1>
+      <a href="athlete-onboarding.html" class="btn-primary">
+        ➕ Add Athlete
+      </a>
+    </div>
+
+    <!-- SKELETON while loading -->
+    <div class="loading-grid" id="loading-state">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <!-- ATHLETES GRID -->
+    <div id="athletes-grid" style="display:none;"></div>
+
+  </main>
+</div>
+
+<script src="athletehuddle.js"></script>
+<script>
+  const BANNER_COLORS = ['', 'gold', 'green', 'purple'];
+
+  function formatAge(birthdate) {
+    const age = calcAge(birthdate);
+    return age ? `Age ${age}` : '';
+  }
+
+  function renderAthleteCard(athlete, index) {
+    const initials = getInitials(athlete.first_name, athlete.last_name);
+    const bannerClass = BANNER_COLORS[index % BANNER_COLORS.length];
+    const ageStr = formatAge(athlete.birthdate);
+    const gradStr = athlete.graduation_year ? `Class of ${athlete.graduation_year}` : '';
+    const metaParts = [ageStr, gradStr, athlete.school].filter(Boolean);
+
+    const sportsHtml = athlete.primary_sport
+      ? `<div class="athlete-sports-list">
+          <span class="sport-tag">${athlete.primary_sport}</span>
+          ${(athlete.secondary_sports || []).map(s => `<span class="sport-tag">${s}</span>`).join('')}
+         </div>`
+      : '<div class="athlete-sports-list"><span style="font-size:12px;color:rgba(255,255,255,0.3);">No sports added yet</span></div>';
+
+    const avatarContent = athlete.profile_photo_url
+      ? `<img src="${athlete.profile_photo_url}" alt="${athlete.first_name}" />`
+      : initials;
+
+    return `
+      <div class="athlete-card" onclick="goToDashboard('${athlete.id}')">
+        <div class="athlete-card-banner ${bannerClass}">
+          <div class="athlete-avatar">${avatarContent}</div>
+        </div>
+        <div class="athlete-card-body">
+          <div class="athlete-name">${athlete.first_name} ${athlete.last_name}</div>
+          <div class="athlete-meta">${metaParts.join(' · ')}</div>
+          ${sportsHtml}
+          <div class="athlete-card-actions" onclick="event.stopPropagation()">
+            <a href="athlete-dashboard.html" class="btn-card btn-card-primary"
+               onclick="setActiveAthlete('${athlete.id}')">
+              📊 Dashboard
+            </a>
+            <a href="athlete-onboarding.html?edit=${athlete.id}" class="btn-card btn-card-outline">
+              ✏️ Edit
+            </a>
+            <a href="athlete-calendar-link.html?athlete=${athlete.id}" class="btn-card btn-card-outline">
+              📅
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function goToDashboard(athleteId) {
+    setActiveAthlete(athleteId);
+    window.location.href = 'athlete-dashboard.html';
+  }
+
+  async function loadAthletes() {
+    const grid = document.getElementById('athletes-grid');
+    const loading = document.getElementById('loading-state');
+
+    // Try Supabase
+    let athletes = [];
+    try {
+      const familyId = await getFamilyId();
+      if (familyId) {
+        athletes = await getAthletes(familyId);
+      }
+    } catch(e) {
+      // fall through to demo data
+    }
+
+    // Demo data if no live data
+    if (athletes.length === 0) {
+      athletes = [
+        {
+          id: 'demo-1', first_name: 'Dominic', last_name: 'Johnson',
+          birthdate: '2012-05-14', graduation_year: 2030,
+          school: 'Lincoln Middle School',
+          primary_sport: 'Baseball', secondary_sports: ['Basketball'],
+          profile_photo_url: null
+        },
+        {
+          id: 'demo-2', first_name: 'Vincent', last_name: 'Johnson',
+          birthdate: '2015-09-03', graduation_year: 2033,
+          school: 'St. Mary\'s Elementary',
+          primary_sport: 'Hockey', secondary_sports: [],
+          profile_photo_url: null
+        }
+      ];
+    }
+
+    loading.style.display = 'none';
+    grid.style.display = 'grid';
+
+    if (athletes.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🏅</div>
+          <h2>No Athletes Yet</h2>
+          <p>Add your first athlete to start tracking their development.</p>
+          <a href="athlete-onboarding.html" class="btn-primary">➕ Add First Athlete</a>
+        </div>
+      `;
+      return;
+    }
+
+    let html = athletes.map((a, i) => renderAthleteCard(a, i)).join('');
+
+    // Add athlete card
+    html += `
+      <a href="athlete-onboarding.html" class="add-athlete-card">
+        <div class="add-icon">➕</div>
+        <span>Add Athlete</span>
+        <small>Another child, another story</small>
+      </a>
+    `;
+
+    grid.innerHTML = html;
+  }
+
+  loadAthletes();
+</script>
+</body>
+</html>

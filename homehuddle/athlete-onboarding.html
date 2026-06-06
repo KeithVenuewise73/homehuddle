@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Athlete — AthleteHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --navy-2:  #0f2044;
+      --blue:    #1e4fd8;
+      --blue-lt: #3b6ff5;
+      --gold:    #f5a623;
+      --white:   #ffffff;
+      --off:     #f0f4ff;
+      --gray:    #64748b;
+      --light:   #e2e8f0;
+      --green:   #22c55e;
+      --red:     #ef4444;
+      --surface: rgba(255,255,255,0.05);
+      --border:  rgba(255,255,255,0.1);
+      --radius:  12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(10,22,40,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 20px;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-back {
+      color: rgba(255,255,255,0.6); font-size: 14px;
+      text-decoration: none; display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--white); }
+
+    /* LAYOUT */
+    .page {
+      max-width: 760px; margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* PROGRESS */
+    .progress-wrap {
+      margin-bottom: 36px;
+    }
+    .progress-steps {
+      display: flex; gap: 0; margin-bottom: 8px;
+    }
+    .prog-step {
+      flex: 1; text-align: center;
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px;
+      transition: color 0.3s;
+    }
+    .prog-step.active { color: var(--white); }
+    .prog-step.done { color: var(--green); }
+    .progress-bar {
+      height: 4px; background: rgba(255,255,255,0.1);
+      border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--gold));
+      border-radius: 2px;
+      transition: width 0.4s ease;
+      width: 25%;
+    }
+
+    /* HEADER */
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.4rem; font-weight: 900; line-height: 1;
+      margin-bottom: 8px;
+    }
+    .page-header p { font-size: 15px; color: rgba(255,255,255,0.55); }
+
+    /* FORM SECTIONS */
+    .form-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px; margin-bottom: 20px;
+    }
+    .form-section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--gold); letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* FIELDS */
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .field-grid.full { grid-template-columns: 1fr; }
+    @media (max-width: 560px) {
+      .field-grid, .field-grid.three { grid-template-columns: 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.5px; color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+    }
+
+    input, select, textarea {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--blue-lt);
+      background: rgba(255,255,255,0.09);
+    }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); }
+    select option { background: var(--navy-2); color: var(--white); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* PHOTO UPLOAD */
+    .photo-upload {
+      border: 2px dashed var(--border);
+      border-radius: 10px; padding: 28px;
+      text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .photo-upload:hover {
+      border-color: var(--blue-lt);
+      background: rgba(30,79,216,0.08);
+    }
+    .photo-upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .photo-upload p { font-size: 14px; color: rgba(255,255,255,0.5); }
+    .photo-upload strong { color: var(--blue-lt); }
+
+    /* SPORTS REPEATER */
+    .sport-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .sport-card-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 14px;
+    }
+    .sport-card-title {
+      font-weight: 700; font-size: 14px; color: rgba(255,255,255,0.8);
+    }
+    .btn-remove-sport {
+      background: none; border: 1px solid rgba(239,68,68,0.4);
+      color: var(--red); border-radius: 6px;
+      padding: 4px 10px; font-size: 12px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-remove-sport:hover { background: rgba(239,68,68,0.1); }
+
+    .btn-add-sport {
+      background: rgba(30,79,216,0.15);
+      border: 1px dashed rgba(59,111,245,0.5);
+      color: var(--blue-lt); border-radius: 8px;
+      padding: 10px 18px; font-size: 14px; font-weight: 600;
+      cursor: pointer; width: 100%; margin-top: 4px;
+      transition: background 0.2s;
+    }
+    .btn-add-sport:hover { background: rgba(30,79,216,0.25); }
+
+    /* ACTIONS */
+    .form-actions {
+      display: flex; gap: 12px; margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-lt));
+      color: var(--white); padding: 14px 32px; border-radius: 8px;
+      font-size: 15px; font-weight: 700; border: none; cursor: pointer;
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 20px rgba(30,79,216,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(30,79,216,0.55);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+    }
+    .btn-outline {
+      background: transparent; color: rgba(255,255,255,0.7);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 24px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.35); color: var(--white); }
+
+    /* SPINNER */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: var(--white);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* SUCCESS STATE */
+    .success-card {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: var(--radius); padding: 32px;
+      text-align: center; display: none;
+    }
+    .success-card.visible { display: block; }
+    .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .success-card h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 900; margin-bottom: 8px;
+    }
+    .success-card p { color: rgba(255,255,255,0.6); margin-bottom: 20px; }
+    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .success-actions a {
+      padding: 12px 24px; border-radius: 8px;
+      font-weight: 700; font-size: 14px; text-decoration: none;
+    }
+    .btn-go-dashboard {
+      background: var(--green); color: var(--navy);
+    }
+    .btn-add-another {
+      border: 1px solid var(--border); color: var(--white);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Athlete<span>Huddle</span></div>
+  <a href="family-athletes.html" class="nav-back">← My Athletes</a>
+</nav>
+
+<div class="page">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <span class="prog-step active" id="step-lbl-1">PROFILE</span>
+      <span class="prog-step" id="step-lbl-2">SPORTS</span>
+      <span class="prog-step" id="step-lbl-3">DETAILS</span>
+      <span class="prog-step" id="step-lbl-4">DONE</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Add New Athlete</h1>
+    <p>Build your athlete's profile. You can always edit and add more later.</p>
+  </div>
+
+  <!-- FORM -->
+  <div id="onboarding-form">
+
+    <!-- SECTION 1: BASIC INFO -->
+    <div class="form-section" id="section-1">
+      <div class="form-section-title">👤 Basic Information</div>
+
+      <div class="field-grid" style="margin-bottom:16px;">
+        <div class="field">
+          <label for="first_name">First Name *</label>
+          <input type="text" id="first_name" placeholder="Dominic" required />
+        </div>
+        <div class="field">
+          <label for="last_name">Last Name *</label>
+          <input type="text" id="last_name" placeholder="Johnson" required />
+        </div>
+      </div>
+
+      <div class="field-grid" style="margin-bottom:16px;">
+        <div class="field">
+          <label for="birthdate">Date of Birth</label>
+          <input type="date" id="birthdate" />
+        </div>
+        <div class="field">
+          <label for="graduation_year">Graduation Year</label>
+          <select id="graduation_year">
+            <option value="">Select year</option>
+            <script>
+              for (let y = new Date().getFullYear(); y <= new Date().getFullYear() + 14; y++) {
+                document.write(`<option value="${y}">${y}</option>`);
+              }
+            </script>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non-binary">Non-binary</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="school">School</label>
+          <input type="text" id="school" placeholder="Lincoln Middle School" />
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: PHOTO -->
+    <div class="form-section" id="section-photo">
+      <div class="form-section-title">📸 Profile Photo</div>
+      <div class="photo-upload" onclick="document.getElementById('photo_input').click()">
+        <div id="photo-preview">
+          <div class="photo-upload-icon">📷</div>
+          <p><strong>Click to upload</strong> or drag and drop</p>
+          <p>JPG, PNG — photo will be stored as URL in MVP</p>
+        </div>
+        <input type="file" id="photo_input" accept="image/*" style="display:none" onchange="handlePhotoSelect(this)" />
+      </div>
+      <div class="field full" style="margin-top:14px;">
+        <label for="profile_photo_url">Or paste a photo URL</label>
+        <input type="url" id="profile_photo_url" placeholder="https://example.com/photo.jpg" />
+      </div>
+    </div>
+
+    <!-- SECTION 3: SPORTS -->
+    <div class="form-section" id="section-sports">
+      <div class="form-section-title">🏆 Sports & Teams</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:18px;">Add one or more sports. First sport added becomes the primary.</p>
+
+      <div id="sports-list"></div>
+
+      <button class="btn-add-sport" onclick="addSportCard()">
+        + Add Sport
+      </button>
+    </div>
+
+    <!-- SECTION 4: MEASURABLES -->
+    <div class="form-section" id="section-4">
+      <div class="form-section-title">📐 Measurables</div>
+
+      <div class="field-grid" style="margin-bottom:16px;">
+        <div class="field">
+          <label for="height_inches">Height (total inches)</label>
+          <input type="number" id="height_inches" placeholder="66 (= 5'6&quot;)" min="36" max="96" />
+        </div>
+        <div class="field">
+          <label for="weight_lbs">Weight (lbs)</label>
+          <input type="number" id="weight_lbs" placeholder="130" min="50" max="400" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="dominant_hand">Dominant Hand</label>
+          <select id="dominant_hand">
+            <option value="">Select</option>
+            <option value="right">Right</option>
+            <option value="left">Left</option>
+            <option value="ambidextrous">Ambidextrous</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dominant_foot">Dominant Foot</label>
+          <select id="dominant_foot">
+            <option value="">Select</option>
+            <option value="right">Right</option>
+            <option value="left">Left</option>
+            <option value="ambidextrous">Ambidextrous</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: LOCATION -->
+    <div class="form-section" id="section-5">
+      <div class="form-section-title">📍 Location</div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="city">City</label>
+          <input type="text" id="city" placeholder="Buffalo" />
+        </div>
+        <div class="field">
+          <label for="state">State</label>
+          <select id="state">
+            <option value="">Select state</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+            <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+            <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+            <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+            <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+            <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+            <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+            <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+            <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+            <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+            <option>WI</option><option>WY</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="form-actions">
+      <button class="btn-outline" onclick="window.location='family-athletes.html'">Cancel</button>
+      <button class="btn-primary" id="submit-btn" onclick="submitAthlete()">
+        <span id="submit-label">Create Athlete Profile</span>
+        <div class="spinner" id="submit-spinner" style="display:none"></div>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success-card" id="success-card">
+    <div class="success-icon">🎉</div>
+    <h2>Athlete Profile Created!</h2>
+    <p id="success-message">Your athlete profile has been saved. Head to the dashboard to add goals, stats, and videos.</p>
+    <div class="success-actions">
+      <a href="athlete-dashboard.html" class="success-actions btn-go-dashboard">View Dashboard →</a>
+      <a href="athlete-onboarding.html" class="success-actions btn-add-another" style="border:1px solid rgba(255,255,255,0.2)">+ Add Another Athlete</a>
+    </div>
+  </div>
+
+</div>
+
+<script src="athletehuddle.js"></script>
+<script>
+  let sportCount = 0;
+
+  // Add initial sport card on load
+  addSportCard();
+
+  function addSportCard() {
+    sportCount++;
+    const num = sportCount;
+    const div = document.createElement('div');
+    div.className = 'sport-card';
+    div.id = `sport-card-${num}`;
+    div.innerHTML = `
+      <div class="sport-card-header">
+        <span class="sport-card-title">Sport ${num} ${num === 1 ? '(Primary)' : ''}</span>
+        ${num > 1 ? `<button class="btn-remove-sport" onclick="removeSportCard(${num})">Remove</button>` : ''}
+      </div>
+      <div class="field-grid" style="margin-bottom:12px;">
+        <div class="field">
+          <label>Sport *</label>
+          <select name="sport_name_${num}">
+            <option value="">Select sport</option>
+            <option>Baseball</option><option>Basketball</option><option>Cheerleading</option>
+            <option>Cross Country</option><option>Field Hockey</option><option>Football</option>
+            <option>Golf</option><option>Gymnastics</option><option>Hockey</option>
+            <option>Lacrosse</option><option>Rowing</option><option>Soccer</option>
+            <option>Softball</option><option>Swimming</option><option>Tennis</option>
+            <option>Track & Field</option><option>Volleyball</option><option>Wrestling</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Position</label>
+          <input type="text" name="sport_position_${num}" placeholder="e.g. Pitcher, Forward" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Team</label>
+          <input type="text" name="sport_team_${num}" placeholder="Team name" />
+        </div>
+        <div class="field">
+          <label>Organization</label>
+          <input type="text" name="sport_org_${num}" placeholder="League or club" />
+        </div>
+        <div class="field">
+          <label>Coach Name</label>
+          <input type="text" name="sport_coach_${num}" placeholder="Coach last name" />
+        </div>
+        <div class="field">
+          <label>Season</label>
+          <input type="text" name="sport_season_${num}" placeholder="Spring 2025" />
+        </div>
+      </div>
+    `;
+    document.getElementById('sports-list').appendChild(div);
+    updateProgress();
+  }
+
+  function removeSportCard(num) {
+    const card = document.getElementById(`sport-card-${num}`);
+    if (card) card.remove();
+  }
+
+  function updateProgress() {
+    const first = document.getElementById('first_name').value;
+    const sport = document.querySelector('[name^="sport_name_"]');
+    let pct = 25;
+    if (first) pct = 50;
+    if (sport && sport.value) pct = 75;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', updateProgress);
+  });
+
+  function handlePhotoSelect(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('photo-preview').innerHTML = `
+          <img src="${e.target.result}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:8px;" />
+          <p style="font-size:13px;color:rgba(255,255,255,0.5);">Photo selected — will be uploaded with your profile</p>
+        `;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  async function submitAthlete() {
+    const firstName = document.getElementById('first_name').value.trim();
+    const lastName = document.getElementById('last_name').value.trim();
+
+    if (!firstName || !lastName) {
+      showToast('Please enter the athlete\'s first and last name.', 'error');
+      document.getElementById('first_name').focus();
+      return;
+    }
+
+    // Collect sport entries
+    const sports = [];
+    let primarySport = '';
+    for (let i = 1; i <= sportCount; i++) {
+      const card = document.getElementById(`sport-card-${i}`);
+      if (!card) continue;
+      const sportName = card.querySelector(`[name="sport_name_${i}"]`)?.value || '';
+      if (sportName) {
+        sports.push({
+          sport: sportName,
+          position: card.querySelector(`[name="sport_position_${i}"]`)?.value || '',
+          current_team: card.querySelector(`[name="sport_team_${i}"]`)?.value || '',
+          organization: card.querySelector(`[name="sport_org_${i}"]`)?.value || '',
+          coach_name: card.querySelector(`[name="sport_coach_${i}"]`)?.value || '',
+          season: card.querySelector(`[name="sport_season_${i}"]`)?.value || '',
+        });
+        if (!primarySport) primarySport = sportName;
+      }
+    }
+
+    // Disable submit
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-label').style.display = 'none';
+    document.getElementById('submit-spinner').style.display = 'block';
+
+    try {
+      // In production: call createAthlete() from athletehuddle.js
+      // For demo/MVP without live auth, store in sessionStorage
+      const athleteData = {
+        first_name: firstName,
+        last_name: lastName,
+        birthdate: document.getElementById('birthdate').value || null,
+        graduation_year: parseInt(document.getElementById('graduation_year').value) || null,
+        gender: document.getElementById('gender').value || null,
+        school: document.getElementById('school').value || null,
+        profile_photo_url: document.getElementById('profile_photo_url').value || null,
+        primary_sport: primarySport || null,
+        secondary_sports: sports.slice(1).map(s => s.sport),
+        height_inches: parseFloat(document.getElementById('height_inches').value) || null,
+        weight_lbs: parseFloat(document.getElementById('weight_lbs').value) || null,
+        dominant_hand: document.getElementById('dominant_hand').value || null,
+        dominant_foot: document.getElementById('dominant_foot').value || null,
+        city: document.getElementById('city').value || null,
+        state: document.getElementById('state').value || null,
+        // family_id would come from current session
+      };
+
+      // Attempt Supabase save — gracefully fall back for demo
+      let saved = false;
+      try {
+        const created = await createAthlete(athleteData);
+        if (created?.id) {
+          setActiveAthlete(created.id);
+          // Save sports
+          for (const s of sports) {
+            await addAthleteSport({ ...s, athlete_id: created.id });
+          }
+          saved = true;
+        }
+      } catch(dbErr) {
+        // Demo fallback: store in sessionStorage
+        const demoId = 'demo-' + Date.now();
+        athleteData.id = demoId;
+        athleteData.sports = sports;
+        sessionStorage.setItem('ah_athlete_' + demoId, JSON.stringify(athleteData));
+        setActiveAthlete(demoId);
+        saved = true;
+      }
+
+      if (saved) {
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('onboarding-form').style.display = 'none';
+        const success = document.getElementById('success-card');
+        success.classList.add('visible');
+        document.getElementById('success-message').textContent =
+          `${firstName}'s profile has been created! Head to the dashboard to add goals, stats, and videos.`;
+      }
+
+    } catch (err) {
+      showToast('Something went wrong. Please try again.', 'error');
+      document.getElementById('submit-btn').disabled = false;
+      document.getElementById('submit-label').style.display = 'block';
+      document.getElementById('submit-spinner').style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>

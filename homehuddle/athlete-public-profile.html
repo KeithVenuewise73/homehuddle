@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athlete Profile — AthleteHuddle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0a1628; --navy-2: #0f2044; --blue: #1e4fd8; --blue-lt: #3b6ff5;
+      --gold: #f5a623; --white: #ffffff; --green: #22c55e;
+      --surface: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.09);
+      --radius: 14px;
+    }
+
+    body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--white); min-height:100vh; }
+
+    nav {
+      background:rgba(10,22,40,0.95); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border); padding:0 24px; height:60px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:50;
+    }
+    .nav-brand { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; }
+    .nav-brand span { color:var(--gold); }
+    .nav-right { display:flex; gap:14px; align-items:center; }
+    .nav-link { color:rgba(255,255,255,0.6); font-size:14px; text-decoration:none; }
+
+    /* PRIVATE BANNER */
+    .private-banner {
+      background: rgba(245,166,35,0.1);
+      border-bottom: 1px solid rgba(245,166,35,0.2);
+      padding: 10px 24px;
+      text-align: center;
+      font-size: 13px; color: var(--gold); font-weight: 600;
+    }
+    .private-banner span { color:rgba(255,255,255,0.5); font-weight:400; }
+
+    .page { max-width:860px; margin:0 auto; padding:32px 24px 60px; }
+
+    /* PROFILE HEADER */
+    .pub-header {
+      background: linear-gradient(135deg, rgba(15,32,68,0.9), rgba(10,22,40,0.9));
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .pub-banner {
+      height: 120px;
+      background: linear-gradient(135deg, var(--blue), #1a3a9e);
+      position: relative;
+    }
+    .pub-avatar-wrap {
+      position: absolute; bottom: -44px; left: 28px;
+    }
+    .pub-avatar {
+      width: 88px; height: 88px; border-radius: 50%;
+      border: 4px solid var(--navy); background: var(--navy-2);
+      display: flex; align-items: center; justify-content: center;
+      font-family:'Barlow Condensed',sans-serif; font-size:2.2rem; font-weight:900; color:var(--gold);
+      overflow: hidden;
+    }
+    .pub-avatar img { width:100%; height:100%; object-fit:cover; }
+    .pub-body { padding: 56px 28px 24px; }
+    .pub-name { font-family:'Barlow Condensed',sans-serif; font-size:2.2rem; font-weight:900; line-height:1; margin-bottom:6px; }
+    .pub-meta { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:16px; line-height:1.6; }
+    .pub-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+    .pub-tag {
+      padding:5px 14px; border-radius:100px; font-size:12px; font-weight:700;
+    }
+    .tag-blue { background:rgba(30,79,216,0.25); border:1px solid rgba(59,111,245,0.3); color:#93b4ff; }
+    .tag-gold { background:rgba(245,166,35,0.15); border:1px solid rgba(245,166,35,0.3); color:var(--gold); }
+    .tag-green { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:var(--green); }
+
+    .pub-measurables {
+      display:flex; gap:20px; flex-wrap:wrap;
+    }
+    .pub-meas-item { text-align:center; }
+    .pub-meas-val { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; color:var(--gold); }
+    .pub-meas-label { font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.5px; }
+
+    /* SECTIONS */
+    .pub-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:20px;
+    }
+    @media (max-width:640px) { .pub-grid { grid-template-columns:1fr; } }
+
+    .pub-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); overflow:hidden;
+    }
+    .pub-card.full { grid-column:1/-1; }
+    .pub-card-head {
+      padding:14px 18px; border-bottom:1px solid var(--border);
+      font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800;
+      display:flex; align-items:center; gap:8px;
+    }
+    .pub-card-body { padding:16px 18px; }
+
+    /* STATS TABLE */
+    .pub-stats-table { width:100%; border-collapse:collapse; }
+    .pub-stats-table th { font-size:11px; font-weight:700; color:rgba(255,255,255,0.35); letter-spacing:1px; text-transform:uppercase; padding:6px 8px; text-align:left; border-bottom:1px solid var(--border); }
+    .pub-stats-table td { padding:9px 8px; font-size:14px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .pub-stats-table tr:last-child td { border-bottom:none; }
+    .stat-v { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:900; color:var(--gold); }
+
+    /* GOALS LIST */
+    .pub-goal { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .pub-goal:last-child { border-bottom:none; }
+    .pub-goal-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .pub-goal-title { font-size:14px; font-weight:500; }
+
+    /* VIDEO GRID */
+    .pub-vid-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .pub-vid {
+      background:rgba(0,0,0,0.3); border:1px solid var(--border);
+      border-radius:8px; overflow:hidden; cursor:pointer;
+      transition:border-color 0.2s;
+    }
+    .pub-vid:hover { border-color:rgba(59,111,245,0.5); }
+    .pub-vid-thumb {
+      height:70px; display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,0.03); font-size:1.8rem;
+    }
+    .pub-vid-info { padding:7px 10px; font-size:12px; font-weight:600; }
+    .pub-vid-sub { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+
+    /* CONTACT */
+    .contact-hidden {
+      background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.2);
+      border-radius:8px; padding:14px 18px;
+      font-size:13px; color:rgba(255,255,255,0.5);
+    }
+
+    /* SHARE BAR */
+    .share-bar {
+      display:flex; gap:10px; justify-content:flex-end; margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+    .btn-share {
+      background:var(--surface); border:1px solid var(--border);
+      color:rgba(255,255,255,0.7); padding:9px 16px; border-radius:8px;
+      font-size:13px; font-weight:600; cursor:pointer;
+      display:inline-flex; align-items:center; gap:6px;
+      transition:background 0.2s;
+    }
+    .btn-share:hover { background:rgba(255,255,255,0.08); }
+    .btn-edit-profile {
+      background:linear-gradient(135deg,var(--blue),var(--blue-lt));
+      color:var(--white); border:none;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Athlete<span>Huddle</span></div>
+  <div class="nav-right">
+    <a href="athlete-dashboard.html" class="nav-link">Dashboard</a>
+    <a href="family-athletes.html" class="nav-link">My Athletes</a>
+  </div>
+</nav>
+
+<!-- PRIVATE BANNER (shown when profile is not public) -->
+<div class="private-banner" id="private-banner">
+  🔒 This profile is <strong>private</strong>. <span>Only you can see this. Enable sharing in profile settings to create a public link.</span>
+</div>
+
+<div class="page">
+
+  <!-- SHARE BAR (owner view) -->
+  <div class="share-bar">
+    <button class="btn-share" onclick="copyLink()">🔗 Copy Profile Link</button>
+    <button class="btn-share" onclick="togglePublic()">🔒 Make Public</button>
+    <button class="btn-share btn-edit-profile" onclick="window.location='athlete-onboarding.html?edit=true'">✏️ Edit Profile</button>
+  </div>
+
+  <!-- PROFILE HEADER -->
+  <div class="pub-header">
+    <div class="pub-banner">
+      <div class="pub-avatar-wrap">
+        <div class="pub-avatar" id="pub-avatar">DJ</div>
+      </div>
+    </div>
+    <div class="pub-body">
+      <div class="pub-name" id="pub-name">Dominic Johnson</div>
+      <div class="pub-meta" id="pub-meta">Age 12 · Class of 2030 · Lincoln Middle School · Buffalo, NY</div>
+      <div class="pub-tags" id="pub-tags">
+        <span class="pub-tag tag-blue">⚾ Baseball</span>
+        <span class="pub-tag tag-blue">🏀 Basketball</span>
+        <span class="pub-tag tag-gold">Eagles 12U</span>
+        <span class="pub-tag tag-green">Class of 2030</span>
+      </div>
+      <div class="pub-measurables">
+        <div class="pub-meas-item">
+          <div class="pub-meas-val">5'2"</div>
+          <div class="pub-meas-label">Height</div>
+        </div>
+        <div class="pub-meas-item">
+          <div class="pub-meas-val">115</div>
+          <div class="pub-meas-label">Weight (lbs)</div>
+        </div>
+        <div class="pub-meas-item">
+          <div class="pub-meas-val">Right</div>
+          <div class="pub-meas-label">Bats/Throws</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="pub-grid">
+
+    <!-- STATS -->
+    <div class="pub-card">
+      <div class="pub-card-head">📊 Stats</div>
+      <div class="pub-card-body">
+        <table class="pub-stats-table">
+          <thead><tr><th>Stat</th><th>Value</th><th>Season</th></tr></thead>
+          <tbody>
+            <tr><td>Batting Avg</td><td><span class="stat-v">.285</span></td><td>Spring '25</td></tr>
+            <tr><td>On-Base %</td><td><span class="stat-v">.360</span></td><td>Spring '25</td></tr>
+            <tr><td>ERA</td><td><span class="stat-v">2.40</span></td><td>Spring '25</td></tr>
+            <tr><td>PPG (BBall)</td><td><span class="stat-v">12.5</span></td><td>Winter '24</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div class="pub-card">
+      <div class="pub-card-head">🎯 Development Goals</div>
+      <div class="pub-card-body">
+        <div class="pub-goal">
+          <div class="pub-goal-dot" style="background:#3b82f6;"></div>
+          <div class="pub-goal-title">Hit .300 this season</div>
+        </div>
+        <div class="pub-goal">
+          <div class="pub-goal-dot" style="background:#94a3b8;"></div>
+          <div class="pub-goal-title">Improve 60-yard dash to 7.5s</div>
+        </div>
+        <div class="pub-goal">
+          <div class="pub-goal-dot" style="background:#22c55e;"></div>
+          <div class="pub-goal-title">Make travel team ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEOS -->
+    <div class="pub-card full">
+      <div class="pub-card-head">🎥 Videos</div>
+      <div class="pub-card-body">
+        <div class="pub-vid-grid">
+          <div class="pub-vid" onclick="window.open('https://youtube.com','_blank')">
+            <div class="pub-vid-thumb">🎥</div>
+            <div class="pub-vid-info">
+              Spring Tournament Highlights
+              <div class="pub-vid-sub">Baseball · Highlight</div>
+            </div>
+          </div>
+          <div class="pub-vid" onclick="window.open('https://youtube.com','_blank')">
+            <div class="pub-vid-thumb">🎥</div>
+            <div class="pub-vid-info">
+              Pitching Mechanics Drill
+              <div class="pub-vid-sub">Baseball · Drill</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT (hidden by default) -->
+    <div class="pub-card full">
+      <div class="pub-card-head">📬 Contact</div>
+      <div class="pub-card-body">
+        <div class="contact-hidden">
+          🔒 Contact information is hidden. The athlete's family controls who can reach them through AthleteHuddle.
+          <br /><br />
+          <strong style="color:var(--gold);">Are you a coach or recruiter?</strong>
+          Connect through <a href="athletehuddle.html" style="color:var(--blue-lt);text-decoration:none;">AthleteHuddle</a>
+          to request contact permission from the family.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="athletehuddle.js"></script>
+<script>
+  let isPublic = false;
+
+  function togglePublic() {
+    isPublic = !isPublic;
+    const banner = document.getElementById('private-banner');
+    const btn = document.querySelector('button[onclick="togglePublic()"]');
+    if (isPublic) {
+      banner.style.display = 'none';
+      btn.textContent = '🌐 Make Private';
+      showToast('Profile is now public — anyone with the link can view it');
+      // In production: updateAthlete(athleteId, { is_public: true })
+    } else {
+      banner.style.display = 'block';
+      btn.textContent = '🔒 Make Public';
+      showToast('Profile is now private');
+    }
+  }
+
+  function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Profile link copied to clipboard!');
+    }).catch(() => {
+      showToast('Copy your URL from the address bar', 'error');
+    });
+  }
+
+  // Load athlete data from session/Supabase if available
+  async function loadProfile() {
+    const athleteId = getActiveAthlete();
+    if (!athleteId) return;
+    try {
+      const athlete = await getAthlete(athleteId);
+      if (!athlete) return;
+      document.getElementById('pub-name').textContent = `${athlete.first_name} ${athlete.last_name}`;
+      const initials = getInitials(athlete.first_name, athlete.last_name);
+      const avatarEl = document.getElementById('pub-avatar');
+      if (athlete.profile_photo_url) {
+        avatarEl.innerHTML = `<img src="${athlete.profile_photo_url}" alt="${athlete.first_name}" />`;
+      } else {
+        avatarEl.textContent = initials;
+      }
+    } catch(e) { /* use demo data */ }
+  }
+
+  loadProfile();
+</script>
+</body>
+</html>

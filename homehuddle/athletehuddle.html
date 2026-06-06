@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AthleteHuddle — Build Your Athlete's Future | Venuewise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --navy-2:  #0f2044;
+      --blue:    #1e4fd8;
+      --blue-lt: #3b6ff5;
+      --gold:    #f5a623;
+      --gold-lt: #fbbf24;
+      --white:   #ffffff;
+      --off:     #f0f4ff;
+      --gray:    #64748b;
+      --light:   #e2e8f0;
+      --green:   #22c55e;
+      --radius:  12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,22,40,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .btn-nav {
+      background: var(--gold);
+      color: var(--navy) !important;
+      padding: 8px 18px; border-radius: 6px;
+      font-weight: 700 !important;
+    }
+    .btn-nav:hover { background: var(--gold-lt) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,79,216,0.45) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(245,166,35,0.12) 0%, transparent 60%);
+    }
+
+    /* Field lines */
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 78px,
+          rgba(255,255,255,0.025) 78px,
+          rgba(255,255,255,0.025) 80px
+        );
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(30,79,216,0.25);
+      border: 1px solid rgba(59,111,245,0.4);
+      border-radius: 100px;
+      padding: 6px 16px; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.5px; color: #93b4ff;
+      margin-bottom: 28px; position: relative;
+    }
+    .hero-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; } 50% { opacity:0.4; }
+    }
+
+    .hero h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -1px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+      display: block;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.72);
+      max-width: 540px; line-height: 1.65;
+      margin-bottom: 44px; position: relative;
+    }
+
+    .hero-ctas {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      justify-content: center; position: relative;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-lt));
+      color: var(--white);
+      padding: 14px 32px; border-radius: 8px;
+      font-size: 16px; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 24px rgba(30,79,216,0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(30,79,216,0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      padding: 14px 32px; border-radius: 8px;
+      font-size: 16px; font-weight: 600;
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.25);
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.3); font-size: 11px; letter-spacing: 1px;
+    }
+    .hero-scroll-bar {
+      width: 2px; height: 32px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+      animation: scrollAnim 1.5s ease infinite;
+    }
+    @keyframes scrollAnim {
+      0%,100% { opacity:0.3; transform: scaleY(1); }
+      50% { opacity:1; transform: scaleY(0.6); }
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: rgba(255,255,255,0.04);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 28px 24px;
+    }
+    .stats-bar-inner {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .stat-item {
+      text-align: center; padding: 0 24px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.5rem; font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px; color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px; margin-top: 4px;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 80px 24px;
+    }
+    .section-inner {
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-tag {
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 2px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px; color: rgba(255,255,255,0.6);
+      max-width: 560px; line-height: 1.6; margin-bottom: 56px;
+    }
+
+    /* ── FEATURE GRID ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(59,111,245,0.4);
+    }
+    .feature-icon {
+      font-size: 28px; margin-bottom: 16px;
+      width: 52px; height: 52px;
+      background: rgba(30,79,216,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feature-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .feature-desc {
+      font-size: 14px; color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+    .feature-badge {
+      margin-top: 14px;
+      display: inline-block;
+      background: rgba(245,166,35,0.15);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--gold);
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      background: rgba(255,255,255,0.02);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 28px;
+    }
+    .step {
+      position: relative; padding-left: 0;
+    }
+    .step-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 4rem; font-weight: 900;
+      color: rgba(30,79,216,0.25);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .step-title {
+      font-size: 16px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-desc {
+      font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6;
+    }
+
+    /* ── INCLUDED SECTION ── */
+    .included-section {
+      background: linear-gradient(135deg, rgba(30,79,216,0.15), rgba(10,22,40,0.6));
+      border-top: 1px solid rgba(30,79,216,0.2);
+      border-bottom: 1px solid rgba(30,79,216,0.2);
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px; margin-top: 40px;
+    }
+    .plan-card {
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+    }
+    .plan-card.founding {
+      background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(245,166,35,0.05));
+      border: 2px solid rgba(245,166,35,0.4);
+    }
+    .plan-card.standard {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .plan-tag {
+      position: absolute; top: -12px; left: 24px;
+      background: var(--gold); color: var(--navy);
+      font-size: 11px; font-weight: 800;
+      padding: 4px 12px; border-radius: 100px;
+      letter-spacing: 1px;
+    }
+    .plan-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .plan-price {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.5rem; font-weight: 900;
+      color: var(--gold); margin-bottom: 4px;
+    }
+    .plan-price span { font-size: 1rem; color: rgba(255,255,255,0.5); }
+    .plan-features {
+      list-style: none; margin-top: 20px;
+    }
+    .plan-features li {
+      font-size: 14px; color: rgba(255,255,255,0.75);
+      padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+    /* ── FUTURE SECTION ── */
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .future-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 18px;
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .future-item-icon { font-size: 18px; }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      text-align: center; padding: 100px 24px;
+      background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(30,79,216,0.3) 0%, transparent 70%);
+    }
+    .cta-section h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 900; line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .cta-section p {
+      font-size: 18px; color: rgba(255,255,255,0.6);
+      max-width: 480px; margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px; color: rgba(255,255,255,0.35);
+    }
+    footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .stats-bar-inner { grid-template-columns: repeat(3,1fr); gap: 0; }
+      .stat-item { padding: 0 8px; }
+      .stat-num { font-size: 1.8rem; }
+      .nav-links a:not(.btn-nav) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">Athlete<span>Huddle</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="athlete-onboarding.html" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    Included with HomeHuddle
+  </div>
+
+  <h1>
+    Build Your<br>
+    <em>Athlete's Future</em>
+  </h1>
+
+  <p>
+    Create athlete profiles, connect their schedule, track development, and build a foundation for recruiting — all inside your HomeHuddle family account.
+  </p>
+
+  <div class="hero-ctas">
+    <a href="athlete-onboarding.html" class="btn-primary">
+      ➕ Create Athlete Profile
+    </a>
+    <a href="family-athletes.html" class="btn-secondary">
+      View My Athletes
+    </a>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hero-scroll-bar"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Athletes per Family</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10+</div>
+      <div class="stat-label">Sports Supported</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Platform for Everything</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-tag">What's Inside</div>
+    <h2 class="section-title">Everything Your Athlete Needs</h2>
+    <p class="section-sub">From first practice to college recruitment, AthleteHuddle grows with your family.</p>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <div class="feature-title">Athlete Profiles</div>
+        <div class="feature-desc">Build a complete profile for each child — sport, position, team, school, measurables, and more. One family account handles every athlete.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Calendar Connection</div>
+        <div class="feature-desc">Link HomeHuddle calendar events directly to athletes. Baseball practice goes to Dominic. Hockey game goes to Vincent. Stay organized automatically.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-title">Goals & Development</div>
+        <div class="feature-desc">Set skill, fitness, academic, and mental goals for each athlete. Track progress from not started to achieved.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Stats Tracking</div>
+        <div class="feature-desc">Record any stat for any sport. Flexible format works for baseball averages, track times, basketball points — whatever matters to your athlete.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎥</div>
+        <div class="feature-title">Video Library</div>
+        <div class="feature-desc">Organize game film, highlight clips, and drill videos by sport and category. Built-in fields ready for AI analysis when it launches.</div>
+        <div class="feature-badge">AI Analysis Coming Soon</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <div class="feature-title">Coach Connections</div>
+        <div class="feature-desc">Connect with coaches securely. Control exactly what they can see. Foundation for CoachesHuddle integration.</div>
+        <div class="feature-badge">CoachesHuddle Integration Coming</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Private by Default</div>
+        <div class="feature-desc">All athlete profiles are private. You control what's shared, with whom, and when. No public data without your explicit permission.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏅</div>
+        <div class="feature-title">Multi-Sport Support</div>
+        <div class="feature-desc">Your athlete plays three sports? No problem. Add baseball, basketball, and track with separate teams, coaches, and stats for each.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how" class="how-section">
+  <div class="section-inner">
+    <div class="section-tag">Getting Started</div>
+    <h2 class="section-title">Up and Running in Minutes</h2>
+    <p class="section-sub">No complex setup. No learning curve. If you're already on HomeHuddle, you're most of the way there.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Create Family Account</div>
+        <div class="step-desc">Sign up for HomeHuddle and your family account is your AthleteHuddle home base.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Add Athletes</div>
+        <div class="step-desc">Build a profile for each child. Name, birthdate, sports, school, measurables — takes 2 minutes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Link the Calendar</div>
+        <div class="step-desc">Assign HomeHuddle events to the right athletes. Know at a glance who goes where and when.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Track Everything</div>
+        <div class="step-desc">Add stats, goals, and videos as the season progresses. Watch their development story unfold.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INCLUDED / PRICING ── -->
+<section id="pricing" class="included-section">
+  <div class="section-inner">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">Included With HomeHuddle</h2>
+    <p class="section-sub">AthleteHuddle is not a separate product — it's built into every HomeHuddle plan. Pay once, get everything.</p>
+
+    <div class="plans-grid">
+      <div class="plan-card founding">
+        <span class="plan-tag">FOUNDING FAMILY</span>
+        <div class="plan-name">Founding Family Plan</div>
+        <div class="plan-price">$4.95<span>/month</span></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px;">Locked in for life. Thank you for being early.</p>
+        <ul class="plan-features">
+          <li>Full HomeHuddle access</li>
+          <li>AthleteHuddle — all athletes</li>
+          <li>Calendar + athlete linking</li>
+          <li>Stats, goals, video library</li>
+          <li>Future AI analysis access</li>
+          <li>CoachesHuddle when it launches</li>
+          <li>Price locked forever</li>
+        </ul>
+      </div>
+
+      <div class="plan-card standard">
+        <div class="plan-name">Standard Family Plan</div>
+        <div class="plan-price">$9.99<span>/month</span></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px;">Everything for growing families.</p>
+        <ul class="plan-features">
+          <li>Full HomeHuddle access</li>
+          <li>AthleteHuddle — all athletes</li>
+          <li>Calendar + athlete linking</li>
+          <li>Stats, goals, video library</li>
+          <li>Future AI analysis access</li>
+          <li>CoachesHuddle when it launches</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT'S COMING ── -->
+<section>
+  <div class="section-inner">
+    <div class="section-tag">Roadmap</div>
+    <h2 class="section-title">Built for the Long Game</h2>
+    <p class="section-sub">We're building the platform your athlete will use from rec league to college recruiting. Here's what's on the way.</p>
+
+    <div class="future-grid">
+      <div class="future-item"><span class="future-item-icon">🤖</span> AI Video Analysis</div>
+      <div class="future-item"><span class="future-item-icon">🎓</span> Recruiting Profiles</div>
+      <div class="future-item"><span class="future-item-icon">🏫</span> Coach Evaluations</div>
+      <div class="future-item"><span class="future-item-icon">📐</span> Verified Measurables</div>
+      <div class="future-item"><span class="future-item-icon">🎬</span> Highlight Reels</div>
+      <div class="future-item"><span class="future-item-icon">📋</span> Clinic Recommendations</div>
+      <div class="future-item"><span class="future-item-icon">🏟️</span> Organization Rosters</div>
+      <div class="future-item"><span class="future-item-icon">🔍</span> Athlete Search</div>
+      <div class="future-item"><span class="future-item-icon">🗓️</span> Facility Bookings</div>
+      <div class="future-item"><span class="future-item-icon">💬</span> Coach Messaging</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <h2>Start Building Your<br>Athlete's Story Today</h2>
+  <p>Join HomeHuddle families using AthleteHuddle to track development, stay organized, and prepare for what's next.</p>
+  <div class="hero-ctas">
+    <a href="athlete-onboarding.html" class="btn-primary">
+      ➕ Create Athlete Profile
+    </a>
+    <a href="family-athletes.html" class="btn-secondary">
+      Sign In to HomeHuddle
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>
+    AthleteHuddle is part of <a href="#">HomeHuddle</a> by <strong>Venuewise</strong>.
+    &nbsp;·&nbsp;
+    <a href="#">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="#">Terms</a>
+    &nbsp;·&nbsp;
+    <a href="#">Contact</a>
+  </p>
+  <p style="margin-top:8px;">© 2025 Venuewise. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
