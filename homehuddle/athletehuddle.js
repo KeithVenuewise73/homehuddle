@@ -34,19 +34,40 @@ async function getSession() {
  * Uses email from session to look up family.
  */
 async function getCurrentFamily() {
-  // Your families table columns: id, family_name, email, phone, pin, status
-  // Try live Supabase auth session first
-  const session = await getSession();
-  const email = session?.user?.email;
+  // Primary: read from localStorage session saved by login.html after PIN verified
+  const stored = localStorage.getItem('hh_family');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.id) return parsed;
+    } catch(e) {}
+  }
 
-  if (email) {
+  // Secondary: check URL params (login.html passes email in redirect URL)
+  const params = new URLSearchParams(window.location.search);
+  const emailParam = params.get('email');
+  if (emailParam) {
     const { data, error } = await db
       .from('families')
       .select('*')
-      .eq('email', email)
+      .eq('email', emailParam)
       .single();
-    if (!error && data) return data;
+    if (!error && data) {
+      localStorage.setItem('hh_family', JSON.stringify(data));
+      return data;
+    }
   }
+
+  // Dev fallback: use first active family (remove after login is fully deployed)
+  const { data: fallback } = await db
+    .from('families')
+    .select('*')
+    .eq('status', 'active')
+    .limit(1)
+    .single();
+
+  return fallback || null;
+}
 
   // Dev/demo fallback: use the first active family (Herman Family)
   // Remove once auth is fully wired in HomeHuddle
