@@ -8,7 +8,35 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="manifest" href="/homehuddle/manifest.json" />
+  <link rel="manifest" id="pwa-manifest" href="/homehuddle/manifest.json" />
+  <script>
+    // Generate a per-family manifest so "Add to Home Screen" always
+    // opens the correct family's calendar, not a generic start_url.
+    (function() {
+      const p = new URLSearchParams(window.location.search);
+      const em = p.get('email'), ph = p.get('phone');
+      if (em || ph) {
+        const param = em ? 'email=' + encodeURIComponent(em) : 'phone=' + encodeURIComponent(ph);
+        const manifest = {
+          name: 'HomeHuddle',
+          short_name: 'HomeHuddle',
+          description: "Your family's schedule, finally organized.",
+          start_url: '/homehuddle/calendar.html?' + param,
+          display: 'standalone',
+          background_color: '#1E2A38',
+          theme_color: '#1E2A38',
+          orientation: 'portrait',
+          icons: [
+            { src: '/homehuddle/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: '/homehuddle/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('pwa-manifest').setAttribute('href', url);
+      }
+    })();
+  </script>
   <link rel="apple-touch-icon" href="/homehuddle/icon-192.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <style>
