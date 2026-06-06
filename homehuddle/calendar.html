@@ -113,7 +113,7 @@
 
     /* CALENDAR CONTENT */
     main{padding:14px 20px 80px}
-    .dgroup{margin-bottom:20px}
+    .dgroup{margin-bottom:20px;scroll-margin-top:var(--total-sticky-h,160px)}
     .dlabel{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
     .dlabel::after{content:'';flex:1;height:1px;background:var(--border)}
     .dlabel.today{color:var(--gold)}
@@ -282,6 +282,7 @@
   </div>
   <div class="header-right">
     <button class="icon-btn" id="addEventBtn" onclick="openAE()" style="display:none" title="Add event">✏️</button>
+    <button class="icon-btn" id="shareBtn" onclick="openShare()" style="display:none" title="Share calendar">🔗</button>
     <a href="https://venuewise.net/homehuddle/account.html" class="icon-btn" title="Account settings">⚙️</a>
     <button class="icon-btn" onclick="openTheme()" title="Customize colors">🎨</button>
     <div class="sync-wrap">
@@ -485,20 +486,27 @@ function applySticky() {
   const rb = document.getElementById('reminderBanners');
   const rbH = (rb.style.display !== 'none') ? rb.getBoundingClientRect().height : 0;
   const sh = document.getElementById('statsBar').getBoundingClientRect().height;
+  const ch = document.getElementById('controls').getBoundingClientRect().height;
   document.documentElement.style.setProperty('--header-h', hh + 'px');
   nb.style.top = hh + 'px';
   rb.style.top = (hh + nbH) + 'px';
   document.getElementById('statsBar').style.top = (hh + nbH + rbH) + 'px';
-  document.documentElement.style.setProperty('--header-stats-h', (hh + nbH + rbH + sh) + 'px');
-  document.getElementById('controls').style.top = (hh + nbH + rbH + sh) + 'px';
+  const controlsTop = hh + nbH + rbH + sh;
+  document.documentElement.style.setProperty('--header-stats-h', controlsTop + 'px');
+  document.getElementById('controls').style.top = controlsTop + 'px';
+  // Store total sticky height for scroll offset calculations
+  const totalH = controlsTop + ch;
+  document.documentElement.style.setProperty('--total-sticky-h', totalH + 'px');
 }
 const sObs = new ResizeObserver(applySticky);
 sObs.observe(document.getElementById('siteHeader'));
 sObs.observe(document.getElementById('statsBar'));
 sObs.observe(document.getElementById('reminderBanners'));
 sObs.observe(document.getElementById('notifBanner'));
+sObs.observe(document.getElementById('controls'));
 applySticky();
-window.addEventListener('orientationchange', function(){ setTimeout(applySticky, 100); });
+window.addEventListener('orientationchange', function(){ setTimeout(applySticky, 150); });
+window.addEventListener('resize', function(){ setTimeout(applySticky, 100); });
 
 // ── PERMISSION CHECK ──────────────────────────────────────
 function checkAddEventPermission() {
@@ -508,6 +516,7 @@ function checkAddEventPermission() {
   } else {
     canAddEvents = true;
     document.getElementById('addEventBtn').style.display = 'flex';
+    document.getElementById('shareBtn').style.display = 'flex';
   }
 }
 
@@ -839,11 +848,10 @@ function goToday() {
   setTimeout(function() {
     var todayLabel = document.querySelector('.dlabel.today');
     if (todayLabel) {
-      // Scroll the whole dgroup so events are visible, not just the label
-      var dgroup = todayLabel.closest('.dgroup');
-      (dgroup || todayLabel).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var dgroup = todayLabel.closest('.dgroup') || todayLabel;
+      dgroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, 100);
+  }, 120);
 }
 
 function render() { currentView === 'list' ? renderList() : renderMonth(); }
@@ -1376,6 +1384,27 @@ function onHexBlur(type,value){const clean=value.startsWith('#')?value:'#'+value
 function resetTheme(){applyTheme(DEFAULT_THEME);closeTheme();setTimeout(openTheme,150);showToast('Theme reset to default');}
 function closeTheme(){document.getElementById('themeModal').classList.remove('show');}
 
+// ── SHARE ─────────────────────────────────────────────────
+function openShare() {
+  if (!familyEmail) return;
+  const calUrl = 'https://venuewise.net/homehuddle/calendar.html?email=' + encodeURIComponent(familyEmail);
+  const msg = "Hey! I'm using HomeHuddle to track the family schedule. Tap the link to see games and get notifications — no app needed!\n\n" + calUrl + "\n\nOnce you open it, tap \"Enable notifications\" to get alerts when things change. 🏅";
+  // Try native share sheet first
+  if (navigator.share) {
+    navigator.share({ title: 'HomeHuddle — Family Schedule', text: msg, url: calUrl }).catch(function(){});
+    return;
+  }
+  // Fallback — copy to clipboard
+  navigator.clipboard.writeText(msg).then(function() {
+    showToast('📋 Share link copied — paste in a text message');
+  }).catch(function() {
+    const el = document.createElement('textarea');
+    el.value = msg; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    showToast('📋 Share link copied — paste in a text message');
+  });
+}
+
 // ── MAPS ──────────────────────────────────────────────────
 function openMaps(location){const enc=encodeURIComponent(location);const opts=[{ico:'&#x1F34E;',name:'Apple Maps',sub:'Built-in on iPhone & Mac',url:'https://maps.apple.com/?q='+enc},{ico:'&#x1F5FA;&#xFE0F;',name:'Google Maps',sub:'Works on all devices',url:'https://www.google.com/maps/search/?api=1&query='+enc},{ico:'&#x1F535;',name:'Waze',sub:'Community-based navigation',url:'https://waze.com/ul?q='+enc+'&navigate=yes'},{ico:'&#x1F4CD;',name:'Default Maps App',sub:'Opens your preferred app',url:'geo:0,0?q='+enc}];document.getElementById('mapsContent').innerHTML='<div class="mhandle"></div><div class="maps-title">Open in Maps</div><div class="maps-loc">&#x1F4CD; '+esc(location)+'</div>'+opts.map(function(o){return'<a class="maps-btn" href="'+o.url+'" target="_blank" rel="noopener" onclick="closeMaps()"><div class="maps-btn-ico">'+o.ico+'</div><div class="maps-btn-label"><span class="maps-btn-name">'+o.name+'</span><span class="maps-btn-sub">'+o.sub+'</span></div><span style="color:var(--muted);font-size:1rem">&rsaquo;</span></a>';}).join('')+'<button class="maps-cls" onclick="closeMaps()">Cancel</button>';document.getElementById('mapsModal').classList.add('show');}
 function closeMaps(){document.getElementById('mapsModal').classList.remove('show');}
@@ -1402,10 +1431,10 @@ loadFamilyId().then(function() {
     setTimeout(function() {
       var todayLabel = document.querySelector('.dlabel.today');
       if (todayLabel) {
-        var dgroup = todayLabel.closest('.dgroup');
-        (dgroup || todayLabel).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var dgroup = todayLabel.closest('.dgroup') || todayLabel;
+        dgroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 400);
+    }, 500);
   });
 });
 setInterval(function(){ loadEvents(false); }, REFRESH);
