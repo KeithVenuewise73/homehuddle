@@ -449,6 +449,17 @@
     <!-- DASHBOARD GRID -->
     <div class="dash-grid">
 
+      <!-- TEAMS -->
+      <div class="card span-2" id="teams-card">
+        <div class="card-header">
+          <div class="card-title">🏆 Teams</div>
+          <a href="athlete-onboarding.html?edit=true" class="card-action">+ Add Team</a>
+        </div>
+        <div class="card-body" id="teams-body">
+          <p style="font-size:13px;color:rgba(255,255,255,0.35);text-align:center;padding:20px 0;">Loading teams...</p>
+        </div>
+      </div>
+
       <!-- UPCOMING EVENTS -->
       <div class="card">
         <div class="card-header">
@@ -657,47 +668,16 @@
   </div>
 </div>
 
-<script src="athletehuddle.js?v=2"></script>
+<script src="athletehuddle.js?v=4"></script>
 <script>
   // ─── DEMO DATA ───────────────────────────────────────────────
-  const demoAthlete = {
-    id: 'demo-1', first_name: 'Dominic', last_name: 'Johnson',
-    birthdate: '2012-05-14', graduation_year: 2030,
-    school: 'Lincoln Middle School', city: 'Buffalo', state: 'NY',
-    primary_sport: 'Baseball', secondary_sports: ['Basketball'],
-    profile_photo_url: null, height_inches: 62, weight_lbs: 115,
-    dominant_hand: 'right'
-  };
-  const demoEvents = [
-    { event_title: 'Eagles Baseball Practice', event_type: 'practice', sport:'Baseball', team:'Eagles 12U', start_time: new Date(Date.now() + 86400000*2).toISOString() },
-    { event_title: 'Tournament — Buffalo Classic', event_type: 'tournament', sport:'Baseball', team:'Eagles 12U', start_time: new Date(Date.now() + 86400000*5).toISOString() },
-    { event_title: 'AAU Basketball Tryout', event_type: 'practice', sport:'Basketball', team:'', start_time: new Date(Date.now() + 86400000*10).toISOString() },
-  ];
-  const demoGoals = [
-    { id:'g1', goal_title:'Hit .300 this season', category:'skill', progress_status:'in_progress', target_date:'2025-07-01' },
-    { id:'g2', goal_title:'Improve 60-yard dash to 7.5s', category:'fitness', progress_status:'not_started', target_date:'2025-09-01' },
-    { id:'g3', goal_title:'Make travel team', category:'team', progress_status:'achieved', target_date:'2025-04-15' },
-  ];
-  const demoStats = [
-    { id:'s1', sport:'Baseball', stat_name:'Batting Average', stat_value:'.285', season:'Spring 2025' },
-    { id:'s2', sport:'Baseball', stat_name:'On-Base %', stat_value:'.360', season:'Spring 2025' },
-    { id:'s3', sport:'Baseball', stat_name:'ERA', stat_value:'2.40', season:'Spring 2025' },
-    { id:'s4', sport:'Basketball', stat_name:'PPG', stat_value:'12.5', season:'Winter 2024-25' },
-  ];
-  const demoVideos = [
-    { id:'v1', title:'Spring Tournament Highlights', sport:'Baseball', category:'highlight', video_url:'https://youtube.com', ai_analysis_status:'not_submitted' },
-    { id:'v2', title:'Pitching Mechanics Drill', sport:'Baseball', category:'drill', video_url:'https://youtube.com', ai_analysis_status:'not_submitted' },
-  ];
-  const demoCoaches = [
-    { id:'c1', coach_name:'Coach Martinez', sport:'Baseball', organization:'Eagles 12U', connection_status:'active' },
-    { id:'c2', coach_name:'Coach Davis', sport:'Basketball', organization:'YMCA AAU', connection_status:'pending' },
-  ];
+  const demoAthlete = null; // No demo athlete - load from real data only
 
-  // Local store for new items
-  let localGoals = [...demoGoals];
-  let localStats = [...demoStats];
-  let localVideos = [...demoVideos];
-  let localCoaches = [...demoCoaches];
+  // Start with empty arrays - real data loaded from Supabase
+  let localGoals = [];
+  let localStats = [];
+  let localVideos = [];
+  let localCoaches = [];
 
   // ─── RENDER PROFILE ──────────────────────────────────────────
   function renderProfile(a) {
@@ -726,8 +706,12 @@
     document.getElementById('profile-meta').textContent = metaParts.join(' · ');
 
     let tagsHtml = '';
-    if (a.primary_sport) tagsHtml += `<span class="profile-tag tag-sport">${a.primary_sport}</span>`;
+    const allSports = [];
+    if (a.primary_sport) allSports.push(a.primary_sport);
     (a.secondary_sports || []).forEach(s => {
+      if (s && !allSports.includes(s)) allSports.push(s);
+    });
+    allSports.forEach(s => {
       tagsHtml += `<span class="profile-tag tag-sport">${s}</span>`;
     });
     document.getElementById('profile-tags').innerHTML = tagsHtml;
@@ -882,6 +866,50 @@
     }).join('');
   }
 
+  // ─── RENDER TEAMS ────────────────────────────────────────────
+  function renderTeams(sports) {
+    const el = document.getElementById('teams-body');
+    if (!sports || !sports.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px 0;">' +
+        '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No teams added yet</p>' +
+        '<a href="athlete-onboarding.html" style="font-size:13px;color:var(--blue-lt);text-decoration:none;font-weight:600;">+ Add First Team</a>' +
+        '</div>';
+      return;
+    }
+
+    const typeColors = {
+      'Travel': 'rgba(245,166,35,0.15)',
+      'School': 'rgba(34,197,94,0.15)',
+      'Club': 'rgba(30,79,216,0.2)',
+      'Bantam Minor AA': 'rgba(124,58,237,0.15)'
+    };
+
+    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">' +
+      sports.map(s => {
+        const orgType = s.organization || '';
+        const bg = typeColors[orgType] || 'rgba(255,255,255,0.04)';
+        const statusColor = s.is_active ? '#22c55e' : '#94a3b8';
+        const statusLabel = s.is_active ? 'Active' : 'Past';
+        return '<div style="background:' + bg + ';border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
+            '<span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">' + s.sport + '</span>' +
+            '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;background:' + statusColor + '22;color:' + statusColor + ';">' + statusLabel + '</span>' +
+          '</div>' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:4px;">' + (s.current_team || '—') + '</div>' +
+          '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">' +
+            (s.position ? s.position + ' · ' : '') +
+            (s.organization || '') +
+          '</div>' +
+          '<div style="font-size:12px;color:rgba(255,255,255,0.4);">' +
+            (s.coach_name ? '👤 Coach ' + s.coach_name : '') +
+            (s.coach_name && s.season ? ' · ' : '') +
+            (s.season || '') +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
   // ─── MODALS ───────────────────────────────────────────────────
   function openModal(id) {
     document.getElementById(id).classList.add('open');
@@ -988,32 +1016,46 @@
   // ─── INIT ─────────────────────────────────────────────────────
   async function init() {
     const athleteId = getActiveAthlete();
-    let athlete = demoAthlete;
-    let events = demoEvents;
-
-    if (athleteId && !athleteId.startsWith('demo')) {
-      try {
-        const fetched = await getAthlete(athleteId);
-        if (fetched) { athlete = fetched; }
-        const fetchedEvents = await getAthleteEvents(athleteId);
-        if (fetchedEvents.length) events = fetchedEvents;
-        const fetchedGoals = await getAthleteGoals(athleteId);
-        if (fetchedGoals.length) localGoals = fetchedGoals;
-        const fetchedStats = await getAthleteStats(athleteId);
-        if (fetchedStats.length) localStats = fetchedStats;
-        const fetchedVideos = await getAthleteVideos(athleteId);
-        if (fetchedVideos.length) localVideos = fetchedVideos;
-        const fetchedCoaches = await getCoachConnections(athleteId);
-        if (fetchedCoaches.length) localCoaches = fetchedCoaches;
-      } catch(e) { /* use demo data */ }
+    if (!athleteId) {
+      document.getElementById('profile-name').textContent = 'No athlete selected';
+      document.getElementById('profile-meta').textContent = 'Go to My Athletes to select an athlete';
+      renderEvents([]);
+      renderGoals([]);
+      renderStats([]);
+      renderVideos([]);
+      renderCoaches([]);
+      return;
     }
 
-    renderProfile(athlete);
-    renderEvents(events);
-    renderGoals(localGoals);
-    renderStats(localStats);
-    renderVideos(localVideos);
-    renderCoaches(localCoaches);
+    try {
+      const athlete = await getAthlete(athleteId);
+      if (athlete) renderProfile(athlete);
+
+      const fetchedEvents = await getAthleteEvents(athleteId);
+      renderEvents(fetchedEvents || []);
+
+      const fetchedGoals = await getAthleteGoals(athleteId);
+      localGoals = fetchedGoals || [];
+      renderGoals(localGoals);
+
+      const fetchedStats = await getAthleteStats(athleteId);
+      localStats = fetchedStats || [];
+      renderStats(localStats);
+
+      const fetchedVideos = await getAthleteVideos(athleteId);
+      localVideos = fetchedVideos || [];
+      renderVideos(localVideos);
+
+      const fetchedCoaches = await getCoachConnections(athleteId);
+      localCoaches = fetchedCoaches || [];
+      renderCoaches(localCoaches);
+
+      const fetchedSports = await getAthleteSports(athleteId);
+      renderTeams(fetchedSports || []);
+
+    } catch(e) {
+      console.error('Dashboard load error:', e);
+    }
   }
 
   init();
