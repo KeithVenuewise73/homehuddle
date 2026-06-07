@@ -942,7 +942,7 @@
             (s.season || '') +
           '</div>' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-            '<button onclick="openEditTeamModal(' + JSON.stringify(s).replace(/"/g, '&quot;') + ')" ' +
+            '<button onclick="openEditTeamById('' + s.id + '')" ' +
               'style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);' +
               'padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">✏️ Edit</button>' +
             (s.is_active ?
@@ -993,7 +993,9 @@
     openModal('stats-modal');
   }
 
-  function openEditTeamModal(sport) {
+  function openEditTeamById(sportId) {
+    const sport = currentSports.find(s => s.id === sportId);
+    if (!sport) return;
     document.getElementById('edit-team-id').value = sport.id;
     document.getElementById('edit-team-name').value = sport.current_team || '';
     document.getElementById('edit-team-sport').value = sport.sport || '';
@@ -1166,7 +1168,8 @@
       renderCoaches(localCoaches);
 
       const fetchedSports = await getAthleteSports(athleteId);
-      renderTeams(fetchedSports || []);
+      currentSports = fetchedSports || [];
+      renderTeams(currentSports);
 
     } catch(e) {
       console.error('Dashboard load error:', e);
