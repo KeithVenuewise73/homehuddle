@@ -530,6 +530,42 @@
 
 <!-- MODALS -->
 
+<!-- EDIT TEAM MODAL -->
+<div class="modal-overlay" id="edit-team-modal">
+  <div class="modal">
+    <div class="modal-title">✏️ Edit Team</div>
+    <input type="hidden" id="edit-team-id" />
+    <div class="modal-field">
+      <label>Sport</label>
+      <input type="text" id="edit-team-sport" />
+    </div>
+    <div class="modal-field">
+      <label>Team Name</label>
+      <input type="text" id="edit-team-name" />
+    </div>
+    <div class="modal-field">
+      <label>Position</label>
+      <input type="text" id="edit-team-position" />
+    </div>
+    <div class="modal-field">
+      <label>Organization Type</label>
+      <input type="text" id="edit-team-org" placeholder="Travel, School, Club..." />
+    </div>
+    <div class="modal-field">
+      <label>Coach Name</label>
+      <input type="text" id="edit-team-coach" />
+    </div>
+    <div class="modal-field">
+      <label>Season</label>
+      <input type="text" id="edit-team-season" placeholder="Spring 2026" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal('edit-team-modal')">Cancel</button>
+      <button class="btn-modal-save" onclick="saveTeamEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- GOAL MODAL -->
 <div class="modal-overlay" id="goals-modal">
   <div class="modal">
@@ -900,14 +936,93 @@
             (s.position ? s.position + ' · ' : '') +
             (s.organization || '') +
           '</div>' +
-          '<div style="font-size:12px;color:rgba(255,255,255,0.4);">' +
+          '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">' +
             (s.coach_name ? '👤 Coach ' + s.coach_name : '') +
             (s.coach_name && s.season ? ' · ' : '') +
             (s.season || '') +
           '</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+            '<button onclick="openEditTeamModal(' + JSON.stringify(s).replace(/"/g, '&quot;') + ')" ' +
+              'style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);' +
+              'padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">✏️ Edit</button>' +
+            (s.is_active ?
+              '<button onclick="markTeamPast('' + s.id + '')" ' +
+                'style="background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);color:#94a3b8;' +
+                'padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">📦 Mark Past</button>'
+              :
+              '<button onclick="markTeamActive('' + s.id + '')" ' +
+                'style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;' +
+                'padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">✅ Mark Active</button>'
+            ) +
+            '<button onclick="openAddStatForTeam('' + s.sport + '')" ' +
+              'style="background:rgba(30,79,216,0.2);border:1px solid rgba(59,111,245,0.3);color:#93b4ff;' +
+              'padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">📊 Add Stat</button>' +
+          '</div>' +
         '</div>';
       }).join('') +
     '</div>';
+  }
+
+  // ─── TEAM ACTIONS ────────────────────────────────────────────
+  let currentSports = [];
+
+  async function markTeamPast(sportId) {
+    try {
+      await updateAthleteSport(sportId, { is_active: false });
+      showToast('Team marked as past');
+      const athleteId = getActiveAthlete();
+      const sports = await getAthleteSports(athleteId);
+      currentSports = sports || [];
+      renderTeams(currentSports);
+    } catch(e) { showToast('Could not update team', 'error'); }
+  }
+
+  async function markTeamActive(sportId) {
+    try {
+      await updateAthleteSport(sportId, { is_active: true });
+      showToast('Team marked as active');
+      const athleteId = getActiveAthlete();
+      const sports = await getAthleteSports(athleteId);
+      currentSports = sports || [];
+      renderTeams(currentSports);
+    } catch(e) { showToast('Could not update team', 'error'); }
+  }
+
+  function openAddStatForTeam(sport) {
+    document.getElementById('stat-sport').value = sport;
+    openModal('stats-modal');
+  }
+
+  function openEditTeamModal(sport) {
+    document.getElementById('edit-team-id').value = sport.id;
+    document.getElementById('edit-team-name').value = sport.current_team || '';
+    document.getElementById('edit-team-sport').value = sport.sport || '';
+    document.getElementById('edit-team-position').value = sport.position || '';
+    document.getElementById('edit-team-org').value = sport.organization || '';
+    document.getElementById('edit-team-coach').value = sport.coach_name || '';
+    document.getElementById('edit-team-season').value = sport.season || '';
+    openModal('edit-team-modal');
+  }
+
+  async function saveTeamEdit() {
+    const sportId = document.getElementById('edit-team-id').value;
+    const updates = {
+      current_team: document.getElementById('edit-team-name').value,
+      sport: document.getElementById('edit-team-sport').value,
+      position: document.getElementById('edit-team-position').value,
+      organization: document.getElementById('edit-team-org').value,
+      coach_name: document.getElementById('edit-team-coach').value,
+      season: document.getElementById('edit-team-season').value,
+    };
+    try {
+      await updateAthleteSport(sportId, updates);
+      showToast('Team updated!');
+      closeModal('edit-team-modal');
+      const athleteId = getActiveAthlete();
+      const sports = await getAthleteSports(athleteId);
+      currentSports = sports || [];
+      renderTeams(currentSports);
+    } catch(e) { showToast('Could not save team', 'error'); }
   }
 
   // ─── MODALS ───────────────────────────────────────────────────
