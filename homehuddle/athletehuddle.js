@@ -130,6 +130,17 @@ async function addAthleteSport(sportData) {
   return data;
 }
 
+async function updateAthleteSport(sportId, updates) {
+  const { data, error } = await db
+    .from('athlete_sports')
+    .update(updates)
+    .eq('id', sportId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 async function deleteAthleteSport(sportId) {
   const { error } = await db.from('athlete_sports').delete().eq('id', sportId);
   if (error) throw error;
