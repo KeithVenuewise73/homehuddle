@@ -195,6 +195,73 @@
     renderEvents();
   }
 
+  function renderEventRow(e) {
+    const d = e.datetime;
+    const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const timeStr = d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const assignedSet = assignments[e.id] || new Set();
+    const athleteChips = athletes.map(a =>
+      '<span class="assign-chip ' + (assignedSet.has(a.id) ? 'assigned' : '') + '" ' +
+      'onclick="toggleAssign(\'' + e.id + '\',\'' + a.id + '\',this)">' +
+      a.first_name + '</span>'
+    ).join('');
+    return '<div class="event-row">' +
+      '<div class="event-row-left">' +
+        '<div class="event-row-title">' + e.title + '</div>' +
+        '<div class="event-row-meta">' + dateStr + ' at ' + timeStr + (e.location ? ' · ' + e.location : '') + '</div>' +
+      '</div>' +
+      '<div class="event-row-right">' +
+        '<div class="assign-label">Assign to:</div>' +
+        '<div class="assign-chips">' + athleteChips +
+          '<span class="assign-chip family ' + (assignedSet.has('family') ? 'assigned' : '') + '" ' +
+          'onclick="toggleAssign(\'' + e.id + '\',\'family\',this)">🏠 Family</span>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function toggleAssign(eventId, targetId, el) {
+    if (!assignments[eventId]) assignments[eventId] = new Set();
+    const set = assignments[eventId];
+    if (set.has(targetId)) { set.delete(targetId); el.classList.remove('assigned'); }
+    else { set.add(targetId); el.classList.add('assigned'); }
+  }
+
+  function renderEvents() {
+    const now = new Date();
+    const weekEnd = new Date(now.getTime() + 86400000 * 7);
+    const thisWeek = sampleEvents.filter(e => e.datetime <= weekEnd);
+    const upcoming = sampleEvents.filter(e => e.datetime > weekEnd);
+    document.getElementById('events-list').innerHTML = thisWeek.length
+      ? thisWeek.map(renderEventRow).join('')
+      : '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No events this week.</p>';
+    document.getElementById('upcoming-list').innerHTML = upcoming.length
+      ? upcoming.map(renderEventRow).join('')
+      : '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No upcoming events.</p>';
+  }
+
+  async function saveAllAssignments() {
+    const records = [];
+    for (const [eventId, athleteSet] of Object.entries(assignments)) {
+      const event = sampleEvents.find(e => e.id === eventId);
+      if (!event) continue;
+      for (const targetId of athleteSet) {
+        if (targetId === 'family') continue;
+        records.push({
+          athlete_id: targetId, event_id: eventId,
+          event_title: event.title, event_type: event.type,
+          sport: event.sport || null,
+          start_time: event.datetime.toISOString(),
+          location: event.location || null, source: 'homehuddle'
+        });
+      }
+    }
+    try {
+      await Promise.all(records.map(r => linkEventToAthlete(r)));
+      showToast('Saved ' + records.length + ' event assignments!');
+      setTimeout(() => window.location.href = 'athlete-dashboard.html', 1500);
+    } catch(err) { showToast('Error saving assignments', 'error'); }
+  }
+
   loadRealData();
 </script>
 </body>
