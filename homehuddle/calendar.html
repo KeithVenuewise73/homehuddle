@@ -283,6 +283,7 @@
   <div class="header-right">
     <button class="icon-btn" id="addEventBtn" onclick="openAE()" style="display:none" title="Add event">✏️</button>
     <button class="icon-btn" id="shareBtn" onclick="openShare()" style="display:none" title="Share calendar">🔗</button>
+<a href="https://venuewise.net/homehuddle/family-athletes.html" class="icon-btn" title="AthleteHuddle">🏅</a>   
     <a href="https://venuewise.net/homehuddle/account.html" class="icon-btn" title="Account settings">⚙️</a>
     <button class="icon-btn" onclick="openTheme()" title="Customize colors">🎨</button>
     <div class="sync-wrap">
@@ -983,7 +984,8 @@ function showModal(ev) {
     (ev.description && !isManual ? '<div class="mrow"><div class="mico">&#x1F4DD;</div><div class="mlbl">Notes</div><div class="mval" style="font-weight:500">' + esc(ev.description) + '</div></div>' : '') +
     (!isManual ? '<button class="mact" onclick="dlICS(\'' + esc(String(ev.id)) + '\')">&#x1F4F2; Add to My Calendar</button>' : '') +
     (isManual && canAddEvents ? '<button class="medit" onclick="editManualEvent(\'' + esc(String(ev.id)) + '\')">✏️ Edit</button><button class="mdel" onclick="deleteManualEvent(\'' + esc(String(ev.id)) + '\')">🗑 Delete</button>' : '') +
-    '<button class="mcls" onclick="closeModal()">Close</button>';
+    '<button class="mcls" onclick="closeModal()">Close</button>'+
+'<a href="https://venuewise.net/homehuddle/family-athletes.html" class="mcls" style="display:block;text-align:center;text-decoration:none;margin-top:8px;background:rgba(30,79,216,0.15);border:1px solid rgba(59,111,245,0.3);color:#93b4ff;">🏅 My Athletes</a>';    
   document.getElementById('evModal').classList.add('show');
 }
 function closeModal() { document.getElementById('evModal').classList.remove('show'); }
