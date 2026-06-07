@@ -159,9 +159,8 @@
       const { data: events, error } = await db
         .from('events')
         .select('uid, name, sport, start, end, location, description, kid')
-        .gte('start', now)
-        .eq('is_duplicate', false)
-        .order('start', { ascending: true });
+        .order('start', { ascending: true })
+        .limit(100);
 
       if (!error && events && events.length) {
         sampleEvents = events.map(e => ({
