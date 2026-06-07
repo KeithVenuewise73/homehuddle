@@ -2,48 +2,34 @@
  * AthleteHuddle.js
  * Shared JavaScript library for all AthleteHuddle pages.
  * Handles Supabase CRUD, session management, and utilities.
- *
- * Dependencies:
- *   - Supabase JS v2 (loaded via CDN in each HTML page)
- *   - SUPABASE_URL and SUPABASE_ANON_KEY must be set before this script loads
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-// Replace these with your actual Supabase project values
 const SUPABASE_URL = window.SUPABASE_URL || 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT';
 
-// Initialize Supabase client (v2 CDN global)
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ─── SESSION ─────────────────────────────────────────────────────────────────
 
-/**
- * Get the current authenticated session.
- * In HomeHuddle's PIN/email auth, adapt this to match your auth flow.
- */
 async function getSession() {
   const { data: { session }, error } = await db.auth.getSession();
   if (error) console.error('Session error:', error);
   return session;
 }
 
-/**
- * Get the family record for the current user.
- * Uses email from session to look up family.
- */
 async function getCurrentFamily() {
-  // Primary: read from localStorage session saved by login.html after PIN verified
+  // 1. Read from localStorage (saved by login.html after PIN verified)
   const stored = localStorage.getItem('hh_family');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed?.id) return parsed;
+      if (parsed && parsed.id) return parsed;
     } catch(e) {}
   }
 
-  // Secondary: check URL params (login.html passes email in redirect URL)
+  // 2. Check URL params
   const params = new URLSearchParams(window.location.search);
   const emailParam = params.get('email');
   if (emailParam) {
@@ -58,7 +44,7 @@ async function getCurrentFamily() {
     }
   }
 
-  // Dev fallback: use first active family (remove after login is fully deployed)
+  // 3. Dev fallback: first active family
   const { data: fallback } = await db
     .from('families')
     .select('*')
@@ -69,80 +55,46 @@ async function getCurrentFamily() {
   return fallback || null;
 }
 
-  // Dev/demo fallback: use the first active family (Herman Family)
-  // Remove once auth is fully wired in HomeHuddle
-  const { data: fallback } = await db
-    .from('families')
-    .select('*')
-    .eq('status', 'active')
-    .limit(1)
-    .single();
-
-  return fallback || null;
-}
-
-/**
- * Convenience: get family_id for current session.
- * Used throughout as the anchor for all athlete queries.
- */
 async function getFamilyId() {
   const family = await getCurrentFamily();
-  return family?.id || null;
+  return family ? family.id : null;
 }
 
-// ─── ATHLETES ─────────────────────────────────────────────────────────────────
+// ─── ATHLETES ────────────────────────────────────────────────────────────────
 
-/**
- * Get all athletes for the current family.
- */
 async function getAthletes(familyId) {
   const { data, error } = await db
     .from('athletes')
     .select('*')
     .eq('family_id', familyId)
     .order('first_name');
-
   if (error) { console.error('getAthletes error:', error); return []; }
   return data || [];
 }
 
-/**
- * Get a single athlete by ID.
- */
 async function getAthlete(athleteId) {
   const { data, error } = await db
     .from('athletes')
     .select('*')
     .eq('id', athleteId)
     .single();
-
   if (error) { console.error('getAthlete error:', error); return null; }
   return data;
 }
 
-/**
- * Create a new athlete profile.
- * @param {object} athleteData - fields matching the athletes table
- */
 async function createAthlete(athleteData) {
   const familyId = await getFamilyId();
   if (!familyId) throw new Error('No family found for current user');
-
-  const payload = { ...athleteData, family_id: familyId };
-
+  const payload = Object.assign({}, athleteData, { family_id: familyId });
   const { data, error } = await db
     .from('athletes')
     .insert(payload)
     .select()
     .single();
-
   if (error) throw error;
   return data;
 }
 
-/**
- * Update an existing athlete profile.
- */
 async function updateAthlete(athleteId, updates) {
   const { data, error } = await db
     .from('athletes')
@@ -150,25 +102,17 @@ async function updateAthlete(athleteId, updates) {
     .eq('id', athleteId)
     .select()
     .single();
-
   if (error) throw error;
   return data;
 }
 
-/**
- * Delete an athlete (cascades to all child tables via FK).
- */
 async function deleteAthlete(athleteId) {
-  const { error } = await db
-    .from('athletes')
-    .delete()
-    .eq('id', athleteId);
-
+  const { error } = await db.from('athletes').delete().eq('id', athleteId);
   if (error) throw error;
   return true;
 }
 
-// ─── ATHLETE SPORTS ───────────────────────────────────────────────────────────
+// ─── ATHLETE SPORTS ──────────────────────────────────────────────────────────
 
 async function getAthleteSports(athleteId) {
   const { data, error } = await db
@@ -176,30 +120,12 @@ async function getAthleteSports(athleteId) {
     .select('*')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false });
-
   if (error) { console.error('getAthleteSports error:', error); return []; }
   return data || [];
 }
 
 async function addAthleteSport(sportData) {
-  const { data, error } = await db
-    .from('athlete_sports')
-    .insert(sportData)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}
-
-async function updateAthleteSport(sportId, updates) {
-  const { data, error } = await db
-    .from('athlete_sports')
-    .update(updates)
-    .eq('id', sportId)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('athlete_sports').insert(sportData).select().single();
   if (error) throw error;
   return data;
 }
@@ -210,9 +136,10 @@ async function deleteAthleteSport(sportId) {
   return true;
 }
 
-// ─── ATHLETE EVENTS ───────────────────────────────────────────────────────────
+// ─── ATHLETE EVENTS ──────────────────────────────────────────────────────────
 
-async function getAthleteEvents(athleteId, limit = 10) {
+async function getAthleteEvents(athleteId, limit) {
+  limit = limit || 10;
   const now = new Date().toISOString();
   const { data, error } = await db
     .from('athlete_events')
@@ -221,18 +148,12 @@ async function getAthleteEvents(athleteId, limit = 10) {
     .gte('start_time', now)
     .order('start_time')
     .limit(limit);
-
   if (error) { console.error('getAthleteEvents error:', error); return []; }
   return data || [];
 }
 
 async function linkEventToAthlete(eventData) {
-  const { data, error } = await db
-    .from('athlete_events')
-    .insert(eventData)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('athlete_events').insert(eventData).select().single();
   if (error) throw error;
   return data;
 }
@@ -243,7 +164,7 @@ async function unlinkEventFromAthlete(id) {
   return true;
 }
 
-// ─── ATHLETE GOALS ─────────────────────────────────────────────────────────────
+// ─── ATHLETE GOALS ───────────────────────────────────────────────────────────
 
 async function getAthleteGoals(athleteId) {
   const { data, error } = await db
@@ -251,18 +172,12 @@ async function getAthleteGoals(athleteId) {
     .select('*')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false });
-
   if (error) { console.error('getAthleteGoals error:', error); return []; }
   return data || [];
 }
 
 async function addAthleteGoal(goalData) {
-  const { data, error } = await db
-    .from('athlete_goals')
-    .insert(goalData)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('athlete_goals').insert(goalData).select().single();
   if (error) throw error;
   return data;
 }
@@ -274,7 +189,6 @@ async function updateGoalStatus(goalId, status) {
     .eq('id', goalId)
     .select()
     .single();
-
   if (error) throw error;
   return data;
 }
@@ -285,29 +199,22 @@ async function deleteAthleteGoal(goalId) {
   return true;
 }
 
-// ─── ATHLETE STATS ─────────────────────────────────────────────────────────────
+// ─── ATHLETE STATS ───────────────────────────────────────────────────────────
 
-async function getAthleteStats(athleteId, sport = null) {
+async function getAthleteStats(athleteId, sport) {
   let query = db
     .from('athlete_stats')
     .select('*')
     .eq('athlete_id', athleteId)
     .order('recorded_at', { ascending: false });
-
   if (sport) query = query.eq('sport', sport);
-
   const { data, error } = await query;
   if (error) { console.error('getAthleteStats error:', error); return []; }
   return data || [];
 }
 
 async function addAthleteStat(statData) {
-  const { data, error } = await db
-    .from('athlete_stats')
-    .insert(statData)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('athlete_stats').insert(statData).select().single();
   if (error) throw error;
   return data;
 }
@@ -318,7 +225,7 @@ async function deleteAthleteStat(statId) {
   return true;
 }
 
-// ─── ATHLETE VIDEOS ───────────────────────────────────────────────────────────
+// ─── ATHLETE VIDEOS ──────────────────────────────────────────────────────────
 
 async function getAthleteVideos(athleteId) {
   const { data, error } = await db
@@ -326,18 +233,12 @@ async function getAthleteVideos(athleteId) {
     .select('*')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false });
-
   if (error) { console.error('getAthleteVideos error:', error); return []; }
   return data || [];
 }
 
 async function addAthleteVideo(videoData) {
-  const { data, error } = await db
-    .from('athlete_videos')
-    .insert(videoData)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('athlete_videos').insert(videoData).select().single();
   if (error) throw error;
   return data;
 }
@@ -348,7 +249,7 @@ async function deleteAthleteVideo(videoId) {
   return true;
 }
 
-// ─── COACH CONNECTIONS ────────────────────────────────────────────────────────
+// ─── COACH CONNECTIONS ───────────────────────────────────────────────────────
 
 async function getCoachConnections(athleteId) {
   const { data, error } = await db
@@ -356,121 +257,69 @@ async function getCoachConnections(athleteId) {
     .select('*')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false });
-
   if (error) { console.error('getCoachConnections error:', error); return []; }
   return data || [];
 }
 
 async function addCoachConnection(connectionData) {
-  const { data, error } = await db
-    .from('coach_connections')
-    .insert(connectionData)
-    .select()
-    .single();
-
+  const { data, error } = await db.from('coach_connections').insert(connectionData).select().single();
   if (error) throw error;
   return data;
 }
 
-// ─── UTILITIES ────────────────────────────────────────────────────────────────
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
 
-/**
- * Calculate age from birthdate string.
- */
 function calcAge(birthdate) {
   if (!birthdate) return null;
-  const today = new Date();
-  const birth = new Date(birthdate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
+  var today = new Date();
+  var birth = new Date(birthdate);
+  var age = today.getFullYear() - birth.getFullYear();
+  var m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   return age;
 }
 
-/**
- * Format a date/time for display.
- */
 function formatDateTime(isoString) {
   if (!isoString) return '—';
-  const d = new Date(isoString);
-  return d.toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric',
-    hour: 'numeric', minute: '2-digit'
-  });
+  var d = new Date(isoString);
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
-/**
- * Format height from inches to ft/in display.
- */
 function formatHeight(inches) {
   if (!inches) return '—';
-  const ft = Math.floor(inches / 12);
-  const inch = Math.round(inches % 12);
-  return `${ft}'${inch}"`;
+  var ft = Math.floor(inches / 12);
+  var inch = Math.round(inches % 12);
+  return ft + "'" + inch + '"';
 }
 
-/**
- * Get initials from first/last name.
- */
 function getInitials(firstName, lastName) {
-  return `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase();
+  return ((firstName || '')[0] || '') + ((lastName || '')[0] || '').toUpperCase();
 }
 
-/**
- * Goal status badge color helper.
- */
 function goalStatusColor(status) {
-  const map = {
-    not_started: '#94a3b8',
-    in_progress: '#3b82f6',
-    achieved: '#22c55e',
-    paused: '#f59e0b'
-  };
+  var map = { not_started: '#94a3b8', in_progress: '#3b82f6', achieved: '#22c55e', paused: '#f59e0b' };
   return map[status] || '#94a3b8';
 }
 
-/**
- * Goal status label.
- */
 function goalStatusLabel(status) {
-  const map = {
-    not_started: 'Not Started',
-    in_progress: 'In Progress',
-    achieved: 'Achieved ✓',
-    paused: 'Paused'
-  };
+  var map = { not_started: 'Not Started', in_progress: 'In Progress', achieved: 'Achieved ✓', paused: 'Paused' };
   return map[status] || status;
 }
 
-/**
- * Show a toast notification.
- */
-function showToast(message, type = 'success') {
-  const existing = document.getElementById('ah-toast');
+function showToast(message, type) {
+  type = type || 'success';
+  var existing = document.getElementById('ah-toast');
   if (existing) existing.remove();
-
-  const toast = document.createElement('div');
+  var toast = document.createElement('div');
   toast.id = 'ah-toast';
-  toast.style.cssText = `
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: ${type === 'error' ? '#ef4444' : '#22c55e'};
-    color: #fff; padding: 12px 24px; border-radius: 8px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: slideUp 0.3s ease;
-  `;
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' +
+    (type === 'error' ? '#ef4444' : '#22c55e') +
+    ';color:#fff;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);';
   toast.textContent = message;
-
-  const style = document.createElement('style');
-  style.textContent = `@keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(20px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }`;
-  document.head.appendChild(style);
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
+  setTimeout(function() { toast.remove(); }, 3500);
 }
 
-/**
- * Save athleteId to sessionStorage for cross-page navigation.
- */
 function setActiveAthlete(athleteId) {
   sessionStorage.setItem('ah_athlete_id', athleteId);
 }
