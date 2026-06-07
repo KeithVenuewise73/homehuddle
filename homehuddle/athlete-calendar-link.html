@@ -129,122 +129,74 @@
 
 <script src="athletehuddle.js?v=2"></script>
 <script>
-  // Demo athletes and events
-  const athletes = [
-    { id:'demo-1', first_name:'Dominic', last_name:'J.' },
-    { id:'demo-2', first_name:'Vincent', last_name:'J.' },
-  ];
-
-  const sampleEvents = [
-    { id:'e1', title:'Eagles Baseball Practice', type:'practice', sport:'Baseball', datetime: new Date(Date.now()+86400000*1), location:'Field 3, North Park' },
-    { id:'e2', title:'Hockey Game vs Sabres Jr', type:'game', sport:'Hockey', datetime: new Date(Date.now()+86400000*2), location:'LECOM Harborcenter' },
-    { id:'e3', title:'Family Dinner — Grandma\'s', type:'family', sport:'', datetime: new Date(Date.now()+86400000*3), location:'Home' },
-    { id:'e4', title:'School Concert', type:'school', sport:'', datetime: new Date(Date.now()+86400000*4), location:'Lincoln MS Auditorium' },
-    { id:'e5', title:'Baseball Tournament', type:'tournament', sport:'Baseball', datetime: new Date(Date.now()+86400000*7), location:'Hamburg Fields' },
-    { id:'e6', title:'AAU Basketball Practice', type:'practice', sport:'Basketball', datetime: new Date(Date.now()+86400000*8), location:'YMCA Gym' },
-  ];
-
-  // Assignment state: eventId -> Set of athleteIds (or 'family')
+  // ── REAL DATA LOADING ────────────────────────────────────────
+  let athletes = [];
+  let sampleEvents = [];
   const assignments = {};
-  sampleEvents.forEach(e => {
-    assignments[e.id] = new Set();
-    // Auto-suggest based on sport
-    if (e.sport === 'Baseball') assignments[e.id].add('demo-1');
-    if (e.sport === 'Hockey') assignments[e.id].add('demo-2');
-    if (e.type === 'family' || e.type === 'school') assignments[e.id].add('family');
-  });
 
-  function getInitialsFn(a) {
-    return `${a.first_name[0]}${a.last_name[0]}`;
-  }
-
-  function renderEventRow(e) {
-    const d = e.datetime;
-    const dateStr = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const timeStr = d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-
-    const assignedSet = assignments[e.id];
-
-    const athleteChips = athletes.map(a => `
-      <span class="assign-chip ${assignedSet.has(a.id) ? 'assigned' : ''}"
-            onclick="toggleAssign('${e.id}','${a.id}',this)">
-        ${a.first_name}
-      </span>
-    `).join('');
-
-    return `
-      <div class="event-row">
-        <div class="event-row-left">
-          <div class="event-row-title">${e.title}</div>
-          <div class="event-row-meta">${dateStr} at ${timeStr} ${e.location ? '· ' + e.location : ''}</div>
-        </div>
-        <div class="event-row-right">
-          <div class="assign-label">Assign to:</div>
-          <div class="assign-chips">
-            ${athleteChips}
-            <span class="assign-chip family ${assignedSet.has('family') ? 'assigned' : ''}"
-                  onclick="toggleAssign('${e.id}','family',this)">
-              🏠 Family
-            </span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function toggleAssign(eventId, targetId, el) {
-    const set = assignments[eventId];
-    if (set.has(targetId)) {
-      set.delete(targetId);
-      el.classList.remove('assigned');
-    } else {
-      set.add(targetId);
-      el.classList.add('assigned');
-    }
-  }
-
-  function renderEvents() {
-    const now = new Date();
-    const weekEnd = new Date(now.getTime() + 86400000 * 7);
-    const thisWeek = sampleEvents.filter(e => e.datetime <= weekEnd);
-    const upcoming = sampleEvents.filter(e => e.datetime > weekEnd);
-
-    document.getElementById('events-list').innerHTML = thisWeek.map(renderEventRow).join('') || '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No events this week.</p>';
-    document.getElementById('upcoming-list').innerHTML = upcoming.map(renderEventRow).join('') || '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No upcoming events.</p>';
-  }
-
-  async function saveAllAssignments() {
-    // Build list of athlete_event records to upsert
-    const records = [];
-    for (const [eventId, athleteSet] of Object.entries(assignments)) {
-      const event = sampleEvents.find(e => e.id === eventId);
-      if (!event) continue;
-      for (const targetId of athleteSet) {
-        if (targetId === 'family') continue; // family events stored differently
-        records.push({
-          athlete_id: targetId,
-          event_id: eventId,
-          event_title: event.title,
-          event_type: event.type,
-          sport: event.sport || null,
-          start_time: event.datetime.toISOString(),
-          location: event.location || null,
-          source: 'homehuddle'
-        });
-      }
-    }
-
+  async function loadRealData() {
+    // Load real athletes for this family
     try {
-      // In production: batch upsert via Supabase
-      // await Promise.all(records.map(r => linkEventToAthlete(r)));
-      showToast(`Saved ${records.length} event assignments!`);
-      setTimeout(() => window.location.href = 'athlete-dashboard.html', 1500);
-    } catch(err) {
-      showToast('Error saving assignments', 'error');
+      const familyId = await getFamilyId();
+      if (familyId) {
+        const fetched = await getAthletes(familyId);
+        if (fetched && fetched.length) {
+          athletes = fetched.map(a => ({ id: a.id, first_name: a.first_name, last_name: a.last_name }));
+        }
+      }
+    } catch(e) { console.warn('Athletes load error:', e); }
+
+    if (!athletes.length) {
+      athletes = [
+        { id:'demo-1', first_name:'Dominic', last_name:'D.' },
+        { id:'demo-2', first_name:'Vincent', last_name:'D.' }
+      ];
     }
+
+    // Load real upcoming events from HomeHuddle events table
+    try {
+      const now = new Date().toISOString();
+      const { data: events, error } = await db
+        .from('events')
+        .select('uid, name, sport, start, end, location, description, kid')
+        .gte('start', now)
+        .eq('is_duplicate', false)
+        .order('start', { ascending: true });
+
+      if (!error && events && events.length) {
+        sampleEvents = events.map(e => ({
+          id: e.uid,
+          title: e.name,
+          type: e.name && e.name.toLowerCase().includes('practice') ? 'practice'
+              : e.name && e.name.toLowerCase().includes('tournament') ? 'tournament'
+              : 'game',
+          sport: e.sport || '',
+          datetime: new Date(e.start),
+          location: e.location || '',
+          kid: e.kid || ''
+        }));
+      }
+    } catch(e) { console.warn('Events load error:', e); }
+
+    // Fallback if no events loaded
+    if (!sampleEvents.length) {
+      sampleEvents = [
+        { id:'e1', title:'Eagles Baseball Practice', type:'practice', sport:'Baseball', datetime: new Date(Date.now()+86400000), location:'Field 3, North Park', kid:'Dominic' },
+        { id:'e2', title:'Hockey Game', type:'game', sport:'Hockey', datetime: new Date(Date.now()+86400000*2), location:'LECOM Harborcenter', kid:'Dominic' }
+      ];
+    }
+
+    // Pre-assign events based on kid name matching athlete
+    sampleEvents.forEach(e => {
+      assignments[e.id] = new Set();
+      const match = athletes.find(a => e.kid && e.kid.toLowerCase().includes(a.first_name.toLowerCase()));
+      if (match) assignments[e.id].add(match.id);
+    });
+
+    renderEvents();
   }
 
-  renderEvents();
+  loadRealData();
 </script>
 </body>
 </html>
