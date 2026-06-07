@@ -618,9 +618,21 @@
         const created = await createAthlete(athleteData);
         if (created?.id) {
           setActiveAthlete(created.id);
-          // Save sports
+          // Save sports + auto-create coach connections from coach names
           for (const s of sports) {
             await addAthleteSport({ ...s, athlete_id: created.id });
+            // If a coach name was entered, create a coach connection automatically
+            if (s.coach_name && s.coach_name.trim()) {
+              try {
+                await addCoachConnection({
+                  athlete_id: created.id,
+                  coach_name: s.coach_name.trim(),
+                  sport: s.sport,
+                  organization: s.organization || null,
+                  connection_status: 'active'
+                });
+              } catch(e) { console.warn('Coach connection save failed:', e); }
+            }
           }
           saved = true;
         }
