@@ -127,7 +127,7 @@
   </button>
 </div>
 
-<script src="athletehuddle.js?v=2"></script>
+<script src="athletehuddle.js?v=3"></script>
 <script>
   // ── REAL DATA LOADING ────────────────────────────────────────
   let athletes = [];
@@ -262,7 +262,8 @@
     } catch(err) { showToast('Error saving assignments', 'error'); }
   }
 
-  loadRealData();
+  // Use setTimeout to ensure all functions are defined before calling
+  setTimeout(loadRealData, 0);
 </script>
 </body>
 </html>
