@@ -1177,6 +1177,20 @@
   }
 
   init();
+
+  function goToCalendar() {
+    const family = localStorage.getItem('hh_family');
+    const email = localStorage.getItem('hh_email');
+    let url = 'https://venuewise.net/homehuddle/calendar.html';
+    if (email) url += '?email=' + encodeURIComponent(email);
+    else if (family) {
+      try {
+        const f = JSON.parse(family);
+        if (f.email) url += '?email=' + encodeURIComponent(f.email);
+      } catch(e) {}
+    }
+    window.location.href = url;
+  }
 </script>
 </body>
 </html>
