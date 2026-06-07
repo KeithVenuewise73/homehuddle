@@ -268,7 +268,7 @@
   <div class="nav-brand">Athlete<span>Huddle</span></div>
   <div class="nav-right">
     <a href="athletehuddle.html" class="nav-link">Home</a>
-    <a href="#" class="nav-link">Family Calendar</a>
+    <a href="javascript:goToCalendar()" class="nav-link">Family Calendar</a>
   </div>
 </nav>
 
@@ -439,6 +439,20 @@
   }
 
   loadAthletes();
+
+  function goToCalendar() {
+    const family = localStorage.getItem('hh_family');
+    const email = localStorage.getItem('hh_email');
+    let url = 'https://venuewise.net/homehuddle/calendar.html';
+    if (email) url += '?email=' + encodeURIComponent(email);
+    else if (family) {
+      try {
+        const f = JSON.parse(family);
+        if (f.email) url += '?email=' + encodeURIComponent(f.email);
+      } catch(e) {}
+    }
+    window.location.href = url;
+  }
 </script>
 </body>
 </html>
