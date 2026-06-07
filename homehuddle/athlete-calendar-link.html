@@ -113,6 +113,11 @@
   </div>
 
   <div class="events-section">
+    <div class="section-title">PAST 90 DAYS</div>
+    <div id="past-list"></div>
+  </div>
+
+  <div class="events-section">
     <div class="section-title">THIS WEEK</div>
     <div id="events-list"></div>
   </div>
@@ -156,11 +161,12 @@
     // Load real upcoming events from HomeHuddle events table
     try {
       const now = new Date().toISOString();
+      const ninetyDaysAgo = new Date(Date.now() - 86400000 * 90).toISOString();
       const { data: events, error } = await db
         .from('events')
         .select('uid, name, sport, start, end, location, description, kid')
-        .order('start', { ascending: true })
-        .limit(100);
+        .gte('start', ninetyDaysAgo)
+        .order('start', { ascending: true });
 
       if (!error && events && events.length) {
         sampleEvents = events.map(e => ({
@@ -229,14 +235,27 @@
   function renderEvents() {
     const now = new Date();
     const weekEnd = new Date(now.getTime() + 86400000 * 7);
-    const thisWeek = sampleEvents.filter(e => e.datetime <= weekEnd);
-    const upcoming = sampleEvents.filter(e => e.datetime > weekEnd);
+    const ninetyDaysAgo = new Date(now.getTime() - 86400000 * 90);
+    // Show past 90 days + all future
+    const visibleEvents = sampleEvents.filter(e => e.datetime >= ninetyDaysAgo);
+    const past = visibleEvents.filter(e => e.datetime < now).reverse(); // most recent first
+    const thisWeek = visibleEvents.filter(e => e.datetime >= now && e.datetime <= weekEnd);
+    const upcoming = visibleEvents.filter(e => e.datetime > weekEnd);
+
     document.getElementById('events-list').innerHTML = thisWeek.length
       ? thisWeek.map(renderEventRow).join('')
       : '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No events this week.</p>';
     document.getElementById('upcoming-list').innerHTML = upcoming.length
       ? upcoming.map(renderEventRow).join('')
       : '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No upcoming events.</p>';
+
+    // Add past events section
+    const pastEl = document.getElementById('past-list');
+    if (pastEl) {
+      pastEl.innerHTML = past.length
+        ? past.map(renderEventRow).join('')
+        : '<p style="font-size:13px;color:rgba(255,255,255,0.35);">No recent past events.</p>';
+    }
   }
 
   async function saveAllAssignments() {
