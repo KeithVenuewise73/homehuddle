@@ -85,7 +85,10 @@ async function getAthlete(athleteId) {
 async function createAthlete(athleteData) {
   const familyId = await getFamilyId();
   if (!familyId) throw new Error('No family found for current user');
-  const payload = Object.assign({}, athleteData, { family_id: familyId });
+  const payload = Object.assign({}, athleteData, {
+    family_id: familyId,
+    spotlight_eligible: athleteData.spotlight_eligible ?? false,
+  });
   const { data, error } = await db
     .from('athletes')
     .insert(payload)
@@ -93,6 +96,33 @@ async function createAthlete(athleteData) {
     .single();
   if (error) throw error;
   return data;
+}
+
+// ── 5-Star Sports Media integration ──────────────────────────
+// Mark an athlete as eligible for 5-Star spotlight coverage.
+// Call this when a family opts in from the athlete profile page.
+async function markSpotlightEligible(athleteId, eligible = true) {
+  const { error } = await db
+    .from('athletes')
+    .update({ spotlight_eligible: eligible })
+    .eq('id', athleteId);
+  if (error) throw error;
+  return true;
+}
+
+// Submit a lead to the shared ecosystem leads table
+// so 5-Star media team can follow up
+async function nominateFor5Star(athlete, familyEmail) {
+  await db.from('leads').insert({
+    name:              athlete.first_name + ' ' + (athlete.last_name || ''),
+    email:             familyEmail || null,
+    role:              'athlete',
+    platform_interest: '5-Star Sports Media',
+    source_platform:   'AthleteHuddle',
+    source_page:       '/homehuddle/athlete-public-profile.html',
+    message:           `Athlete spotlight nomination: ${athlete.sport || ''} — ${athlete.school || ''}`,
+  });
+  await markSpotlightEligible(athlete.id, true);
 }
 
 async function updateAthlete(athleteId, updates) {
