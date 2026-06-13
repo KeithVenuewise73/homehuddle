@@ -178,6 +178,14 @@
       <div class="field"><label>Family name</label><input type="text" id="familyName" placeholder="e.g. D'Amico-Herman Family" /><div class="field-hint">This is how your family will appear in the app</div></div>
       <div class="field"><label>Account email <span style="font-weight:400;color:var(--gray-400)">(for login & notifications)</span></label><input type="email" id="familyEmail" placeholder="you@example.com" /></div>
       <div class="field"><label>Primary phone <span style="font-weight:400;color:var(--gray-400)">(SMS alerts)</span></label><input type="tel" id="familyPhone" placeholder="+1 (716) 555-0100" /></div>
+      <div class="field" style="margin-top:0.5rem">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
+          <input type="checkbox" id="smsConsent" style="margin-top:3px;width:16px;height:16px;accent-color:#3730A3;flex-shrink:0">
+          <span style="font-size:12px;color:var(--gray-400);line-height:1.6">
+            I agree to receive SMS alerts from HomeHuddle (powered by Venuewise) about my family's sports schedule, including game reminders, schedule changes, and conflict alerts. Message frequency varies (2–10 msgs/week). Msg &amp; Data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to use the service.
+          </span>
+        </label>
+      </div>
       <div class="error-msg" id="err1"></div>
       <div class="btn-nav"><button class="btn-primary" onclick="nextStep(1)">Continue → Add Family Members</button></div>
       <p class="legal">Free for 30 days, then $4.95/month. No contracts. Cancel anytime.</p>
@@ -589,7 +597,7 @@ async function submitForm() {
     const players = collectPlayers();
 
     // 1. Create family
-    const famRes = await sbPost('/rest/v1/families', { family_name: fname, email: email, phone: phone, pin: createdPin, status: 'trial' });
+    const famRes = await sbPost('/rest/v1/families', { family_name: fname, email: email, phone: phone, pin: createdPin, status: 'trial', sms_consent: document.getElementById('smsConsent')?.checked || false });
     if (!famRes.ok) { const e = await famRes.json().catch(function(){return{};}); throw new Error(e.message || 'Could not create family account'); }
     const famData = await famRes.json();
     const familyId = Array.isArray(famData) ? famData[0].id : famData.id;
