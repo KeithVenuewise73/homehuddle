@@ -561,7 +561,7 @@ async function manualSync() {
 }
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────────
-const VAPID_PUBLIC = 'BOGLurPmZrhUq4wdTB0YjqLSZBYdrPdGz0rY0wN-OVkTCz3Lb8JAqIxpf-k3faKm8VJE24LO6c79IA8B6QsdGXg';
+const VAPID_PUBLIC = 'BEvGyUqC6ThmI_INY5jp_ZSeoYFDP1coIMetC5ewA_q4QUQweict9YHRdsp72YjrVxQ2wghHY-guTDx3NQX40GA';
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
