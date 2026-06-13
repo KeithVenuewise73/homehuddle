@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CoachesHuddle Dashboard — Venuewise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1628;--navy2:#0f1e35;--navy3:#162440;
+  --blue:#1B6FE4;--blue2:#2d80f5;
+  --accent:#059669;--accent2:#10b981;
+  --orange:#E8632A;--gold:#D4AF37;
+  --red:#E24B4A;--red-light:rgba(226,75,74,0.12);
+  --white:#FFFFFF;--offwhite:#F0F4FF;
+  --muted:#7A90B0;--border:rgba(255,255,255,0.08);
+  --surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);
+  --r:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:"Open Sans",sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(11,22,40,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-brand{font-family:"Montserrat",sans-serif;font-weight:900;font-size:1.1rem;letter-spacing:.5px;text-transform:uppercase;color:var(--white)}
+.nav-brand span{color:var(--accent2)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-coach-name{font-size:13px;color:var(--muted);font-weight:600}
+.btn-logout{font-size:12px;font-weight:700;color:var(--muted);background:none;border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .2s;font-family:"Open Sans",sans-serif}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(5,150,105,0.08) 0%,transparent 70%)}
+.login-box{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:3rem 2.5rem;width:100%;max-width:420px;text-align:center}
+.login-logo{font-family:"Montserrat",sans-serif;font-size:2rem;font-weight:900;text-transform:uppercase;margin-bottom:.25rem}
+.login-logo span{color:var(--accent2)}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+.lf{margin-bottom:14px;text-align:left}
+.lf label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.lf input{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s;font-family:"Open Sans",sans-serif}
+.lf input:focus{border-color:var(--accent)}
+.btn-login{width:100%;background:var(--accent);color:var(--white);padding:13px;border-radius:8px;font-family:"Montserrat",sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;margin-top:8px;transition:filter .2s;letter-spacing:.3px}
+.btn-login:hover{filter:brightness(1.1)}
+.login-err{background:var(--red-light);border:1px solid rgba(226,75,74,0.3);color:#f87171;font-size:13px;padding:10px 14px;border-radius:8px;margin-top:12px;display:none}
+.login-note{font-size:12px;color:var(--muted);margin-top:1rem;line-height:1.6}
+.login-note a{color:var(--accent2);text-decoration:none}
+
+/* ── APP LAYOUT ── */
+#app{display:none}
+.app-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px)}
+@media(max-width:768px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* ── SIDEBAR ── */
+.sidebar{background:rgba(255,255,255,0.02);border-right:1px solid var(--border);padding:24px 0}
+.sidebar-section{padding:0 12px 20px}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.3);text-transform:uppercase;padding:0 8px;margin-bottom:8px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;font-weight:500;transition:background .15s,color .15s;cursor:pointer;background:none;border:none;width:100%;text-align:left;font-family:"Open Sans",sans-serif}
+.sidebar-link:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sidebar-link.active{background:rgba(5,150,105,.15);color:var(--white)}
+.sidebar-link .badge{margin-left:auto;font-size:10px;font-weight:800;background:var(--accent);color:var(--white);padding:2px 7px;border-radius:20px}
+
+/* ── MAIN ── */
+.main{padding:24px;overflow-x:hidden}
+
+/* ── PROFILE HERO ── */
+.profile-hero{background:linear-gradient(135deg,rgba(5,150,105,.18),rgba(15,30,53,.8));border:1px solid rgba(5,150,105,.3);border-radius:var(--r);padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.profile-avatar{width:72px;height:72px;border-radius:50%;border:3px solid rgba(5,150,105,.5);background:var(--navy2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:"Montserrat",sans-serif;font-size:1.8rem;font-weight:900;color:var(--accent2)}
+.profile-info{flex:1;min-width:160px}
+.profile-name{font-family:"Montserrat",sans-serif;font-size:1.7rem;font-weight:900;line-height:1;margin-bottom:4px}
+.profile-meta{font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6}
+.profile-tags{display:flex;gap:7px;flex-wrap:wrap}
+.ptag{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(5,150,105,.2);border:1px solid rgba(16,185,129,.3);color:var(--accent2)}
+.ptag.orange{background:rgba(232,99,42,.15);border-color:rgba(232,99,42,.3);color:#f97316}
+.profile-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.btn-edit{background:rgba(255,255,255,.07);border:1px solid var(--border);color:rgba(255,255,255,.75);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s;font-family:"Open Sans",sans-serif}
+.btn-edit:hover{background:rgba(255,255,255,.13)}
+.btn-primary-sm{background:var(--accent);color:var(--white);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:filter .2s;font-family:"Open Sans",sans-serif}
+.btn-primary-sm:hover{filter:brightness(1.1)}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-family:"Montserrat",sans-serif;font-size:2rem;font-weight:900;color:var(--accent2);line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.5px}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.dash-grid{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.card.span2{grid-column:1/-1}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:"Montserrat",sans-serif;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.card-action{font-size:12px;font-weight:700;color:var(--accent2);background:none;border:none;cursor:pointer;padding:0;font-family:"Open Sans",sans-serif;transition:color .2s}
+.card-action:hover{color:var(--white)}
+.card-body{padding:16px 18px}
+.empty-msg{font-size:13px;color:var(--muted);text-align:center;padding:20px 0;font-style:italic}
+
+/* ── PROGRAM ITEMS ── */
+.prog-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.prog-item:last-child{border-bottom:none}
+.prog-date-box{width:44px;height:44px;flex-shrink:0;background:rgba(5,150,105,.15);border-radius:8px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.prog-date-box .mo{font-size:9px;font-weight:700;color:var(--accent2);text-transform:uppercase}
+.prog-date-box .dy{font-family:"Montserrat",sans-serif;font-size:1.25rem;font-weight:900;line-height:1}
+.prog-info{flex:1}
+.prog-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.prog-sub{font-size:12px;color:var(--muted)}
+.prog-spots{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.spots-open{background:rgba(5,150,105,.15);color:var(--accent2)}
+.spots-few{background:rgba(232,99,42,.15);color:#f97316}
+.spots-full{background:rgba(226,75,74,.12);color:#f87171}
+.prog-actions{display:flex;gap:6px;margin-top:6px}
+.prog-btn{font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;cursor:pointer;border:none;transition:all .2s;font-family:"Open Sans",sans-serif}
+.pb-edit{background:rgba(255,255,255,.07);border:1px solid var(--border);color:rgba(255,255,255,.7)}
+.pb-edit:hover{border-color:var(--accent);color:var(--accent2)}
+.pb-cancel{background:var(--red-light);border:1px solid rgba(226,75,74,.2);color:#f87171}
+.pb-cancel:hover{background:rgba(226,75,74,.2)}
+
+/* ── ROSTER ITEMS ── */
+.roster-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.roster-item:last-child{border-bottom:none}
+.roster-avatar{width:34px;height:34px;border-radius:50%;background:rgba(27,111,228,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#93b4ff;flex-shrink:0;font-family:"Montserrat",sans-serif}
+.roster-info{flex:1}
+.roster-name{font-size:14px;font-weight:600}
+.roster-meta{font-size:11px;color:var(--muted)}
+.roster-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.rs-active{background:rgba(5,150,105,.15);color:var(--accent2)}
+.rs-pending{background:rgba(245,158,11,.15);color:#fbbf24}
+
+/* ── LEADS TABLE ── */
+.leads-table{width:100%;border-collapse:collapse}
+.leads-table th{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.leads-table td{padding:10px 10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.leads-table tr:last-child td{border-bottom:none}
+.lead-name{font-weight:600;color:var(--white)}
+.lead-meta{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── 5-STAR CTA STRIP ── */
+.media-strip{background:linear-gradient(135deg,rgba(26,18,0,.9),rgba(15,30,53,.9));border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.media-strip-text .label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.media-strip-text p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.5}
+.btn-gold{background:var(--gold);color:#0a0a0a;padding:9px 18px;border-radius:7px;font-family:"Montserrat",sans-serif;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;transition:background .2s}
+.btn-gold:hover{background:#f2d26b}
+
+/* ── AVAILABILITY ── */
+.avail-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.avail-day{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.avail-day.on{background:rgba(5,150,105,.2);border-color:rgba(16,185,129,.4)}
+.avail-day-name{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.avail-day.on .avail-day-name{color:var(--accent2)}
+.avail-day-dot{width:8px;height:8px;border-radius:50%;background:var(--border);margin:0 auto}
+.avail-day.on .avail-day-dot{background:var(--accent)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:"Montserrat",sans-serif;font-size:1.3rem;font-weight:900;margin-bottom:20px}
+.mf{margin-bottom:14px}
+.mf label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.mf input,.mf select,.mf textarea{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s;font-family:"Open Sans",sans-serif}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--accent)}
+.mf select option{background:var(--navy2)}
+.mf textarea{min-height:70px;resize:vertical}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.btn-save{flex:1;background:var(--accent);color:var(--white);padding:12px;border-radius:8px;font-family:"Montserrat",sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;transition:filter .2s}
+.btn-save:hover{filter:brightness(1.1)}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"Open Sans",sans-serif}
+.btn-cancel:hover{border-color:var(--red);color:var(--red)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(5,150,105,.5);color:var(--accent2)}
+.toast.error{border-color:rgba(226,75,74,.4);color:#f87171}
+
+/* ── PROFILE EDIT PANEL ── */
+.section-divider{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0;margin:18px 0 10px;display:flex;align-items:center;gap:10px}
+.section-divider::after{content:"";flex:1;height:1px;background:var(--border)}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Coaches<span>Huddle</span></div>
+    <p class="login-sub">Sign in to your coach dashboard.<br>Powered by Venuewise.</p>
+    <div class="lf">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="coach@example.com" autocomplete="email"/>
+    </div>
+    <div class="lf">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()" id="login-btn">Sign In →</button>
+    <div class="login-err" id="login-err"></div>
+    <p class="login-note">Don't have a dashboard yet?<br><a href="https://venuewise.net/homehuddle/coacheshuddle.html#join">Apply to get listed →</a></p>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">Coaches<span>Huddle</span></div>
+    <div class="nav-right">
+      <span class="nav-coach-name" id="nav-coach-name"></span>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Dashboard</div>
+        <button class="sidebar-link active" onclick="showPanel('overview',this)">📊 Overview</button>
+        <button class="sidebar-link" onclick="showPanel('programs',this)">📅 My Programs</button>
+        <button class="sidebar-link" onclick="showPanel('roster',this)">👥 Roster</button>
+        <button class="sidebar-link" onclick="showPanel('leads',this)">📬 Inquiries <span class="badge" id="sb-leads-badge" style="display:none">0</span></button>
+        <button class="sidebar-link" onclick="showPanel('availability',this)">🕐 Availability</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Profile</div>
+        <button class="sidebar-link" onclick="showPanel('profile',this)">✏️ Edit Profile</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Ecosystem</div>
+        <a class="sidebar-link" href="https://venuewise.net" target="_blank">🏠 Venuewise.net ↗</a>
+        <a class="sidebar-link" href="https://5starsportsmedia.com/coach-spotlight.html" target="_blank">⭐ 5-Star Spotlights ↗</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- 5-STAR STRIP -->
+      <div class="media-strip">
+        <div class="media-strip-text">
+          <div class="label">⭐ 5-Star Sports Media</div>
+          <p>Coaches on CoachesHuddle are eligible for editorial spotlight coverage — WNY's premier amateur sports platform.</p>
+        </div>
+        <a href="https://5starsportsmedia.com/coach-spotlight.html" target="_blank" class="btn-gold">View Coach Spotlights →</a>
+      </div>
+
+      <!-- OVERVIEW PANEL -->
+      <div class="panel active" id="panel-overview">
+        <div class="stat-row" id="stat-row">
+          <div class="stat-card"><div class="stat-num" id="s-programs">—</div><div class="stat-lbl">Active Programs</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-athletes">—</div><div class="stat-lbl">Athletes Enrolled</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-leads">—</div><div class="stat-lbl">New Inquiries</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-spots">—</div><div class="stat-lbl">Open Spots</div></div>
+        </div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 Upcoming Programs</div>
+              <button class="card-action" onclick="showPanel('programs',null);openModal('prog-modal')">+ Add</button>
+            </div>
+            <div class="card-body" id="overview-programs">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📬 Recent Inquiries</div>
+              <button class="card-action" onclick="showPanel('leads',null)">View All</button>
+            </div>
+            <div class="card-body" id="overview-leads">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+          <div class="card span2">
+            <div class="card-header">
+              <div class="card-title">👥 Recent Enrollments</div>
+              <button class="card-action" onclick="showPanel('roster',null)">View Roster</button>
+            </div>
+            <div class="card-body" id="overview-roster">
+              <p class="empty-msg">Loading…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRAMS PANEL -->
+      <div class="panel" id="panel-programs">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900">My Programs</h2>
+          <button class="btn-primary-sm" onclick="openModal('prog-modal')">+ Add Program</button>
+        </div>
+        <div class="card">
+          <div class="card-body" id="programs-list">
+            <p class="empty-msg">Loading programs…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROSTER PANEL -->
+      <div class="panel" id="panel-roster">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900">Athlete Roster</h2>
+          <button class="btn-primary-sm" onclick="openModal('roster-modal')">+ Add Athlete</button>
+        </div>
+        <div class="card">
+          <div class="card-body" id="roster-list">
+            <p class="empty-msg">Loading roster…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEADS PANEL -->
+      <div class="panel" id="panel-leads">
+        <div style="margin-bottom:18px">
+          <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900">Inquiries & Leads</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">Families who filled out the CoachesHuddle interest form.</p>
+        </div>
+        <div class="card">
+          <div class="card-body" id="leads-list" style="overflow-x:auto">
+            <p class="empty-msg">Loading inquiries…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AVAILABILITY PANEL -->
+      <div class="panel" id="panel-availability">
+        <div style="margin-bottom:18px">
+          <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900">My Availability</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">Set your weekly availability so families know when you're open for programs.</p>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Click days to toggle available / unavailable</p>
+            <div class="avail-grid" id="avail-grid"></div>
+            <div style="margin-top:4px">
+              <div class="mf">
+                <label>Notes (e.g. "Evenings only weekdays")</label>
+                <textarea id="avail-notes" rows="2" placeholder="Any notes on your availability…"></textarea>
+              </div>
+              <button class="btn-primary-sm" onclick="saveAvailability()">Save Availability</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE PANEL -->
+      <div class="panel" id="panel-profile">
+        <div style="margin-bottom:18px">
+          <h2 style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900">Edit Profile</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">This is your public CoachesHuddle profile. Changes go live immediately.</p>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="section-divider">Coach Info</div>
+            <div class="mf-row" style="margin-bottom:14px">
+              <div class="mf"><label>Full Name</label><input type="text" id="p-name" placeholder="Chris Mazzu"/></div>
+              <div class="mf"><label>Sports (comma-separated)</label><input type="text" id="p-sports" placeholder="Hockey, Skating"/></div>
+            </div>
+            <div class="mf"><label>Organization / Business</label><input type="text" id="p-org" placeholder="Mazzu Hockey Clinics"/></div>
+            <div class="mf"><label>Bio</label><textarea id="p-bio" rows="3" placeholder="Tell families about your coaching background…"></textarea></div>
+            <div class="mf"><label>Services Offered</label><textarea id="p-services" rows="2" placeholder="Private lessons, group clinics, skills camps…"></textarea></div>
+            <div class="section-divider">Contact</div>
+            <div class="mf-row" style="margin-bottom:14px">
+              <div class="mf"><label>Contact Email</label><input type="email" id="p-email" placeholder="coach@example.com"/></div>
+              <div class="mf"><label>Profile Photo URL</label><input type="url" id="p-photo" placeholder="https://…"/></div>
+            </div>
+            <button class="btn-primary-sm" style="padding:10px 24px;font-size:13px" onclick="saveProfile()">Save Profile</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── ADD PROGRAM MODAL ── -->
+<div class="modal-overlay" id="prog-modal">
+  <div class="modal">
+    <div class="modal-title">📅 Add / Edit Program</div>
+    <input type="hidden" id="prog-edit-id"/>
+    <div class="mf"><label>Program Name *</label><input type="text" id="prog-name" placeholder="Elite Power Skating Camp"/></div>
+    <div class="mf-row">
+      <div class="mf"><label>Start Date *</label><input type="date" id="prog-date"/></div>
+      <div class="mf"><label>Time</label><input type="text" id="prog-time" placeholder="8:00 AM"/></div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Location</label><input type="text" id="prog-location" placeholder="LECOM Harborcenter"/></div>
+      <div class="mf"><label>Capacity</label><input type="number" id="prog-capacity" placeholder="12" min="1"/></div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Enrolled</label><input type="number" id="prog-enrolled" placeholder="0" min="0"/></div>
+      <div class="mf"><label>Price</label><input type="text" id="prog-price" placeholder="$150 / session"/></div>
+    </div>
+    <div class="mf"><label>Description</label><textarea id="prog-desc" rows="2" placeholder="What athletes can expect…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('prog-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveProgram()">Save Program</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD ATHLETE MODAL ── -->
+<div class="modal-overlay" id="roster-modal">
+  <div class="modal">
+    <div class="modal-title">👤 Add Athlete</div>
+    <div class="mf-row">
+      <div class="mf"><label>Athlete Name *</label><input type="text" id="r-name" placeholder="Jake Smith"/></div>
+      <div class="mf"><label>Age / Grade</label><input type="text" id="r-age" placeholder="14 / 8th grade"/></div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Sport</label><input type="text" id="r-sport" placeholder="Hockey"/></div>
+      <div class="mf"><label>Program</label><input type="text" id="r-program" placeholder="Power Skating Camp"/></div>
+    </div>
+    <div class="mf-row">
+      <div class="mf"><label>Parent / Contact</label><input type="text" id="r-contact" placeholder="John Smith"/></div>
+      <div class="mf"><label>Contact Phone/Email</label><input type="text" id="r-contactinfo" placeholder="716-555-0100"/></div>
+    </div>
+    <div class="mf">
+      <label>Status</label>
+      <select id="r-status">
+        <option value="active">Active</option>
+        <option value="pending">Pending / Waitlist</option>
+        <option value="past">Past</option>
+      </select>
+    </div>
+    <div class="mf"><label>Notes</label><textarea id="r-notes" rows="2" placeholder="Any notes about this athlete…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('roster-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveRosterEntry()">Add Athlete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── CONFIG ── */
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+/* ── STATE ── */
+let coachId = null;
+let coachData = null;
+let programs = [];
+let roster = [];
+let leads = [];
+let availability = {};
+let authToken = null;
+
+/* ── LOCAL STORAGE SESSION ── */
+function saveSession(email, coach) {
+  localStorage.setItem('ch_email', email);
+  localStorage.setItem('ch_coach', JSON.stringify(coach));
+}
+function loadSession() {
+  const email = localStorage.getItem('ch_email');
+  const c = localStorage.getItem('ch_coach');
+  if (email && c) {
+    try { return { email, coach: JSON.parse(c) }; } catch(e) {}
+  }
+  return null;
+}
+function clearSession() {
+  localStorage.removeItem('ch_email');
+  localStorage.removeItem('ch_coach');
+}
+
+/* ── SUPABASE HELPERS ── */
+async function sbGet(table, params = {}) {
+  const url = new URL(`${SURL}/rest/v1/${table}`);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    headers: { 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}` }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbInsert(table, data) {
+  const res = await fetch(`${SURL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbUpdate(table, id, data) {
+  const res = await fetch(`${SURL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  return res.ok;
+}
+async function sbDelete(table, id) {
+  const res = await fetch(`${SURL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SKEY, 'Authorization': `Bearer ${SKEY}` }
+  });
+  return res.ok;
+}
+
+/* ── LOGIN ── */
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+
+  if (!email || !pass) { showLoginErr('Please enter your email and password.'); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+
+  try {
+    // Authenticate via Supabase Auth
+    const authRes = await fetch(`${SURL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SKEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const authData = await authRes.json();
+    if (!authRes.ok) throw new Error(authData.error_description || authData.msg || 'Invalid credentials');
+
+    authToken = authData.access_token;
+
+    // Look up coach profile by contact_email
+    const coaches = await sbGet('coaches', { 'contact_email': `eq.${email}`, 'select': '*' });
+
+    if (!coaches.length) {
+      // Try leads table for pending coaches
+      showLoginErr('No CoachesHuddle profile found for this email. Have you applied to get listed? If you just signed up, check back in 48 hours.');
+      return;
+    }
+
+    coachData = coaches[0];
+    coachId = coachData.id;
+    saveSession(email, coachData);
+    launchApp();
+  } catch(e) {
+    showLoginErr(e.message || 'Sign in failed. Please try again.');
+  } finally {
+    btn.textContent = 'Sign In →'; btn.disabled = false;
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+/* ── LOGOUT ── */
+function doLogout() {
+  clearSession();
+  coachId = null; coachData = null; authToken = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+/* ── LAUNCH APP ── */
+async function launchApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const name = coachData.coach_name || 'Coach';
+  document.getElementById('nav-coach-name').textContent = name;
+
+  renderProfileHero();
+  populateProfileForm();
+  buildAvailGrid();
+  await loadAllData();
+}
+
+function renderProfileHero() {
+  const initials = (coachData.coach_name || 'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-coach-name').textContent = coachData.coach_name || '';
+
+  // Inject hero above panels if not already there
+  const main = document.querySelector('.main');
+  let hero = document.getElementById('coach-hero');
+  if (!hero) {
+    hero = document.createElement('div');
+    hero.id = 'coach-hero';
+    hero.className = 'profile-hero';
+    main.insertBefore(hero, main.querySelector('.media-strip'));
+  }
+  const sports = (coachData.sports || '').split(',').map(s=>s.trim()).filter(Boolean);
+  hero.innerHTML = `
+    <div class="profile-avatar">${initials}</div>
+    <div class="profile-info">
+      <div class="profile-name">${coachData.coach_name || '—'}</div>
+      <div class="profile-meta">${coachData.organization || ''}${coachData.organization && coachData.contact_email ? ' · ' : ''}${coachData.contact_email || ''}</div>
+      <div class="profile-tags">
+        ${sports.map(s=>`<span class="ptag">${s}</span>`).join('')}
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-edit" onclick="showPanel('profile',null)">✏️ Edit Profile</button>
+      <button class="btn-primary-sm" onclick="openModal('prog-modal')">+ Add Program</button>
+    </div>
+  `;
+}
+
+/* ── LOAD DATA ── */
+async function loadAllData() {
+  try {
+    // Programs from coach_programs (local storage fallback)
+    programs = JSON.parse(localStorage.getItem(`ch_programs_${coachId}`) || '[]');
+
+    // Roster from local storage
+    roster = JSON.parse(localStorage.getItem(`ch_roster_${coachId}`) || '[]');
+
+    // Leads from Supabase — filter by coach's org/email
+    try {
+      const allLeads = await sbGet('leads', {
+        'select': 'id,name,email,phone,message,created_at,status',
+        'source_platform': 'eq.CoachesHuddle',
+        'order': 'created_at.desc',
+        'limit': '50'
+      });
+      leads = allLeads;
+    } catch(e) { leads = []; }
+
+    // Availability
+    availability = JSON.parse(localStorage.getItem(`ch_avail_${coachId}`) || '{}');
+
+    renderAll();
+  } catch(e) {
+    console.error('Load error:', e);
+  }
+}
+
+/* ── RENDER ALL ── */
+function renderAll() {
+  renderStats();
+  renderOverviewPrograms();
+  renderOverviewLeads();
+  renderOverviewRoster();
+  renderProgramsList();
+  renderRosterList();
+  renderLeadsList();
+  updateAvailGrid();
+}
+
+/* ── STATS ── */
+function renderStats() {
+  const activeProgs = programs.filter(p => p.status !== 'cancelled').length;
+  const totalAthletes = roster.filter(r => r.status === 'active').length;
+  const newLeads = leads.filter(l => l.status === 'new').length;
+  const openSpots = programs.reduce((acc, p) => {
+    const cap = parseInt(p.capacity) || 0;
+    const enrolled = parseInt(p.enrolled) || 0;
+    return acc + Math.max(0, cap - enrolled);
+  }, 0);
+
+  document.getElementById('s-programs').textContent = activeProgs;
+  document.getElementById('s-athletes').textContent = totalAthletes;
+  document.getElementById('s-leads').textContent = newLeads;
+  document.getElementById('s-spots').textContent = openSpots;
+
+  const badge = document.getElementById('sb-leads-badge');
+  if (newLeads > 0) { badge.textContent = newLeads; badge.style.display = ''; }
+  else { badge.style.display = 'none'; }
+}
+
+/* ── PROGRAMS ── */
+function spotsLabel(p) {
+  const cap = parseInt(p.capacity) || 0;
+  const enrolled = parseInt(p.enrolled) || 0;
+  if (!cap) return null;
+  const open = cap - enrolled;
+  if (open <= 0) return { cls:'spots-full', txt:'Full' };
+  if (open <= 2) return { cls:'spots-few', txt:`${open} left` };
+  return { cls:'spots-open', txt:'Open' };
+}
+
+function progItemHtml(p, compact=false) {
+  const d = p.date ? new Date(p.date + 'T12:00:00') : null;
+  const mo = d ? d.toLocaleString('en-US',{month:'short'}) : '—';
+  const dy = d ? d.getDate() : '—';
+  const spots = spotsLabel(p);
+  return `
+    <div class="prog-item">
+      <div class="prog-date-box"><div class="mo">${mo}</div><div class="dy">${dy}</div></div>
+      <div class="prog-info">
+        <div class="prog-name">${p.name}</div>
+        <div class="prog-sub">${[p.time, p.location].filter(Boolean).join(' · ')}</div>
+        ${!compact ? `<div class="prog-actions">
+          <button class="prog-btn pb-edit" onclick="editProgram('${p.id}')">✏️ Edit</button>
+          <button class="prog-btn pb-cancel" onclick="cancelProgram('${p.id}')">✕ Cancel</button>
+        </div>` : ''}
+      </div>
+      ${spots ? `<span class="prog-spots ${spots.cls}">${spots.txt}</span>` : ''}
+    </div>
+  `;
+}
+
+function renderOverviewPrograms() {
+  const el = document.getElementById('overview-programs');
+  const upcoming = programs.filter(p => p.status !== 'cancelled').slice(0,4);
+  el.innerHTML = upcoming.length ? upcoming.map(p=>progItemHtml(p,true)).join('') : '<p class="empty-msg">No programs yet. Add one to get started.</p>';
+}
+
+function renderProgramsList() {
+  const el = document.getElementById('programs-list');
+  const active = programs.filter(p => p.status !== 'cancelled');
+  el.innerHTML = active.length ? active.map(p=>progItemHtml(p)).join('') : '<p class="empty-msg">No programs yet. Click "+ Add Program" to create one.</p>';
+}
+
+/* ── ROSTER ── */
+function rosterItemHtml(r, compact=false) {
+  const initials = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const statusCls = r.status === 'active' ? 'rs-active' : 'rs-pending';
+  const statusLabel = r.status === 'active' ? 'Active' : r.status === 'pending' ? 'Pending' : 'Past';
+  return `
+    <div class="roster-item">
+      <div class="roster-avatar">${initials}</div>
+      <div class="roster-info">
+        <div class="roster-name">${r.name}</div>
+        <div class="roster-meta">${[r.age, r.sport, r.program].filter(Boolean).join(' · ')}</div>
+        ${!compact && r.contactinfo ? `<div class="roster-meta">${r.contact ? r.contact + ' — ' : ''}${r.contactinfo}</div>` : ''}
+      </div>
+      <span class="roster-status ${statusCls}">${statusLabel}</span>
+    </div>
+  `;
+}
+
+function renderOverviewRoster() {
+  const el = document.getElementById('overview-roster');
+  const recent = roster.slice(0,5);
+  el.innerHTML = recent.length ? recent.map(r=>rosterItemHtml(r,true)).join('') : '<p class="empty-msg">No athletes added yet.</p>';
+}
+
+function renderRosterList() {
+  const el = document.getElementById('roster-list');
+  el.innerHTML = roster.length ? roster.map(r=>rosterItemHtml(r)).join('') : '<p class="empty-msg">No athletes on your roster yet. Add one to track enrollments.</p>';
+}
+
+/* ── LEADS ── */
+function renderOverviewLeads() {
+  const el = document.getElementById('overview-leads');
+  const recent = leads.slice(0,4);
+  if (!recent.length) { el.innerHTML = '<p class="empty-msg">No inquiries yet.</p>'; return; }
+  el.innerHTML = recent.map(l => `
+    <div class="roster-item">
+      <div class="roster-avatar" style="background:rgba(212,175,55,.15);color:var(--gold)">📬</div>
+      <div class="roster-info">
+        <div class="roster-name">${l.name || 'Unknown'}</div>
+        <div class="roster-meta">${l.email || ''} ${l.phone ? '· ' + l.phone : ''}</div>
+        ${l.message ? `<div class="roster-meta" style="margin-top:2px;font-style:italic">"${l.message.slice(0,60)}${l.message.length>60?'…':''}"</div>` : ''}
+      </div>
+      <span class="roster-status ${l.status==='new'?'rs-pending':'rs-active'}">${l.status||'new'}</span>
+    </div>
+  `).join('');
+}
+
+function renderLeadsList() {
+  const el = document.getElementById('leads-list');
+  if (!leads.length) { el.innerHTML = '<p class="empty-msg">No inquiries yet. When families fill out the CoachesHuddle interest form, they\'ll appear here.</p>'; return; }
+  el.innerHTML = `
+    <table class="leads-table">
+      <thead><tr><th>Name</th><th>Contact</th><th>Message</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        ${leads.map(l => `
+          <tr>
+            <td><div class="lead-name">${l.name||'—'}</div></td>
+            <td><div class="lead-meta">${l.email||''}</div><div class="lead-meta">${l.phone||''}</div></td>
+            <td><div style="font-size:12px;color:var(--muted);max-width:220px;line-height:1.5">${(l.message||'—').slice(0,100)}${(l.message||'').length>100?'…':''}</div></td>
+            <td><div class="lead-meta">${l.created_at ? new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'}</div></td>
+            <td><span class="roster-status ${l.status==='new'?'rs-pending':'rs-active'}">${l.status||'new'}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+/* ── SAVE PROGRAM ── */
+function saveProgram() {
+  const name = document.getElementById('prog-name').value.trim();
+  if (!name) { showToast('Program name is required.','error'); return; }
+
+  const editId = document.getElementById('prog-edit-id').value;
+  const prog = {
+    id: editId || ('prog-' + Date.now()),
+    name,
+    date: document.getElementById('prog-date').value,
+    time: document.getElementById('prog-time').value.trim(),
+    location: document.getElementById('prog-location').value.trim(),
+    capacity: document.getElementById('prog-capacity').value,
+    enrolled: document.getElementById('prog-enrolled').value || '0',
+    price: document.getElementById('prog-price').value.trim(),
+    desc: document.getElementById('prog-desc').value.trim(),
+    status: 'active',
+    coach_id: coachId
+  };
+
+  if (editId) {
+    programs = programs.map(p => p.id === editId ? prog : p);
+  } else {
+    programs.unshift(prog);
+  }
+
+  localStorage.setItem(`ch_programs_${coachId}`, JSON.stringify(programs));
+  closeModal('prog-modal');
+  clearProgForm();
+  renderAll();
+  showToast(editId ? 'Program updated!' : 'Program added!');
+}
+
+function editProgram(id) {
+  const p = programs.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('prog-edit-id').value = p.id;
+  document.getElementById('prog-name').value = p.name;
+  document.getElementById('prog-date').value = p.date || '';
+  document.getElementById('prog-time').value = p.time || '';
+  document.getElementById('prog-location').value = p.location || '';
+  document.getElementById('prog-capacity').value = p.capacity || '';
+  document.getElementById('prog-enrolled').value = p.enrolled || '';
+  document.getElementById('prog-price').value = p.price || '';
+  document.getElementById('prog-desc').value = p.desc || '';
+  openModal('prog-modal');
+}
+
+function cancelProgram(id) {
+  programs = programs.map(p => p.id===id ? {...p, status:'cancelled'} : p);
+  localStorage.setItem(`ch_programs_${coachId}`, JSON.stringify(programs));
+  renderAll();
+  showToast('Program cancelled.');
+}
+
+function clearProgForm() {
+  ['prog-edit-id','prog-name','prog-date','prog-time','prog-location','prog-capacity','prog-enrolled','prog-price','prog-desc'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+}
+
+/* ── SAVE ROSTER ── */
+function saveRosterEntry() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { showToast('Athlete name is required.','error'); return; }
+  const entry = {
+    id: 'r-' + Date.now(),
+    name,
+    age: document.getElementById('r-age').value.trim(),
+    sport: document.getElementById('r-sport').value.trim(),
+    program: document.getElementById('r-program').value.trim(),
+    contact: document.getElementById('r-contact').value.trim(),
+    contactinfo: document.getElementById('r-contactinfo').value.trim(),
+    status: document.getElementById('r-status').value,
+    notes: document.getElementById('r-notes').value.trim(),
+    coach_id: coachId
+  };
+  roster.unshift(entry);
+  localStorage.setItem(`ch_roster_${coachId}`, JSON.stringify(roster));
+  closeModal('roster-modal');
+  ['r-name','r-age','r-sport','r-program','r-contact','r-contactinfo','r-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-status').value = 'active';
+  renderAll();
+  showToast('Athlete added!');
+}
+
+/* ── AVAILABILITY ── */
+function buildAvailGrid() {
+  const grid = document.getElementById('avail-grid');
+  grid.innerHTML = DAYS.map(d => `
+    <div class="avail-day" id="avail-${d}" onclick="toggleDay('${d}')">
+      <div class="avail-day-name">${d}</div>
+      <div class="avail-day-dot"></div>
+    </div>
+  `).join('');
+}
+
+function updateAvailGrid() {
+  DAYS.forEach(d => {
+    const el = document.getElementById('avail-'+d);
+    if (el) el.classList.toggle('on', !!availability[d]);
+  });
+  const notesEl = document.getElementById('avail-notes');
+  if (notesEl) notesEl.value = availability.notes || '';
+}
+
+function toggleDay(d) {
+  availability[d] = !availability[d];
+  updateAvailGrid();
+}
+
+function saveAvailability() {
+  availability.notes = document.getElementById('avail-notes').value.trim();
+  localStorage.setItem(`ch_avail_${coachId}`, JSON.stringify(availability));
+  showToast('Availability saved!');
+}
+
+/* ── PROFILE FORM ── */
+function populateProfileForm() {
+  if (!coachData) return;
+  document.getElementById('p-name').value = coachData.coach_name || '';
+  document.getElementById('p-sports').value = coachData.sports || '';
+  document.getElementById('p-org').value = coachData.organization || '';
+  document.getElementById('p-bio').value = coachData.bio || '';
+  document.getElementById('p-services').value = coachData.services_offered || '';
+  document.getElementById('p-email').value = coachData.contact_email || '';
+  document.getElementById('p-photo').value = coachData.profile_photo_url || '';
+}
+
+async function saveProfile() {
+  const updated = {
+    coach_name: document.getElementById('p-name').value.trim(),
+    sports: document.getElementById('p-sports').value.trim(),
+    organization: document.getElementById('p-org').value.trim(),
+    bio: document.getElementById('p-bio').value.trim(),
+    services_offered: document.getElementById('p-services').value.trim(),
+    contact_email: document.getElementById('p-email').value.trim(),
+    profile_photo_url: document.getElementById('p-photo').value.trim(),
+  };
+
+  try {
+    await sbUpdate('coaches', coachId, updated);
+    coachData = { ...coachData, ...updated };
+    saveSession(coachData.contact_email, coachData);
+    renderProfileHero();
+    showToast('Profile saved!');
+  } catch(e) {
+    showToast('Could not save profile.','error');
+  }
+}
+
+/* ── PANELS ── */
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if (btn) {
+    document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+/* ── MODAL ── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e){ if(e.target===this) closeModal(this.id); });
+});
+
+/* ── TOAST ── */
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+/* ── INIT ── */
+const sess = loadSession();
+if (sess) {
+  coachData = sess.coach;
+  coachId = coachData.id;
+  launchApp();
+} else {
+  document.getElementById('login-screen').style.display = 'flex';
+}
+</script>
+
+<!-- ECO BAR -->
+<div style="background:#0A0A0A;border-top:1px solid #1a1a1a;padding:0.6rem 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <span style="font-size:.7rem;color:#666;font-family:sans-serif;">★ <strong style="color:#D4AF37;">Venuewise Ecosystem</strong> — One connected platform for sports families</span>
+    <div style="display:flex;gap:.15rem;flex-wrap:wrap;">
+      <a href="https://venuewise.net/homehuddle/" style="font-size:.68rem;color:#666;text-decoration:none;padding:.2rem .5rem;font-family:sans-serif;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#666'">HomeHuddle</a>
+      <a href="https://venuewise.net/homehuddle/coacheshuddle.html" style="font-size:.68rem;color:#D4AF37;text-decoration:none;padding:.2rem .5rem;font-weight:700;font-family:sans-serif;">CoachesHuddle</a>
+      <a href="https://venuewise.net/homehuddle/organizationhuddle.html" style="font-size:.68rem;color:#666;text-decoration:none;padding:.2rem .5rem;font-family:sans-serif;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#666'">OrganizationHuddle</a>
+      <a href="https://5starsportsmedia.com" style="font-size:.68rem;color:#D4AF37;text-decoration:none;padding:.2rem .5rem;font-weight:700;font-family:sans-serif;">5-Star Sports Media ↗</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
