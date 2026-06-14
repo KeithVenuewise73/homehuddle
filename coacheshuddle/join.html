@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Join CoachesHuddle — Free Coach Profile | Venuewise</title>
+<meta name="description" content="Join CoachesHuddle free during the WNY launch period. Create your coach profile and start connecting with sports families."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.join-hero{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 32px 60px;background:radial-gradient(ellipse at center,rgba(201,162,39,.08) 0%,transparent 65%)}
+.join-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;max-width:1100px;margin:0 auto;padding:80px 32px}
+@media(max-width:768px){.join-grid{grid-template-columns:1fr;padding:48px 20px}}
+.join-benefits{display:flex;flex-direction:column;gap:16px}
+.join-benefit{display:flex;gap:14px;align-items:flex-start}
+.join-benefit-icon{width:40px;height:40px;border-radius:8px;background:rgba(201,162,39,.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-top:2px}
+.join-benefit-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:3px}
+.join-benefit-desc{font-size:13px;color:var(--gray2);line-height:1.6}
+.join-form-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav('Join')</script>
+
+<div class="join-hero">
+  <div class="spotlight-badge" style="margin-bottom:20px">
+    <span class="spotlight-dot"></span> FREE DURING WNY LAUNCH
+  </div>
+  <h1 class="ch-title" style="font-size:clamp(2.5rem,6vw,5rem);margin-bottom:14px">Join CoachesHuddle.</h1>
+  <p class="ch-sub" style="margin:0 auto 32px">Create your free coach profile and start connecting with WNY sports families today.</p>
+  <a href="profile-create.html" class="btn-gold" style="font-size:18px;padding:16px 36px">Create Coach Profile — Free →</a>
+</div>
+
+<div style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="join-grid">
+    <div>
+      <div class="ch-tag">What You Get</div>
+      <h2 class="ch-title" style="font-size:2.5rem;margin-bottom:32px">Everything a local coach needs.</h2>
+      <div class="join-benefits">
+        <div class="join-benefit"><div class="join-benefit-icon">👤</div><div><div class="join-benefit-title">Professional Profile</div><div class="join-benefit-desc">A dedicated page with your bio, sports, services, photos, and contact info.</div></div></div>
+        <div class="join-benefit"><div class="join-benefit-icon">🔍</div><div><div class="join-benefit-title">Coach Directory Listing</div><div class="join-benefit-desc">Families searching for coaches in your sport and location will find you.</div></div></div>
+        <div class="join-benefit"><div class="join-benefit-icon">📬</div><div><div class="join-benefit-title">Family Lead Generation</div><div class="join-benefit-desc">Families contact you directly through your profile. Leads go straight to your dashboard.</div></div></div>
+        <div class="join-benefit"><div class="join-benefit-icon">⭐</div><div><div class="join-benefit-title">5-Star Media Eligibility</div><div class="join-benefit-desc">Submit for editorial spotlight coverage on 5-Star Sports Media. Coverage is earned, not purchased.</div></div></div>
+        <div class="join-benefit"><div class="join-benefit-icon">🏠</div><div><div class="join-benefit-title">HomeHuddle Integration</div><div class="join-benefit-desc">Your programs connect directly to family calendars across the Venuewise ecosystem.</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="join-form-card">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:2rem;margin-bottom:8px">🏒</div>
+          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:6px">Quick Start</h3>
+          <p style="font-size:13px;color:var(--gray)">Express interest — we'll follow up to build your full profile within 48 hours.</p>
+        </div>
+        <div id="join-alert" class="ch-alert"></div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>First Name *</label><input type="text" id="j-first" placeholder="Chris"/></div>
+          <div class="ch-form-field"><label>Last Name *</label><input type="text" id="j-last" placeholder="Mazzu"/></div>
+        </div>
+        <div class="ch-form-field"><label>Email *</label><input type="email" id="j-email" placeholder="coach@example.com"/></div>
+        <div class="ch-form-field"><label>Phone</label><input type="tel" id="j-phone" placeholder="(716) 555-0100"/></div>
+        <div class="ch-form-field"><label>Sports You Coach *</label><input type="text" id="j-sports" placeholder="Hockey, Skating, Goalie…"/></div>
+        <div class="ch-form-field"><label>Business / Program Name</label><input type="text" id="j-biz" placeholder="Mazzu Hockey Clinics"/></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+          <button class="btn-gold" style="justify-content:center" onclick="submitJoin()" id="join-btn">Get Listed Free →</button>
+          <a href="profile-create.html" class="btn-outline" style="justify-content:center">Fill Out Full Profile Instead</a>
+        </div>
+        <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:12px">Free during WNY launch · No contracts · No credit card</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="join-success" style="display:none;text-align:center;padding:80px 32px;background:var(--dark)">
+  <div style="font-size:3rem;margin-bottom:16px">✅</div>
+  <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;margin-bottom:10px">You're In!</h2>
+  <p style="font-size:15px;color:var(--gray2);max-width:460px;margin:0 auto 28px;line-height:1.7">We'll reach out within 48 hours to build your full CoachesHuddle profile. In the meantime, fill out your complete profile now.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="profile-create.html" class="btn-gold">Fill Out Full Profile →</a>
+    <a href="coach-directory.html" class="btn-outline">Browse Coaches</a>
+  </div>
+</div>
+
+<script>
+async function submitJoin() {
+  const first = document.getElementById('j-first').value.trim();
+  const last = document.getElementById('j-last').value.trim();
+  const email = document.getElementById('j-email').value.trim();
+  const sports = document.getElementById('j-sports').value.trim();
+  if (!first || !last || !email || !sports) { chAlert('join-alert','Please fill in your name, email, and sports.','error'); return; }
+  const btn = document.getElementById('join-btn'); btn.textContent='Submitting…'; btn.disabled=true;
+  try {
+    await chInsert('leads', {
+      name: `${first} ${last}`, email,
+      phone: document.getElementById('j-phone').value.trim() || null,
+      organization_name: document.getElementById('j-biz').value.trim() || null,
+      role: 'coach', platform_interest: 'CoachesHuddle',
+      source_platform: 'CoachesHuddle', source_page: '/coacheshuddle/join',
+      message: `Quick join. Sports: ${sports}`,
+    });
+    document.querySelector('.join-grid').style.display = 'none';
+    document.getElementById('join-success').style.display = 'block';
+  } catch(e) {
+    chAlert('join-alert','Something went wrong. Please try again.','error');
+    btn.textContent='Get Listed Free →'; btn.disabled=false;
+  }
+}
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
