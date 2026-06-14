@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title id="page-title">Organization Profile — OrganizationHuddle</title>
+<meta name="description" id="page-desc" content="Organization profile on OrganizationHuddle, powered by Venuewise."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/css/style.css"/>
 <style>
-.profile-hero{min-height:280px;display:flex;align-items:flex-end;background:linear-gradient(160deg,var(--dark3) 0%,var(--dark) 100%);position:relative;border-bottom:1px solid var(--border)}
+/* ── HERO (preserved) ── */
+.profile-hero{min-height:300px;display:flex;align-items:flex-end;background:linear-gradient(160deg,var(--dark3) 0%,var(--dark) 100%);position:relative;border-bottom:1px solid var(--border)}
 .profile-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,17,23,.95) 0%,rgba(13,17,23,.4) 60%,transparent 100%)}
-.profile-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.25;display:none}
 .profile-hero-content{position:relative;padding:40px;width:100%;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
 .profile-logo{width:90px;height:90px;border-radius:12px;border:2px solid var(--border-p);background:var(--dark3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--purple2);overflow:hidden}
 .profile-logo img{width:100%;height:100%;object-fit:contain}
 .profile-identity{flex:1;min-width:200px}
-.profile-name{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1;margin-bottom:4px}
+.profile-name{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1;margin-bottom:2px}
+.profile-tagline{font-size:14px;color:var(--gray2);margin-bottom:6px;font-style:italic}
 .profile-type{font-size:12px;color:var(--purple2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 .profile-tags-row{display:flex;gap:7px;flex-wrap:wrap}
+.accepting-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+
+/* ── PROFILE LAYOUT (preserved) ── */
 .profile-body{display:grid;grid-template-columns:2fr 1fr;gap:28px;max-width:1200px;margin:0 auto;padding:40px 32px 80px}
 @media(max-width:860px){.profile-body{grid-template-columns:1fr;padding:24px 16px 60px}}
 .section-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:26px;margin-bottom:18px}
-.section-card h3{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:var(--purple2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.section-card h3{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:var(--purple2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .section-card p{font-size:14px;color:var(--gray2);line-height:1.75}
 .detail-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
 .detail-row:last-child{border:none}
@@ -33,7 +38,60 @@
 .contact-field textarea{min-height:80px;resize:vertical}
 .spotlight-sidebar{background:linear-gradient(135deg,#0d0d00,#1a1400 60%,#0d1117);border:1px solid rgba(201,162,39,.25);border-radius:var(--r2);padding:22px;margin-bottom:16px;text-align:center}
 .spotlight-sidebar h4{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:var(--gold);margin-bottom:8px}
-.reg-link-card{background:rgba(124,58,237,.08);border:1px solid var(--border-p);border-radius:var(--r);padding:16px;margin-bottom:16px;text-align:center}
+
+/* ── PHASE 1: COACHING STAFF ── */
+.coaches-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:768px){.coaches-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.coaches-grid{grid-template-columns:1fr}}
+.coach-chip{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;transition:border-color .2s,transform .2s;cursor:pointer}
+.coach-chip:hover{border-color:var(--border-p);transform:translateY(-2px)}
+.coach-chip-avatar{width:52px;height:52px;border-radius:50%;background:rgba(124,58,237,.15);border:2px solid var(--border-p);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--purple2);margin:0 auto 10px;overflow:hidden}
+.coach-chip-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.coach-chip-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.coach-chip-role{font-size:11px;color:var(--gray);margin-bottom:6px}
+.coach-chip-sport{font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:rgba(124,58,237,.12);border:1px solid var(--border-p);color:var(--purple3);display:inline-block}
+.featured-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.3);color:var(--gold);display:inline-block;margin-top:4px;letter-spacing:.5px}
+
+/* ── PHASE 1: ATHLETE SHOWCASE ── */
+.athletes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:768px){.athletes-grid{grid-template-columns:1fr 1fr}}
+.athlete-chip{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;transition:border-color .2s}
+.athlete-chip:hover{border-color:var(--border-p)}
+.athlete-avatar{width:44px;height:44px;border-radius:50%;background:rgba(27,111,228,.15);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:#93b4ff;margin:0 auto 8px;overflow:hidden}
+.athlete-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.athlete-chip-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.athlete-chip-meta{font-size:10px;color:var(--gray)}
+.athlete-chip-acc{font-size:10px;color:var(--purple3);margin-top:4px;font-style:italic;line-height:1.4}
+
+/* ── PHASE 1: EVENTS ── */
+.events-list{display:flex;flex-direction:column;gap:10px}
+.event-item{display:flex;gap:14px;align-items:flex-start;padding:12px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;transition:border-color .2s}
+.event-item:hover{border-color:var(--border-p)}
+.event-date-box{width:48px;height:48px;flex-shrink:0;background:rgba(124,58,237,.15);border:1px solid var(--border-p);border-radius:8px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.event-date-box .mo{font-size:9px;font-weight:700;color:var(--purple2);text-transform:uppercase}
+.event-date-box .dy{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;line-height:1}
+.event-info{flex:1}
+.event-title{font-size:14px;font-weight:700;margin-bottom:3px}
+.event-meta{font-size:11px;color:var(--gray);line-height:1.6}
+.event-type-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;display:inline-block;margin-bottom:4px}
+.et-tryout{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171}
+.et-clinic{background:rgba(124,58,237,.12);border:1px solid var(--border-p);color:var(--purple3)}
+.et-camp{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.et-tournament{background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.3);color:var(--gold)}
+.et-event{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--gray2)}
+.event-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.btn-hh{font-size:10px;font-weight:700;padding:5px 9px;border-radius:6px;background:rgba(27,111,228,.15);border:1px solid rgba(27,111,228,.3);color:#93b4ff;text-decoration:none;white-space:nowrap;transition:all .2s;cursor:pointer}
+.btn-hh:hover{background:rgba(27,111,228,.3)}
+
+/* ── SPOTLIGHT FULL SECTION ── */
+.spotlight-full{background:linear-gradient(135deg,rgba(13,13,0,.8),rgba(26,20,0,.8));border:1px solid rgba(201,162,39,.2);border-radius:var(--r2);padding:24px;margin-bottom:18px}
+.spotlight-full-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.spotlight-full-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;margin-bottom:8px}
+.spotlight-full-summary{font-size:13px;color:var(--gray2);line-height:1.7;margin-bottom:14px}
+
+.section-link{font-size:11px;font-weight:700;color:var(--purple2);text-decoration:none;transition:color .2s}
+.section-link:hover{color:var(--white)}
+.empty-section{font-size:13px;color:var(--gray);font-style:italic;text-align:center;padding:20px 0}
 </style>
 </head>
 <body>
@@ -43,12 +101,14 @@
 <div id="profile-loading" style="text-align:center;padding:100px 20px;color:var(--gray)">Loading profile…</div>
 
 <div id="profile-content" style="display:none">
+  <!-- ── HERO ── -->
   <div class="profile-hero" id="profile-hero">
     <div class="profile-hero-overlay"></div>
     <div class="profile-hero-content">
       <div class="profile-logo" id="profile-logo"></div>
       <div class="profile-identity">
         <div class="profile-name" id="profile-name"></div>
+        <div class="profile-tagline" id="profile-tagline" style="display:none"></div>
         <div class="profile-type" id="profile-type"></div>
         <div class="profile-tags-row" id="profile-tags"></div>
       </div>
@@ -59,37 +119,110 @@
     </div>
   </div>
 
+  <!-- ── BODY ── -->
   <div class="profile-body">
-    <div>
+    <div id="main-col">
+
+      <!-- SPOTLIGHT SECTION (Phase 1) -->
+      <div id="spotlight-full-section" style="display:none">
+        <div class="spotlight-full">
+          <div class="spotlight-full-label">⭐ 5-Star Sports Media Feature</div>
+          <div class="spotlight-full-title" id="sf-title"></div>
+          <div class="spotlight-full-summary" id="sf-summary"></div>
+          <a id="sf-link" href="https://5starsportsmedia.com/organization-spotlight.html" target="_blank" class="btn-gold btn-sm">Read Full Spotlight →</a>
+        </div>
+      </div>
+
+      <!-- MISSION -->
       <div class="section-card" id="mission-card" style="display:none"><h3>Mission</h3><p id="profile-mission"></p></div>
+
+      <!-- ABOUT -->
       <div class="section-card" id="desc-card" style="display:none"><h3>About</h3><p id="profile-desc"></p></div>
+
+      <!-- COACHING STAFF (Phase 1) -->
+      <div class="section-card" id="coaches-section" style="display:none">
+        <h3>Coaching Staff <a href="https://venuewise.net/coacheshuddle/" target="_blank" class="section-link">Powered by CoachesHuddle ↗</a></h3>
+        <div class="coaches-grid" id="coaches-grid"></div>
+      </div>
+
+      <!-- ATHLETE SHOWCASE (Phase 1) -->
+      <div class="section-card" id="athletes-section" style="display:none">
+        <h3>Athlete Showcase <span class="section-link" style="font-size:10px;color:var(--gray)">via AthleteHuddle</span></h3>
+        <div class="athletes-grid" id="athletes-grid"></div>
+      </div>
+
+      <!-- UPCOMING EVENTS (Phase 1) -->
+      <div class="section-card" id="events-section" style="display:none">
+        <h3>Upcoming Events <a href="https://venuewise.net/homehuddle/" target="_blank" class="section-link">Sync to HomeHuddle ↗</a></h3>
+        <div class="events-list" id="events-list"></div>
+      </div>
+
+      <!-- VALUES & PHILOSOPHY -->
       <div class="section-card" id="philosophy-card" style="display:none"><h3>Values & Philosophy</h3><p id="profile-philosophy"></p></div>
+
+      <!-- ACHIEVEMENTS -->
       <div class="section-card" id="achievements-card" style="display:none"><h3>Notable Achievements</h3><p id="profile-achievements"></p></div>
+
+      <!-- COMMUNITY IMPACT -->
       <div class="section-card" id="impact-card" style="display:none"><h3>Community Impact</h3><p id="profile-impact"></p></div>
+
+      <!-- TRYOUT INFO -->
       <div class="section-card" id="tryout-card" style="display:none">
         <h3>Tryout Information</h3>
         <p id="profile-tryout" style="margin-bottom:14px"></p>
         <a id="reg-link" href="#" class="btn-purple btn-sm" style="display:none">Register / Tryout Info →</a>
       </div>
+
+      <!-- ORG DETAILS -->
       <div class="section-card"><h3>Organization Details</h3><div id="details-list"></div></div>
+
     </div>
-    <div>
+
+    <!-- ── SIDEBAR ── -->
+    <div id="sidebar-col">
+
+      <!-- SPOTLIGHT SIDEBAR -->
       <div class="spotlight-sidebar" id="spotlight-sidebar" style="display:none">
         <div style="font-size:2rem;margin-bottom:8px">⭐</div>
         <h4 id="spotlight-sidebar-title">5-Star Sports Media</h4>
         <p id="spotlight-sidebar-text" style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:14px"></p>
         <a id="spotlight-sidebar-btn" href="#" class="btn-gold btn-sm" style="display:none">Read Spotlight →</a>
       </div>
+
+      <!-- CONTACT FORM -->
       <div class="sidebar-card" id="contact-org">
         <h4>Contact This Organization</h4>
         <div id="contact-alert" class="oh-alert"></div>
+        <div class="contact-field">
+          <select id="c-inquiry" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;margin-bottom:0">
+            <option value="general">General Inquiry</option>
+            <option value="athlete">Athlete Interest</option>
+            <option value="coach">Coach Application</option>
+            <option value="volunteer">Volunteer Inquiry</option>
+            <option value="sponsor">Sponsor Inquiry</option>
+            <option value="media">Media Inquiry</option>
+          </select>
+        </div>
         <div class="contact-field"><input type="text" id="c-name" placeholder="Your name *"/></div>
         <div class="contact-field"><input type="email" id="c-email" placeholder="Your email *"/></div>
         <div class="contact-field"><input type="tel" id="c-phone" placeholder="Your phone"/></div>
         <div class="contact-field"><textarea id="c-msg" placeholder="Message — athlete's age, sport, what you're looking for…"></textarea></div>
         <button class="btn-purple" style="width:100%;justify-content:center" onclick="sendContact()">Send Message →</button>
       </div>
+
+      <!-- QUICK INFO -->
       <div class="sidebar-card"><h4>Quick Info</h4><div id="quick-info"></div></div>
+
+      <!-- ECOSYSTEM LINKS SIDEBAR -->
+      <div class="sidebar-card" id="ecosystem-sidebar">
+        <h4>Venuewise Ecosystem</h4>
+        <div style="display:flex;flex-direction:column;gap:8px" id="ecosystem-links">
+          <a href="https://venuewise.net/coacheshuddle/" target="_blank" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray2);padding:7px 10px;background:var(--dark3);border-radius:7px;transition:color .2s;border:1px solid var(--border)">🏒 Find a Coach on CoachesHuddle</a>
+          <a href="https://venuewise.net/homehuddle/" target="_blank" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray2);padding:7px 10px;background:var(--dark3);border-radius:7px;transition:color .2s;border:1px solid var(--border)">🏠 Create a HomeHuddle Account</a>
+          <a href="https://5starsportsmedia.com" target="_blank" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gold);padding:7px 10px;background:rgba(201,162,39,.07);border-radius:7px;border:1px solid rgba(201,162,39,.2)">⭐ 5-Star Sports Media</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -102,6 +235,40 @@
 
 <script>
 let orgData=null;
+const DEMO_ORG = {
+  id:'demo-org1',organization_name:'WNY Warriors Hockey',sports:'Hockey, Skating',
+  organization_type:'Travel Program',city:'Buffalo',state:'NY',service_area:'Western New York',
+  founded_year:'2005',athletes_served:'200+ annually',age_groups_served:'Ages 8-18',
+  teams_programs_offered:'14U AA, 16U AAA, 18U A, Mite/Squirt Skills Clinics',
+  mission_statement:'Developing elite hockey players and strong community leaders across WNY through competitive travel hockey.',
+  organization_description:'WNY Warriors Hockey is one of Western New York\'s premier travel hockey organizations, providing competitive programs at multiple levels for players ages 8-18.',
+  values_development_philosophy:'We believe in developing the whole athlete. Compete hard, respect the game, and make your teammates better.',
+  notable_achievements:'5 regional championship appearances. 40+ alumni playing at the NCAA level.',
+  community_impact:'Annual free Learn to Skate clinics for underserved youth.',
+  tryout_information:'Tryouts held in late April / early May. Register at our website.',
+  pricing_notes:'Travel teams: $1,200-$2,400/season. Payment plans available.',
+  facilities_used:'LECOM Harborcenter, Northtown Center, Riverworks Ice',
+  coaches_staff:'Director: John Smith | Head Coach 16U: Mike Johnson',
+  logo_url:'',website_url:'https://wnywarriors.com',registration_url:'https://wnywarriors.com/tryouts',
+  social_links:'@WNYWarriorsHockey',contact_email:'info@wnywarriors.com',contact_phone:'(716) 555-0200',
+  accepting_new_athletes:true,organization_spotlight_eligible:true,organization_spotlight_status:'published',profile_status:'published'
+};
+const DEMO_COACHES = [
+  {id:'c1',coach_name:'John Smith',position:'Director / Head Coach',sports:'Hockey',profile_photo_url:'',coach_spotlight_eligible:true,coach_spotlight_status:'published'},
+  {id:'c2',coach_name:'Mike Johnson',position:'Head Coach 16U',sports:'Hockey, Skating',profile_photo_url:'',coach_spotlight_eligible:false,coach_spotlight_status:'not_submitted'},
+  {id:'c3',coach_name:'Sarah Davis',position:'Head Coach 14U',sports:'Hockey',profile_photo_url:'',coach_spotlight_eligible:false,coach_spotlight_status:'not_submitted'},
+];
+const DEMO_ATHLETES = [
+  {id:'a1',athlete_name:'Jake Williams',athlete_age:'16',sport:'Hockey',position:'Forward',accomplishments:'Selected WNY All-Star 2025'},
+  {id:'a2',athlete_name:'Emma Torres',athlete_age:'14',sport:'Skating',position:'Defense',accomplishments:'Regional Skills Champion'},
+  {id:'a3',athlete_name:'Ryan O\'Brien',athlete_age:'17',sport:'Hockey',position:'Goalie',accomplishments:'WNY Save % Leader 2025'},
+  {id:'a4',athlete_name:'Chloe Martinez',athlete_age:'15',sport:'Hockey',position:'Forward',accomplishments:'Top Scorer 16U AA'},
+];
+const DEMO_EVENTS = [
+  {id:'e1',title:'16U AAA Tryouts',event_type:'tryout',event_date:'2026-07-15',event_time:'6:00 PM',location_name:'LECOM Harborcenter',registration_url:'https://wnywarriors.com/tryouts',description:'Open tryouts for our 16U AAA travel team.'},
+  {id:'e2',title:'Summer Skills Camp',event_type:'camp',event_date:'2026-07-21',event_time:'9:00 AM',location_name:'Northtown Center',registration_url:'',description:'4-day intensive skills camp for ages 10-16.'},
+  {id:'e3',title:'Annual Showcase Tournament',event_type:'tournament',event_date:'2026-08-08',event_time:'8:00 AM',location_name:'Riverworks Ice',registration_url:'',description:'Our annual showcase draws 60+ teams from across the Northeast.'},
+];
 
 async function loadProfile(){
   const id=ohParam('id');
@@ -109,33 +276,63 @@ async function loadProfile(){
   try{
     let orgs;
     if(id==='demo-org1'){
-      orgs=[{id:'demo-org1',organization_name:'WNY Warriors Hockey',sports:'Hockey, Skating',organization_type:'Travel Program',city:'Buffalo',state:'NY',service_area:'Western New York',founded_year:'2005',athletes_served:'200+ annually',age_groups_served:'Ages 8–18',teams_programs_offered:'14U AA, 16U AAA, 18U A, Mite/Squirt Skills Clinics',mission_statement:'Developing elite hockey players and strong community leaders across WNY through competitive travel hockey.',organization_description:'WNY Warriors Hockey is one of Western New York\'s premier travel hockey organizations, providing competitive programs at multiple levels for players ages 8–18. Our programs focus on player development, team chemistry, and a love for the game.',values_development_philosophy:'We believe in developing the whole athlete — on the ice, in the classroom, and in the community. Compete hard, respect the game, and make your teammates better.',notable_achievements:'5 regional championship appearances. 40+ alumni playing at the NCAA level. Annual Showcase Tournament draws 60+ teams from across the Northeast.',community_impact:'We run annual free Learn to Skate clinics for underserved youth and partner with local schools to promote youth hockey participation.',tryout_information:'Tryouts held in late April / early May each year. Register at our website. Players must provide own equipment. Evaluations conducted over 2 sessions.',pricing_notes:'Travel teams: $1,200–$2,400/season depending on level. Payment plans available.',facilities_used:'LECOM Harborcenter, Northtown Center, Riverworks Ice, Cazenovia Ice Rink',coaches_staff:'Director: John Smith | Head Coach 16U: Mike Johnson | Head Coach 14U: Sarah Davis',logo_url:'',website_url:'https://wnywarriors.com',registration_url:'https://wnywarriors.com/tryouts',social_links:'@WNYWarriorsHockey',contact_email:'info@wnywarriors.com',contact_phone:'(716) 555-0200',accepting_new_athletes:true,organization_spotlight_eligible:true,organization_spotlight_status:'published',profile_status:'published'}];
+      orgs=[DEMO_ORG];
     } else {
       orgs=await ohGet('organizations',{'id':`eq.${id}`,'select':'*'});
     }
     if(!orgs.length){showNotFound();return;}
     orgData=orgs[0];
     renderProfile(orgData);
-  }catch(e){showNotFound();}
+    await Promise.all([
+      loadCoaches(orgData.id, id==='demo-org1'),
+      loadAthletes(orgData.id, id==='demo-org1'),
+      loadEvents(orgData.id, id==='demo-org1'),
+    ]);
+  }catch(e){console.error(e);showNotFound();}
 }
 
 function renderProfile(o){
   document.getElementById('profile-loading').style.display='none';
   document.getElementById('profile-content').style.display='block';
   document.title=`${o.organization_name} — OrganizationHuddle`;
+  if(o.mission_statement) document.getElementById('page-desc').setAttribute('content',o.mission_statement.slice(0,160));
 
   const initials=(o.organization_name||'O').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const logoEl=document.getElementById('profile-logo');
   if(o.logo_url){logoEl.innerHTML=`<img src="${o.logo_url}" alt="${o.organization_name}"/>`;}else{logoEl.textContent=initials;}
 
   document.getElementById('profile-name').textContent=o.organization_name;
-  document.getElementById('profile-type').textContent=o.organization_type||'Organization';
+  if(o.mission_statement){
+    const tl=document.getElementById('profile-tagline');
+    tl.textContent=o.mission_statement.slice(0,100)+(o.mission_statement.length>100?'…':'');
+    tl.style.display='block';
+  }
+  document.getElementById('profile-type').textContent=`${o.organization_type||'Organization'} · ${o.city||''}${o.state?', '+o.state:''}`;
 
   const sports=(o.sports||'').split(',').map(s=>s.trim()).filter(Boolean);
   document.getElementById('profile-tags').innerHTML=
     sports.map(s=>`<span class="org-tag">${s}</span>`).join('')+
+    (o.age_groups_served?`<span class="org-tag gray">${o.age_groups_served}</span>`:'')+
     (o.accepting_new_athletes?'<span class="accepting-pill">✓ Accepting Athletes</span>':'');
 
+  // Spotlight section
+  if(o.organization_spotlight_eligible){
+    const sb=document.getElementById('spotlight-sidebar');sb.style.display='block';
+    if(o.organization_spotlight_status==='published'){
+      document.getElementById('spotlight-sidebar-title').textContent='⭐ 5-Star Featured';
+      document.getElementById('spotlight-sidebar-text').textContent='This organization has been featured on 5-Star Sports Media.';
+      const btn=document.getElementById('spotlight-sidebar-btn');btn.href='https://5starsportsmedia.com/organization-spotlight.html';btn.style.display='inline-flex';
+      // Full spotlight section
+      const sfs=document.getElementById('spotlight-full-section');sfs.style.display='block';
+      document.getElementById('sf-title').textContent=o.organization_name+' — 5-Star Sports Media Spotlight';
+      document.getElementById('sf-summary').textContent=o.mission_statement||'This organization has been featured by 5-Star Sports Media.';
+    } else if(o.organization_spotlight_status==='pending'){
+      document.getElementById('spotlight-sidebar-title').textContent='Spotlight Pending';
+      document.getElementById('spotlight-sidebar-text').textContent='Submission under review by 5-Star Sports Media.';
+    }
+  }
+
+  // Content sections
   if(o.mission_statement){document.getElementById('mission-card').style.display='block';document.getElementById('profile-mission').textContent=o.mission_statement;}
   if(o.organization_description){document.getElementById('desc-card').style.display='block';document.getElementById('profile-desc').textContent=o.organization_description;}
   if(o.values_development_philosophy){document.getElementById('philosophy-card').style.display='block';document.getElementById('profile-philosophy').textContent=o.values_development_philosophy;}
@@ -147,6 +344,7 @@ function renderProfile(o){
     if(o.registration_url){const rl=document.getElementById('reg-link');rl.href=o.registration_url;rl.style.display='inline-flex';}
   }
 
+  // Details
   document.getElementById('details-list').innerHTML=[
     ['📍 Location',`${o.city||''}${o.state?', '+o.state:''}`],
     ['🗺️ Service Area',o.service_area],
@@ -160,31 +358,150 @@ function renderProfile(o){
     ['🌐 Website',o.website_url?`<a href="${o.website_url}" target="_blank" style="color:var(--purple2)">${o.website_url}</a>`:null],
   ].filter(([,v])=>v).map(([l,v])=>`<div class="detail-row"><span class="detail-label">${l}</span><span style="font-size:13px;color:var(--white)">${v}</span></div>`).join('');
 
+  // Quick info
   document.getElementById('quick-info').innerHTML=[
     o.sports?`<div class="detail-row"><span class="detail-label">Sports</span><span style="font-size:13px;color:var(--white)">${o.sports}</span></div>`:'',
-    `<div class="detail-row"><span class="detail-label">Status</span><span style="font-size:13px;color:${o.accepting_new_athletes?'#4ade80':'#f87171'}">${o.accepting_new_athletes?'✓ Accepting':'Not Accepting'}</span></div>`,
+    `<div class="detail-row"><span class="detail-label">Status</span><span style="font-size:13px;color:${o.accepting_new_athletes?'#4ade80':'#f87171'}">${o.accepting_new_athletes?'✓ Accepting Athletes':'Not Accepting'}</span></div>`,
     o.contact_email?`<div class="detail-row"><span class="detail-label">Email</span><span style="font-size:13px"><a href="mailto:${o.contact_email}" style="color:var(--purple2)">${o.contact_email}</a></span></div>`:'',
+    o.website_url?`<div class="detail-row"><span class="detail-label">Website</span><span style="font-size:13px"><a href="${o.website_url}" target="_blank" style="color:var(--purple2)">Visit →</a></span></div>`:'',
   ].join('');
-
-  if(o.organization_spotlight_eligible){
-    const sb=document.getElementById('spotlight-sidebar');sb.style.display='block';
-    if(o.organization_spotlight_status==='published'){
-      document.getElementById('spotlight-sidebar-title').textContent='⭐ 5-Star Featured';
-      document.getElementById('spotlight-sidebar-text').textContent='This organization has been featured on 5-Star Sports Media.';
-      const btn=document.getElementById('spotlight-sidebar-btn');btn.href='https://5starsportsmedia.com/organization-spotlight.html';btn.style.display='inline-flex';
-    } else {
-      document.getElementById('spotlight-sidebar-title').textContent='Spotlight Pending';
-      document.getElementById('spotlight-sidebar-text').textContent='This organization has submitted for 5-Star Sports Media coverage. Stay tuned.';
-    }
-  }
 }
 
+/* ── PHASE 1: LOAD COACHES ── */
+async function loadCoaches(orgId, isDemo){
+  try{
+    let coaches;
+    if(isDemo){
+      coaches=DEMO_COACHES;
+    } else {
+      // First try organization_coaches join table
+      const links=await ohGet('organization_coaches',{'organization_id':`eq.${orgId}`,'select':'coach_id,position'});
+      if(links.length){
+        const ids=links.map(l=>l.coach_id).filter(Boolean);
+        if(ids.length){
+          coaches=await ohGet('coaches',{'id':`in.(${ids.join(',')})`, 'select':'id,coach_name,sports,specialty,profile_photo_url,coach_spotlight_eligible,coach_spotlight_status'});
+          // Merge position from links
+          coaches=coaches.map(c=>{
+            const link=links.find(l=>l.coach_id===c.id);
+            return {...c,position:link?.position||c.specialty||''};
+          });
+        }
+      } else {
+        // Fallback: coaches with matching organization_id
+        coaches=await ohGet('coaches',{'organization_id':`eq.${orgId}`,'select':'id,coach_name,sports,specialty,profile_photo_url,coach_spotlight_eligible,coach_spotlight_status','profile_status':'eq.published'});
+      }
+    }
+    if(!coaches||!coaches.length) return;
+    renderCoaches(coaches);
+  }catch(e){console.error('Coaches load error:',e);}
+}
+
+function renderCoaches(coaches){
+  const section=document.getElementById('coaches-section');
+  section.style.display='block';
+  document.getElementById('coaches-grid').innerHTML=coaches.map(c=>{
+    const initials=(c.coach_name||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const isFeatured=c.coach_spotlight_eligible&&c.coach_spotlight_status==='published';
+    return `<div class="coach-chip" onclick="window.open('https://venuewise.net/coacheshuddle/profile.html?id=${c.id}','_blank')">
+      <div class="coach-chip-avatar">${c.profile_photo_url?`<img src="${c.profile_photo_url}" alt="${c.coach_name}"/>`:`<span>${initials}</span>`}</div>
+      <div class="coach-chip-name">${c.coach_name}</div>
+      <div class="coach-chip-role">${c.position||c.specialty||''}</div>
+      <span class="coach-chip-sport">${(c.sports||'').split(',')[0].trim()}</span>
+      ${isFeatured?'<br><span class="featured-badge">⭐ 5-Star Featured</span>':''}
+    </div>`;
+  }).join('');
+}
+
+/* ── PHASE 1: LOAD ATHLETES ── */
+async function loadAthletes(orgId, isDemo){
+  try{
+    let athletes;
+    if(isDemo){athletes=DEMO_ATHLETES;}
+    else{athletes=await ohGet('organization_athletes',{'organization_id':`eq.${orgId}`,'select':'*','order':'display_order.asc'});}
+    if(!athletes||!athletes.length) return;
+    renderAthletes(athletes);
+  }catch(e){console.error('Athletes load error:',e);}
+}
+
+function renderAthletes(athletes){
+  const section=document.getElementById('athletes-section');
+  section.style.display='block';
+  document.getElementById('athletes-grid').innerHTML=athletes.map(a=>{
+    const initials=(a.athlete_name||a.name||'A').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="athlete-chip">
+      <div class="athlete-avatar">${a.photo_url||a.profile_photo_url?`<img src="${a.photo_url||a.profile_photo_url}" alt="${a.athlete_name}"/>`:`<span>${initials}</span>`}</div>
+      <div class="athlete-chip-name">${a.athlete_name||a.name}</div>
+      <div class="athlete-chip-meta">${[a.sport,a.position,a.athlete_age?'Age '+a.athlete_age:''].filter(Boolean).join(' · ')}</div>
+      ${a.accomplishments?`<div class="athlete-chip-acc">${a.accomplishments.slice(0,50)}${a.accomplishments.length>50?'…':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ── PHASE 1: LOAD EVENTS ── */
+async function loadEvents(orgId, isDemo){
+  try{
+    let events;
+    if(isDemo){events=DEMO_EVENTS;}
+    else{
+      events=await ohGet('organization_events',{
+        'organization_id':`eq.${orgId}`,
+        'status':'eq.active',
+        'order':'event_date.asc',
+        'select':'*'
+      });
+    }
+    if(!events||!events.length) return;
+    renderEvents(events);
+  }catch(e){console.error('Events load error:',e);}
+}
+
+function renderEvents(events){
+  const section=document.getElementById('events-section');
+  section.style.display='block';
+  const typeCls={tryout:'et-tryout',clinic:'et-clinic',camp:'et-camp',tournament:'et-tournament',event:'et-event'};
+  document.getElementById('events-list').innerHTML=events.map(ev=>{
+    const d=ev.event_date?new Date(ev.event_date+'T12:00:00'):null;
+    const mo=d?d.toLocaleString('en-US',{month:'short'}):'';
+    const dy=d?d.getDate():'—';
+    const cls=typeCls[ev.event_type]||'et-event';
+    const label=(ev.event_type||'event').charAt(0).toUpperCase()+(ev.event_type||'event').slice(1);
+    return `<div class="event-item">
+      <div class="event-date-box"><div class="mo">${mo}</div><div class="dy">${dy}</div></div>
+      <div class="event-info">
+        <span class="event-type-pill ${cls}">${label}</span>
+        <div class="event-title">${ev.title}</div>
+        <div class="event-meta">${ev.event_time?'🕐 '+ev.event_time+' · ':''}${ev.location_name?'📍 '+ev.location_name:''}</div>
+        ${ev.description?`<div style="font-size:11px;color:var(--gray);margin-top:3px">${ev.description.slice(0,80)}${ev.description.length>80?'…':''}</div>`:''}
+      </div>
+      <div class="event-actions">
+        ${ev.registration_url?`<a href="${ev.registration_url}" target="_blank" class="btn-purple btn-sm" style="font-size:10px;padding:5px 9px">Register</a>`:''}
+        <button class="btn-hh" onclick="addToHomeHuddle('${ev.id}','${ev.title.replace(/'/g,'')}')" title="Add to HomeHuddle">+HH</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addToHomeHuddle(eventId, title){
+  ohToast(`"${title}" — Add to HomeHuddle coming soon! Create your HomeHuddle account at venuewise.net`,'info');
+}
+
+/* ── CONTACT ── */
 async function sendContact(){
   const name=document.getElementById('c-name').value.trim();
   const email=document.getElementById('c-email').value.trim();
+  const inquiry=document.getElementById('c-inquiry').value;
   if(!name||!email){ohAlert('contact-alert','Please enter your name and email.','error');return;}
   try{
-    await ohInsert('leads',{name,email,phone:document.getElementById('c-phone').value.trim()||null,role:'parent',platform_interest:'OrganizationHuddle',source_platform:'OrganizationHuddle',source_page:'/organizationhuddle/profile',organization_id:orgData?.id||null,message:document.getElementById('c-msg').value.trim()||null});
+    await ohInsert('leads',{
+      name,email,
+      phone:document.getElementById('c-phone').value.trim()||null,
+      role:'parent',
+      platform_interest:'OrganizationHuddle',
+      source_platform:'OrganizationHuddle',
+      source_page:'/organizationhuddle/profile',
+      organization_id:orgData?.id||null,
+      message:`[${inquiry}] ${document.getElementById('c-msg').value.trim()||''}`,
+    });
     ohAlert('contact-alert','✅ Message sent! The organization will be in touch soon.','success');
     ['c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
   }catch(e){ohAlert('contact-alert','Could not send. Please try again.','error');}
