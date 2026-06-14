@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contact — OrganizationHuddle | Powered by Venuewise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1100px;margin:0 auto;padding:80px 32px}
+@media(max-width:768px){.contact-wrap{grid-template-columns:1fr;padding:48px 20px}}
+.contact-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+.ci-row{display:flex;gap:14px;margin-bottom:20px}
+.ci-icon{width:40px;height:40px;border-radius:8px;background:rgba(124,58,237,.12);border:1px solid var(--border-p);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>ohInjectNav()</script>
+
+<div style="padding:80px 32px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(124,58,237,.07) 0%,transparent 65%)">
+  <div class="oh-tag" style="text-align:center">Get In Touch</div>
+  <h1 class="oh-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Contact OrganizationHuddle</h1>
+  <p class="oh-sub" style="margin:0 auto">Questions about your profile, the Venuewise ecosystem, or 5-Star Sports Media? We're here.</p>
+</div>
+
+<div class="contact-wrap">
+  <div>
+    <div class="oh-tag">Reach Us</div>
+    <h2 class="oh-title" style="font-size:2rem;margin-bottom:28px">We're here for organizations.</h2>
+    <div class="ci-row"><div class="ci-icon">📧</div><div><div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:4px">General</div><div style="font-size:14px"><a href="mailto:info@venuewise.net" style="color:var(--purple2)">info@venuewise.net</a></div></div></div>
+    <div class="ci-row"><div class="ci-icon">📰</div><div><div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:4px">5-Star Media</div><div style="font-size:14px"><a href="mailto:submissions@5starsportsmedia.com" style="color:var(--purple2)">submissions@5starsportsmedia.com</a></div></div></div>
+    <div class="ci-row"><div class="ci-icon">📍</div><div><div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:4px">Location</div><div style="font-size:14px">Western New York</div></div></div>
+    <div style="background:rgba(124,58,237,.08);border:1px solid var(--border-p);border-radius:var(--r);padding:20px;margin-top:32px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);margin-bottom:10px">Quick Links</div>
+      <a href="profile-create.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:7px">→ Create Organization Profile</a>
+      <a href="spotlight-submit.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:7px">→ Submit for Org Spotlight</a>
+      <a href="directory.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:7px">→ Browse Organizations</a>
+      <a href="https://5starsportsmedia.com/organization-spotlight.html" style="display:block;font-size:13px;color:var(--gold);font-weight:600" target="_blank">→ View 5-Star Org Spotlights ↗</a>
+    </div>
+  </div>
+  <div>
+    <div class="contact-card">
+      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:4px">Send a Message</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:20px">We'll get back to you within 24–48 hours.</p>
+      <div id="contact-alert" class="oh-alert"></div>
+      <div class="oh-form-row"><div class="oh-form-field"><label>Name *</label><input type="text" id="c-name" placeholder="Your name"/></div><div class="oh-form-field"><label>Email *</label><input type="email" id="c-email" placeholder="you@email.com"/></div></div>
+      <div class="oh-form-field"><label>Subject</label>
+        <select id="c-subject"><option>Organization Profile Question</option><option>Org Spotlight Inquiry</option><option>Sponsorship / Advertising</option><option>Technical Support</option><option>Other</option></select>
+      </div>
+      <div class="oh-form-field"><label>Message *</label><textarea id="c-msg" rows="5" placeholder="How can we help?"></textarea></div>
+      <button class="btn-purple" style="width:100%;justify-content:center;margin-top:8px" onclick="sendContact()" id="contact-btn">Send Message →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const orgName=ohParam('name');
+if(orgName){document.getElementById('c-subject').value='Organization Profile Question';document.getElementById('c-msg').placeholder=`I'm interested in ${orgName}…`;}
+async function sendContact(){
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  const msg=document.getElementById('c-msg').value.trim();
+  if(!name||!email||!msg){ohAlert('contact-alert','Please fill in name, email, and message.','error');return;}
+  const btn=document.getElementById('contact-btn');btn.textContent='Sending…';btn.disabled=true;
+  try{
+    await ohInsert('leads',{name,email,role:'contact',platform_interest:'OrganizationHuddle',source_platform:'OrganizationHuddle',source_page:'/organizationhuddle/contact',organization_id:ohParam('org')||null,message:`[${document.getElementById('c-subject').value}] ${msg}`});
+    ohAlert('contact-alert','✅ Message sent! We\'ll be in touch within 24–48 hours.','success');
+    ['c-name','c-email','c-msg'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){ohAlert('contact-alert','Could not send. Please email info@venuewise.net directly.','error');}
+  btn.textContent='Send Message →';btn.disabled=false;
+}
+</script>
+<script>ohInjectFooter()</script>
+</body>
+</html>
