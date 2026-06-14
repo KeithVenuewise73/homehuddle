@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Browse Clinics — CoachesHuddle | Powered by Venuewise</title>
+<meta name="description" content="Browse available sports clinics, camps, and training programs from coaches in Western New York."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.clinics-hero{padding:72px 32px 48px;text-align:center;background:radial-gradient(ellipse at center,rgba(201,162,39,.07) 0%,transparent 65%)}
+.filters{background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 32px}
+.filters-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.filter-select{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;outline:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:var(--border2)}
+.filter-select option{background:var(--dark2)}
+.search-input{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 14px;outline:none;flex:1;min-width:200px;transition:border-color .2s}
+.search-input:focus{border-color:var(--border2)}
+.search-input::placeholder{color:var(--gray)}
+.clinics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px;margin:0 auto;padding:40px 32px}
+@media(max-width:960px){.clinics-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.clinics-grid{grid-template-columns:1fr;padding:24px 16px}}
+.clinic-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
+.clinic-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.clinic-card-header{padding:18px 18px 14px;background:linear-gradient(135deg,var(--dark3),var(--dark2));border-bottom:1px solid var(--border)}
+.clinic-card-sport{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.clinic-card-title{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:800;line-height:1.1;margin-bottom:6px}
+.clinic-card-coach{font-size:12px;color:var(--gray2);display:flex;align-items:center;gap:6px}
+.clinic-card-body{padding:14px 18px;flex:1}
+.clinic-meta-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray);margin-bottom:6px}
+.clinic-card-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.clinic-price{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--white)}
+.clinic-price span{font-size:.75rem;font-weight:500;color:var(--gray)}
+.spots-pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px}
+.spots-open{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.spots-few{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.spots-full{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav()</script>
+
+<div class="clinics-hero">
+  <div class="ch-tag" style="text-align:center">Clinic Directory</div>
+  <h1 class="ch-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Find a Clinic.</h1>
+  <p class="ch-sub" style="margin:0 auto">Browse upcoming clinics, camps, and training programs from CoachesHuddle coaches in Western New York.</p>
+</div>
+
+<div class="filters">
+  <div class="filters-inner">
+    <input type="text" class="search-input" id="search-input" placeholder="🔍 Search clinics, coaches, sports…" oninput="filterClinics()"/>
+    <select class="filter-select" id="filter-sport" onchange="filterClinics()">
+      <option value="">All Sports</option>
+      <option>Hockey</option><option>Baseball</option><option>Soccer</option>
+      <option>Basketball</option><option>Lacrosse</option><option>Football</option>
+      <option>Skating</option><option>Strength & Conditioning</option>
+    </select>
+    <select class="filter-select" id="filter-age" onchange="filterClinics()">
+      <option value="">All Ages</option>
+      <option>6-8</option><option>9-12</option><option>13-18</option><option>Adult</option>
+    </select>
+    <select class="filter-select" id="filter-avail" onchange="filterClinics()">
+      <option value="">All Availability</option>
+      <option value="open">Spots Available</option>
+    </select>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:20px auto 0;padding:0 32px">
+  <p style="font-size:13px;color:var(--gray)" id="results-meta"></p>
+</div>
+
+<div class="clinics-grid" id="clinics-grid">
+  <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">Loading clinics…</div>
+</div>
+
+<div style="background:var(--dark);border-top:1px solid var(--border);padding:60px 32px;text-align:center">
+  <div class="ch-tag" style="text-align:center">Are You a Coach?</div>
+  <h2 class="ch-title" style="font-size:2.5rem;margin-bottom:12px">Post Your Clinic</h2>
+  <p class="ch-sub" style="margin:0 auto 28px">Create your CoachesHuddle profile and start posting clinics. Families register directly through your clinic page.</p>
+  <a href="profile-create.html" class="btn-gold">Create Coach Profile — Free →</a>
+</div>
+
+<script>
+let allClinics = [];
+
+async function loadClinics() {
+  try {
+    allClinics = await chGet('clinics', {
+      'status': 'eq.active',
+      'select': '*',
+      'order': 'start_date.asc'
+    });
+    if (!allClinics.length) throw new Error('no clinics');
+  } catch(e) {
+    // Demo data
+    allClinics = [
+      { id:'demo', coach_id:'demo1', coach_name:'Demo Coach', title:'Summer Skills Camp', sport:'Hockey', skill_level:'Intermediate / Advanced', age_groups:'Ages 10–16', location_name:'LECOM Harborcenter', start_date:'2026-07-07', end_date:'2026-07-28', start_time:'6:00 PM', sessions:4, price:149.00, capacity:12, enrolled:7, status:'active', description:'An intensive multi-session skills camp.' },
+      { id:'demo2', coach_id:'demo1', coach_name:'Demo Coach', title:'Goalie Clinic', sport:'Hockey', skill_level:'All Levels', age_groups:'Ages 8–16', location_name:'Riverworks Ice', start_date:'2026-08-04', end_date:'2026-08-18', start_time:'4:00 PM', sessions:3, price:99.00, capacity:6, enrolled:2, status:'active', description:'Dedicated goalie development clinic.' },
+      { id:'demo3', coach_id:'demo1', coach_name:'Demo Coach', title:'Elite Power Skating', sport:'Hockey', skill_level:'Advanced / Elite', age_groups:'Ages 12–18', location_name:'Northtown Center', start_date:'2026-07-14', end_date:'2026-07-14', start_time:'5:30 PM', sessions:1, price:75.00, capacity:10, enrolled:10, status:'active', description:'Single-session power skating intensive.' },
+    ];
+  }
+  filterClinics();
+}
+
+function filterClinics() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const sport = document.getElementById('filter-sport').value.toLowerCase();
+  const age = document.getElementById('filter-age').value.toLowerCase();
+  const avail = document.getElementById('filter-avail').value;
+
+  const filtered = allClinics.filter(c => {
+    const text = [c.title, c.coach_name, c.sport, c.location_name, c.description].join(' ').toLowerCase();
+    if (search && !text.includes(search)) return false;
+    if (sport && !(c.sport||'').toLowerCase().includes(sport)) return false;
+    if (age && !(c.age_groups||'').toLowerCase().includes(age)) return false;
+    if (avail === 'open' && c.capacity && c.enrolled >= c.capacity) return false;
+    return true;
+  });
+
+  document.getElementById('results-meta').textContent = `${filtered.length} clinic${filtered.length!==1?'s':''} found`;
+  renderClinics(filtered);
+}
+
+function spotsInfo(c) {
+  if (!c.capacity) return { cls:'spots-open', txt:'Open' };
+  const open = c.capacity - (c.enrolled||0);
+  if (open <= 0) return { cls:'spots-full', txt:'Full' };
+  if (open <= 3) return { cls:'spots-few', txt:`${open} left` };
+  return { cls:'spots-open', txt:`${open} spots` };
+}
+
+function renderClinics(clinics) {
+  const grid = document.getElementById('clinics-grid');
+  if (!clinics.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray)"><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px;color:var(--white)">No clinics found</h3><p>Try adjusting your filters or check back soon for new clinics.</p></div>`;
+    return;
+  }
+  grid.innerHTML = clinics.map(c => {
+    const fmt = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const dates = c.start_date === c.end_date || !c.end_date ? fmt(c.start_date) : `${fmt(c.start_date)} – ${fmt(c.end_date)}`;
+    const spots = spotsInfo(c);
+    const initials = (c.coach_name||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `
+      <div class="clinic-card">
+        <div class="clinic-card-header">
+          <div class="clinic-card-sport">${c.sport||'Clinic'}</div>
+          <div class="clinic-card-title">${c.title}</div>
+          <div class="clinic-card-coach">
+            <span style="width:20px;height:20px;border-radius:50%;background:rgba(201,162,39,.2);display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:var(--gold)">${initials}</span>
+            ${c.coach_name}
+          </div>
+        </div>
+        <div class="clinic-card-body">
+          <div class="clinic-meta-row">📅 ${dates} ${c.sessions>1?`· ${c.sessions} sessions`:''}</div>
+          <div class="clinic-meta-row">🕐 ${c.start_time||'TBD'}</div>
+          <div class="clinic-meta-row">📍 ${c.location_name||'TBD'}</div>
+          <div class="clinic-meta-row">👥 ${c.age_groups||'All ages'} ${c.skill_level?'· '+c.skill_level:''}</div>
+        </div>
+        <div class="clinic-card-footer">
+          <div>
+            <div class="clinic-price">$${parseFloat(c.price||0).toFixed(0)}<span>/athlete</span></div>
+            <span class="spots-pill ${spots.cls}">${spots.txt}</span>
+          </div>
+          <a href="clinic.html?id=${c.id}" class="btn-gold btn-sm" ${spots.cls==='spots-full'?'style="opacity:.5;pointer-events:none"':''}>
+            ${spots.cls==='spots-full'?'Full':'Register →'}
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+loadClinics();
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
