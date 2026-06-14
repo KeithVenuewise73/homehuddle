@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Create Coach Profile — CoachesHuddle</title>
+<meta name="description" content="Create your free CoachesHuddle profile and start connecting with sports families in WNY."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.form-hero{padding:72px 32px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(201,162,39,.07) 0%,transparent 65%)}
+.form-wrap{max-width:760px;margin:0 auto;padding:0 32px 80px}
+.form-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+@media(max-width:540px){.services-grid{grid-template-columns:1fr 1fr}}
+.service-chip{background:var(--dark3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;user-select:none}
+.service-chip.selected{background:rgba(201,162,39,.15);border-color:var(--border2);color:var(--gold)}
+.progress-bar{height:4px;background:var(--dark3);border-radius:2px;margin-bottom:32px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.step-indicator{font-size:12px;color:var(--gray);margin-bottom:8px;text-align:right}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav('Join')</script>
+
+<div class="form-hero">
+  <div class="ch-tag" style="text-align:center">Free Profile</div>
+  <h1 class="ch-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Create Your Coach Profile</h1>
+  <p class="ch-sub" style="margin:0 auto">Fill out the form below and we'll have your CoachesHuddle profile live within 48 hours. Founding profiles are free during the WNY launch period.</p>
+</div>
+
+<div class="form-wrap">
+  <div class="step-indicator" id="step-indicator">Step 1 of 4</div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:25%"></div></div>
+
+  <div id="alert-box" class="ch-alert"></div>
+
+  <form id="coach-form">
+
+    <!-- STEP 1: Basic Info -->
+    <div class="form-step" id="step-1">
+      <div class="form-card">
+        <div class="ch-section-divider">Coach Information</div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Coach Name *</label><input type="text" name="coach_name" placeholder="Chris Mazzu" required/></div>
+          <div class="ch-form-field"><label>Business / Program Name</label><input type="text" name="business_name" placeholder="Mazzu Hockey Clinics"/></div>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Email *</label><input type="email" name="email" placeholder="coach@example.com" required/></div>
+          <div class="ch-form-field"><label>Phone</label><input type="tel" name="phone" placeholder="(716) 555-0100"/></div>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Website</label><input type="url" name="website_url" placeholder="https://yoursite.com"/></div>
+          <div class="ch-form-field"><label>Social Media Links</label><input type="text" name="social_links" placeholder="Instagram, Twitter, Facebook URLs"/></div>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Sports Coached *</label><input type="text" name="sports" placeholder="Hockey, Skating, Goalie" required/></div>
+          <div class="ch-form-field"><label>Specialty</label><input type="text" name="specialty" placeholder="Power skating, goalie technique…"/></div>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Years Coaching</label><input type="text" name="years_coaching" placeholder="e.g. 12 years"/></div>
+          <div class="ch-form-field"><label>Best Contact Method</label>
+            <select name="best_contact_method">
+              <option value="">Select…</option>
+              <option>Email</option><option>Phone / Text</option><option>Instagram DM</option><option>Website form</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-gold" onclick="nextStep(1)">Next: Background & Bio →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Background -->
+    <div class="form-step" id="step-2" style="display:none">
+      <div class="form-card">
+        <div class="ch-section-divider">Background & Credentials</div>
+        <div class="ch-form-field"><label>Certifications</label><input type="text" name="certifications" placeholder="USA Hockey Level 4, NSCA-CSCS…"/></div>
+        <div class="ch-form-field"><label>Playing Background</label><textarea name="playing_background" placeholder="Tell families about your playing career…"></textarea></div>
+        <div class="ch-form-field"><label>Coaching Background</label><textarea name="coaching_background" placeholder="Where have you coached? What levels, teams, programs?"></textarea></div>
+        <div class="ch-section-divider">Profile Content</div>
+        <div class="ch-form-field"><label>Bio *</label><textarea name="bio" rows="4" placeholder="Write a compelling bio that families will read. What makes you the right coach for their athlete?" required></textarea></div>
+        <div class="ch-form-field"><label>Coaching Philosophy</label><textarea name="coaching_philosophy" placeholder="What do you believe about coaching? What values drive how you work with athletes?"></textarea></div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-outline" onclick="prevStep(2)">← Back</button>
+          <button type="button" class="btn-gold" onclick="nextStep(2)">Next: Services & Programs →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Services -->
+    <div class="form-step" id="step-3" style="display:none">
+      <div class="form-card">
+        <div class="ch-section-divider">Services Offered</div>
+        <div class="ch-form-field">
+          <label>Select all that apply</label>
+          <div class="services-grid" id="services-grid">
+            <div class="service-chip" onclick="toggleService(this,'Private Lessons')">🎯 Private Lessons</div>
+            <div class="service-chip" onclick="toggleService(this,'Group Training')">👥 Group Training</div>
+            <div class="service-chip" onclick="toggleService(this,'Camps')">🏕️ Camps</div>
+            <div class="service-chip" onclick="toggleService(this,'Clinics')">📋 Clinics</div>
+            <div class="service-chip" onclick="toggleService(this,'Team Training')">🏆 Team Training</div>
+            <div class="service-chip" onclick="toggleService(this,'Strength & Conditioning')">💪 Strength & Conditioning</div>
+            <div class="service-chip" onclick="toggleService(this,'Recruiting Guidance')">🎓 Recruiting Guidance</div>
+            <div class="service-chip" onclick="toggleService(this,'Other')">✚ Other</div>
+          </div>
+          <input type="hidden" name="services_offered" id="services-hidden"/>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Age Groups Served</label><input type="text" name="age_groups_served" placeholder="6–8, 9–12, 13–18, Adult…"/></div>
+          <div class="ch-form-field"><label>Locations Served</label><input type="text" name="locations_served" placeholder="Buffalo, Orchard Park, West Seneca…"/></div>
+        </div>
+        <div class="ch-form-row">
+          <div class="ch-form-field"><label>Pricing Notes</label><input type="text" name="pricing_notes" placeholder="$75/hr private, $150/clinic session…"/></div>
+          <div class="ch-form-field"><label>Availability Notes</label><input type="text" name="availability_notes" placeholder="Weekends + Tuesday/Thursday evenings…"/></div>
+        </div>
+        <div class="ch-form-field">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" name="accepting_new_athletes" id="accepting" checked style="width:16px;height:16px;accent-color:var(--gold)"/>
+            <span style="font-size:14px;color:var(--gray2)">Currently accepting new athletes</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-outline" onclick="prevStep(3)">← Back</button>
+          <button type="button" class="btn-gold" onclick="nextStep(3)">Next: Photos & Submit →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Photos + Submit -->
+    <div class="form-step" id="step-4" style="display:none">
+      <div class="form-card">
+        <div class="ch-section-divider">Photos & Media</div>
+        <div class="ch-form-row">
+          <div class="ch-form-field">
+            <label>Profile Photo URL</label>
+            <input type="url" name="profile_photo_url" placeholder="https://… (paste a photo URL)"/>
+            <div class="ch-form-hint">Link to a headshot or action photo. We can also accept photos via email after submission.</div>
+          </div>
+          <div class="ch-form-field">
+            <label>Logo / Business Logo URL</label>
+            <input type="url" name="logo_url" placeholder="https://…"/>
+          </div>
+        </div>
+        <div class="ch-form-field">
+          <label>Gallery / Additional Photos (URLs, comma-separated)</label>
+          <input type="text" name="gallery_photos" placeholder="https://photo1.jpg, https://photo2.jpg…"/>
+        </div>
+        <div class="ch-section-divider">Spotlight & Permissions</div>
+        <div class="ch-form-field">
+          <label style="margin-bottom:10px">Submit for 5-Star Sports Media Coach Spotlight?</label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;margin-bottom:8px">
+            <input type="checkbox" name="coach_spotlight_eligible" id="spotlight-check" style="width:16px;height:16px;margin-top:3px;accent-color:var(--gold)"/>
+            <span style="font-size:13px;color:var(--gray2)">Yes — I'd like to be considered for a 5-Star Sports Media Coach Spotlight. I understand coverage is earned, not guaranteed.</span>
+          </label>
+        </div>
+        <div class="ch-form-field">
+          <label class="ch-checkbox">
+            <input type="checkbox" name="permission_confirmed" id="permission" required/>
+            <span>I confirm I have permission to submit this profile and any media for CoachesHuddle and 5-Star Sports Media consideration. *</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:28px">
+          <button type="button" class="btn-outline" onclick="prevStep(4)">← Back</button>
+          <button type="submit" class="btn-gold" id="submit-btn">🚀 Create My Coach Profile</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- SUCCESS -->
+  <div id="success-screen" style="display:none;text-align:center;padding:60px 20px">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(201,162,39,.12);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:40px">⭐</div>
+    <h2 style="font-size:2.5rem;margin-bottom:10px">Profile Submitted!</h2>
+    <p style="color:var(--gray2);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 32px">Your CoachesHuddle profile is in review. We'll have it live within 48 hours and will email you when it's published.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="coach-directory.html" class="btn-gold">Browse Coach Directory →</a>
+      <a href="spotlight-submit.html" class="btn-outline">Submit for Spotlight</a>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+const selectedServices = new Set();
+
+function nextStep(from) {
+  if (from === 1) {
+    const name = document.querySelector('[name="coach_name"]').value.trim();
+    const email = document.querySelector('[name="email"]').value.trim();
+    const sports = document.querySelector('[name="sports"]').value.trim();
+    if (!name || !email || !sports) { chAlert('alert-box','Please fill in Coach Name, Email, and Sports Coached.','error'); return; }
+  }
+  if (from === 2) {
+    const bio = document.querySelector('[name="bio"]').value.trim();
+    if (!bio) { chAlert('alert-box','Please write a bio for your profile.','error'); return; }
+  }
+  document.getElementById('alert-box').style.display = 'none';
+  document.getElementById('step-' + from).style.display = 'none';
+  currentStep = from + 1;
+  document.getElementById('step-' + currentStep).style.display = 'block';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(from) {
+  document.getElementById('step-' + from).style.display = 'none';
+  currentStep = from - 1;
+  document.getElementById('step-' + currentStep).style.display = 'block';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = (currentStep / totalSteps) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
+}
+
+function toggleService(el, name) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) selectedServices.add(name);
+  else selectedServices.delete(name);
+  document.getElementById('services-hidden').value = Array.from(selectedServices).join(', ');
+}
+
+document.getElementById('coach-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const permission = document.getElementById('permission').checked;
+  if (!permission) { chAlert('alert-box','Please confirm the permission checkbox to submit.','error'); return; }
+
+  btn.textContent = 'Submitting…'; btn.disabled = true;
+
+  const fd = new FormData(e.target);
+  const payload = {
+    coach_name:             fd.get('coach_name'),
+    business_name:          fd.get('business_name') || null,
+    contact_email:          fd.get('email'),
+    phone:                  fd.get('phone') || null,
+    website_url:            fd.get('website_url') || null,
+    social_links:           fd.get('social_links') || null,
+    sports:                 fd.get('sports'),
+    specialty:              fd.get('specialty') || null,
+    years_coaching:         fd.get('years_coaching') || null,
+    best_contact_method:    fd.get('best_contact_method') || null,
+    certifications:         fd.get('certifications') || null,
+    playing_background:     fd.get('playing_background') || null,
+    coaching_background:    fd.get('coaching_background') || null,
+    bio:                    fd.get('bio'),
+    coaching_philosophy:    fd.get('coaching_philosophy') || null,
+    services_offered:       fd.get('services_offered') || null,
+    age_groups_served:      fd.get('age_groups_served') || null,
+    locations_served:       fd.get('locations_served') || null,
+    pricing_notes:          fd.get('pricing_notes') || null,
+    availability_notes:     fd.get('availability_notes') || null,
+    accepting_new_athletes: fd.get('accepting_new_athletes') === 'on',
+    profile_photo_url:      fd.get('profile_photo_url') || null,
+    logo_url:               fd.get('logo_url') || null,
+    gallery_photos:         fd.get('gallery_photos') || null,
+    coach_spotlight_eligible: fd.get('coach_spotlight_eligible') === 'on',
+    coach_spotlight_status: fd.get('coach_spotlight_eligible') === 'on' ? 'pending' : 'not_submitted',
+    profile_status:         'draft',
+  };
+
+  try {
+    await chInsert('coaches', payload);
+    // Also insert lead record
+    await chInsert('leads', {
+      name: payload.coach_name, email: payload.contact_email, phone: payload.phone,
+      role: 'coach', platform_interest: 'CoachesHuddle',
+      source_platform: 'CoachesHuddle', source_page: '/coacheshuddle/profile-create',
+      message: `New coach profile submission. Sports: ${payload.sports}. Spotlight: ${payload.coach_spotlight_eligible}`,
+    });
+    document.getElementById('coach-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(err) {
+    chAlert('alert-box', 'Something went wrong. Please try again or email us at info@venuewise.net', 'error');
+    btn.textContent = '🚀 Create My Coach Profile'; btn.disabled = false;
+  }
+});
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
