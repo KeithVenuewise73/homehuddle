@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Organization Dashboard — OrganizationHuddle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(124,58,237,.07) 0%,transparent 65%)}
+.login-box{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:3rem 2.5rem;width:100%;max-width:420px;text-align:center}
+#app{display:none}
+.dash-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 62px)}
+@media(max-width:768px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{display:none}}
+.dash-sidebar{background:rgba(255,255,255,.02);border-right:1px solid var(--border);padding:20px 0}
+.sb-section{padding:0 10px 20px}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.3);text-transform:uppercase;padding:0 8px;margin-bottom:8px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;color:rgba(255,255,255,.6);font-size:13px;background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s,color .15s}
+.sb-link:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sb-link.active{background:rgba(124,58,237,.12);color:var(--white)}
+.dash-main{padding:24px;overflow-x:hidden}
+.dash-nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.dash-brand{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;text-transform:uppercase}
+.dash-brand span{color:var(--purple2)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;color:var(--purple2);line-height:1}
+.stat-lbl{font-size:11px;color:var(--gray);margin-top:4px}
+.panel{display:none}.panel.active{display:block}
+.dash-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:18px}
+.dash-card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dash-card-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.dash-card-body{padding:18px}
+.dash-card-action{font-size:12px;font-weight:700;color:var(--purple2);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.lead-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.lead-row:last-child{border:none}
+.lead-icon{width:34px;height:34px;border-radius:8px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.spotlight-status-card{padding:20px;border-radius:var(--r2);margin-bottom:16px;text-align:center}
+.status-pending{background:rgba(201,162,39,.07);border:1px solid rgba(201,162,39,.2)}
+.status-published{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3)}
+.status-none{background:rgba(255,255,255,.03);border:1px solid var(--border)}
+.lf{margin-bottom:14px;text-align:left}
+.lf label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray);text-transform:uppercase;margin-bottom:6px}
+.lf input,.lf select,.lf textarea{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s}
+.lf input:focus,.lf select:focus,.lf textarea:focus{border-color:var(--purple)}
+.lf textarea{min-height:80px;resize:vertical}
+.lf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;text-transform:uppercase;margin-bottom:.25rem">Organization<span style="color:var(--purple2)">Huddle</span></div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:2rem;line-height:1.6">Sign in to your organization dashboard. Access code provided by Venuewise.</p>
+    <div class="lf"><label>Email</label><input type="email" id="login-email" placeholder="admin@org.com" autocomplete="email"/></div>
+    <div class="lf"><label>Access Code</label><input type="password" id="login-code" placeholder="Provided by Venuewise" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn-purple" style="width:100%;justify-content:center" onclick="doLogin()" id="login-btn">Sign In →</button>
+    <div id="login-err" class="oh-alert" style="margin-top:12px"></div>
+    <p style="font-size:12px;color:var(--gray);margin-top:14px;line-height:1.6">Don't have a profile yet? <a href="profile-create.html" style="color:var(--purple2)">Create one free →</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="dash-nav">
+    <div class="dash-brand">Organization<span>Huddle</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:13px;color:var(--gray)" id="dash-org-name"></span>
+      <button onclick="doLogout()" style="font-size:12px;font-weight:700;color:var(--gray);background:none;border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Out</button>
+    </div>
+  </div>
+  <div class="dash-layout">
+    <aside class="dash-sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Dashboard</div>
+        <button class="sb-link active" onclick="showPanel('overview',this)">📊 Overview</button>
+        <button class="sb-link" onclick="showPanel('leads',this)">📬 Inquiries</button>
+        <button class="sb-link" onclick="showPanel('spotlight',this)">⭐ Spotlight Status</button>
+        <button class="sb-link" onclick="showPanel('profile-edit',this)">✏️ Edit Profile</button>
+        <button class="sb-link" onclick="showPanel('programs',this)">📋 Programs & Teams</button>
+        <button class="sb-link" onclick="showPanel('events',this)">📅 Events</button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Links</div>
+        <a class="sb-link" href="directory.html">🔍 Directory ↗</a>
+        <a class="sb-link" href="spotlight-submit.html">⭐ Submit for Spotlight ↗</a>
+        <a class="sb-link" href="https://5starsportsmedia.com/organization-spotlight.html" target="_blank">📰 5-Star Spotlights ↗</a>
+      </div>
+    </aside>
+    <main class="dash-main">
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-num" id="s-leads">—</div><div class="stat-lbl">New Inquiries</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total Leads</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-spotlight">—</div><div class="stat-lbl">Spotlight</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-status">—</div><div class="stat-lbl">Profile</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div class="dash-card">
+            <div class="dash-card-header"><div class="dash-card-title">📬 Recent Inquiries</div><button class="dash-card-action" onclick="showPanel('leads',null)">View All</button></div>
+            <div class="dash-card-body" id="overview-leads"><p style="font-size:13px;color:var(--gray);font-style:italic">Loading…</p></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header"><div class="dash-card-title">⭐ Spotlight</div><button class="dash-card-action" onclick="showPanel('spotlight',null)">Details</button></div>
+            <div class="dash-card-body" id="overview-spotlight"><p style="font-size:13px;color:var(--gray);font-style:italic">Loading…</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- LEADS -->
+      <div class="panel" id="panel-leads">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px">Inquiries</h2>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Families who contacted your organization through OrganizationHuddle.</p>
+        <div class="dash-card"><div class="dash-card-body" id="leads-list"></div></div>
+      </div>
+      <!-- SPOTLIGHT -->
+      <div class="panel" id="panel-spotlight">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:20px">5-Star Spotlight Status</h2>
+        <div id="spotlight-status-display"></div>
+      </div>
+      <!-- PROFILE EDIT -->
+      <div class="panel" id="panel-profile-edit">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px">Edit Profile</h2>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Changes save to your OrganizationHuddle profile.</p>
+        <div id="profile-edit-alert" class="oh-alert"></div>
+        <div class="dash-card"><div class="dash-card-body">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--purple2);margin:0 0 12px;display:flex;align-items:center;gap:10px">Basic Info<span style="flex:1;height:1px;background:var(--border-p)"></span></div>
+          <div class="lf-row"><div class="lf"><label>Organization Name</label><input type="text" id="pe-name"/></div><div class="lf"><label>Sports</label><input type="text" id="pe-sports"/></div></div>
+          <div class="lf-row"><div class="lf"><label>City</label><input type="text" id="pe-city"/></div><div class="lf"><label>Service Area</label><input type="text" id="pe-area"/></div></div>
+          <div class="lf"><label>Mission Statement</label><textarea id="pe-mission"></textarea></div>
+          <div class="lf"><label>Organization Description</label><textarea id="pe-desc"></textarea></div>
+          <div class="lf-row"><div class="lf"><label>Teams / Programs</label><textarea id="pe-teams" style="min-height:60px"></textarea></div><div class="lf"><label>Age Groups</label><input type="text" id="pe-ages"/></div></div>
+          <div class="lf-row"><div class="lf"><label>Tryout Info</label><textarea id="pe-tryout" style="min-height:60px"></textarea></div><div class="lf"><label>Pricing Notes</label><input type="text" id="pe-pricing"/></div></div>
+          <div class="lf-row"><div class="lf"><label>Contact Email</label><input type="email" id="pe-email"/></div><div class="lf"><label>Phone</label><input type="tel" id="pe-phone"/></div></div>
+          <div class="lf-row"><div class="lf"><label>Website</label><input type="url" id="pe-website"/></div><div class="lf"><label>Registration URL</label><input type="url" id="pe-reg-url"/></div></div>
+          <div class="lf"><label>Logo URL</label><input type="url" id="pe-logo"/></div>
+          <div style="margin-top:16px;display:flex;gap:12px;align-items:center">
+            <button class="btn-purple btn-sm" onclick="saveProfileEdit()">Save Changes</button>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--gray2)"><input type="checkbox" id="pe-accepting" style="accent-color:var(--purple)"/> Accepting new athletes</label>
+          </div>
+        </div></div>
+      </div>
+      <!-- PROGRAMS -->
+      <div class="panel" id="panel-programs">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px">Programs & Teams</h2>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Full team and roster management coming soon.</p>
+        <div class="dash-card"><div class="dash-card-body" style="text-align:center;padding:48px 20px">
+          <div style="font-size:3rem;margin-bottom:16px">📋</div>
+          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px">Team & Roster Management</h3>
+          <p style="font-size:13px;color:var(--gray);max-width:380px;margin:0 auto 20px;line-height:1.65">Add and manage teams, rosters, coaches, and programs — coming for OrganizationHuddle Pro. For now, update your profile with program details.</p>
+          <button class="btn-purple btn-sm" onclick="showPanel('profile-edit',null)">Update Profile →</button>
+        </div></div>
+      </div>
+      <!-- EVENTS -->
+      <div class="panel" id="panel-events">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px">Events</h2>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Event publishing and HomeHuddle calendar sync coming soon.</p>
+        <div class="dash-card"><div class="dash-card-body" style="text-align:center;padding:48px 20px">
+          <div style="font-size:3rem;margin-bottom:16px">📅</div>
+          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:8px">Event Publishing</h3>
+          <p style="font-size:13px;color:var(--gray);max-width:380px;margin:0 auto 20px;line-height:1.65">Publish games, practices, tryouts, and tournaments that auto-sync to HomeHuddle family calendars. Coming for OrganizationHuddle Pro.</p>
+          <a href="https://5starsportsmedia.com" target="_blank" class="btn-outline btn-sm">View 5-Star Coverage →</a>
+        </div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const ACCESS_CODE='org2026!';
+let orgData=null,orgId=null,leads=[];
+
+function saveSession(email,org){sessionStorage.setItem('oh_dash_email',email);sessionStorage.setItem('oh_dash_org',JSON.stringify(org));}
+function loadSession(){const e=sessionStorage.getItem('oh_dash_email'),o=sessionStorage.getItem('oh_dash_org');if(e&&o){try{return{email:e,org:JSON.parse(o)};}catch(x){}}return null;}
+function clearSession(){sessionStorage.removeItem('oh_dash_email');sessionStorage.removeItem('oh_dash_org');}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const code=document.getElementById('login-code').value;
+  if(!email||!code){ohAlert('login-err','Please enter your email and access code.','error');return;}
+  if(code!==ACCESS_CODE){ohAlert('login-err','Incorrect access code. Contact Venuewise to get access.','error');return;}
+  const btn=document.getElementById('login-btn');btn.textContent='Signing in…';btn.disabled=true;
+  try{
+    const orgs=await ohGet('organizations',{'contact_email':`eq.${email}`,'select':'*'});
+    if(!orgs.length){ohAlert('login-err','No OrganizationHuddle profile found for this email.','error');btn.textContent='Sign In →';btn.disabled=false;return;}
+    orgData=orgs[0];orgId=orgData.id;
+    saveSession(email,orgData);launchApp();
+  }catch(e){ohAlert('login-err','Could not connect. Please try again.','error');btn.textContent='Sign In →';btn.disabled=false;}
+}
+
+function doLogout(){clearSession();orgData=null;orgId=null;document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';}
+
+async function launchApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('dash-org-name').textContent=orgData.organization_name||'';
+  populateProfileEdit();
+  try{leads=await ohGet('leads',{'organization_id':`eq.${orgId}`,'select':'*','order':'created_at.desc'});}catch(e){leads=[];}
+  renderOverview();renderSpotlightStatus();renderLeads();
+}
+
+function renderOverview(){
+  const newLeads=leads.filter(l=>l.status==='new').length;
+  document.getElementById('s-leads').textContent=newLeads;
+  document.getElementById('s-total').textContent=leads.length;
+  document.getElementById('s-spotlight').textContent=orgData.organization_spotlight_status==='published'?'⭐':orgData.organization_spotlight_status==='pending'?'⏳':'—';
+  document.getElementById('s-status').textContent=orgData.profile_status==='published'?'Live':'Draft';
+
+  const el=document.getElementById('overview-leads');
+  el.innerHTML=leads.slice(0,4).map(l=>`<div class="lead-row"><div class="lead-icon">📬</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${l.name||'Unknown'}</div><div style="font-size:11px;color:var(--gray)">${l.email||''} ${l.phone?'· '+l.phone:''}</div>${l.message?`<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;font-style:italic">"${l.message.slice(0,60)}…"</div>`:''}</div><div style="font-size:11px;color:var(--gray);flex-shrink:0">${l.created_at?new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—'}</div></div>`).join('')||'<p style="font-size:13px;color:var(--gray);font-style:italic">No inquiries yet.</p>';
+
+  const ss=document.getElementById('overview-spotlight');
+  if(orgData.organization_spotlight_status==='published'){ss.innerHTML=`<div style="text-align:center;padding:12px 0"><div style="font-size:2rem;margin-bottom:8px">⭐</div><div style="font-size:14px;font-weight:600;color:#4ade80;margin-bottom:8px">Featured on 5-Star!</div><a href="https://5starsportsmedia.com/organization-spotlight.html" target="_blank" class="btn-gold btn-sm" style="display:inline-flex">Read Spotlight →</a></div>`;}
+  else if(orgData.organization_spotlight_status==='pending'){ss.innerHTML=`<div style="text-align:center;padding:12px 0"><div style="font-size:2rem;margin-bottom:8px">⏳</div><div style="font-size:14px;font-weight:600;color:var(--gold);margin-bottom:4px">Submission Under Review</div><p style="font-size:12px;color:var(--gray)">Our media team is reviewing your submission.</p></div>`;}
+  else{ss.innerHTML=`<div style="text-align:center;padding:12px 0"><div style="font-size:2rem;margin-bottom:8px">📝</div><div style="font-size:14px;font-weight:600;margin-bottom:8px">Not Yet Submitted</div><a href="spotlight-submit.html" class="btn-purple btn-sm" style="display:inline-flex">Submit for Spotlight →</a></div>`;}
+}
+
+function renderLeads(){
+  const el=document.getElementById('leads-list');
+  el.innerHTML=leads.length?leads.map(l=>`<div class="lead-row"><div class="lead-icon">📬</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${l.name||'—'}</div><div style="font-size:12px;color:var(--gray)">${l.email||''} ${l.phone?'· '+l.phone:''}</div>${l.message?`<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;font-style:italic">"${l.message}"</div>`:''}</div><div style="font-size:11px;color:var(--gray);flex-shrink:0">${l.created_at?new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'}</div></div>`).join(''):'<p style="font-size:13px;color:var(--gray);font-style:italic;text-align:center;padding:24px 0">No inquiries yet. Families who contact you through your profile will appear here.</p>';
+}
+
+function renderSpotlightStatus(){
+  const status=orgData.organization_spotlight_status;
+  const el=document.getElementById('spotlight-status-display');
+  if(status==='published'){el.innerHTML=`<div class="spotlight-status-card status-published"><div style="font-size:3rem;margin-bottom:12px">⭐</div><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:8px;color:#4ade80">You're Featured!</h3><p style="font-size:14px;color:rgba(255,255,255,.7);max-width:400px;margin:0 auto 20px;line-height:1.65">Your Organization Spotlight is published on 5-Star Sports Media.</p><a href="https://5starsportsmedia.com/organization-spotlight.html" target="_blank" class="btn-gold">Read Your Spotlight →</a></div>`;}
+  else if(status==='pending'){el.innerHTML=`<div class="spotlight-status-card status-pending"><div style="font-size:3rem;margin-bottom:12px">⏳</div><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:8px;color:var(--gold)">Submission Under Review</h3><p style="font-size:14px;color:rgba(255,255,255,.7);max-width:400px;margin:0 auto 16px;line-height:1.65">Our media team is reviewing your Organization Spotlight submission. This typically takes 1–3 weeks.</p><a href="https://5starsportsmedia.com/organization-spotlight.html" target="_blank" class="btn-outline btn-sm">View Published Spotlights</a></div>`;}
+  else{el.innerHTML=`<div class="spotlight-status-card status-none"><div style="font-size:3rem;margin-bottom:12px">📝</div><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:8px">Not Yet Submitted</h3><p style="font-size:14px;color:var(--gray);max-width:400px;margin:0 auto 20px;line-height:1.65">Submit for a 5-Star Sports Media Organization Spotlight and get in front of thousands of WNY sports families.</p><a href="spotlight-submit.html" class="btn-purple">Submit for Spotlight →</a><p style="font-size:11px;color:var(--gray);margin-top:12px;font-style:italic">Coverage is earned, not purchased.</p></div>`;}
+}
+
+function populateProfileEdit(){
+  if(!orgData)return;
+  const f={'pe-name':orgData.organization_name,'pe-sports':orgData.sports,'pe-city':orgData.city,'pe-area':orgData.service_area,'pe-mission':orgData.mission_statement,'pe-desc':orgData.organization_description,'pe-teams':orgData.teams_programs_offered,'pe-ages':orgData.age_groups_served,'pe-tryout':orgData.tryout_information,'pe-pricing':orgData.pricing_notes,'pe-email':orgData.contact_email,'pe-phone':orgData.contact_phone,'pe-website':orgData.website_url,'pe-reg-url':orgData.registration_url,'pe-logo':orgData.logo_url};
+  Object.entries(f).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val||'';});
+  const acc=document.getElementById('pe-accepting');if(acc)acc.checked=orgData.accepting_new_athletes!==false;
+}
+
+async function saveProfileEdit(){
+  const updates={organization_name:document.getElementById('pe-name').value.trim(),sports:document.getElementById('pe-sports').value.trim(),city:document.getElementById('pe-city').value.trim()||null,service_area:document.getElementById('pe-area').value.trim()||null,mission_statement:document.getElementById('pe-mission').value.trim()||null,organization_description:document.getElementById('pe-desc').value.trim()||null,teams_programs_offered:document.getElementById('pe-teams').value.trim()||null,age_groups_served:document.getElementById('pe-ages').value.trim()||null,tryout_information:document.getElementById('pe-tryout').value.trim()||null,pricing_notes:document.getElementById('pe-pricing').value.trim()||null,contact_email:document.getElementById('pe-email').value.trim(),contact_phone:document.getElementById('pe-phone').value.trim()||null,website_url:document.getElementById('pe-website').value.trim()||null,registration_url:document.getElementById('pe-reg-url').value.trim()||null,logo_url:document.getElementById('pe-logo').value.trim()||null,accepting_new_athletes:document.getElementById('pe-accepting').checked};
+  try{await ohUpdate('organizations',orgId,updates);orgData={...orgData,...updates};saveSession(orgData.contact_email,orgData);ohAlert('profile-edit-alert','✅ Profile saved!','success');}
+  catch(e){ohAlert('profile-edit-alert','Could not save. Please try again.','error');}
+}
+
+function showPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(btn){document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));btn.classList.add('active');}
+}
+
+const sess=loadSession();
+if(sess){orgData=sess.org;orgId=orgData.id;launchApp();}
+</script>
+</body>
+</html>
