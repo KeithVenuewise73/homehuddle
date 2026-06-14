@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Create Organization Profile — OrganizationHuddle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.form-hero{padding:72px 32px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(124,58,237,.08) 0%,transparent 65%)}
+.form-wrap{max-width:780px;margin:0 auto;padding:0 32px 80px}
+.form-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+.progress-bar{height:4px;background:var(--dark3);border-radius:2px;margin-bottom:32px;overflow:hidden}
+.progress-fill{height:100%;background:var(--purple);border-radius:2px;transition:width .4s}
+.step-indicator{font-size:12px;color:var(--gray);margin-bottom:8px;text-align:right}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+@media(max-width:540px){.type-grid{grid-template-columns:1fr 1fr}}
+.type-chip{background:var(--dark3);border:1px solid var(--border);border-radius:6px;padding:9px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;user-select:none}
+.type-chip.selected{background:rgba(124,58,237,.15);border-color:var(--border-p);color:var(--purple3)}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>ohInjectNav('Join')</script>
+
+<div class="form-hero">
+  <div class="oh-tag" style="text-align:center">Free Profile — WNY Launch</div>
+  <h1 class="oh-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Create Your Organization Profile</h1>
+  <p class="oh-sub" style="margin:0 auto">Fill out the form below and we'll have your OrganizationHuddle profile live within 48 hours.</p>
+</div>
+
+<div class="form-wrap">
+  <div class="step-indicator" id="step-indicator">Step 1 of 4</div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:25%"></div></div>
+  <div id="form-alert" class="oh-alert"></div>
+
+  <form id="org-form">
+    <!-- STEP 1: Basic Info -->
+    <div class="form-step" id="step-1">
+      <div class="form-card">
+        <div class="oh-section-divider">Organization Info</div>
+        <div class="oh-form-field"><label>Organization Name *</label><input type="text" name="organization_name" placeholder="WNY Warriors Hockey Association" required/></div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Sport(s) *</label><input type="text" name="sports" placeholder="Hockey, Skating, Lacrosse" required/></div>
+          <div class="oh-form-field"><label>City *</label><input type="text" name="city" placeholder="Buffalo" required/></div>
+        </div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>State</label><input type="text" name="state" placeholder="NY"/></div>
+          <div class="oh-form-field"><label>Service Area</label><input type="text" name="service_area" placeholder="Western New York"/></div>
+        </div>
+        <div class="oh-form-field">
+          <label>Organization Type *</label>
+          <div class="type-grid" id="type-grid">
+            <div class="type-chip" onclick="selectType(this,'Travel Program')">✈️ Travel Program</div>
+            <div class="type-chip" onclick="selectType(this,'Youth League')">🏆 Youth League</div>
+            <div class="type-chip" onclick="selectType(this,'Club')">⛸️ Club</div>
+            <div class="type-chip" onclick="selectType(this,'Academy')">🎓 Academy</div>
+            <div class="type-chip" onclick="selectType(this,'School Club')">🏫 School Club</div>
+            <div class="type-chip" onclick="selectType(this,'Rec Program')">🎽 Rec Program</div>
+            <div class="type-chip" onclick="selectType(this,'Tournament Operator')">🗓️ Tournament Operator</div>
+            <div class="type-chip" onclick="selectType(this,'Training Organization')">💪 Training Organization</div>
+            <div class="type-chip" onclick="selectType(this,'Other')">➕ Other</div>
+          </div>
+          <input type="hidden" name="organization_type" id="org-type-hidden"/>
+        </div>
+        <div class="oh-section-divider">Primary Contact</div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Contact Name *</label><input type="text" name="primary_contact_name" placeholder="John Smith" required/></div>
+          <div class="oh-form-field"><label>Contact Email *</label><input type="email" name="contact_email" placeholder="admin@org.com" required/></div>
+        </div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Contact Phone</label><input type="tel" name="contact_phone" placeholder="(716) 555-0100"/></div>
+          <div class="oh-form-field"><label>Website URL</label><input type="url" name="website_url" placeholder="https://yourorg.com"/></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-purple" onclick="nextStep(1)">Next: Programs & Details →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Programs -->
+    <div class="form-step" id="step-2" style="display:none">
+      <div class="form-card">
+        <div class="oh-section-divider">Programs & Teams</div>
+        <div class="oh-form-field"><label>Teams / Programs Offered</label><textarea name="teams_programs_offered" placeholder="14U AA, 16U AAA, 18U A, Adult Rec League…"></textarea></div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Age Groups Served</label><input type="text" name="age_groups_served" placeholder="Ages 6–18, Adult"/></div>
+          <div class="oh-form-field"><label>Athletes Served</label><input type="text" name="athletes_served" placeholder="200+ athletes annually"/></div>
+        </div>
+        <div class="oh-form-field"><label>Tryout Information</label><textarea name="tryout_information" rows="3" placeholder="When are tryouts? How do athletes register? What should they bring?"></textarea></div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Registration URL</label><input type="url" name="registration_url" placeholder="https://register.yourorg.com"/></div>
+          <div class="oh-form-field"><label>Founded Year</label><input type="text" name="founded_year" placeholder="2005"/></div>
+        </div>
+        <div class="oh-form-field"><label>Facilities Used</label><input type="text" name="facilities_used" placeholder="LECOM Harborcenter, Northtown Center, Riverworks Ice…"/></div>
+        <div class="oh-form-field"><label>Coaches / Staff</label><input type="text" name="coaches_staff" placeholder="Head Coach: John Smith, Director: Jane Doe…"/></div>
+        <div class="oh-form-field"><label>Program Costs / Pricing Notes</label><input type="text" name="pricing_notes" placeholder="$1,200/season travel · $300/season rec"/></div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-outline" onclick="prevStep(2)">← Back</button>
+          <button type="button" class="btn-purple" onclick="nextStep(2)">Next: Mission & Story →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Story -->
+    <div class="form-step" id="step-3" style="display:none">
+      <div class="form-card">
+        <div class="oh-section-divider">Mission & Story</div>
+        <div class="oh-form-field"><label>Mission Statement *</label><textarea name="mission_statement" rows="3" placeholder="Our mission is to develop well-rounded athletes and strong community leaders through the sport of hockey…" required></textarea></div>
+        <div class="oh-form-field"><label>Organization Description</label><textarea name="organization_description" rows="4" placeholder="Tell families about your organization — history, what makes you different, what families can expect…"></textarea></div>
+        <div class="oh-form-field"><label>Values / Development Philosophy</label><textarea name="values_development_philosophy" rows="3" placeholder="What values guide your program? How do you develop athletes?"></textarea></div>
+        <div class="oh-form-field"><label>Notable Achievements</label><textarea name="notable_achievements" rows="3" placeholder="Championships, college commitments, tournament results, alumni achievements…"></textarea></div>
+        <div class="oh-form-field"><label>Community Impact</label><textarea name="community_impact" rows="3" placeholder="How has your organization impacted the WNY sports community?"></textarea></div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Social Media Links</label><input type="text" name="social_links" placeholder="Instagram, Twitter, Facebook URLs"/></div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn-outline" onclick="prevStep(3)">← Back</button>
+          <button type="button" class="btn-purple" onclick="nextStep(3)">Next: Photos & Submit →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Photos + Submit -->
+    <div class="form-step" id="step-4" style="display:none">
+      <div class="form-card">
+        <div class="oh-section-divider">Photos & Media</div>
+        <div class="oh-form-row">
+          <div class="oh-form-field"><label>Logo URL</label><input type="url" name="logo_url" placeholder="https://… (or email after submission)"/></div>
+          <div class="oh-form-field"><label>Gallery Photos (comma-separated URLs)</label><input type="text" name="gallery_photos" placeholder="https://photo1.jpg, https://photo2.jpg"/></div>
+        </div>
+        <div class="oh-section-divider">Spotlight & Permissions</div>
+        <div class="oh-form-field">
+          <label style="margin-bottom:8px">Submit for 5-Star Sports Media Organization Spotlight?</label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;margin-bottom:8px">
+            <input type="checkbox" name="organization_spotlight_eligible" style="width:16px;height:16px;margin-top:3px;accent-color:var(--purple)"/>
+            <span style="font-size:13px;color:var(--gray2)">Yes — I'd like to be considered for a 5-Star Sports Media Organization Spotlight. I understand coverage is earned, not guaranteed.</span>
+          </label>
+        </div>
+        <div class="oh-form-field">
+          <label class="oh-checkbox">
+            <input type="checkbox" name="permission_confirmed" id="permission" required/>
+            <span>I confirm I have permission to submit this organization profile and any media for OrganizationHuddle and 5-Star Sports Media consideration. *</span>
+          </label>
+        </div>
+        <div class="oh-form-field">
+          <label class="oh-checkbox">
+            <input type="checkbox" name="accepting_new_athletes" id="accepting" checked/>
+            <span style="font-size:13px;color:var(--gray2)">Currently accepting new athletes</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:28px">
+          <button type="button" class="btn-outline" onclick="prevStep(4)">← Back</button>
+          <button type="submit" class="btn-purple" id="submit-btn">🚀 Create Organization Profile</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div id="success-screen" style="display:none;text-align:center;padding:60px 20px">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(124,58,237,.12);border:2px solid var(--border-p);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:40px">🏢</div>
+    <h2 style="font-size:2.5rem;margin-bottom:10px">Profile Submitted!</h2>
+    <p style="color:var(--gray2);font-size:15px;line-height:1.7;max-width:480px;margin:0 auto 32px">Your OrganizationHuddle profile is in review. We'll have it live within 48 hours and will email you when it's published.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="directory.html" class="btn-purple">Browse Organization Directory →</a>
+      <a href="spotlight-submit.html" class="btn-outline">Submit for Spotlight</a>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep=1;const totalSteps=4;
+
+function nextStep(from){
+  if(from===1){
+    const name=document.querySelector('[name="organization_name"]').value.trim();
+    const email=document.querySelector('[name="contact_email"]').value.trim();
+    const sports=document.querySelector('[name="sports"]').value.trim();
+    const city=document.querySelector('[name="city"]').value.trim();
+    const type=document.getElementById('org-type-hidden').value;
+    if(!name||!email||!sports||!city){ohAlert('form-alert','Please fill in Organization Name, Email, Sport(s), and City.','error');return;}
+    if(!type){ohAlert('form-alert','Please select an organization type.','error');return;}
+  }
+  if(from===3){
+    const mission=document.querySelector('[name="mission_statement"]').value.trim();
+    if(!mission){ohAlert('form-alert','Please enter a mission statement.','error');return;}
+  }
+  document.getElementById('form-alert').style.display='none';
+  document.getElementById('step-'+from).style.display='none';
+  currentStep=from+1;
+  document.getElementById('step-'+currentStep).style.display='block';
+  updateProgress();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function prevStep(from){
+  document.getElementById('step-'+from).style.display='none';
+  currentStep=from-1;
+  document.getElementById('step-'+currentStep).style.display='block';
+  updateProgress();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(){
+  document.getElementById('progress-fill').style.width=(currentStep/totalSteps*100)+'%';
+  document.getElementById('step-indicator').textContent=`Step ${currentStep} of ${totalSteps}`;
+}
+
+function selectType(el,name){
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('org-type-hidden').value=name;
+}
+
+document.getElementById('org-form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  if(!document.getElementById('permission').checked){ohAlert('form-alert','Please confirm the permission checkbox.','error');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Submitting…';btn.disabled=true;
+  const fd=new FormData(e.target);
+  const payload={
+    organization_name:fd.get('organization_name'),
+    sports:fd.get('sports'),
+    organization_type:fd.get('organization_type'),
+    primary_contact_name:fd.get('primary_contact_name'),
+    contact_email:fd.get('contact_email'),
+    contact_phone:fd.get('contact_phone')||null,
+    website_url:fd.get('website_url')||null,
+    registration_url:fd.get('registration_url')||null,
+    social_links:fd.get('social_links')||null,
+    city:fd.get('city'),
+    state:fd.get('state')||null,
+    service_area:fd.get('service_area')||null,
+    founded_year:fd.get('founded_year')||null,
+    athletes_served:fd.get('athletes_served')||null,
+    age_groups_served:fd.get('age_groups_served')||null,
+    teams_programs_offered:fd.get('teams_programs_offered')||null,
+    mission_statement:fd.get('mission_statement'),
+    organization_description:fd.get('organization_description')||null,
+    values_development_philosophy:fd.get('values_development_philosophy')||null,
+    notable_achievements:fd.get('notable_achievements')||null,
+    community_impact:fd.get('community_impact')||null,
+    tryout_information:fd.get('tryout_information')||null,
+    pricing_notes:fd.get('pricing_notes')||null,
+    facilities_used:fd.get('facilities_used')||null,
+    coaches_staff:fd.get('coaches_staff')||null,
+    logo_url:fd.get('logo_url')||null,
+    gallery_photos:fd.get('gallery_photos')||null,
+    accepting_new_athletes:fd.get('accepting_new_athletes')==='on',
+    organization_spotlight_eligible:fd.get('organization_spotlight_eligible')==='on',
+    organization_spotlight_status:fd.get('organization_spotlight_eligible')==='on'?'pending':'not_submitted',
+    profile_status:'draft',
+  };
+  try{
+    await ohInsert('organizations',payload);
+    await ohInsert('leads',{name:payload.primary_contact_name,email:payload.contact_email,phone:payload.contact_phone,role:'organization_admin',platform_interest:'OrganizationHuddle',source_platform:'OrganizationHuddle',source_page:'/organizationhuddle/profile-create',message:`New org profile: ${payload.organization_name} · ${payload.sports}`});
+    document.getElementById('org-form').style.display='none';
+    document.getElementById('success-screen').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    ohAlert('form-alert','Something went wrong. Please try again or email info@venuewise.net','error');
+    btn.textContent='🚀 Create Organization Profile';btn.disabled=false;
+  }
+});
+</script>
+<script>ohInjectFooter()</script>
+</body>
+</html>
