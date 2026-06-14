@@ -198,8 +198,8 @@ nav{position:sticky;top:0;z-index:200;background:rgba(11,22,40,0.97);backdrop-fi
       <input type="email" id="login-email" placeholder="coach@example.com" autocomplete="email"/>
     </div>
     <div class="lf">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <label>Access Code</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="off" placeholder="Provided by Venuewise" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <button class="btn-login" onclick="doLogin()" id="login-btn">Sign In →</button>
     <div class="login-err" id="login-err"></div>
@@ -513,35 +513,27 @@ async function sbDelete(table, id) {
 }
 
 /* ── LOGIN ── */
+const ACCESS_CODE = 'coaches2026!';
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   const errEl = document.getElementById('login-err');
   errEl.style.display = 'none';
 
-  if (!email || !pass) { showLoginErr('Please enter your email and password.'); return; }
+  if (!email || !pass) { showLoginErr('Please enter your email and access code.'); return; }
+  if (pass !== ACCESS_CODE) { showLoginErr('Incorrect access code. Contact Venuewise to get access.'); return; }
 
   const btn = document.getElementById('login-btn');
   btn.textContent = 'Signing in…'; btn.disabled = true;
 
   try {
-    // Authenticate via Supabase Auth
-    const authRes = await fetch(`${SURL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { 'apikey': SKEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass })
-    });
-    const authData = await authRes.json();
-    if (!authRes.ok) throw new Error(authData.error_description || authData.msg || 'Invalid credentials');
-
-    authToken = authData.access_token;
-
-    // Look up coach profile by contact_email
+    // Look up coach by email in coaches table
     const coaches = await sbGet('coaches', { 'contact_email': `eq.${email}`, 'select': '*' });
 
-    if (!coaches.length) {
-      // Try leads table for pending coaches
-      showLoginErr('No CoachesHuddle profile found for this email. Have you applied to get listed? If you just signed up, check back in 48 hours.');
+    if (!coaches || !coaches.length) {
+      showLoginErr('No CoachesHuddle profile found for this email. Contact Venuewise to get set up.');
+      btn.textContent = 'Sign In →'; btn.disabled = false;
       return;
     }
 
@@ -550,7 +542,7 @@ async function doLogin() {
     saveSession(email, coachData);
     launchApp();
   } catch(e) {
-    showLoginErr(e.message || 'Sign in failed. Please try again.');
+    showLoginErr('Could not connect. Please try again.');
   } finally {
     btn.textContent = 'Sign In →'; btn.disabled = false;
   }
