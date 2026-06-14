@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Join OrganizationHuddle — Free | Venuewise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.join-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto;padding:80px 32px}
+@media(max-width:768px){.join-grid{grid-template-columns:1fr;padding:48px 20px}}
+.join-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+.benefit-row{display:flex;gap:14px;margin-bottom:20px}
+.benefit-icon{width:40px;height:40px;border-radius:8px;background:rgba(124,58,237,.12);border:1px solid var(--border-p);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-top:2px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>ohInjectNav('Join')</script>
+
+<div style="padding:80px 32px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(124,58,237,.08) 0%,transparent 65%)">
+  <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.12);border:1px solid var(--border-p);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple3);margin-bottom:20px"><span style="width:7px;height:7px;border-radius:50%;background:var(--green)"></span>FREE DURING WNY LAUNCH</div>
+  <h1 class="oh-title" style="font-size:clamp(2.5rem,6vw,5rem);margin-bottom:14px">Join OrganizationHuddle.</h1>
+  <p class="oh-sub" style="margin:0 auto 32px">Create your free organization profile and start connecting with WNY sports families today.</p>
+  <a href="profile-create.html" class="btn-purple" style="font-size:18px;padding:16px 36px">Create Organization Profile — Free →</a>
+</div>
+
+<div style="background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="join-grid">
+    <div>
+      <div class="oh-tag">What You Get</div>
+      <h2 class="oh-title" style="font-size:2.5rem;margin-bottom:32px">Everything a sports organization needs.</h2>
+      <div class="benefit-row"><div class="benefit-icon">🏢</div><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:3px">Professional Profile</div><div style="font-size:13px;color:var(--gray2);line-height:1.6">A dedicated page with your mission, programs, teams, and contact info.</div></div></div>
+      <div class="benefit-row"><div class="benefit-icon">🔍</div><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:3px">Directory Listing</div><div style="font-size:13px;color:var(--gray2);line-height:1.6">Families searching for organizations in your sport and area will find you.</div></div></div>
+      <div class="benefit-row"><div class="benefit-icon">📬</div><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:3px">Family Lead Generation</div><div style="font-size:13px;color:var(--gray2);line-height:1.6">Families contact you directly. Every inquiry goes straight to your dashboard.</div></div></div>
+      <div class="benefit-row"><div class="benefit-icon">⭐</div><div><div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:3px">5-Star Media Eligibility</div><div style="font-size:13px;color:var(--gray2);line-height:1.6">Submit for editorial spotlight coverage on 5-Star Sports Media.</div></div></div>
+    </div>
+    <div>
+      <div class="join-card">
+        <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:6px">Quick Start</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Express interest — we'll follow up to build your full profile within 48 hours.</p>
+        <div id="join-alert" class="oh-alert"></div>
+        <div class="oh-form-row"><div class="oh-form-field"><label>Contact Name *</label><input type="text" id="j-name" placeholder="John Smith"/></div><div class="oh-form-field"><label>Email *</label><input type="email" id="j-email" placeholder="admin@org.com"/></div></div>
+        <div class="oh-form-field"><label>Organization Name *</label><input type="text" id="j-org" placeholder="WNY Warriors Hockey"/></div>
+        <div class="oh-form-row"><div class="oh-form-field"><label>Sport(s) *</label><input type="text" id="j-sports" placeholder="Hockey, Soccer…"/></div><div class="oh-form-field"><label>Phone</label><input type="tel" id="j-phone" placeholder="(716) 555-0100"/></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+          <button class="btn-purple" style="justify-content:center" onclick="submitJoin()" id="join-btn">Get Listed Free →</button>
+          <a href="profile-create.html" class="btn-outline" style="justify-content:center">Fill Out Full Profile Instead</a>
+        </div>
+        <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:12px">Free during WNY launch · No contracts · No credit card</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="join-success" style="display:none;text-align:center;padding:80px 32px">
+  <div style="font-size:3rem;margin-bottom:16px">✅</div>
+  <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;margin-bottom:10px">You're In!</h2>
+  <p style="font-size:15px;color:var(--gray2);max-width:460px;margin:0 auto 28px;line-height:1.7">We'll reach out within 48 hours. Fill out your complete profile now to go live faster.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="profile-create.html" class="btn-purple">Fill Out Full Profile →</a>
+    <a href="directory.html" class="btn-outline">Browse Organizations</a>
+  </div>
+</div>
+
+<script>
+async function submitJoin(){
+  const name=document.getElementById('j-name').value.trim();
+  const email=document.getElementById('j-email').value.trim();
+  const org=document.getElementById('j-org').value.trim();
+  const sports=document.getElementById('j-sports').value.trim();
+  if(!name||!email||!org||!sports){ohAlert('join-alert','Please fill in all required fields.','error');return;}
+  const btn=document.getElementById('join-btn');btn.textContent='Submitting…';btn.disabled=true;
+  try{
+    await ohInsert('leads',{name,email,phone:document.getElementById('j-phone').value.trim()||null,organization_name:org,role:'organization_admin',platform_interest:'OrganizationHuddle',source_platform:'OrganizationHuddle',source_page:'/organizationhuddle/join',message:`Quick join. Org: ${org} · Sports: ${sports}`});
+    document.querySelector('.join-grid').style.display='none';
+    document.getElementById('join-success').style.display='block';
+  }catch(e){ohAlert('join-alert','Something went wrong. Please try again.','error');btn.textContent='Get Listed Free →';btn.disabled=false;}
+}
+</script>
+<script>ohInjectFooter()</script>
+</body>
+</html>
