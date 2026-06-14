@@ -90,7 +90,8 @@
         <button class="sb-link" onclick="showPanel('leads',this)">📬 Inquiries</button>
         <button class="sb-link" onclick="showPanel('spotlight',this)">⭐ Spotlight Status</button>
         <button class="sb-link" onclick="showPanel('profile-edit',this)">✏️ Edit Profile</button>
-        <button class="sb-link" onclick="showPanel('programs',this)">📅 Programs</button>
+        <button class="sb-link" onclick="showPanel('clinics',this)">📅 My Clinics</button>
+        <button class="sb-link" onclick="showPanel('registrations',this)">🎟️ Registrations</button>
       </div>
       <div class="sb-section">
         <div class="sb-label">Links</div>
@@ -181,7 +182,63 @@
           </div>
         </div>
       </div>
+      <!-- CLINICS PANEL -->
+      <div class="panel" id="panel-clinics">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:4px">My Clinics</h2>
+            <p style="font-size:13px;color:var(--gray)">Post clinics families can register for directly.</p>
+          </div>
+          <button class="btn-gold btn-sm" onclick="openClinicModal()">+ Add Clinic</button>
+        </div>
+        <div id="clinic-alert" class="ch-alert"></div>
+        <div class="dash-card"><div class="dash-card-body" id="clinics-list"><p style="font-size:13px;color:var(--gray);font-style:italic">Loading…</p></div></div>
+      </div>
+
+      <!-- REGISTRATIONS PANEL -->
+      <div class="panel" id="panel-registrations">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:6px">Registrations</h2>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:20px">Athletes registered for your clinics.</p>
+        <div class="dash-card"><div class="dash-card-body" id="registrations-list"><p style="font-size:13px;color:var(--gray);font-style:italic">Loading…</p></div></div>
+      </div>
+
     </main>
+  </div>
+</div>
+
+<!-- CLINIC MODAL -->
+<div class="modal-overlay" id="clinic-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto">
+    <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;margin-bottom:20px">📅 Add Clinic</h3>
+    <input type="hidden" id="cm-edit-id"/>
+    <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Clinic Title *</label><input type="text" id="cm-title" placeholder="Summer Skills Camp" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Sport *</label><input type="text" id="cm-sport" placeholder="Hockey" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Skill Level</label><input type="text" id="cm-skill" placeholder="Intermediate / Advanced" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Start Date *</label><input type="date" id="cm-start-date" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">End Date</label><input type="date" id="cm-end-date" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Start Time</label><input type="text" id="cm-start-time" placeholder="6:00 PM" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">End Time</label><input type="text" id="cm-end-time" placeholder="7:30 PM" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Price ($) *</label><input type="number" id="cm-price" placeholder="149.00" min="0" step="0.01" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Capacity</label><input type="number" id="cm-capacity" placeholder="12" min="1" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Sessions</label><input type="number" id="cm-sessions" placeholder="4" min="1" value="1" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    </div>
+    <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Venue Name</label><input type="text" id="cm-location" placeholder="LECOM Harborcenter" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Address</label><input type="text" id="cm-address" placeholder="1 James D. Griffin Plaza, Buffalo NY" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Age Groups</label><input type="text" id="cm-ages" placeholder="Ages 10–16" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none"/></div>
+    </div>
+    <div style="margin-bottom:16px"><label style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;display:block;margin-bottom:5px">Description</label><textarea id="cm-desc" rows="3" placeholder="What athletes can expect from this clinic…" style="width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none;min-height:70px;resize:vertical"></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeClinicModal()" style="background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button class="btn-gold" style="flex:1;justify-content:center" onclick="saveClinic()" id="cm-save-btn">Save Clinic</button>
+    </div>
   </div>
 </div>
 
@@ -226,6 +283,7 @@ async function launchApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('dash-coach-name').textContent = coachData.coach_name || '';
   populateProfileEdit();
+  await loadClinicsData();
   await loadLeads();
   renderOverview();
   renderSpotlightStatus();
@@ -355,6 +413,151 @@ function showPanel(name, btn) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   if (btn) { document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active')); btn.classList.add('active'); }
+}
+
+let coachClinics = [];
+let coachRegistrations = [];
+
+async function loadClinicsData() {
+  try {
+    coachClinics = await chGet('clinics', { 'coach_id': `eq.${coachId}`, 'select': '*', 'order': 'start_date.asc' });
+  } catch(e) { coachClinics = []; }
+  try {
+    coachRegistrations = await chGet('clinic_registrations', { 'coach_id': `eq.${coachId}`, 'select': '*', 'order': 'created_at.desc' });
+  } catch(e) { coachRegistrations = []; }
+  renderClinicsPanel();
+  renderRegistrationsPanel();
+}
+
+function renderClinicsPanel() {
+  const el = document.getElementById('clinics-list');
+  if (!coachClinics.length) { el.innerHTML = '<p style="font-size:13px;color:var(--gray);font-style:italic;text-align:center;padding:24px 0">No clinics yet. Click "+ Add Clinic" to post your first one.</p>'; return; }
+  el.innerHTML = coachClinics.map(c => {
+    const fmt = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const open = (c.capacity||0) - (c.enrolled||0);
+    const regs = coachRegistrations.filter(r => r.clinic_id === c.id).length;
+    return `<div style="display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;margin-bottom:3px">${c.title}</div>
+        <div style="font-size:12px;color:var(--gray)">📅 ${fmt(c.start_date)} · 📍 ${c.location_name||'TBD'} · $${parseFloat(c.price||0).toFixed(0)}/athlete</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px">${regs} registration${regs!==1?'s':''} ${c.capacity?'· '+open+' spot'+( open!==1?'s':'')+' left':''}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <a href="clinic.html?id=${c.id}" target="_blank" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;background:rgba(201,162,39,.12);border:1px solid var(--border2);color:var(--gold);text-decoration:none">View ↗</a>
+        <button onclick="editClinic('${c.id}')" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,.07);border:1px solid var(--border);color:rgba(255,255,255,.7);cursor:pointer;font-family:'DM Sans',sans-serif">Edit</button>
+        <button onclick="cancelClinic('${c.id}')" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRegistrationsPanel() {
+  const el = document.getElementById('registrations-list');
+  if (!coachRegistrations.length) { el.innerHTML = '<p style="font-size:13px;color:var(--gray);font-style:italic;text-align:center;padding:24px 0">No registrations yet. Once families register for your clinics, they'll appear here.</p>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">Athlete</th>
+      <th style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">Parent / Contact</th>
+      <th style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">Clinic</th>
+      <th style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">Amount</th>
+      <th style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray);text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">Status</th>
+    </tr></thead>
+    <tbody>
+      ${coachRegistrations.map(r => {
+        const clinic = coachClinics.find(c => c.id === r.clinic_id);
+        const statusColor = r.payment_status === 'paid' ? '#4ade80' : '#fbbf24';
+        return `<tr>
+          <td style="padding:10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)"><div style="font-weight:600">${r.athlete_name||'—'}</div><div style="font-size:11px;color:var(--gray)">${r.athlete_age||''}</div></td>
+          <td style="padding:10px;font-size:12px;color:var(--gray2);border-bottom:1px solid rgba(255,255,255,.04)">${r.parent_name||'—'}<br>${r.parent_email||''}</td>
+          <td style="padding:10px;font-size:12px;color:var(--gray2);border-bottom:1px solid rgba(255,255,255,.04)">${clinic?.title||'—'}</td>
+          <td style="padding:10px;font-size:13px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.04)">$${parseFloat(r.amount_paid||0).toFixed(2)}</td>
+          <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.04)"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;background:rgba(251,191,36,.1);color:${statusColor}">${r.payment_status||'pending'}</span></td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function openClinicModal() { document.getElementById('cm-edit-id').value=''; clearClinicForm(); document.getElementById('clinic-modal').style.display='flex'; }
+function closeClinicModal() { document.getElementById('clinic-modal').style.display='none'; }
+document.getElementById('clinic-modal').addEventListener('click', function(e){ if(e.target===this) closeClinicModal(); });
+
+function clearClinicForm() {
+  ['cm-title','cm-sport','cm-skill','cm-start-date','cm-end-date','cm-start-time','cm-end-time','cm-price','cm-capacity','cm-location','cm-address','cm-ages','cm-desc'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('cm-sessions').value='1';
+}
+
+function editClinic(id) {
+  const c = coachClinics.find(x=>x.id===id);
+  if (!c) return;
+  document.getElementById('cm-edit-id').value = c.id;
+  document.getElementById('cm-title').value = c.title||'';
+  document.getElementById('cm-sport').value = c.sport||'';
+  document.getElementById('cm-skill').value = c.skill_level||'';
+  document.getElementById('cm-start-date').value = c.start_date||'';
+  document.getElementById('cm-end-date').value = c.end_date||'';
+  document.getElementById('cm-start-time').value = c.start_time||'';
+  document.getElementById('cm-end-time').value = c.end_time||'';
+  document.getElementById('cm-price').value = c.price||'';
+  document.getElementById('cm-capacity').value = c.capacity||'';
+  document.getElementById('cm-sessions').value = c.sessions||1;
+  document.getElementById('cm-location').value = c.location_name||'';
+  document.getElementById('cm-address').value = c.location_address||'';
+  document.getElementById('cm-ages').value = c.age_groups||'';
+  document.getElementById('cm-desc').value = c.description||'';
+  document.getElementById('clinic-modal').style.display='flex';
+}
+
+async function saveClinic() {
+  const title = document.getElementById('cm-title').value.trim();
+  const sport = document.getElementById('cm-sport').value.trim();
+  const price = document.getElementById('cm-price').value;
+  const startDate = document.getElementById('cm-start-date').value;
+  if (!title || !sport || !price || !startDate) { chToast('Please fill in title, sport, price, and start date.','error'); return; }
+
+  const btn = document.getElementById('cm-save-btn'); btn.textContent='Saving…'; btn.disabled=true;
+  const editId = document.getElementById('cm-edit-id').value;
+
+  const payload = {
+    coach_id: coachId, coach_name: coachData.coach_name,
+    title, sport,
+    skill_level: document.getElementById('cm-skill').value.trim()||null,
+    start_date: startDate,
+    end_date: document.getElementById('cm-end-date').value||startDate,
+    start_time: document.getElementById('cm-start-time').value.trim()||null,
+    end_time: document.getElementById('cm-end-time').value.trim()||null,
+    price: parseFloat(price),
+    capacity: parseInt(document.getElementById('cm-capacity').value)||null,
+    sessions: parseInt(document.getElementById('cm-sessions').value)||1,
+    location_name: document.getElementById('cm-location').value.trim()||null,
+    location_address: document.getElementById('cm-address').value.trim()||null,
+    age_groups: document.getElementById('cm-ages').value.trim()||null,
+    description: document.getElementById('cm-desc').value.trim()||null,
+    status: 'active',
+  };
+
+  try {
+    if (editId) {
+      await chUpdate('clinics', editId, payload);
+    } else {
+      await chInsert('clinics', payload);
+    }
+    closeClinicModal();
+    await loadClinicsData();
+    chToast(editId ? 'Clinic updated!' : 'Clinic posted!');
+  } catch(e) {
+    chToast('Could not save clinic. Please try again.','error');
+  }
+  btn.textContent='Save Clinic'; btn.disabled=false;
+}
+
+async function cancelClinic(id) {
+  if (!confirm('Cancel this clinic?')) return;
+  try {
+    await chUpdate('clinics', id, { status: 'cancelled' });
+    await loadClinicsData();
+    chToast('Clinic cancelled.');
+  } catch(e) { chToast('Could not cancel.','error'); }
 }
 
 // Auto-login from session
