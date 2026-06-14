@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title id="page-title">Clinic — CoachesHuddle</title>
+<meta name="description" id="page-desc" content="Register for a clinic on CoachesHuddle."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.clinic-hero{padding:60px 32px 40px;background:linear-gradient(160deg,var(--dark2) 0%,var(--dark) 100%);border-bottom:1px solid var(--border)}
+.clinic-hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr;gap:40px;align-items:start}
+@media(max-width:860px){.clinic-hero-inner{grid-template-columns:1fr}}
+.clinic-sport-badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:rgba(201,162,39,.12);border:1px solid var(--border2);border-radius:100px;padding:4px 12px;margin-bottom:14px}
+.clinic-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;margin-bottom:10px;line-height:1.05}
+.clinic-coach-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.clinic-coach-avatar{width:36px;height:36px;border-radius:50%;background:rgba(201,162,39,.15);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.9rem;color:var(--gold)}
+.clinic-coach-name{font-size:14px;font-weight:600;color:var(--gold)}
+.clinic-details-row{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:24px}
+.clinic-detail{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--gray2)}
+.clinic-detail-icon{font-size:16px}
+.clinic-tags{display:flex;gap:7px;flex-wrap:wrap}
+
+.reg-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:24px;position:sticky;top:80px}
+.reg-price{font-family:'Barlow Condensed',sans-serif;font-size:3rem;font-weight:900;color:var(--white);line-height:1;margin-bottom:4px}
+.reg-price span{font-size:1rem;font-weight:500;color:var(--gray)}
+.reg-spots{font-size:12px;margin-bottom:20px}
+.spots-open{color:#4ade80}.spots-few{color:#fbbf24}.spots-full{color:#f87171}
+.reg-features{list-style:none;margin-bottom:20px}
+.reg-features li{font-size:13px;color:var(--gray2);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+.reg-features li:last-child{border:none}
+.reg-features li::before{content:"✓";color:var(--gold);font-weight:800;flex-shrink:0}
+.fee-note{font-size:11px;color:var(--gray);text-align:center;margin-top:8px;line-height:1.5}
+
+.clinic-body{max-width:1100px;margin:0 auto;padding:40px 32px 80px;display:grid;grid-template-columns:2fr 1fr;gap:40px;align-items:start}
+@media(max-width:860px){.clinic-body{grid-template-columns:1fr;padding:24px 16px 60px}}
+.info-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:18px}
+.info-card h3{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.info-card p{font-size:14px;color:var(--gray2);line-height:1.75}
+.detail-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.detail-row:last-child{border:none}
+.detail-label{color:var(--gray);min-width:120px;flex-shrink:0;font-weight:600}
+
+/* REGISTRATION MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--gray);margin-bottom:20px}
+.mf{margin-bottom:12px}
+.mf label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--gray2);text-transform:uppercase;margin-bottom:5px}
+.mf input,.mf select,.mf textarea{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--border2)}
+.mf select option{background:var(--dark2)}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.order-summary{background:rgba(201,162,39,.07);border:1px solid var(--border2);border-radius:8px;padding:14px;margin:16px 0}
+.order-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.order-row.total{font-weight:700;font-size:15px;border-top:1px solid var(--border2);margin-top:8px;padding-top:10px;color:var(--gold)}
+.stripe-placeholder{background:var(--dark3);border:2px dashed var(--border2);border-radius:8px;padding:20px;text-align:center;margin:16px 0}
+.stripe-placeholder-text{font-size:12px;color:var(--gray);line-height:1.6}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.btn-cancel-modal{background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-cancel-modal:hover{border-color:var(--red);color:#f87171}
+
+/* SUCCESS */
+.success-screen{display:none;text-align:center;padding:60px 20px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav()</script>
+
+<div id="clinic-loading" style="text-align:center;padding:100px 20px;color:var(--gray)">Loading clinic…</div>
+
+<div id="clinic-content" style="display:none">
+  <!-- HERO -->
+  <div class="clinic-hero">
+    <div class="clinic-hero-inner">
+      <div>
+        <div class="clinic-sport-badge" id="c-sport-badge"></div>
+        <h1 class="clinic-title" id="c-title"></h1>
+        <div class="clinic-coach-row">
+          <div class="clinic-coach-avatar" id="c-coach-avatar"></div>
+          <a class="clinic-coach-name" id="c-coach-name" href="#"></a>
+        </div>
+        <div class="clinic-details-row">
+          <div class="clinic-detail"><span class="clinic-detail-icon">📅</span><span id="c-dates"></span></div>
+          <div class="clinic-detail"><span class="clinic-detail-icon">🕐</span><span id="c-time"></span></div>
+          <div class="clinic-detail"><span class="clinic-detail-icon">📍</span><span id="c-location"></span></div>
+          <div class="clinic-detail"><span class="clinic-detail-icon">👥</span><span id="c-age"></span></div>
+        </div>
+        <div class="clinic-tags" id="c-tags"></div>
+      </div>
+      <!-- REG CARD -->
+      <div class="reg-card">
+        <div class="reg-price" id="c-price"></div>
+        <div class="reg-spots" id="c-spots"></div>
+        <ul class="reg-features">
+          <li>Instant registration confirmation</li>
+          <li>SMS reminder before each session</li>
+          <li>Syncs to HomeHuddle family calendar</li>
+          <li>Direct contact with coach</li>
+        </ul>
+        <button class="btn-gold" style="width:100%;justify-content:center;font-size:16px;padding:14px" id="reg-btn" onclick="openRegModal()">Register Now →</button>
+        <p class="fee-note">$2.99 registration fee applies · Powered by Stripe<br>Secure checkout · No account required</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="clinic-body">
+    <div>
+      <div class="info-card" id="desc-card" style="display:none">
+        <h3>About This Clinic</h3>
+        <p id="c-desc"></p>
+      </div>
+      <div class="info-card">
+        <h3>Clinic Details</h3>
+        <div id="c-details-list"></div>
+      </div>
+      <div class="info-card" id="coach-info-card">
+        <h3>About the Coach</h3>
+        <div id="c-coach-bio"></div>
+      </div>
+    </div>
+    <div>
+      <div class="info-card" style="text-align:center">
+        <h3>Share This Clinic</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:14px">Know a family who'd be interested?</p>
+        <button class="btn-outline btn-sm" style="width:100%;justify-content:center" onclick="copyLink()">📋 Copy Link</button>
+      </div>
+      <div class="info-card" style="margin-top:0">
+        <h3>Questions?</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:14px">Contact the coach directly before registering.</p>
+        <a id="c-contact-link" href="#" class="btn-outline btn-sm" style="display:flex;justify-content:center">Contact Coach</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRATION MODAL -->
+<div class="modal-overlay" id="reg-modal">
+  <div class="modal">
+    <div id="reg-form-content">
+      <div class="modal-title">Register for Clinic</div>
+      <div class="modal-sub" id="modal-clinic-name"></div>
+      <div id="reg-alert" class="ch-alert"></div>
+
+      <div class="ch-section-divider" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin:0 0 12px;display:flex;align-items:center;gap:10px">Parent / Guardian<span style="flex:1;height:1px;background:rgba(201,162,39,.25)"></span></div>
+      <div class="mf-row">
+        <div class="mf"><label>Parent Name *</label><input type="text" id="r-parent-name" placeholder="First Last"/></div>
+        <div class="mf"><label>Email *</label><input type="email" id="r-email" placeholder="you@email.com"/></div>
+      </div>
+      <div class="mf"><label>Phone</label><input type="tel" id="r-phone" placeholder="(716) 555-0100"/></div>
+
+      <div class="ch-section-divider" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin:14px 0 12px;display:flex;align-items:center;gap:10px">Athlete<span style="flex:1;height:1px;background:rgba(201,162,39,.25)"></span></div>
+      <div class="mf-row">
+        <div class="mf"><label>Athlete Name *</label><input type="text" id="r-athlete" placeholder="First Last"/></div>
+        <div class="mf"><label>Age / Birth Year</label><input type="text" id="r-age" placeholder="e.g. 12 / 2012"/></div>
+      </div>
+      <div class="mf">
+        <label>Skill Level</label>
+        <select id="r-skill">
+          <option value="">Select…</option>
+          <option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Elite</option>
+        </select>
+      </div>
+      <div class="mf"><label>Emergency Contact</label><input type="text" id="r-emergency" placeholder="Name & phone"/></div>
+      <div class="mf"><label>Notes for Coach</label><textarea id="r-notes" rows="2" placeholder="Any info the coach should know…" style="min-height:60px"></textarea></div>
+
+      <div class="order-summary">
+        <div class="order-row"><span>Clinic fee</span><span id="os-price"></span></div>
+        <div class="order-row"><span>Venuewise registration fee</span><span>$2.99</span></div>
+        <div class="order-row total"><span>Total</span><span id="os-total"></span></div>
+      </div>
+
+      <div class="stripe-placeholder">
+        <div style="font-size:2rem;margin-bottom:8px">💳</div>
+        <div class="stripe-placeholder-text">
+          <strong style="color:var(--white)">Stripe Payment — Coming Soon</strong><br>
+          Secure card payment will process here when Stripe is activated.<br>
+          <span style="color:var(--gold)">For now, registration is recorded and the coach will contact you for payment.</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel-modal" onclick="closeRegModal()">Cancel</button>
+        <button class="btn-gold" style="flex:1;justify-content:center" onclick="submitRegistration()" id="submit-reg-btn">Complete Registration →</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="reg-success" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:3rem;margin-bottom:16px">✅</div>
+      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;margin-bottom:8px">You're Registered!</h3>
+      <p style="font-size:14px;color:var(--gray2);line-height:1.7;margin-bottom:20px">Your registration is confirmed. The coach will be in touch with payment details and any pre-clinic info. Check your email for confirmation.</p>
+      <button class="btn-gold" style="justify-content:center" onclick="closeRegModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="clinic-not-found" style="display:none;text-align:center;padding:100px 20px">
+  <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;margin-bottom:12px">Clinic Not Found</h2>
+  <p style="color:var(--gray);margin-bottom:28px">This clinic may have been cancelled or doesn't exist.</p>
+  <a href="clinics.html" class="btn-gold">Browse All Clinics</a>
+</div>
+
+<script>
+const PLATFORM_FEE = 2.99;
+let clinicData = null;
+let coachData = null;
+
+async function loadClinic() {
+  const id = chParam('id');
+  if (!id) { showNotFound(); return; }
+
+  try {
+    let clinics;
+    if (id === 'demo') {
+      clinics = [{
+        id: 'demo', coach_id: 'demo1', coach_name: 'Demo Coach',
+        title: 'Summer Skills Camp', sport: 'Hockey',
+        description: 'An intensive multi-session skills camp designed to elevate your game. We work on skating fundamentals, puck handling, shooting mechanics, and hockey IQ in a structured, high-energy environment.',
+        skill_level: 'Intermediate / Advanced', age_groups: 'Ages 10–16',
+        location_name: 'LECOM Harborcenter', location_address: '1 James D. Griffin Plaza, Buffalo NY 14203',
+        start_date: '2026-07-07', end_date: '2026-07-28',
+        start_time: '6:00 PM', end_time: '7:30 PM',
+        sessions: 4, price: 149.00, capacity: 12, enrolled: 7, status: 'active'
+      }];
+    } else {
+      clinics = await chGet('clinics', { 'id': `eq.${id}`, 'select': '*' });
+    }
+    if (!clinics.length) { showNotFound(); return; }
+    clinicData = clinics[0];
+
+    // Load coach
+    try {
+      const coaches = await chGet('coaches', { 'id': `eq.${clinicData.coach_id}`, 'select': 'coach_name,bio,profile_photo_url,contact_email' });
+      if (coaches.length) coachData = coaches[0];
+    } catch(e) {}
+
+    renderClinic();
+  } catch(e) { showNotFound(); }
+}
+
+function renderClinic() {
+  const c = clinicData;
+  document.getElementById('clinic-loading').style.display = 'none';
+  document.getElementById('clinic-content').style.display = 'block';
+
+  document.title = `${c.title} — CoachesHuddle`;
+
+  // Hero
+  document.getElementById('c-sport-badge').textContent = c.sport || 'Clinic';
+  document.getElementById('c-title').textContent = c.title;
+
+  const initials = (c.coach_name||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('c-coach-avatar').textContent = initials;
+  const nameEl = document.getElementById('c-coach-name');
+  nameEl.textContent = c.coach_name;
+  nameEl.href = `profile.html?id=${c.coach_id}`;
+
+  // Dates
+  const fmt = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+  const dates = c.start_date === c.end_date || !c.end_date ? fmt(c.start_date) : `${fmt(c.start_date)} – ${fmt(c.end_date)}`;
+  document.getElementById('c-dates').textContent = dates + (c.sessions > 1 ? ` (${c.sessions} sessions)` : '');
+  document.getElementById('c-time').textContent = [c.start_time, c.end_time].filter(Boolean).join(' – ');
+  document.getElementById('c-location').textContent = c.location_name || '—';
+  document.getElementById('c-age').textContent = c.age_groups || '—';
+
+  // Tags
+  const tags = [c.skill_level, c.sport].filter(Boolean);
+  document.getElementById('c-tags').innerHTML = tags.map(t=>`<span class="coach-tag">${t}</span>`).join('');
+
+  // Price
+  document.getElementById('c-price').innerHTML = `$${parseFloat(c.price).toFixed(2)}<span> / athlete</span>`;
+
+  // Spots
+  const open = (c.capacity||0) - (c.enrolled||0);
+  const spotsEl = document.getElementById('c-spots');
+  if (!c.capacity) { spotsEl.innerHTML = '<span class="spots-open">Open enrollment</span>'; }
+  else if (open <= 0) { spotsEl.innerHTML = '<span class="spots-full">● Clinic Full</span>'; document.getElementById('reg-btn').disabled = true; document.getElementById('reg-btn').textContent = 'Clinic Full'; document.getElementById('reg-btn').style.opacity = '.5'; }
+  else if (open <= 3) { spotsEl.innerHTML = `<span class="spots-few">● Only ${open} spots left!</span>`; }
+  else { spotsEl.innerHTML = `<span class="spots-open">● ${open} of ${c.capacity} spots available</span>`; }
+
+  // Description
+  if (c.description) { document.getElementById('desc-card').style.display = 'block'; document.getElementById('c-desc').textContent = c.description; }
+
+  // Details
+  document.getElementById('c-details-list').innerHTML = [
+    ['📅 Dates', dates],
+    ['🔄 Sessions', c.sessions ? `${c.sessions} session${c.sessions>1?'s':''}` : '1 session'],
+    ['🕐 Time', [c.start_time, c.end_time].filter(Boolean).join(' – ')],
+    ['📍 Venue', c.location_name],
+    ['📌 Address', c.location_address],
+    ['👥 Ages', c.age_groups],
+    ['⭐ Skill Level', c.skill_level],
+    ['💰 Price', `$${parseFloat(c.price||0).toFixed(2)} per athlete`],
+    ['👤 Capacity', c.capacity ? `${c.capacity} athletes max` : 'Open'],
+  ].filter(([,v])=>v).map(([l,v])=>`
+    <div class="detail-row"><span class="detail-label">${l}</span><span style="font-size:13px;color:var(--white)">${v}</span></div>`).join('');
+
+  // Coach bio
+  if (coachData?.bio) {
+    document.getElementById('c-coach-bio').innerHTML = `<p style="font-size:14px;color:var(--gray2);line-height:1.75;margin-bottom:14px">${coachData.bio}</p><a href="profile.html?id=${clinicData.coach_id}" class="btn-outline btn-sm">View Full Profile →</a>`;
+  } else {
+    document.getElementById('coach-info-card').style.display = 'none';
+  }
+
+  document.getElementById('c-contact-link').href = `contact.html?coach=${c.coach_id}&name=${encodeURIComponent(c.coach_name)}`;
+
+  // Order summary
+  document.getElementById('modal-clinic-name').textContent = c.title;
+  document.getElementById('os-price').textContent = `$${parseFloat(c.price||0).toFixed(2)}`;
+  document.getElementById('os-total').textContent = `$${(parseFloat(c.price||0) + PLATFORM_FEE).toFixed(2)}`;
+}
+
+async function submitRegistration() {
+  const parentName = document.getElementById('r-parent-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const athlete = document.getElementById('r-athlete').value.trim();
+  if (!parentName || !email || !athlete) { chAlert('reg-alert','Please fill in parent name, email, and athlete name.','error'); return; }
+
+  const btn = document.getElementById('submit-reg-btn');
+  btn.textContent = 'Processing…'; btn.disabled = true;
+
+  try {
+    await chInsert('clinic_registrations', {
+      clinic_id:         clinicData.id,
+      coach_id:          clinicData.coach_id,
+      parent_name:       parentName,
+      parent_email:      email,
+      parent_phone:      document.getElementById('r-phone').value.trim() || null,
+      athlete_name:      athlete,
+      athlete_age:       document.getElementById('r-age').value.trim() || null,
+      skill_level:       document.getElementById('r-skill').value || null,
+      emergency_contact: document.getElementById('r-emergency').value.trim() || null,
+      notes:             document.getElementById('r-notes').value.trim() || null,
+      amount_paid:       parseFloat(clinicData.price || 0),
+      platform_fee:      PLATFORM_FEE,
+      payment_status:    'pending_stripe',
+      status:            'registered',
+    });
+
+    // Also log as lead
+    await chInsert('leads', {
+      name: parentName, email,
+      phone: document.getElementById('r-phone').value.trim() || null,
+      role: 'parent',
+      platform_interest: 'CoachesHuddle',
+      source_platform: 'CoachesHuddle',
+      source_page: '/coacheshuddle/clinic',
+      coach_id: clinicData.coach_id,
+      message: `Clinic registration: ${clinicData.title} — Athlete: ${athlete}`,
+    });
+
+    document.getElementById('reg-form-content').style.display = 'none';
+    document.getElementById('reg-success').style.display = 'block';
+  } catch(e) {
+    chAlert('reg-alert','Could not complete registration. Please try again.','error');
+    btn.textContent = 'Complete Registration →'; btn.disabled = false;
+  }
+}
+
+function openRegModal() { document.getElementById('reg-modal').classList.add('open'); }
+function closeRegModal() { document.getElementById('reg-modal').classList.remove('open'); document.getElementById('reg-form-content').style.display='block'; document.getElementById('reg-success').style.display='none'; document.getElementById('submit-reg-btn').textContent='Complete Registration →'; document.getElementById('submit-reg-btn').disabled=false; }
+document.getElementById('reg-modal').addEventListener('click', function(e){ if(e.target===this) closeRegModal(); });
+function showNotFound() { document.getElementById('clinic-loading').style.display='none'; document.getElementById('clinic-not-found').style.display='block'; }
+function copyLink() { navigator.clipboard.writeText(window.location.href); chToast('Link copied!'); }
+
+loadClinic();
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
