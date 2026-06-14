@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title id="page-title">Organization Profile — OrganizationHuddle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.profile-hero{min-height:280px;display:flex;align-items:flex-end;background:linear-gradient(160deg,var(--dark3) 0%,var(--dark) 100%);position:relative;border-bottom:1px solid var(--border)}
+.profile-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,17,23,.95) 0%,rgba(13,17,23,.4) 60%,transparent 100%)}
+.profile-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.25;display:none}
+.profile-hero-content{position:relative;padding:40px;width:100%;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.profile-logo{width:90px;height:90px;border-radius:12px;border:2px solid var(--border-p);background:var(--dark3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--purple2);overflow:hidden}
+.profile-logo img{width:100%;height:100%;object-fit:contain}
+.profile-identity{flex:1;min-width:200px}
+.profile-name{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1;margin-bottom:4px}
+.profile-type{font-size:12px;color:var(--purple2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.profile-tags-row{display:flex;gap:7px;flex-wrap:wrap}
+.profile-body{display:grid;grid-template-columns:2fr 1fr;gap:28px;max-width:1200px;margin:0 auto;padding:40px 32px 80px}
+@media(max-width:860px){.profile-body{grid-template-columns:1fr;padding:24px 16px 60px}}
+.section-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:26px;margin-bottom:18px}
+.section-card h3{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:var(--purple2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.section-card p{font-size:14px;color:var(--gray2);line-height:1.75}
+.detail-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.detail-row:last-child{border:none}
+.detail-label{color:var(--gray);min-width:130px;flex-shrink:0;font-weight:600}
+.sidebar-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:22px;margin-bottom:16px}
+.sidebar-card h4{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:var(--purple2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.contact-field{margin-bottom:10px}
+.contact-field input,.contact-field textarea{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s}
+.contact-field input:focus,.contact-field textarea:focus{border-color:var(--border-p)}
+.contact-field textarea{min-height:80px;resize:vertical}
+.spotlight-sidebar{background:linear-gradient(135deg,#0d0d00,#1a1400 60%,#0d1117);border:1px solid rgba(201,162,39,.25);border-radius:var(--r2);padding:22px;margin-bottom:16px;text-align:center}
+.spotlight-sidebar h4{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:var(--gold);margin-bottom:8px}
+.reg-link-card{background:rgba(124,58,237,.08);border:1px solid var(--border-p);border-radius:var(--r);padding:16px;margin-bottom:16px;text-align:center}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>ohInjectNav()</script>
+
+<div id="profile-loading" style="text-align:center;padding:100px 20px;color:var(--gray)">Loading profile…</div>
+
+<div id="profile-content" style="display:none">
+  <div class="profile-hero" id="profile-hero">
+    <div class="profile-hero-overlay"></div>
+    <div class="profile-hero-content">
+      <div class="profile-logo" id="profile-logo"></div>
+      <div class="profile-identity">
+        <div class="profile-name" id="profile-name"></div>
+        <div class="profile-type" id="profile-type"></div>
+        <div class="profile-tags-row" id="profile-tags"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap">
+        <a href="#contact-org" class="btn-purple">Contact Organization</a>
+        <a href="spotlight-submit.html" class="btn-outline" id="spotlight-hero-btn">Submit for Spotlight</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-body">
+    <div>
+      <div class="section-card" id="mission-card" style="display:none"><h3>Mission</h3><p id="profile-mission"></p></div>
+      <div class="section-card" id="desc-card" style="display:none"><h3>About</h3><p id="profile-desc"></p></div>
+      <div class="section-card" id="philosophy-card" style="display:none"><h3>Values & Philosophy</h3><p id="profile-philosophy"></p></div>
+      <div class="section-card" id="achievements-card" style="display:none"><h3>Notable Achievements</h3><p id="profile-achievements"></p></div>
+      <div class="section-card" id="impact-card" style="display:none"><h3>Community Impact</h3><p id="profile-impact"></p></div>
+      <div class="section-card" id="tryout-card" style="display:none">
+        <h3>Tryout Information</h3>
+        <p id="profile-tryout" style="margin-bottom:14px"></p>
+        <a id="reg-link" href="#" class="btn-purple btn-sm" style="display:none">Register / Tryout Info →</a>
+      </div>
+      <div class="section-card"><h3>Organization Details</h3><div id="details-list"></div></div>
+    </div>
+    <div>
+      <div class="spotlight-sidebar" id="spotlight-sidebar" style="display:none">
+        <div style="font-size:2rem;margin-bottom:8px">⭐</div>
+        <h4 id="spotlight-sidebar-title">5-Star Sports Media</h4>
+        <p id="spotlight-sidebar-text" style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:14px"></p>
+        <a id="spotlight-sidebar-btn" href="#" class="btn-gold btn-sm" style="display:none">Read Spotlight →</a>
+      </div>
+      <div class="sidebar-card" id="contact-org">
+        <h4>Contact This Organization</h4>
+        <div id="contact-alert" class="oh-alert"></div>
+        <div class="contact-field"><input type="text" id="c-name" placeholder="Your name *"/></div>
+        <div class="contact-field"><input type="email" id="c-email" placeholder="Your email *"/></div>
+        <div class="contact-field"><input type="tel" id="c-phone" placeholder="Your phone"/></div>
+        <div class="contact-field"><textarea id="c-msg" placeholder="Message — athlete's age, sport, what you're looking for…"></textarea></div>
+        <button class="btn-purple" style="width:100%;justify-content:center" onclick="sendContact()">Send Message →</button>
+      </div>
+      <div class="sidebar-card"><h4>Quick Info</h4><div id="quick-info"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="profile-not-found" style="display:none;text-align:center;padding:100px 20px">
+  <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;margin-bottom:12px">Profile Not Found</h2>
+  <p style="color:var(--gray);margin-bottom:28px">This organization profile doesn't exist or hasn't been published yet.</p>
+  <a href="directory.html" class="btn-purple">Browse All Organizations</a>
+</div>
+
+<script>
+let orgData=null;
+
+async function loadProfile(){
+  const id=ohParam('id');
+  if(!id){showNotFound();return;}
+  try{
+    let orgs;
+    if(id==='demo-org1'){
+      orgs=[{id:'demo-org1',organization_name:'WNY Warriors Hockey',sports:'Hockey, Skating',organization_type:'Travel Program',city:'Buffalo',state:'NY',service_area:'Western New York',founded_year:'2005',athletes_served:'200+ annually',age_groups_served:'Ages 8–18',teams_programs_offered:'14U AA, 16U AAA, 18U A, Mite/Squirt Skills Clinics',mission_statement:'Developing elite hockey players and strong community leaders across WNY through competitive travel hockey.',organization_description:'WNY Warriors Hockey is one of Western New York\'s premier travel hockey organizations, providing competitive programs at multiple levels for players ages 8–18. Our programs focus on player development, team chemistry, and a love for the game.',values_development_philosophy:'We believe in developing the whole athlete — on the ice, in the classroom, and in the community. Compete hard, respect the game, and make your teammates better.',notable_achievements:'5 regional championship appearances. 40+ alumni playing at the NCAA level. Annual Showcase Tournament draws 60+ teams from across the Northeast.',community_impact:'We run annual free Learn to Skate clinics for underserved youth and partner with local schools to promote youth hockey participation.',tryout_information:'Tryouts held in late April / early May each year. Register at our website. Players must provide own equipment. Evaluations conducted over 2 sessions.',pricing_notes:'Travel teams: $1,200–$2,400/season depending on level. Payment plans available.',facilities_used:'LECOM Harborcenter, Northtown Center, Riverworks Ice, Cazenovia Ice Rink',coaches_staff:'Director: John Smith | Head Coach 16U: Mike Johnson | Head Coach 14U: Sarah Davis',logo_url:'',website_url:'https://wnywarriors.com',registration_url:'https://wnywarriors.com/tryouts',social_links:'@WNYWarriorsHockey',contact_email:'info@wnywarriors.com',contact_phone:'(716) 555-0200',accepting_new_athletes:true,organization_spotlight_eligible:true,organization_spotlight_status:'published',profile_status:'published'}];
+    } else {
+      orgs=await ohGet('organizations',{'id':`eq.${id}`,'select':'*'});
+    }
+    if(!orgs.length){showNotFound();return;}
+    orgData=orgs[0];
+    renderProfile(orgData);
+  }catch(e){showNotFound();}
+}
+
+function renderProfile(o){
+  document.getElementById('profile-loading').style.display='none';
+  document.getElementById('profile-content').style.display='block';
+  document.title=`${o.organization_name} — OrganizationHuddle`;
+
+  const initials=(o.organization_name||'O').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const logoEl=document.getElementById('profile-logo');
+  if(o.logo_url){logoEl.innerHTML=`<img src="${o.logo_url}" alt="${o.organization_name}"/>`;}else{logoEl.textContent=initials;}
+
+  document.getElementById('profile-name').textContent=o.organization_name;
+  document.getElementById('profile-type').textContent=o.organization_type||'Organization';
+
+  const sports=(o.sports||'').split(',').map(s=>s.trim()).filter(Boolean);
+  document.getElementById('profile-tags').innerHTML=
+    sports.map(s=>`<span class="org-tag">${s}</span>`).join('')+
+    (o.accepting_new_athletes?'<span class="accepting-pill">✓ Accepting Athletes</span>':'');
+
+  if(o.mission_statement){document.getElementById('mission-card').style.display='block';document.getElementById('profile-mission').textContent=o.mission_statement;}
+  if(o.organization_description){document.getElementById('desc-card').style.display='block';document.getElementById('profile-desc').textContent=o.organization_description;}
+  if(o.values_development_philosophy){document.getElementById('philosophy-card').style.display='block';document.getElementById('profile-philosophy').textContent=o.values_development_philosophy;}
+  if(o.notable_achievements){document.getElementById('achievements-card').style.display='block';document.getElementById('profile-achievements').textContent=o.notable_achievements;}
+  if(o.community_impact){document.getElementById('impact-card').style.display='block';document.getElementById('profile-impact').textContent=o.community_impact;}
+  if(o.tryout_information){
+    document.getElementById('tryout-card').style.display='block';
+    document.getElementById('profile-tryout').textContent=o.tryout_information;
+    if(o.registration_url){const rl=document.getElementById('reg-link');rl.href=o.registration_url;rl.style.display='inline-flex';}
+  }
+
+  document.getElementById('details-list').innerHTML=[
+    ['📍 Location',`${o.city||''}${o.state?', '+o.state:''}`],
+    ['🗺️ Service Area',o.service_area],
+    ['📅 Founded',o.founded_year],
+    ['👥 Athletes Served',o.athletes_served],
+    ['🎂 Age Groups',o.age_groups_served],
+    ['🏒 Programs',o.teams_programs_offered],
+    ['🏟️ Facilities',o.facilities_used],
+    ['👨‍💼 Staff',o.coaches_staff],
+    ['💰 Pricing',o.pricing_notes],
+    ['🌐 Website',o.website_url?`<a href="${o.website_url}" target="_blank" style="color:var(--purple2)">${o.website_url}</a>`:null],
+  ].filter(([,v])=>v).map(([l,v])=>`<div class="detail-row"><span class="detail-label">${l}</span><span style="font-size:13px;color:var(--white)">${v}</span></div>`).join('');
+
+  document.getElementById('quick-info').innerHTML=[
+    o.sports?`<div class="detail-row"><span class="detail-label">Sports</span><span style="font-size:13px;color:var(--white)">${o.sports}</span></div>`:'',
+    `<div class="detail-row"><span class="detail-label">Status</span><span style="font-size:13px;color:${o.accepting_new_athletes?'#4ade80':'#f87171'}">${o.accepting_new_athletes?'✓ Accepting':'Not Accepting'}</span></div>`,
+    o.contact_email?`<div class="detail-row"><span class="detail-label">Email</span><span style="font-size:13px"><a href="mailto:${o.contact_email}" style="color:var(--purple2)">${o.contact_email}</a></span></div>`:'',
+  ].join('');
+
+  if(o.organization_spotlight_eligible){
+    const sb=document.getElementById('spotlight-sidebar');sb.style.display='block';
+    if(o.organization_spotlight_status==='published'){
+      document.getElementById('spotlight-sidebar-title').textContent='⭐ 5-Star Featured';
+      document.getElementById('spotlight-sidebar-text').textContent='This organization has been featured on 5-Star Sports Media.';
+      const btn=document.getElementById('spotlight-sidebar-btn');btn.href='https://5starsportsmedia.com/organization-spotlight.html';btn.style.display='inline-flex';
+    } else {
+      document.getElementById('spotlight-sidebar-title').textContent='Spotlight Pending';
+      document.getElementById('spotlight-sidebar-text').textContent='This organization has submitted for 5-Star Sports Media coverage. Stay tuned.';
+    }
+  }
+}
+
+async function sendContact(){
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  if(!name||!email){ohAlert('contact-alert','Please enter your name and email.','error');return;}
+  try{
+    await ohInsert('leads',{name,email,phone:document.getElementById('c-phone').value.trim()||null,role:'parent',platform_interest:'OrganizationHuddle',source_platform:'OrganizationHuddle',source_page:'/organizationhuddle/profile',organization_id:orgData?.id||null,message:document.getElementById('c-msg').value.trim()||null});
+    ohAlert('contact-alert','✅ Message sent! The organization will be in touch soon.','success');
+    ['c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){ohAlert('contact-alert','Could not send. Please try again.','error');}
+}
+
+function showNotFound(){document.getElementById('profile-loading').style.display='none';document.getElementById('profile-not-found').style.display='block';}
+loadProfile();
+</script>
+<script>ohInjectFooter()</script>
+</body>
+</html>
