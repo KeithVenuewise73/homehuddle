@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contact — CoachesHuddle | Powered by Venuewise</title>
+<meta name="description" content="Contact CoachesHuddle — get help with your coach profile or reach out about the Venuewise ecosystem."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1100px;margin:0 auto;padding:80px 32px}
+@media(max-width:768px){.contact-wrap{grid-template-columns:1fr;padding:48px 20px}}
+.contact-info-item{display:flex;gap:14px;margin-bottom:24px}
+.contact-info-icon{width:40px;height:40px;border-radius:8px;background:rgba(201,162,39,.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.contact-info-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:4px}
+.contact-info-val{font-size:14px;color:var(--white)}
+.contact-form-card{background:var(--dark2);border:1px solid var(--border);border-radius:var(--r2);padding:32px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav()</script>
+
+<div style="padding:80px 32px 40px;text-align:center;background:radial-gradient(ellipse at center,rgba(201,162,39,.07) 0%,transparent 65%)">
+  <div class="ch-tag" style="text-align:center">Get In Touch</div>
+  <h1 class="ch-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Contact CoachesHuddle</h1>
+  <p class="ch-sub" style="margin:0 auto">Questions about your profile, the Venuewise ecosystem, or 5-Star Sports Media? We're here to help.</p>
+</div>
+
+<div class="contact-wrap">
+  <div>
+    <div class="ch-tag">Reach Us</div>
+    <h2 class="ch-title" style="font-size:2rem;margin-bottom:28px">We're here for coaches.</h2>
+    <div class="contact-info-item">
+      <div class="contact-info-icon">📧</div>
+      <div><div class="contact-info-label">General</div><div class="contact-info-val"><a href="mailto:info@venuewise.net" style="color:var(--gold)">info@venuewise.net</a></div></div>
+    </div>
+    <div class="contact-info-item">
+      <div class="contact-info-icon">📰</div>
+      <div><div class="contact-info-label">5-Star Media Submissions</div><div class="contact-info-val"><a href="mailto:submissions@5starsportsmedia.com" style="color:var(--gold)">submissions@5starsportsmedia.com</a></div></div>
+    </div>
+    <div class="contact-info-item">
+      <div class="contact-info-icon">💼</div>
+      <div><div class="contact-info-label">Sponsorships</div><div class="contact-info-val"><a href="mailto:sponsors@5starsportsmedia.com" style="color:var(--gold)">sponsors@5starsportsmedia.com</a></div></div>
+    </div>
+    <div class="contact-info-item">
+      <div class="contact-info-icon">📍</div>
+      <div><div class="contact-info-label">Location</div><div class="contact-info-val">Western New York</div></div>
+    </div>
+    <div style="margin-top:32px;background:rgba(201,162,39,.07);border:1px solid var(--border2);border-radius:var(--r);padding:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Quick Links</div>
+      <a href="profile-create.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:6px;transition:color .2s" onmouseover="this.style.color='white'" onmouseout="this.style.color='#AAAAAA'">→ Create Coach Profile</a>
+      <a href="spotlight-submit.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:6px;transition:color .2s" onmouseover="this.style.color='white'" onmouseout="this.style.color='#AAAAAA'">→ Submit for Coach Spotlight</a>
+      <a href="coach-directory.html" style="display:block;font-size:13px;color:var(--gray2);margin-bottom:6px;transition:color .2s" onmouseover="this.style.color='white'" onmouseout="this.style.color='#AAAAAA'">→ Browse Coach Directory</a>
+      <a href="https://5starsportsmedia.com/coach-spotlight.html" style="display:block;font-size:13px;color:var(--gold);font-weight:600;" target="_blank">→ View 5-Star Coach Spotlights ↗</a>
+    </div>
+  </div>
+  <div>
+    <div class="contact-form-card">
+      <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:4px">Send a Message</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:20px">We'll get back to you within 24–48 hours.</p>
+      <div id="contact-alert" class="ch-alert"></div>
+      <div class="ch-form-row">
+        <div class="ch-form-field"><label>Name *</label><input type="text" id="c-name" placeholder="Your name"/></div>
+        <div class="ch-form-field"><label>Email *</label><input type="email" id="c-email" placeholder="you@email.com"/></div>
+      </div>
+      <div class="ch-form-field"><label>Subject</label>
+        <select id="c-subject">
+          <option>Coach Profile Question</option>
+          <option>Coach Spotlight Inquiry</option>
+          <option>Sponsorship / Advertising</option>
+          <option>Technical Support</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="ch-form-field"><label>Message *</label><textarea id="c-msg" rows="5" placeholder="How can we help?"></textarea></div>
+      <button class="btn-gold" style="width:100%;justify-content:center;margin-top:8px" onclick="sendContact()" id="contact-btn">Send Message →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Pre-fill coach name from URL
+const coachName = chParam('name');
+if (coachName) {
+  const subjectEl = document.getElementById('c-subject');
+  const msgEl = document.getElementById('c-msg');
+  subjectEl.value = 'Coach Profile Question';
+  msgEl.placeholder = `I'm interested in working with ${coachName}…`;
+}
+
+async function sendContact() {
+  const name = document.getElementById('c-name').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const msg = document.getElementById('c-msg').value.trim();
+  if (!name || !email || !msg) { chAlert('contact-alert','Please fill in name, email, and message.','error'); return; }
+  const btn = document.getElementById('contact-btn'); btn.textContent='Sending…'; btn.disabled=true;
+  try {
+    await chInsert('leads', {
+      name, email,
+      role: 'contact', platform_interest: 'CoachesHuddle',
+      source_platform: 'CoachesHuddle', source_page: '/coacheshuddle/contact',
+      message: `[${document.getElementById('c-subject').value}] ${msg}`,
+    });
+    chAlert('contact-alert','✅ Message sent! We\'ll be in touch within 24–48 hours.','success');
+    ['c-name','c-email','c-msg'].forEach(id=>document.getElementById(id).value='');
+  } catch(e) {
+    chAlert('contact-alert','Could not send. Please email info@venuewise.net directly.','error');
+  }
+  btn.textContent='Send Message →'; btn.disabled=false;
+}
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
