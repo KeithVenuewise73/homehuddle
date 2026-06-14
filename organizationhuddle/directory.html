@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Find a Sports Organization — OrganizationHuddle | Powered by Venuewise</title>
+<meta name="description" content="Browse sports organizations, clubs, leagues, and travel programs in Western New York on OrganizationHuddle."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.dir-hero{padding:72px 32px 48px;text-align:center;background:radial-gradient(ellipse at center,rgba(124,58,237,.07) 0%,transparent 65%)}
+.filters{background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 32px}
+.filters-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.filter-select{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;outline:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:var(--border-p)}
+.filter-select option{background:var(--dark2)}
+.search-input{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 14px;outline:none;flex:1;min-width:200px;transition:border-color .2s}
+.search-input:focus{border-color:var(--border-p)}
+.search-input::placeholder{color:var(--gray)}
+.orgs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px;margin:0 auto;padding:40px 32px}
+@media(max-width:960px){.orgs-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.orgs-grid{grid-template-columns:1fr;padding:24px 16px}}
+.accepting-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.spotlight-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.3);color:var(--gold)}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>ohInjectNav('Find an Org')</script>
+
+<div class="dir-hero">
+  <div class="oh-tag" style="text-align:center">Organization Directory</div>
+  <h1 class="oh-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Find a Sports Organization.</h1>
+  <p class="oh-sub" style="margin:0 auto">Browse leagues, clubs, travel programs, and academies in Western New York. Filter by sport, city, or organization type.</p>
+</div>
+
+<div class="filters">
+  <div class="filters-inner">
+    <input type="text" class="search-input" id="search-input" placeholder="🔍 Search organizations, sports, cities…" oninput="filterOrgs()"/>
+    <select class="filter-select" id="filter-sport" onchange="filterOrgs()">
+      <option value="">All Sports</option>
+      <option>Hockey</option><option>Baseball</option><option>Soccer</option><option>Basketball</option><option>Lacrosse</option><option>Football</option><option>Skating</option><option>Swimming</option><option>Wrestling</option>
+    </select>
+    <select class="filter-select" id="filter-type" onchange="filterOrgs()">
+      <option value="">All Types</option>
+      <option>Travel Program</option><option>Youth League</option><option>Club</option><option>Academy</option><option>Rec Program</option><option>Tournament Operator</option><option>Training Organization</option>
+    </select>
+    <select class="filter-select" id="filter-accepting" onchange="filterOrgs()">
+      <option value="">All</option>
+      <option value="true">Accepting Athletes</option>
+    </select>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:20px auto 0;padding:0 32px">
+  <p style="font-size:13px;color:var(--gray)" id="results-meta"></p>
+</div>
+
+<div class="orgs-grid" id="orgs-grid">
+  <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">Loading organizations…</div>
+</div>
+
+<div style="background:var(--dark2);border-top:1px solid var(--border);padding:60px 32px;text-align:center">
+  <div class="oh-tag" style="text-align:center">List Your Organization</div>
+  <h2 class="oh-title" style="font-size:2.5rem;margin-bottom:12px">Get Listed on OrganizationHuddle</h2>
+  <p class="oh-sub" style="margin:0 auto 28px">Create your free profile and start connecting with WNY sports families.</p>
+  <a href="profile-create.html" class="btn-purple">Create Organization Profile — Free →</a>
+</div>
+
+<script>
+let allOrgs=[];
+async function loadOrgs(){
+  try{
+    allOrgs=await ohGet('organizations',{'profile_status':'eq.published','select':'id,organization_name,sports,organization_type,city,service_area,age_groups_served,accepting_new_athletes,logo_url,organization_spotlight_eligible,organization_spotlight_status,mission_statement,teams_programs_offered','order':'organization_spotlight_eligible.desc,created_at.asc'});
+    if(!allOrgs.length) throw new Error('none');
+  }catch(e){
+    allOrgs=[
+      {id:'demo-org1',organization_name:'WNY Warriors Hockey',sports:'Hockey, Skating',organization_type:'Travel Program',city:'Buffalo',service_area:'Western New York',age_groups_served:'Ages 8–18',accepting_new_athletes:true,logo_url:'',organization_spotlight_eligible:true,organization_spotlight_status:'published',mission_statement:'Developing elite hockey players and strong community leaders across WNY.',teams_programs_offered:'14U AA, 16U AAA, 18U A, Skills Clinics'},
+      {id:'demo-org2',organization_name:'South Buffalo Soccer Academy',sports:'Soccer',organization_type:'Academy',city:'South Buffalo',service_area:'South Buffalo, Lackawanna',age_groups_served:'Ages 6–16',accepting_new_athletes:true,logo_url:'',organization_spotlight_eligible:false,organization_spotlight_status:'not_submitted',mission_statement:'Building confident young athletes through the beautiful game.',teams_programs_offered:'Rec League, Travel Teams, Summer Camps'},
+    ];
+  }
+  filterOrgs();
+}
+
+function filterOrgs(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  const sport=document.getElementById('filter-sport').value.toLowerCase();
+  const type=document.getElementById('filter-type').value.toLowerCase();
+  const accepting=document.getElementById('filter-accepting').value;
+  const filtered=allOrgs.filter(o=>{
+    const text=[o.organization_name,o.sports,o.city,o.service_area,o.organization_type,o.mission_statement].join(' ').toLowerCase();
+    if(search&&!text.includes(search)) return false;
+    if(sport&&!(o.sports||'').toLowerCase().includes(sport)) return false;
+    if(type&&!(o.organization_type||'').toLowerCase().includes(type)) return false;
+    if(accepting==='true'&&!o.accepting_new_athletes) return false;
+    return true;
+  });
+  document.getElementById('results-meta').textContent=`${filtered.length} organization${filtered.length!==1?'s':''} found`;
+  renderOrgs(filtered);
+}
+
+function renderOrgs(orgs){
+  const grid=document.getElementById('orgs-grid');
+  if(!orgs.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray)"><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px;color:var(--white)">No organizations found</h3><p>Try adjusting your filters or <a href="profile-create.html" style="color:var(--purple2)">add your organization</a>.</p></div>`;return;}
+  grid.innerHTML=orgs.map(o=>{
+    const initials=(o.organization_name||'O').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const sports=(o.sports||'').split(',').map(s=>s.trim()).filter(Boolean).slice(0,3);
+    const isSpotlight=o.organization_spotlight_eligible&&o.organization_spotlight_status==='published';
+    return `<div class="org-card">
+      <div class="org-card-logo">${o.logo_url?`<img src="${o.logo_url}" alt="${o.organization_name}"/>`:initials}</div>
+      <div class="org-card-body">
+        <div class="org-card-name">${o.organization_name}</div>
+        <div class="org-card-type">${o.organization_type||'Organization'}</div>
+        <div class="org-card-tags">
+          ${sports.map(s=>`<span class="org-tag">${s}</span>`).join('')}
+          ${o.accepting_new_athletes?'<span class="accepting-pill">✓ Accepting</span>':''}
+          ${isSpotlight?'<span class="spotlight-pill">⭐ Featured</span>':''}
+        </div>
+        <div class="org-card-meta">📍 ${o.city||''}${o.service_area?' · '+o.service_area:''}${o.age_groups_served?'<br>👥 '+o.age_groups_served:''}</div>
+        <div class="org-card-actions">
+          <a href="profile.html?id=${o.id}" class="btn-purple btn-sm" style="flex:1;justify-content:center">View Profile</a>
+          <a href="contact.html?org=${o.id}&name=${encodeURIComponent(o.organization_name)}" class="btn-outline btn-sm">Contact</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+loadOrgs();
+</script>
+<script>ohInjectFooter()</script>
+</body>
+</html>
