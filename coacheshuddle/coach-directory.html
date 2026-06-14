@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Find a Coach — CoachesHuddle | Powered by Venuewise</title>
+<meta name="description" content="Browse and find coaches, trainers, and instructors in Western New York through CoachesHuddle."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<style>
+.dir-hero{padding:72px 32px 48px;text-align:center;background:radial-gradient(ellipse at center,rgba(201,162,39,.07) 0%,transparent 65%)}
+.filters{background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 32px}
+.filters-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-select{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;outline:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:var(--border2)}
+.filter-select option{background:var(--dark2)}
+.search-input{background:var(--dark3);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 14px;outline:none;flex:1;min-width:180px;transition:border-color .2s}
+.search-input:focus{border-color:var(--border2)}
+.search-input::placeholder{color:var(--gray)}
+.coaches-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:40px 32px}
+@media(max-width:960px){.coaches-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.coaches-grid{grid-template-columns:1fr;padding:24px 16px}}
+.dir-wrap{max-width:1200px;margin:0 auto}
+.results-meta{font-size:13px;color:var(--gray);padding:0 32px;margin-bottom:-20px}
+.no-results{text-align:center;padding:60px 20px;color:var(--gray)}
+.no-results h3{font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px;color:var(--white)}
+.coach-photo-wrap{width:100%;height:200px;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;position:relative}
+.coach-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.accepting-dot{position:absolute;top:10px;right:10px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);border-radius:100px;padding:3px 8px;font-size:10px;font-weight:700;color:#4ade80;display:flex;align-items:center;gap:4px}
+.accepting-dot::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.spotlight-ribbon{position:absolute;top:10px;left:10px;background:rgba(201,162,39,.9);border-radius:100px;padding:3px 10px;font-size:10px;font-weight:800;color:var(--black);letter-spacing:.5px}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script>chInjectNav('Find a Coach')</script>
+
+<div class="dir-hero">
+  <div class="ch-tag" style="text-align:center">Coach Directory</div>
+  <h1 class="ch-title" style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px">Find Your Coach.</h1>
+  <p class="ch-sub" style="margin:0 auto">Browse coaches, trainers, and instructors in Western New York. Filter by sport, location, or service type.</p>
+</div>
+
+<div class="filters">
+  <div class="filters-inner">
+    <input type="text" class="search-input" id="search-input" placeholder="🔍 Search by name, sport, or specialty…" oninput="filterCoaches()"/>
+    <select class="filter-select" id="filter-sport" onchange="filterCoaches()">
+      <option value="">All Sports</option>
+      <option>Hockey</option><option>Baseball</option><option>Soccer</option>
+      <option>Basketball</option><option>Lacrosse</option><option>Football</option>
+      <option>Skating</option><option>Strength & Conditioning</option><option>Other</option>
+    </select>
+    <select class="filter-select" id="filter-accepting" onchange="filterCoaches()">
+      <option value="">Accepting New Athletes</option>
+      <option value="true">Yes — Open</option>
+      <option value="false">Waitlist Only</option>
+    </select>
+    <select class="filter-select" id="filter-service" onchange="filterCoaches()">
+      <option value="">All Services</option>
+      <option>Private Lessons</option><option>Group Training</option>
+      <option>Camps</option><option>Clinics</option><option>Team Training</option>
+    </select>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:24px auto 0;padding:0 32px">
+  <p class="results-meta" id="results-meta" style="padding:0"></p>
+</div>
+
+<div style="max-width:1200px;margin:0 auto">
+  <div class="coaches-grid" id="coaches-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">Loading coaches…</div>
+  </div>
+</div>
+
+<!-- JOIN CTA -->
+<div style="background:var(--dark);border-top:1px solid var(--border);padding:60px 32px;text-align:center">
+  <div class="ch-tag" style="text-align:center">Are You a Coach?</div>
+  <h2 class="ch-title" style="font-size:2.5rem;margin-bottom:12px">Get Listed on CoachesHuddle</h2>
+  <p class="ch-sub" style="margin:0 auto 28px">Create your free profile and start connecting with sports families in WNY.</p>
+  <a href="profile-create.html" class="btn-gold">Create Coach Profile — Free →</a>
+</div>
+
+<script>
+let allCoaches = [];
+
+async function loadCoaches() {
+  try {
+    // Load published coaches
+    const data = await chGet('coaches', {
+      'profile_status': 'eq.published',
+      'select': 'id,coach_name,business_name,sports,specialty,locations_served,accepting_new_athletes,profile_photo_url,coach_spotlight_eligible,coach_spotlight_status,bio,services_offered',
+      'order': 'coach_spotlight_eligible.desc,created_at.asc'
+    });
+    allCoaches = data;
+  } catch(e) {
+    // If no published coaches yet, show demo cards
+    allCoaches = [
+      {id:'demo1',coach_name:'Chris Mazzu',business_name:'Mazzu Hockey Clinics',sports:'Hockey, Skating, Goalie',specialty:'Power skating, elite skills',locations_served:'Buffalo, Harborcenter, Riverworks',accepting_new_athletes:true,profile_photo_url:'',coach_spotlight_eligible:true,coach_spotlight_status:'published',bio:'Elite hockey instructor with 15+ years coaching at all levels across WNY.',services_offered:'Private Lessons, Clinics, Camps'},
+      {id:'demo2',coach_name:'Mark Zarbo',business_name:'Zarbo Hockey',sports:'Hockey',specialty:'Defenseman development',locations_served:'West Seneca, South Buffalo',accepting_new_athletes:true,profile_photo_url:'',coach_spotlight_eligible:false,coach_spotlight_status:'not_submitted',bio:'Former college defenseman coaching youth hockey in the WNY area.',services_offered:'Group Training, Team Training'},
+    ];
+  }
+  filterCoaches();
+}
+
+function filterCoaches() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const sport = document.getElementById('filter-sport').value.toLowerCase();
+  const accepting = document.getElementById('filter-accepting').value;
+  const service = document.getElementById('filter-service').value.toLowerCase();
+
+  const filtered = allCoaches.filter(c => {
+    const text = [c.coach_name,c.business_name,c.sports,c.specialty,c.locations_served,c.bio].join(' ').toLowerCase();
+    if (search && !text.includes(search)) return false;
+    if (sport && !(c.sports||'').toLowerCase().includes(sport)) return false;
+    if (accepting === 'true' && !c.accepting_new_athletes) return false;
+    if (accepting === 'false' && c.accepting_new_athletes) return false;
+    if (service && !(c.services_offered||'').toLowerCase().includes(service)) return false;
+    return true;
+  });
+
+  document.getElementById('results-meta').textContent = `${filtered.length} coach${filtered.length!==1?'es':''} found`;
+  renderCoaches(filtered);
+}
+
+function renderCoaches(coaches) {
+  const grid = document.getElementById('coaches-grid');
+  if (!coaches.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><h3>No coaches found</h3><p>Try adjusting your filters, or <a href="profile-create.html" style="color:var(--gold)">add your profile</a>.</p></div>`;
+    return;
+  }
+  grid.innerHTML = coaches.map(c => {
+    const initials = (c.coach_name||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const sports = (c.sports||'').split(',').map(s=>s.trim()).filter(Boolean).slice(0,3);
+    const isSpotlight = c.coach_spotlight_eligible && c.coach_spotlight_status === 'published';
+    return `
+      <div class="coach-card">
+        <div class="coach-photo-wrap">
+          ${c.profile_photo_url ? `<img src="${c.profile_photo_url}" alt="${c.coach_name}"/>` : `<span>${initials}</span>`}
+          ${c.accepting_new_athletes ? '<div class="accepting-dot">Accepting Athletes</div>' : ''}
+          ${isSpotlight ? '<div class="spotlight-ribbon">⭐ 5-Star Featured</div>' : ''}
+        </div>
+        <div class="coach-card-body">
+          <div class="coach-card-name">${c.coach_name}</div>
+          ${c.business_name ? `<div class="coach-card-biz">${c.business_name}</div>` : ''}
+          <div class="coach-card-tags">
+            ${sports.map(s=>`<span class="coach-tag">${s}</span>`).join('')}
+            ${c.specialty ? `<span class="coach-tag gray">${c.specialty.slice(0,30)}</span>` : ''}
+          </div>
+          <div class="coach-card-meta">
+            ${c.locations_served ? `📍 ${c.locations_served}` : ''}
+            ${c.services_offered ? `<br>🎯 ${c.services_offered.slice(0,60)}${c.services_offered.length>60?'…':''}` : ''}
+          </div>
+          <div class="coach-card-actions">
+            <a href="profile.html?id=${c.id}" class="btn-gold btn-sm" style="flex:1;justify-content:center">View Profile</a>
+            <a href="contact.html?coach=${c.id}&name=${encodeURIComponent(c.coach_name)}" class="btn-outline btn-sm">Contact</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+loadCoaches();
+</script>
+
+<script>chInjectFooter()</script>
+</body>
+</html>
