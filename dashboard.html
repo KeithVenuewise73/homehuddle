@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Facility Dashboard — FacilityHuddle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0B1F3A;--navy2:#142A4D;--navy3:#1C3661;--gold:#D4A537;--gold2:#F0C75E;
+  --white:#FFFFFF;--mist:#F4F6F9;--mist-dark:#E8ECF2;--slate:#5B6B82;--ink:#0E1726;
+  --green:#2F8F5B;--green-bg:#E7F3ED;--red:#C24A3B;--red-bg:#FBEAE7;--border:#E8ECF2;--r2:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--mist);color:var(--ink);font-family:'DM Sans',sans-serif}
+.fh-display{font-family:'Archivo Narrow',sans-serif}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+.login-box{background:var(--navy2);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:3rem 2.5rem;width:100%;max-width:420px;text-align:center;color:#fff}
+#app{display:none}
+.lf{margin-bottom:14px;text-align:left}
+.lf label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--slate);text-transform:uppercase;margin-bottom:6px}
+.login-box .lf label{color:rgba(255,255,255,.5)}
+.lf input,.lf select,.lf textarea{width:100%;background:var(--white);border:1px solid var(--mist-dark);border-radius:8px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s}
+.login-box .lf input{background:var(--navy3);border:1px solid rgba(255,255,255,.15);color:#fff}
+.lf input:focus{border-color:var(--gold)}
+.btn-gold{background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:13px 22px;font-weight:800;font-size:14.5px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-gold:disabled{opacity:.6;cursor:default}
+.oh-alert,.fh-alert{display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:left}
+.oh-alert.error,.fh-alert.error{display:block;background:var(--red-bg);color:var(--red)}
+.oh-alert.success,.fh-alert.success{display:block;background:var(--green-bg);color:var(--green)}
+.fh-nav{position:sticky;top:0;z-index:100;background:var(--navy);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.fh-brand{font-family:'Archivo Narrow',sans-serif;font-weight:800;font-size:1.15rem;color:#fff;letter-spacing:.3px}
+.fh-brand span{color:var(--gold)}
+.dash-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 62px)}
+@media(max-width:768px){.dash-layout{grid-template-columns:1fr}.dash-sidebar{display:none}}
+.dash-sidebar{background:var(--navy2);padding:20px 0}
+.sb-section{padding:0 10px 20px}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.35);text-transform:uppercase;padding:0 8px;margin-bottom:8px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;color:rgba(255,255,255,.65);font-size:13px;background:none;border:none;width:100%;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s,color .15s;text-decoration:none}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-link.active{background:rgba(212,165,55,.15);color:var(--gold)}
+.dash-main{padding:24px}
+.panel{display:none}.panel.active{display:block}
+.stat-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.stat-card{background:#fff;border:1px solid var(--mist-dark);border-radius:12px;padding:16px;flex:1;min-width:150px}
+.stat-num{font-family:'Archivo Narrow',sans-serif;font-size:1.8rem;font-weight:800;color:var(--ink)}
+.stat-lbl{font-size:12px;color:var(--slate);margin-top:2px}
+.hero-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:16px;padding:22px 26px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.fh-card{background:#fff;border:1px solid var(--mist-dark);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.fh-card-header{padding:14px 18px;border-bottom:1px solid var(--mist-dark);display:flex;align-items:center;justify-content:space-between}
+.fh-card-title{font-family:'Archivo Narrow',sans-serif;font-size:1rem;font-weight:800}
+.fh-card-body{padding:18px}
+.row-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--mist)}
+.row-item:last-child{border:none}
+.pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;display:inline-block}
+.pill-confirmed{background:var(--green-bg);color:var(--green)}
+.pill-cancelled{background:var(--red-bg);color:var(--red)}
+.slot-card{background:#fff;border:1px solid var(--mist-dark);border-radius:14px;padding:18px;position:relative}
+.slot-card.cancellation{border-color:var(--red)}
+.fill-badge{position:absolute;top:-10px;left:16px;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:6px}
+.fill-btn{width:100%;margin-top:14px;padding:12px 0;border-radius:9px;border:none;background:var(--gold);color:var(--navy);font-weight:800;font-size:14px;cursor:pointer}
+.fill-btn:disabled{background:var(--green-bg);color:var(--green);cursor:default}
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+#oh-toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+</style>
+</head>
+<body>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/dashboard.js"></script>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="fh-display" style="font-size:2rem;font-weight:800;margin-bottom:.25rem">FACILITY<span style="color:var(--gold)">HUDDLE</span></div>
+    <p style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:2rem;line-height:1.6">Sign in to your facility dashboard. Access code provided by Venuewise.</p>
+    <div class="lf"><label>Facility Email</label><input type="email" id="login-email" placeholder="admin@yourfacility.com" autocomplete="email"/></div>
+    <div class="lf"><label>Access Code</label><input type="password" id="login-code" placeholder="Provided by Venuewise" onkeydown="if(event.key==='Enter')fhLogin()"/></div>
+    <button class="btn-gold" style="width:100%" onclick="fhLogin()" id="login-btn">Sign In →</button>
+    <div id="login-err" class="oh-alert"></div>
+    <p style="font-size:12px;color:rgba(255,255,255,.45);margin-top:14px;line-height:1.6">Want to list your facility? <a href="index.html" style="color:var(--gold2)">Get started →</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="fh-nav">
+    <div class="fh-brand">FACILITY<span>HUDDLE</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:13px;color:rgba(255,255,255,.6)" id="dash-facility-name"></span>
+      <button onclick="fhLogout()" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);background:none;border:1px solid rgba(255,255,255,.2);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Out</button>
+    </div>
+  </div>
+  <div class="dash-layout">
+    <aside class="dash-sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Dashboard</div>
+        <button class="sb-link active" onclick="fhShowPanel('overview',this)">Overview</button>
+        <button class="sb-link" onclick="fhShowPanel('calendar',this)">Calendar</button>
+        <button class="sb-link" onclick="fhShowPanel('marketplace',this)">Open Slot Marketplace</button>
+        <button class="sb-link" onclick="fhShowPanel('create',this)">Create Event / List Slot</button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Venuewise</div>
+        <a class="sb-link" href="../index.html">HomeHuddle ↗</a>
+        <a class="sb-link" href="../coacheshuddle/index.html">CoachesHuddle ↗</a>
+        <a class="sb-link" href="../organizationhuddle/index.html">OrganizationHuddle ↗</a>
+      </div>
+    </aside>
+    <main class="dash-main">
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <div class="hero-banner">
+          <div>
+            <div style="color:var(--gold2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Every Empty Hour Is Lost Revenue</div>
+            <div class="fh-display" style="font-size:1.6rem;font-weight:800;margin-top:6px" id="hero-amount">$0 sitting in open inventory</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:6px" id="hero-sub"></div>
+          </div>
+          <button class="btn-gold" onclick="document.querySelector('[onclick*=marketplace]').click()">Review Open Slots →</button>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-num" id="s-areas">—</div><div class="stat-lbl">Bookable Areas</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-bookings">—</div><div class="stat-lbl">Active Bookings</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-open">—</div><div class="stat-lbl">Open Slots Live</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-potential">—</div><div class="stat-lbl">Recovery Potential</div></div>
+        </div>
+        <div class="fh-card">
+          <div class="fh-card-header"><div class="fh-card-title">Recent Bookings</div><button class="sb-link" style="width:auto;color:var(--navy3);font-weight:700" onclick="document.querySelector('[onclick*=calendar]').click()">View Calendar</button></div>
+          <div class="fh-card-body" id="overview-bookings"><p style="font-size:13px;color:var(--slate);font-style:italic">Loading…</p></div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="panel" id="panel-calendar">
+        <h2 class="fh-display" style="font-size:1.6rem;font-weight:800;margin-bottom:6px">Bookings</h2>
+        <p style="font-size:13px;color:var(--slate);margin-bottom:20px">All upcoming bookings across your facility.</p>
+        <div class="fh-card"><div class="fh-card-body" id="calendar-list"></div></div>
+      </div>
+
+      <!-- MARKETPLACE -->
+      <div class="panel" id="panel-marketplace">
+        <h2 class="fh-display" style="font-size:1.6rem;font-weight:800;margin-bottom:6px">Open Slot Marketplace</h2>
+        <p style="font-size:13px;color:var(--slate);margin-bottom:20px">Published to families, coaches & organizations across Venuewise.</p>
+        <div id="marketplace-alert" class="oh-alert"></div>
+        <div class="slots-grid" id="marketplace-list"></div>
+      </div>
+
+      <!-- CREATE -->
+      <div class="panel" id="panel-create">
+        <h2 class="fh-display" style="font-size:1.6rem;font-weight:800;margin-bottom:6px">List an Open Slot</h2>
+        <p style="font-size:13px;color:var(--slate);margin-bottom:20px">Publish unused time directly to the Venuewise marketplace.</p>
+        <div id="create-alert" class="oh-alert"></div>
+        <div class="fh-card"><div class="fh-card-body">
+          <div class="lf"><label>Area</label><select id="c-area"></select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="lf"><label>Start Time</label><input type="datetime-local" id="c-start"/></div>
+            <div class="lf"><label>End Time</label><input type="datetime-local" id="c-end"/></div>
+          </div>
+          <div class="lf"><label>Price</label><input type="number" id="c-price" value="150"/></div>
+          <div class="lf"><label>Reason / Note</label><input type="text" id="c-reason" placeholder="e.g. Unbooked evening ice"/></div>
+          <button class="btn-gold" onclick="fhPublishSlot()">Publish Open Slot</button>
+        </div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+</body>
+</html>
