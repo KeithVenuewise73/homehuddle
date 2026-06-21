@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your calendar · HomeHuddle</title>
+<style>
+  :root{
+    --ink:#1a1a2e; --slate:#5b6b82; --mist:#8a97a8;
+    --line:#e7ebf2; --paper:#ffffff; --bg:#f6f8fb; --indigo:#3730a3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100dvh}
+  header{
+    background:var(--paper);border-bottom:1px solid var(--line);
+    padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:9px}
+  .brand .dot{width:28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,#3730a3,#5b54d6);color:#fff;font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-size:14px}
+  .brand b{font-size:15px;letter-spacing:-.01em}
+  .who{font-size:12.5px;color:var(--slate)}
+  .signout{font-size:12.5px;color:var(--slate);background:none;border:none;cursor:pointer;font-weight:600}
+  .signout:hover{color:var(--indigo)}
+  .wrap{max-width:640px;margin:0 auto;padding:22px 18px 60px}
+  h1{font-size:20px;letter-spacing:-.02em;margin-bottom:3px}
+  .sub{font-size:13px;color:var(--slate);margin-bottom:18px}
+  /* family filter chips */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;
+    border:1.5px solid var(--line);background:#fff;color:var(--slate);cursor:pointer;
+    display:flex;align-items:center;gap:7px}
+  .chip .swatch{width:9px;height:9px;border-radius:50%}
+  .chip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+  .chip.all[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  /* day groups */
+  .day{margin-bottom:22px}
+  .day-label{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--mist);margin-bottom:9px;padding-left:2px}
+  .event{
+    background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--c,#3730a3);
+    border-radius:12px;padding:13px 15px;margin-bottom:9px;display:flex;gap:13px;align-items:flex-start}
+  .time{font-size:12.5px;font-weight:700;color:var(--ink);min-width:62px;font-variant-numeric:tabular-nums;padding-top:1px}
+  .time .ampm{font-size:10px;color:var(--mist);font-weight:700}
+  .body{flex:1;min-width:0}
+  .title{font-size:14.5px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+  .row2{margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .fam{font-size:11.5px;font-weight:700;color:var(--c,#3730a3)}
+  .loc{font-size:11.5px;color:var(--slate)}
+  .pencil{margin-left:auto;font-size:11px;color:var(--mist)}
+  .state{text-align:center;padding:60px 20px;color:var(--slate)}
+  .state .big{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .spinner{width:22px;height:22px;border:2.5px solid var(--line);border-top-color:var(--indigo);
+    border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="dot">H</div><b>HomeHuddle</b></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who" id="who"></span>
+      <button class="signout" id="signout">Sign out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <h1>Your calendar</h1>
+    <p class="sub" id="sub">Everything, in one place.</p>
+    <div class="filters" id="filters"></div>
+    <div id="list">
+      <div class="state"><div class="spinner"></div>Loading your families…</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://urwnbskrtoplgnkkxuvl.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT";
+    const LOGIN = "https://venuewise.net/homehuddle/login-new.html";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+
+    // A small, distinct palette assigned to families in load order.
+    const PALETTE = ["#3730a3","#0e7c66","#b4423a","#9a5b1e","#6d28a3","#1d6fb8"];
+    const famColor = {};
+    let activeFilter = "all";
+    let events = [];
+
+    function colorFor(familyId){
+      if(!(familyId in famColor)){
+        famColor[familyId] = PALETTE[Object.keys(famColor).length % PALETTE.length];
+      }
+      return famColor[familyId];
+    }
+
+    function fmtTime(iso){
+      const d = new Date(iso);
+      let h = d.getHours(); const m = d.getMinutes();
+      const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+      const mm = m === 0 ? "" : ":" + String(m).padStart(2,"0");
+      return `${h}${mm}<span class="ampm"> ${ampm}</span>`;
+    }
+    function dayKey(iso){
+      return new Date(iso).toLocaleDateString(undefined,
+        {weekday:"long", month:"long", day:"numeric"});
+    }
+
+    function render(){
+      const list = $("list");
+      const rows = activeFilter === "all"
+        ? events
+        : events.filter(e => e.family_id === activeFilter);
+
+      if(rows.length === 0){
+        list.innerHTML = `<div class="state"><div class="big">Nothing scheduled</div>
+          No upcoming events for this view.</div>`;
+        return;
+      }
+
+      const byDay = {};
+      for(const e of rows){
+        const k = dayKey(e.event_start);
+        (byDay[k] = byDay[k] || []).push(e);
+      }
+
+      list.innerHTML = Object.entries(byDay).map(([day, evs]) => `
+        <div class="day">
+          <div class="day-label">${day}</div>
+          ${evs.map(e => `
+            <div class="event" style="--c:${colorFor(e.family_id)}">
+              <div class="time">${fmtTime(e.event_start)}</div>
+              <div class="body">
+                <div class="title">${esc(e.title)}</div>
+                <div class="row2">
+                  <span class="fam" style="--c:${colorFor(e.family_id)}">${esc(e.family_name)}</span>
+                  ${e.location ? `<span class="loc">· ${esc(e.location)}</span>` : ""}
+                  ${e.can_edit ? `<span class="pencil">✎ editable</span>` : ""}
+                </div>
+              </div>
+            </div>`).join("")}
+        </div>`).join("");
+    }
+
+    function renderFilters(){
+      const fams = [];
+      const seen = new Set();
+      for(const e of events){
+        if(!seen.has(e.family_id)){ seen.add(e.family_id); fams.push({id:e.family_id, name:e.family_name}); }
+      }
+      // Only show family filters if the person is in more than one family.
+      if(fams.length < 2){ $("filters").innerHTML = ""; return; }
+      $("filters").innerHTML =
+        `<button class="chip all" aria-pressed="true" data-f="all">All families</button>` +
+        fams.map(f => `<button class="chip" aria-pressed="false" data-f="${f.id}">
+          <span class="swatch" style="background:${colorFor(f.id)}"></span>${esc(f.name)}</button>`).join("");
+      $("filters").querySelectorAll(".chip").forEach(c => {
+        c.addEventListener("click", () => {
+          activeFilter = c.dataset.f;
+          $("filters").querySelectorAll(".chip").forEach(x =>
+            x.setAttribute("aria-pressed", x.dataset.f === activeFilter ? "true" : "false"));
+          render();
+        });
+      });
+    }
+
+    function esc(s){ return (s||"").replace(/[&<>"]/g, c =>
+      ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+    (async () => {
+      const { data:{ session } } = await supabase.auth.getSession();
+      if(!session){ window.location.replace(LOGIN); return; }
+
+      // Show upcoming events from now onward, merged across all the person's families.
+      const fromISO = new Date(Date.now() - 12*3600*1000).toISOString(); // include earlier today
+      const { data, error } = await supabase.rpc("get_merged_calendar", { p_from: fromISO, p_to: null });
+
+      if(error){
+        $("list").innerHTML = `<div class="state"><div class="big">Couldn't load your calendar</div>
+          ${esc(error.message)}</div>`;
+        return;
+      }
+      events = data || [];
+
+      // Pre-assign colors in chronological family-appearance order.
+      events.forEach(e => colorFor(e.family_id));
+
+      const famCount = new Set(events.map(e => e.family_id)).size;
+      $("sub").textContent = famCount > 1
+        ? `${famCount} families, one calendar.`
+        : "Everything, in one place.";
+
+      renderFilters();
+      render();
+    })();
+
+    $("signout").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.replace(LOGIN);
+    });
+  </script>
+</body>
+</html>
