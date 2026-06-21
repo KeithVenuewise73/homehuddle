@@ -390,6 +390,14 @@
       </div>
     </div>
     <div class="ae-field">
+      <label class="ae-label">Visibility</label>
+      <div class="ae-cats" id="aeVisWrap">
+        <button class="ae-cat active" onclick="setAEVis(this,'family')">👨‍👩‍👧 Family Only</button>
+        <button class="ae-cat" onclick="setAEVis(this,'private')">🔒 Private</button>
+        <button class="ae-cat" onclick="setAEVis(this,'public')">📣 Public · Share to 5-Star</button>
+      </div>
+    </div>
+    <div class="ae-field">
       <label class="ae-label">Repeat</label>
       <div class="ae-repeat">
         <button class="ae-rep active" onclick="setAERep(this,'none')">Once</button>
@@ -477,6 +485,8 @@ let currentFamilyId = null;
 let aeCategory = 'family';
 let aeRepeat = 'none';
 let aeKid = 'Family';
+let aeVisibility = 'family';
+function setAEVis(el, v) { document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); aeVisibility = v; }
 let familyMembers = [];
 
 // ── STICKY ────────────────────────────────────────────────
@@ -845,11 +855,37 @@ function goToday() {
     document.getElementById('btnList').classList.add('active');
     document.getElementById('btnMonth').classList.remove('active');
   }
+
+  // If today's month has no events, jump to the month of the next upcoming event
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  var hasThisMonth = filtered().some(function(e){ return e.start >= monthStart && e.start <= monthEnd; });
+  if (!hasThisMonth) {
+    var nextUp = filtered()
+      .filter(function(e){ return e.start >= now; })
+      .sort(function(a, b){ return a.start - b.start; })[0];
+    if (nextUp) currentDate = new Date(nextUp.start);
+  }
+
   render();
   setTimeout(function() {
-    var todayLabel = document.querySelector('.dlabel.today');
-    if (todayLabel) {
-      var dgroup = todayLabel.closest('.dgroup') || todayLabel;
+    // Prefer today's header; if today has no events, scroll to the
+    // nearest upcoming event group instead so the button always lands somewhere useful.
+    var target = document.querySelector('.dlabel.today');
+    if (!target) {
+      var now2 = new Date();
+      var groups = document.querySelectorAll('.dgroup');
+      for (var i = 0; i < groups.length; i++) {
+        var lbl = groups[i].querySelector('.dlabel');
+        // First group that isn't dimmed (past) is the nearest upcoming day
+        if (groups[i].getAttribute('style') && groups[i].getAttribute('style').indexOf('opacity') > -1) continue;
+        target = groups[i];
+        break;
+      }
+    }
+    if (target) {
+      var dgroup = target.closest ? (target.closest('.dgroup') || target) : target;
       dgroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, 120);
@@ -1006,6 +1042,8 @@ async function editManualEvent(evId) {
   document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
   var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="' + aeCategory + '"]');
   if (catBtn) catBtn.classList.add('active');
+  aeVisibility = ev.visibility || 'family';
+  document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.toggle('active', (b.getAttribute('onclick')||'').indexOf("'" + aeVisibility + "'") > -1); });
   aeKid = ev.kid || 'Family';
   document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){
     b.classList.toggle('active', b.textContent.trim().includes(aeKid) || (aeKid === 'Family' && b.textContent.includes('Everyone')));
@@ -1261,7 +1299,8 @@ async function openAE() {
   document.getElementById('aeNotes').value = '';
   document.getElementById('aeConflictWrap').innerHTML = '';
   document.getElementById('aeRepEndWrap').style.display = 'none';
-  aeCategory = 'family'; aeRepeat = 'none'; aeKid = 'Family';
+  aeCategory = 'family'; aeRepeat = 'none'; aeKid = 'Family'; aeVisibility = 'family';
+  document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.toggle('active', (b.getAttribute('onclick')||'').indexOf("'family'") > -1); });
   document.querySelectorAll('.ae-cat').forEach(function(b){ b.classList.remove('active'); });
   document.querySelector('.ae-cat').classList.add('active');
   document.querySelectorAll('.ae-rep').forEach(function(b){ b.classList.remove('active'); });
@@ -1315,7 +1354,7 @@ async function saveAE() {
     allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); });
   }
 
-  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
+  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#F5C518', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
 
   const saveBtn = document.querySelector('.ae-save');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
