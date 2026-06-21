@@ -402,6 +402,8 @@ let currentFamilyId = null;
 let aeCategory = 'family';
 let aeRepeat = 'none';
 let aeKid = 'Family';
+ let aeVisibility = 'family';
+function setAEVis(el, v) { document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); aeVisibility = v; } 
 let familyMembers = [];
 
 // ── STICKY ────────────────────────────────────────────────
@@ -953,7 +955,7 @@ async function saveAE() {
   const editBtn = document.getElementById('aeSaveBtn');
   const editId = editBtn && editBtn.dataset.editId;
   if (editId) { await sb.from('family_events').delete().eq('id', editId); allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); }); }
-  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
+  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
   const saveBtn = document.querySelector('.ae-save');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
   try {
