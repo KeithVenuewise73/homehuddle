@@ -840,10 +840,12 @@ async function editManualEvent(evId) {
   document.getElementById('aeEnd').value = ev.end.toTimeString().slice(0,5);
   document.getElementById('aeLoc').value = ev.location || '';
   document.getElementById('aeNotes').value = ev.notes || '';
-  aeCategory = ev.sport || 'family';
+aeCategory = ev.sport || 'family';
   document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
   var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="' + aeCategory + '"]');
   if (catBtn) catBtn.classList.add('active');
+  aeVisibility = ev.visibility || 'family';
+  document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.toggle('active', (b.getAttribute('onclick')||'').indexOf("'" + aeVisibility + "'") > -1); });
   aeKid = ev.kid || 'Family';
   document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){
     b.classList.toggle('active', b.textContent.trim().includes(aeKid) || (aeKid === 'Family' && b.textContent.includes('Everyone')));
