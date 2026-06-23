@@ -1369,7 +1369,7 @@ async function saveAE() {
     const { data: saved, error: saveErr } = await sb.from('family_events').insert(payload).select();
     if (saveErr) throw new Error(saveErr.message || 'Save failed');
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
-    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, family_id: currentFamilyId, canEdit: true, notes: notes, conflicts: [] };
     // Persist location to history so it appears as a Recent suggestion next time
     if (loc) saveLocToHistory(loc);
 
