@@ -1064,10 +1064,8 @@ async function editManualEvent(evId) {
 
 async function deleteManualEvent(evId) {
   try {
-    await fetch(SURL + '/rest/v1/family_events?id=eq.' + evId, {
-      method: 'DELETE',
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
+    const { error: delErr } = await sb.from('family_events').delete().eq('id', evId);
+    if (delErr) throw delErr;
     allEvents = allEvents.filter(function(e){ return String(e.id) !== String(evId); });
     closeModal();
     render();
@@ -1368,16 +1366,8 @@ async function saveAE() {
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
 
   try {
-    const res = await fetch(SURL + '/rest/v1/family_events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const errData = await res.json().catch(function(){ return {}; });
-      throw new Error(errData.message || 'Save failed (' + res.status + ')');
-    }
-    const saved = await res.json();
+    const { data: saved, error: saveErr } = await sb.from('family_events').insert(payload).select();
+    if (saveErr) throw new Error(saveErr.message || 'Save failed');
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
     const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#F5C518', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
     // Persist location to history so it appears as a Recent suggestion next time
@@ -1393,8 +1383,7 @@ async function saveAE() {
       else cur.setMonth(cur.getMonth() + 1);
       while (cur <= endDate) {
         const rp = Object.assign({}, payload, { event_start: cur.toISOString(), event_end: new Date(cur.getTime() + duration).toISOString() });
-        const rRes = await fetch(SURL + '/rest/v1/family_events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' }, body: JSON.stringify(rp) });
-        const rSaved = await rRes.json();
+        const { data: rSaved } = await sb.from('family_events').insert(rp).select();
         allEvents.push(Object.assign({}, newEv, { id: Array.isArray(rSaved) ? rSaved[0].id : rSaved.id, start: new Date(cur), end: new Date(cur.getTime() + duration), conflicts: [] }));
         if (aeRepeat === 'weekly') cur.setDate(cur.getDate() + 7);
         else cur.setMonth(cur.getMonth() + 1);
