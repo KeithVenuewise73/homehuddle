@@ -443,6 +443,10 @@ const params = new URLSearchParams(window.location.search);
 let familyEmail = null;
 let familyId = null;
 let familyPhone = null;
+// Stage 2 — all families this person belongs to (for the merged view).
+let familyEmails = [];
+let familyIds = [];
+let canEditByFamily = {};
 const LOGIN_URL = 'https://venuewise.net/homehuddle/login-new.html';
 
 async function resolveIdentity() {
@@ -459,16 +463,24 @@ async function resolveIdentity() {
       .select('family_id, role, can_edit, status')
       .eq('person_id', person.id).eq('status', 'active');
     if (!access || !access.length) { showNoFamily(); return false; }
-    // Stage 1: single-family. Prefer an owned/editable family, else first active.
+
+    // Stage 2: the merged view loads EVERY family this person belongs to.
+    familyIds = access.map(function(a){ return a.family_id; });
+    access.forEach(function(a){ canEditByFamily[a.family_id] = !!a.can_edit; });
+
+    const { data: fams } = await sb.from('families')
+      .select('id, email').in('id', familyIds);
+    familyEmails = (fams || []).map(function(f){ return f.email; }).filter(Boolean);
+
+    // A 'primary' family still drives single-family features (theme, share,
+    // and the default target for adding an event). Prefer owned/editable.
     const primary = access.find(function(a){return a.role==='owner';})
                  || access.find(function(a){return a.can_edit;})
                  || access[0];
     currentFamilyId = primary.family_id;
     familyId = primary.family_id;
-
-    const { data: fam } = await sb.from('families')
-      .select('email').eq('id', primary.family_id).limit(1).single();
-    if (fam && fam.email) familyEmail = fam.email;
+    const pf = (fams || []).find(function(f){ return f.id === primary.family_id; });
+    if (pf && pf.email) familyEmail = pf.email;
     return true;
   } catch (e) { showNoFamily(); return false; }
 }
@@ -628,8 +640,8 @@ async function dismissBanner(id){const el=document.getElementById('rbanner-'+id)
 async function loadEvents(showToastMsg) {
   try {
     let feedQ = sb.from('feeds').select('*').eq('is_active', true);
-    if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
-    else if (familyId) feedQ = feedQ.eq('id', familyId);
+    if (familyEmails && familyEmails.length) feedQ = feedQ.in('email', familyEmails);
+    else if (familyEmail) feedQ = feedQ.eq('email', familyEmail);
     else if (familyPhone) feedQ = feedQ.eq('phone', familyPhone);
     const { data: feeds, error: feedErr } = await feedQ;
     if (feedErr || !feeds || !feeds.length) { showNoFamily(); return; }
@@ -739,18 +751,15 @@ async function loadFamilyId() {
 // (e.g. after save/delete). When called from processSportsEvents the
 // outer render() call fires after this resolves.
 async function loadFamilyEvents() {
-  if (!familyEmail) return;
+  if (!familyIds || !familyIds.length) return;
   try {
     const now = new Date();
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
 
-    if (!currentFamilyId) await loadFamilyId();
-    if (!currentFamilyId) return;
-
     const { data: evData } = await sb.from('family_events')
       .select('*')
-      .eq('family_id', currentFamilyId)
+      .in('family_id', familyIds)
       .gte('event_start', start)
       .lte('event_start', end)
       .order('event_start', { ascending: true });
@@ -765,6 +774,7 @@ async function loadFamilyEvents() {
         color: e.color || CAT_COLORS[e.category] || '#F5C518',
         pmLabel: CAT_LABELS[e.category] || '🏠 Family',
         pmKey: 'manual', conflict: false, isManual: true,
+        family_id: e.family_id, canEdit: canEditByFamily[e.family_id] === true,
         notes: e.notes || '', category: e.category || 'family'
       };
     });
