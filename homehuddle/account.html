@@ -343,11 +343,19 @@ let isDirty = false;
 let shareMsg = '';
 
 async function sbFetch(path, opts={}) {
+  // Use the signed-in user's token so RLS-protected tables (feeds, family_members)
+  // are readable/writable as the authenticated family member. Falls back to the
+  // anon key only before a session exists.
+  let token = SKEY;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.access_token) token = session.access_token;
+  } catch(e) {}
   const res = await fetch(SURL + '/rest/v1/' + path, {
     ...opts,
     headers: {
       'apikey': SKEY,
-      'Authorization': 'Bearer ' + SKEY,
+      'Authorization': 'Bearer ' + token,
       'Content-Type': 'application/json',
       ...(opts.headers || {})
     }
@@ -763,48 +771,42 @@ async function confirmAddMember() {
   const name = document.getElementById('new-name').value.trim();
   const phone = document.getElementById('new-phone').value.trim();
   const role = document.getElementById('new-role').value;
-  const email = document.getElementById('new-email').value.trim();
   if (!name || !phone) return showToast('Please enter a name and phone number');
   if (!currentFamilyId) return showToast('Could not add member — family ID missing');
 
-  // Only send columns we know exist on the table
-  const payload = { family_id: currentFamilyId, name: name, phone: phone, role: role };
-  if (email) payload.email = email;
-
   try {
-    const res = await fetch(SURL + '/rest/v1/family_members', {
-      method: 'POST',
-      headers: {
-        'apikey': SKEY,
-        'Authorization': 'Bearer ' + SKEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(payload)
+    const { error } = await sb.rpc('invite_family_member', {
+      p_family_id: currentFamilyId,
+      p_phone: phone,
+      p_name: name,
+      p_role: role,
+      p_can_edit: false
     });
-    if (!res.ok) {
-      let errMsg = 'Save failed (' + res.status + ')';
-      try { const j = await res.json(); errMsg = j.message || j.details || j.hint || errMsg; } catch(x) {}
-      console.error('Add member error:', res.status, errMsg);
-      showToast('Error: ' + errMsg);
-      return;
-    }
+    if (error) throw error;
     cancelAddMember();
     await renderMembers();
-    showToast('✅ ' + name + ' added');
+    showToast('✅ ' + name + ' added — they sign in with their number');
   } catch(e) {
-    console.error('Add member exception:', e);
-    showToast('Network error — please try again');
+    console.error('Add member error:', e);
+    showToast('Error: ' + (e.message || 'could not add member'));
   }
 }
 
 async function removeMember(id) {
-  if (!confirm('Remove this family member?')) return;
+  if (!confirm('Remove this family member? They will lose access to the calendar.')) return;
+  if (!currentFamilyId) return showToast('Could not remove — family ID missing');
   try {
-    await sbFetch('family_members?id=eq.' + id, { method: 'DELETE' });
+    const { error } = await sb.rpc('remove_family_member', {
+      p_family_id: currentFamilyId,
+      p_member_id: id
+    });
+    if (error) throw error;
     await renderMembers();
     showToast('Member removed');
-  } catch(e) { showToast('Error removing family member'); }
+  } catch(e) {
+    console.error('Remove member error:', e);
+    showToast('Error: ' + (e.message || 'could not remove member'));
+  }
 }
 
 // ── CHANGE PIN ────────────────────────────────────────────
