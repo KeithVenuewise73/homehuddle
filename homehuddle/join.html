@@ -259,6 +259,12 @@
           <span id="btnText">🚀 Launch Family Calendar</span>
           <div class="spinner" id="spinner"></div>
         </button>
+        <div id="otpBlock" style="display:none;margin-top:1rem;">
+          <p id="otpHint" style="font-size:0.85rem;color:#888;margin-bottom:0.5rem;font-family:sans-serif;"></p>
+          <input id="otpCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter 6-digit code"
+            style="width:100%;padding:0.8rem;font-size:1.1rem;letter-spacing:0.2em;text-align:center;border-radius:10px;border:1px solid #333;background:#111;color:#fff;font-family:sans-serif;margin-bottom:0.6rem;box-sizing:border-box;">
+          <button class="btn-primary" id="verifyBtn" onclick="finishSignup()" style="width:100%;">Verify &amp; Create Calendar</button>
+        </div>
       </div>
       <p class="legal">Free for 30 days, then $4.95/month. No contracts. Cancel anytime.<br>
         <a href="https://venuewise.net">venuewise.net</a> · <a href="https://venuewise.net/homehuddle-privacy.html">Privacy</a> · <a href="https://venuewise.net/homehuddle-terms.html">Terms</a></p>
@@ -288,9 +294,11 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const sb = window.supabase.createClient(SURL, SKEY);
 const SPORTS = ['Baseball','Hockey','Soccer','Basketball','Lacrosse','Football','Wrestling','Swimming','Volleyball','Softball','Dance','Other'];
 const PLATFORMS = {
   gamechanger: { name: 'GameChanger', desc: 'Baseball / Softball' },
@@ -586,80 +594,64 @@ function collectPlayers() {
   return players;
 }
 
+let signupPayload = null;
+
+// Phase 1: collect everything, then text the creator a verification code.
 async function submitForm() {
   hideErr(5);
+  const fname = document.getElementById('familyName').value.trim();
+  const email = document.getElementById('familyEmail').value.trim();
+  const phone = normalizePhone(document.getElementById('familyPhone').value.trim());
+  if (!fname || !email || !phone) { showErr(5, 'Please fill in family name, email, and mobile number.'); return; }
+  signupPayload = {
+    family: { name: fname, email: email, phone: phone, pin: createdPin,
+              sms_consent: document.getElementById('smsConsent') ? document.getElementById('smsConsent').checked : false },
+    members: collectMembers(),
+    players: collectPlayers()
+  };
   setLoading(true);
   try {
-    const fname = document.getElementById('familyName').value.trim();
-    const email = document.getElementById('familyEmail').value.trim();
-    const phone = normalizePhone(document.getElementById('familyPhone').value.trim());
-    const members = collectMembers();
-    const players = collectPlayers();
-
-    // 1. Create family
-    const famRes = await sbPost('/rest/v1/families', { family_name: fname, email: email, phone: phone, pin: createdPin, status: 'trial', sms_consent: document.getElementById('smsConsent')?.checked || false });
-    if (!famRes.ok) { const e = await famRes.json().catch(function(){return{};}); throw new Error(e.message || 'Could not create family account'); }
-    const famData = await famRes.json();
-    const familyId = Array.isArray(famData) ? famData[0].id : famData.id;
-
-    // 2. Create family members
-    for (const m of members) { await sbPost('/rest/v1/family_members', { ...m, family_id: familyId }); }
-
-    // 3. Create players + teams
-    for (const p of players) {
-      const pRes = await sbPost('/rest/v1/players', { name: p.name, birth_year: p.birth_year });
-      if (!pRes.ok) throw new Error('Could not create player');
-      const pData = await pRes.json();
-      const playerId = Array.isArray(pData) ? pData[0].id : pData.id;
-      await sbPost('/rest/v1/family_players', { family_id: familyId, player_id: playerId, relationship: 'child' });
-
-      // Add player as family member with read-only access
-      await sbPost('/rest/v1/family_members', {
-        family_id: familyId, name: p.name, role: 'player',
-        phone: p.phone, receives_sms: p.receives_sms, receives_push: true,
-        can_add_events: false, can_edit_events: false, is_owner: false
-      });
-
-      for (const t of p.teams) {
-        await sbPost('/rest/v1/player_teams', { ...t, player_id: playerId, is_active: true });
-        if (t.ical_url) {
-          await sbPost('/rest/v1/feeds', {
-            family_name: fname, email: email, phone: phone,
-            kid_name: p.name, sport: t.sport, platform: t.platform,
-            ical_url: t.ical_url, team_name: t.team_name, is_active: true, status: 'trial'
-          });
-        }
-      }
-    }
-
-    // 4. Welcome email
-    try {
-      await fetch(SURL + '/functions/v1/send-welcome', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
-        body: JSON.stringify({ email: email, family_name: fname, kid_names: players.map(function(p){ return p.name; }), pin: createdPin })
-      });
-    } catch(e) {}
-
-    // 5. Trigger sync
-    try {
-      fetch(SURL + '/functions/v1/sync-schedules', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
-        body: JSON.stringify({ email: email })
-      });
-    } catch(e) {}
-
-    // 6. Success — redirect to new homehuddle path
-    familyCalUrl = 'https://venuewise.net/homehuddle/calendar.html?email=' + encodeURIComponent(email);
-    document.getElementById('form-wrap').style.display = 'none';
-    document.getElementById('viewCalBtn').href = familyCalUrl;
-    document.getElementById('pinDisplay').innerHTML = createdPin.split('').map(function(d){ return '<div class="pin-box">' + d + '</div>'; }).join('');
-    const allNames = players.map(function(p){ return p.name; });
-    document.getElementById('shareMessage').textContent = 'Hey! I set up HomeHuddle for the ' + fname + '. You can see the family calendar here:\n\n' + familyCalUrl + '\n\nLog in with PIN: ' + createdPin + '\n\nYou\'ll get SMS alerts when schedules change. 📅';
-    document.getElementById('setup').style.display = 'block';
+    const { error } = await sb.auth.signInWithOtp({ phone: phone });
+    if (error) throw error;
+    document.getElementById('submitBtn').style.display = 'none';
+    const ob = document.getElementById('otpBlock'); ob.style.display = 'block';
+    document.getElementById('otpHint').textContent = 'We texted a 6-digit code to ' + phone + '. Enter it to finish.';
+    document.getElementById('otpCode').focus();
   } catch(err) {
-    showErr(5, 'Something went wrong: ' + err.message + '. Please try again.');
-    console.error(err);
+    showErr(5, 'Could not send verification code: ' + (err.message || err) + '.');
   } finally { setLoading(false); }
+}
+
+// Phase 2: verify the code (creator is now authenticated), then create the
+// whole family securely server-side via the create_family_onboarding RPC.
+async function finishSignup() {
+  hideErr(5);
+  const code = document.getElementById('otpCode').value.trim();
+  if (!code) { showErr(5, 'Enter the code we texted you.'); return; }
+  const vbtn = document.getElementById('verifyBtn'); vbtn.disabled = true; vbtn.textContent = 'Verifying...';
+  try {
+    const { error: vErr } = await sb.auth.verifyOtp({ phone: signupPayload.family.phone, token: code, type: 'sms' });
+    if (vErr) throw vErr;
+    const { error: rErr } = await sb.rpc('create_family_onboarding', { p_payload: signupPayload });
+    if (rErr) throw rErr;
+    try { await fetch(SURL + '/functions/v1/send-welcome', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email, family_name: signupPayload.family.name, kid_names: signupPayload.players.map(function(p){ return p.name; }), pin: createdPin }) }); } catch(e) {}
+    try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
+    showSignupSuccess();
+  } catch(err) {
+    showErr(5, 'Verification failed: ' + (err.message || err) + '. Double-check the code and try again.');
+    vbtn.disabled = false; vbtn.textContent = 'Verify & Create Calendar';
+  }
+}
+
+function showSignupSuccess() {
+  const fname = signupPayload.family.name;
+  const calUrl = 'https://venuewise.net/homehuddle/calendar.html';
+  familyCalUrl = calUrl;
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('viewCalBtn').href = calUrl;
+  document.getElementById('pinDisplay').innerHTML = createdPin.split('').map(function(d){ return '<div class="pin-box">' + d + '</div>'; }).join('');
+  document.getElementById('shareMessage').textContent = 'Hey! I set up HomeHuddle for the ' + fname + '. See the family calendar here:\n\n' + calUrl + '\n\nJust sign in with your mobile number \u2014 we\'ll text you a code. \U0001F4C5';
+  document.getElementById('setup').style.display = 'block';
 }
 
 async function sbPost(path, data) {
