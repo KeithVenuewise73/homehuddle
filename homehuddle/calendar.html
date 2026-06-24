@@ -1472,11 +1472,12 @@ function setSync(state,label){document.getElementById('stext').textContent=label
 applySticky();
 async function checkSubscription(fId) {
   try {
-    const { data } = await sb.from('subscriptions')
+    const { data, error } = await sb.from('subscriptions')
       .select('status')
       .eq('family_id', fId)
-      .single();
-    return data && ['active','trialing'].includes(data.status);
+      .in('status', ['active','trialing'])
+      .limit(1);
+    return !error && Array.isArray(data) && data.length > 0;
   } catch(e) { return false; }
 }
 
