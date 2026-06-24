@@ -162,58 +162,32 @@
 <div id="login-screen">
   <div class="login-card">
 
-    <div class="login-step active" id="step-email">
+    <div class="login-step active" id="step-phone">
       <div style="font-size:2.2rem;margin-bottom:1rem">🏠</div>
       <h2>My Account</h2>
-      <p>Enter your family email to access your HomeHuddle account.</p>
-      <div class="alert alert-error" id="email-error"></div>
+      <p>Enter your mobile number and we'll text you a code — no password needed.</p>
+      <div class="alert alert-error" id="phone-error"></div>
       <div class="field" style="text-align:left">
-        <label>Email address</label>
-        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
+        <label>Mobile number</label>
+        <input type="tel" inputmode="tel" id="login-phone" placeholder="(716) 555-0100" autocomplete="tel"/>
       </div>
-      <button class="btn btn-primary btn-full" onclick="submitEmail()">Continue →</button>
+      <button class="btn btn-primary btn-full" onclick="sendOtp()">Text me a code →</button>
       <p style="font-size:0.75rem;color:var(--muted);margin-top:1rem">
         No account? <a href="/homehuddle/join.html" style="color:var(--gold)">Sign up free →</a>
       </p>
     </div>
 
-    <div class="login-step" id="step-pin">
+    <div class="login-step" id="step-otp">
       <div style="font-size:2.2rem;margin-bottom:1rem">🔐</div>
-      <h2>Enter your PIN</h2>
-      <p id="pin-prompt">Enter your 4-digit PIN.</p>
-      <div class="alert alert-error" id="pin-error"></div>
-      <div class="pin-row">
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0" oninput="pinNav('p',0)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1" oninput="pinNav('p',1)" onkeydown="pinBack('p',1,event)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNav('p',2)" onkeydown="pinBack('p',2,event)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNav('p',3)" onkeydown="pinBack('p',3,event)"/>
+      <h2>Enter your code</h2>
+      <p id="otp-prompt">We texted a 6-digit code to your phone.</p>
+      <div class="alert alert-error" id="otp-error"></div>
+      <div class="field" style="text-align:left">
+        <label>Verification code</label>
+        <input type="text" inputmode="numeric" maxlength="6" id="login-otp" placeholder="••••••" autocomplete="one-time-code" style="letter-spacing:0.35em;text-align:center;font-size:1.4rem;font-family:'DM Mono',monospace"/>
       </div>
-      <p style="margin-top:1.25rem">
-        <a href="#" onclick="forgotPin(event)" style="font-size:0.78rem;color:var(--muted)">Forgot PIN? Send reset code →</a>
-      </p>
-      <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="showStep('step-email')">← Back</button>
-    </div>
-
-    <div class="login-step" id="step-set-pin">
-      <div style="font-size:2.2rem;margin-bottom:1rem">🔐</div>
-      <h2>Set your PIN</h2>
-      <p>Create a 4-digit PIN to secure your account.</p>
-      <div class="alert alert-error" id="set-pin-error"></div>
-      <div class="pin-row">
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp0" oninput="pinNav('sp',0)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp1" oninput="pinNav('sp',1)" onkeydown="pinBack('sp',1,event)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp2" oninput="pinNav('sp',2)" onkeydown="pinBack('sp',2,event)"/>
-        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="sp3" oninput="pinNav('sp',3)" onkeydown="pinBack('sp',3,event)"/>
-      </div>
-      <button class="btn btn-primary btn-full" style="margin-top:1.5rem" onclick="saveNewPin()">Save PIN & Continue →</button>
-      <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="showStep('step-email')">← Back</button>
-    </div>
-
-    <div class="login-step" id="step-reset-sent">
-      <div style="font-size:2.2rem;margin-bottom:1rem">📧</div>
-      <h2>Check your email</h2>
-      <p id="reset-msg">A PIN reset code has been sent to your email.</p>
-      <button class="btn btn-secondary btn-sm" style="margin-top:1rem" onclick="showStep('step-email')">← Back</button>
+      <button class="btn btn-primary btn-full" onclick="verifyOtp()">Verify &amp; continue →</button>
+      <button class="btn btn-secondary btn-sm" style="margin-top:0.75rem" onclick="backToPhone()">← Use a different number</button>
     </div>
 
   </div>
@@ -398,7 +372,6 @@ function pinNav(prefix, i) {
   const v = document.getElementById(prefix + i).value;
   if (!/^\d$/.test(v)) { document.getElementById(prefix + i).value = ''; return; }
   if (i < 3) document.getElementById(prefix + (i + 1)).focus();
-  if (prefix === 'p' && i === 3) verifyPin();
 }
 function pinBack(prefix, i, e) {
   if (e.key === 'Backspace' && !document.getElementById(prefix + i).value && i > 0)
@@ -413,60 +386,102 @@ function showStep(id) {
   document.getElementById(id).classList.add('active');
 }
 
-async function submitEmail() {
-  const email = document.getElementById('login-email').value.trim().toLowerCase();
-  if (!email) return showErr('email-error', 'Please enter your email address.');
-  hideErr('email-error');
-  try {
-    const feeds = await sbFetch('feeds?email=eq.' + encodeURIComponent(email) + '&select=*&limit=20');
-    if (!feeds || !feeds.length) return showErr('email-error', 'No account found. <a href="/homehuddle/join.html" style="color:#FCA5A5">Sign up free →</a>');
-    currentEmail = email;
-    currentFeeds = feeds;
-    const hasPIN = feeds[0].pin && feeds[0].pin.trim().length >= 4;
-    if (hasPIN) {
-      document.getElementById('pin-prompt').textContent = 'Welcome back, ' + (feeds[0].family_name || email) + '! Enter your 4-digit PIN.';
-      showStep('step-pin');
-      setTimeout(function(){ document.getElementById('p0').focus(); }, 100);
-    } else {
-      showStep('step-set-pin');
-      setTimeout(function(){ document.getElementById('sp0').focus(); }, 100);
-    }
-  } catch(e) { showErr('email-error', 'Error looking up account. Please try again.'); }
+function toE164(raw){
+  const d = (raw || '').replace(/\D/g, '');
+  if (d.length === 10) return '+1' + d;
+  if (d.length === 11 && d[0] === '1') return '+' + d;
+  if ((raw || '').trim().startsWith('+')) return raw.trim();
+  return null;
 }
 
-async function verifyPin() {
-  const entered = getPin('p');
-  if (entered.length < 4) return;
-  if (entered === currentFeeds[0].pin) {
-    enterAccount();
-  } else {
-    showErr('pin-error', 'Incorrect PIN. Please try again.');
-    clearPin('p');
-    document.getElementById('p0').focus();
+let loginPhone = null;
+
+async function sendOtp() {
+  const phone = toE164(document.getElementById('login-phone').value);
+  if (!phone) return showErr('phone-error', 'Enter a valid 10-digit US mobile number.');
+  hideErr('phone-error');
+  loginPhone = phone;
+  const btn = document.querySelector('#step-phone .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  try {
+    const { error } = await sb.auth.signInWithOtp({ phone: phone });
+    if (error) throw error;
+    document.getElementById('otp-prompt').textContent = 'We texted a 6-digit code to ' + phone + '.';
+    showStep('step-otp');
+    setTimeout(function(){ document.getElementById('login-otp').focus(); }, 100);
+  } catch(e) {
+    showErr('phone-error', 'Could not send code: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Text me a code →'; }
   }
 }
 
-async function saveNewPin() {
-  const pin = getPin('sp');
-  if (!/^\d{4}$/.test(pin)) return showErr('set-pin-error', 'Please enter all 4 digits.');
-  hideErr('set-pin-error');
-  await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail), { method: 'PATCH', body: JSON.stringify({ pin }) });
-  currentFeeds = currentFeeds.map(function(f){ return Object.assign({}, f, { pin }); });
-  enterAccount();
+async function verifyOtp() {
+  const token = document.getElementById('login-otp').value.replace(/\D/g, '');
+  if (token.length !== 6) return showErr('otp-error', 'Enter the 6-digit code from the text.');
+  hideErr('otp-error');
+  const btn = document.querySelector('#step-otp .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+  try {
+    const { error } = await sb.auth.verifyOtp({ phone: loginPhone, token: token, type: 'sms' });
+    if (error) throw error;
+    const ok = await resolveIdentity();
+    if (ok) enterAccount();
+  } catch(e) {
+    showErr('otp-error', 'That code did not match. Try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & continue →'; }
+  }
 }
 
-async function forgotPin(e) {
-  e.preventDefault();
-  if (!currentEmail) return showStep('step-email');
+function backToPhone() {
+  hideErr('otp-error');
+  document.getElementById('login-otp').value = '';
+  showStep('step-phone');
+  setTimeout(function(){ document.getElementById('login-phone').focus(); }, 100);
+}
+
+// Derive currentEmail / currentFamilyId / currentFeeds from the signed-in person,
+// the same identity model used by calendar.html. Family comes from family_access,
+// never from a typed email or URL.
+async function resolveIdentity() {
+  const notLinked = 'This number isn\'t linked to a family yet. <a href="/homehuddle/join.html" style="color:#FCA5A5">Sign up free →</a>';
   try {
-    await fetch(SURL + '/functions/v1/smart-task', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SKEY },
-      body: JSON.stringify({ email: currentEmail })
-    });
-  } catch(err) { console.error(err); }
-  document.getElementById('reset-msg').textContent = 'A PIN reset code has been sent to ' + currentEmail + '. Use it as your PIN to log in, then change it once you\'re in.';
-  showStep('step-reset-sent');
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return false;
+
+    const { data: person } = await sb.from('people')
+      .select('id').eq('auth_user_id', session.user.id).limit(1).single();
+    if (!person) { showStep('step-phone'); showErr('phone-error', notLinked); return false; }
+
+    const { data: access } = await sb.from('family_access')
+      .select('family_id, role, can_edit, status')
+      .eq('person_id', person.id).eq('status', 'active');
+    if (!access || !access.length) { showStep('step-phone'); showErr('phone-error', notLinked); return false; }
+
+    const primary = access.find(function(a){ return a.role === 'owner'; })
+                 || access.find(function(a){ return a.can_edit; })
+                 || access[0];
+    currentFamilyId = primary.family_id;
+
+    const { data: fam } = await sb.from('families')
+      .select('email, family_name, phone').eq('id', currentFamilyId).limit(1).single();
+    currentEmail = (fam && fam.email) || '';
+
+    let feeds = [];
+    if (currentEmail) {
+      try { feeds = await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail) + '&select=*&limit=50'); } catch(e) { feeds = []; }
+    }
+    currentFeeds = (feeds && feeds.length)
+      ? feeds
+      : [{ family_name: (fam && fam.family_name) || '', email: currentEmail, phone: (fam && fam.phone) || '' }];
+
+    return true;
+  } catch(e) {
+    showStep('step-phone');
+    showErr('phone-error', 'Could not load your account. Please try again.');
+    return false;
+  }
 }
 
 function enterAccount() {
@@ -519,14 +534,16 @@ async function loadSubStatus() {
   } catch(e) { el.textContent = 'Unable to load subscription info.'; }
 }
 
-function signOut() {
+async function signOut() {
+  try { await sb.auth.signOut(); } catch(e) {}
   currentEmail = ''; currentFeeds = []; currentFamilyId = null; isDirty = false;
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('account-screen').style.display = 'none';
   document.getElementById('nav-user-label').textContent = '';
   document.getElementById('sign-out-btn').style.display = 'none';
-  document.getElementById('login-email').value = '';
-  hideSaveBar(); showStep('step-email');
+  document.getElementById('login-phone').value = '';
+  document.getElementById('login-otp').value = '';
+  hideSaveBar(); showStep('step-phone');
 }
 
 // ── LOAD ACCOUNT ──────────────────────────────────────────
@@ -877,17 +894,20 @@ function hideAlert(id){ document.getElementById(id).classList.remove('show'); }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 3200); }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.querySelector('#step-email.active')) submitEmail();
+  if (e.key !== 'Enter') return;
+  if (document.querySelector('#step-phone.active')) sendOtp();
+  else if (document.querySelector('#step-otp.active')) verifyOtp();
 });
 
-// Auto-login if email passed in URL (e.g. from calendar ?email= link)
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const emailParam = params.get('email');
-  if (emailParam) {
-    document.getElementById('login-email').value = emailParam;
-    submitEmail();
-  }
+// If already signed in (e.g. arriving from the calendar or login page), go straight in.
+(async function() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const ok = await resolveIdentity();
+      if (ok) enterAccount();
+    }
+  } catch(e) { /* show the login screen as normal */ }
 })();
 </script>
 </body>
