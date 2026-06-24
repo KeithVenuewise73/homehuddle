@@ -332,10 +332,17 @@
     const gradStr = athlete.graduation_year ? `Class of ${athlete.graduation_year}` : '';
     const metaParts = [ageStr, gradStr, athlete.school].filter(Boolean);
 
-    const sportsHtml = athlete.primary_sport
+    // Combine primary + secondary sports, then de-duplicate case-insensitively
+    // so a sport never shows twice even if the underlying data has repeats.
+    const allSports = [athlete.primary_sport, ...(athlete.secondary_sports || [])]
+      .filter(Boolean)
+      .map(s => String(s).trim());
+    const uniqueSports = allSports.filter(
+      (s, i) => allSports.findIndex(x => x.toLowerCase() === s.toLowerCase()) === i
+    );
+    const sportsHtml = uniqueSports.length
       ? `<div class="athlete-sports-list">
-          <span class="sport-tag">${athlete.primary_sport}</span>
-          ${(athlete.secondary_sports || []).map(s => `<span class="sport-tag">${s}</span>`).join('')}
+          ${uniqueSports.map(s => `<span class="sport-tag">${s}</span>`).join('')}
          </div>`
       : '<div class="athlete-sports-list"><span style="font-size:12px;color:rgba(255,255,255,0.3);">No sports added yet</span></div>';
 
