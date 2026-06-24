@@ -321,6 +321,12 @@
     </div>
 
     <!-- DANGER ZONE -->
+    <div class="card">
+      <div class="card-title">💳 Subscription</div>
+      <div id="sub-status" style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Loading plan info…</div>
+      <button class="btn btn-secondary btn-sm" id="manage-sub-btn" onclick="manageSubscription()" style="display:none;">Manage Subscription</button>
+    </div>
+
     <div class="card" style="border-color:rgba(239,68,68,0.3)">
       <div class="card-title" style="color:#FCA5A5">⚠️ Danger Zone</div>
       <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">Canceling your account will stop all notifications and remove your data. This cannot be undone.</p>
@@ -468,6 +474,48 @@ function enterAccount() {
   loadAccount();
 }
 
+async function manageSubscription() {
+  const btn = document.getElementById('manage-sub-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch(SURL + '/functions/v1/stripe-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ family_id: currentFamilyId })
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else { btn.textContent = 'Manage Subscription'; btn.disabled = false; alert('Could not open billing portal. Please try again.'); }
+  } catch(e) {
+    btn.textContent = 'Manage Subscription'; btn.disabled = false;
+  }
+}
+
+async function loadSubStatus() {
+  const el = document.getElementById('sub-status');
+  const btn = document.getElementById('manage-sub-btn');
+  if (!el || !currentFamilyId) return;
+  try {
+    const { data, error } = await sb.from('subscriptions')
+      .select('status, trial_end, current_period_end, stripe_price_id')
+      .eq('family_id', currentFamilyId)
+      .single();
+    if (error || !data) { el.textContent = 'No active subscription.'; return; }
+    const PRICE_EARLY = 'price_1TlgqwLNgAiFVf9veH5jHIBN';
+    const plan = data.stripe_price_id === PRICE_EARLY ? '$4.99/mo (Early Adopter)' : '$9.99/mo';
+    const statusMap = { trialing:'Free trial active', active:'Active', past_due:'Payment past due', canceled:'Cancelled', incomplete:'Incomplete', paused:'Paused' };
+    const label = statusMap[data.status] || data.status;
+    const end = data.status === 'trialing' && data.trial_end
+      ? ' — trial ends ' + new Date(data.trial_end).toLocaleDateString()
+      : data.current_period_end
+      ? ' — renews ' + new Date(data.current_period_end).toLocaleDateString()
+      : '';
+    el.textContent = plan + ' · ' + label + end;
+    if (['trialing','active','past_due'].includes(data.status)) btn.style.display = 'inline-flex';
+  } catch(e) { el.textContent = 'Unable to load subscription info.'; }
+}
+
 function signOut() {
   currentEmail = ''; currentFeeds = []; currentFamilyId = null; isDirty = false;
   document.getElementById('login-screen').style.display = 'flex';
@@ -487,9 +535,10 @@ async function loadAccount() {
   document.getElementById('account-subtitle').textContent = 'Managing ' + (f.family_name || 'your family') + '\'s HomeHuddle settings';
   buildShareMessage();
   renderKids();
-  // Load family ID then render members
+  // Load family ID then render members + subscription status
   await loadFamilyId();
   renderMembers();
+  loadSubStatus();
 }
 
 // ── SHARE MESSAGE ─────────────────────────────────────────
