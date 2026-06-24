@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Athlete Profile — AthleteHuddle | Venuewise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#0a1628; --navy-2:#0f2044; --blue:#1e4fd8; --blue-lt:#3b6ff5;
+      --gold:#f5a623; --gold-lt:#fbbf24; --white:#fff; --off:#f0f4ff;
+      --gray:#64748b; --light:#e2e8f0; --green:#22c55e; --radius:12px;
+    }
+    body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--white); min-height:100vh; }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
+      background:rgba(10,22,40,0.92); border-bottom:1px solid rgba(255,255,255,0.08); position:sticky; top:0; z-index:10; }
+    .nav-brand { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:24px; letter-spacing:0.5px; }
+    .nav-brand span { color:var(--gold); }
+    .nav a { color:var(--light); text-decoration:none; font-size:14px; font-weight:600; }
+    .nav a:hover { color:var(--white); }
+    .wrap { max-width:680px; margin:0 auto; padding:32px 20px 64px; }
+    h1 { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:40px; line-height:1.05; margin-bottom:6px; }
+    h1 em { color:var(--gold); font-style:normal; }
+    .sub { color:var(--light); font-size:15px; margin-bottom:28px; }
+    .card { background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius); padding:22px; margin-bottom:20px; }
+    .card-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px; letter-spacing:0.3px; margin-bottom:4px; text-transform:uppercase; }
+    .card-sub { color:var(--gray); font-size:13px; margin-bottom:16px; }
+    .kid-grid { display:flex; flex-wrap:wrap; gap:10px; }
+    .kid {
+      border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:var(--white);
+      border-radius:10px; padding:12px 16px; cursor:pointer; font-weight:600; font-size:15px; transition:.15s;
+      display:flex; flex-direction:column; gap:2px; min-width:120px;
+    }
+    .kid:hover { border-color:var(--blue-lt); }
+    .kid.selected { border-color:var(--gold); background:rgba(245,166,35,0.12); }
+    .kid.taken { opacity:.5; cursor:not-allowed; }
+    .kid small { font-size:11px; color:var(--gray); font-weight:500; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    label { display:block; font-size:12px; font-weight:600; color:var(--light); margin-bottom:5px; letter-spacing:.3px; }
+    .field { margin-bottom:14px; }
+    input, select {
+      width:100%; padding:11px 12px; border-radius:9px; border:1px solid rgba(255,255,255,0.15);
+      background:#0b1830; color:var(--white); font-family:'DM Sans',sans-serif; font-size:15px;
+    }
+    input:focus, select:focus { outline:none; border-color:var(--blue-lt); }
+    input::placeholder { color:#4b5b76; }
+    .toggle-card { border:1.5px solid rgba(245,166,35,0.35); background:rgba(245,166,35,0.06); }
+    .toggle-row { display:flex; align-items:center; gap:14px; }
+    .switch { position:relative; width:52px; height:30px; flex:0 0 auto; }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; inset:0; background:#33415c; border-radius:30px; transition:.2s; cursor:pointer; }
+    .slider::before { content:""; position:absolute; height:22px; width:22px; left:4px; top:4px; background:#fff; border-radius:50%; transition:.2s; }
+    .switch input:checked + .slider { background:var(--gold); }
+    .switch input:checked + .slider::before { transform:translateX(22px); }
+    .toggle-text strong { display:block; font-size:15px; margin-bottom:2px; }
+    .toggle-text span { font-size:12.5px; color:var(--light); }
+    .btn-primary {
+      width:100%; background:var(--gold); color:var(--navy); border:none; border-radius:10px;
+      padding:15px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:19px;
+      letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:.15s;
+    }
+    .btn-primary:hover { background:var(--gold-lt); }
+    .btn-primary:disabled { opacity:.6; cursor:default; }
+    .msg { margin-top:14px; padding:12px 14px; border-radius:9px; font-size:14px; display:none; }
+    .msg.show { display:block; }
+    .msg.err { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fecaca; }
+    .msg.ok { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.4); color:#bbf7d0; }
+    .empty { text-align:center; color:var(--gray); padding:18px; font-size:14px; }
+    .empty a { color:var(--gold-lt); }
+    .success-box { text-align:center; padding:20px; }
+    .success-box .big { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:800; margin-bottom:8px; }
+    .success-box .actions { display:flex; gap:12px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+    .success-box .actions a { color:var(--navy); background:var(--gold); padding:11px 18px; border-radius:9px; text-decoration:none; font-weight:700; }
+    .success-box .actions a.ghost { background:transparent; color:var(--light); border:1px solid rgba(255,255,255,0.2); }
+    .hide { display:none !important; }
+    @media (max-width:560px){ .grid2,.grid3{ grid-template-columns:1fr; } h1{font-size:32px;} }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-brand">Athlete<span>Huddle</span></div>
+    <a href="https://venuewise.net/homehuddle/calendar.html">← Back to calendar</a>
+  </div>
+
+  <div class="wrap">
+    <!-- LOADING -->
+    <div id="loading" class="card"><div class="empty">Loading your family…</div></div>
+
+    <!-- MAIN FORM -->
+    <div id="app" class="hide">
+      <h1>Create an <em>Athlete Profile</em></h1>
+      <p class="sub">Build your child's profile inside AthleteHuddle. It stays private to your family unless you choose to make it public.</p>
+
+      <!-- kid picker -->
+      <div class="card">
+        <div class="card-title">Which child?</div>
+        <div class="card-sub">Pick the player from your HomeHuddle family. Each child gets one athlete profile.</div>
+        <div id="kidGrid" class="kid-grid"></div>
+        <div id="noKids" class="empty hide">
+          No players found in your family yet. Add your kids on the
+          <a href="https://venuewise.net/homehuddle/calendar.html">HomeHuddle calendar</a> first.
+        </div>
+      </div>
+
+      <!-- profile fields -->
+      <div id="formCard" class="card hide">
+        <div class="card-title">Athlete details</div>
+        <div class="card-sub">Only a first name and primary sport are required — fill in the rest anytime.</div>
+
+        <div class="grid2">
+          <div class="field"><label>First name *</label><input id="first_name" placeholder="First name" /></div>
+          <div class="field"><label>Last name</label><input id="last_name" placeholder="Last name" /></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>Birthdate</label><input id="birthdate" type="date" /></div>
+          <div class="field"><label>Graduation year</label><input id="graduation_year" type="number" min="2024" max="2045" placeholder="2032" /></div>
+          <div class="field"><label>Gender</label>
+            <select id="gender"><option value="">—</option><option>Male</option><option>Female</option><option>Other</option></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Primary sport *</label><select id="primary_sport"></select></div>
+          <div class="field"><label>Position</label><input id="position" placeholder="e.g. Center, Striker" /></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Current team</label><input id="current_team" placeholder="Team name" /></div>
+          <div class="field"><label>School</label><input id="school" placeholder="School name" /></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>City</label><input id="city" placeholder="City" /></div>
+          <div class="field"><label>State</label><input id="state" placeholder="NY" maxlength="2" /></div>
+          <div class="field"><label>Photo URL (optional)</label><input id="profile_photo_url" placeholder="https://…" /></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>Height (inches)</label><input id="height_inches" type="number" min="20" max="90" placeholder="60" /></div>
+          <div class="field"><label>Weight (lbs)</label><input id="weight_lbs" type="number" min="20" max="400" placeholder="110" /></div>
+          <div class="field"><label>Dominant hand</label>
+            <select id="dominant_hand"><option value="">—</option><option>Right</option><option>Left</option><option>Both</option></select>
+          </div>
+        </div>
+
+        <!-- public toggle -->
+        <div class="card toggle-card" style="margin:6px 0 18px;">
+          <div class="toggle-row">
+            <label class="switch"><input type="checkbox" id="is_public" /><span class="slider"></span></label>
+            <div class="toggle-text">
+              <strong>Make eligible for a 5-Star Sports Media Spotlight</strong>
+              <span>When ON, this profile can be featured publicly on 5-Star Sports Media. When OFF (recommended), it stays completely private to your family. You can change this anytime.</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="saveBtn" class="btn-primary">Create Athlete Profile</button>
+        <div id="msg" class="msg"></div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="success" class="card hide">
+      <div class="success-box">
+        <div class="big">✅ Profile created!</div>
+        <p id="successText" class="card-sub" style="font-size:14px;"></p>
+        <div class="actions">
+          <a href="#" id="anotherBtn">Create another</a>
+          <a class="ghost" href="https://venuewise.net/homehuddle/calendar.html">Back to calendar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://urwnbskrtoplgnkkxuvl.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT";
+    const LOGIN_URL = "https://venuewise.net/homehuddle/login.html";
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const SPORTS = ["Baseball","Softball","Hockey","Soccer","Basketball","Lacrosse","Football",
+      "Wrestling","Swimming","Volleyball","Track & Field","Tennis","Golf","Dance","Gymnastics","Other"];
+
+    const $ = (id) => document.getElementById(id);
+    let selected = null; // {player_id, family_id, player_name}
+
+    function showMsg(text, kind){ const m=$("msg"); m.textContent=text; m.className="msg show "+kind; }
+    function clearMsg(){ $("msg").className="msg"; }
+
+    // require a session
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session) { window.location.replace(LOGIN_URL); }
+
+    // populate sports
+    $("primary_sport").innerHTML = '<option value="">Select…</option>' +
+      SPORTS.map(s => '<option>'+s+'</option>').join('');
+
+    // load candidate kids
+    const { data: kids, error: kidErr } = await sb.rpc('my_athlete_candidates');
+    $("loading").classList.add("hide");
+    $("app").classList.remove("hide");
+
+    if (kidErr) { $("noKids").classList.remove("hide"); $("noKids").textContent = "Couldn't load your family: " + kidErr.message; }
+    else if (!kids || kids.length === 0) { $("noKids").classList.remove("hide"); }
+    else {
+      $("kidGrid").innerHTML = kids.map(k =>
+        '<div class="kid'+(k.has_profile?' taken':'')+'" data-pid="'+k.player_id+'" data-fid="'+k.family_id+'" data-name="'+k.player_name+'">'+
+          k.player_name + '<small>' + (k.has_profile ? 'Profile exists' : k.family_name) + '</small>'+
+        '</div>'
+      ).join('');
+      document.querySelectorAll('.kid:not(.taken)').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('.kid').forEach(k => k.classList.remove('selected'));
+          el.classList.add('selected');
+          selected = { player_id: el.dataset.pid, family_id: el.dataset.fid, player_name: el.dataset.name };
+          if (!$("first_name").value) $("first_name").value = (el.dataset.name || '').split(' ')[0];
+          $("formCard").classList.remove("hide");
+          $("formCard").scrollIntoView({ behavior:'smooth', block:'nearest' });
+        });
+      });
+    }
+
+    // submit
+    $("saveBtn").addEventListener("click", async () => {
+      clearMsg();
+      if (!selected) { showMsg("Pick which child this profile is for.", "err"); return; }
+      const first = $("first_name").value.trim();
+      const sport = $("primary_sport").value;
+      if (!first) { showMsg("First name is required.", "err"); return; }
+      if (!sport) { showMsg("Pick a primary sport.", "err"); return; }
+
+      const athlete = {
+        first_name: first,
+        last_name: $("last_name").value.trim(),
+        birthdate: $("birthdate").value || null,
+        graduation_year: $("graduation_year").value || null,
+        gender: $("gender").value || null,
+        city: $("city").value.trim(),
+        state: $("state").value.trim(),
+        profile_photo_url: $("profile_photo_url").value.trim(),
+        primary_sport: sport,
+        secondary_sports: [],
+        height_inches: $("height_inches").value || null,
+        weight_lbs: $("weight_lbs").value || null,
+        dominant_hand: $("dominant_hand").value || null,
+        dominant_foot: null,
+        school: $("school").value.trim(),
+        is_public: $("is_public").checked
+      };
+      const sports = [];
+      if ($("position").value.trim() || $("current_team").value.trim()) {
+        sports.push({ sport: sport, position: $("position").value.trim(), current_team: $("current_team").value.trim() });
+      }
+      const payload = { family_id: selected.family_id, player_id: selected.player_id, athlete, sports };
+
+      $("saveBtn").disabled = true; $("saveBtn").textContent = "Creating…";
+      const { data, error } = await sb.rpc('create_athlete_profile', { p_payload: payload });
+      $("saveBtn").disabled = false; $("saveBtn").textContent = "Create Athlete Profile";
+
+      if (error) {
+        const map = {
+          player_already_has_profile: "This child already has an athlete profile.",
+          no_edit_access_to_family: "You don't have permission to add athletes for this family.",
+          player_not_in_family: "That player isn't part of your family.",
+          missing_required_fields: "Please fill in at least a first name."
+        };
+        const code = (error.message || "").trim();
+        showMsg(map[code] || ("Couldn't create the profile: " + error.message), "err");
+        return;
+      }
+
+      // success
+      $("app").classList.add("hide");
+      const visibility = athlete.is_public ? "public (eligible for a 5-Star Spotlight)" : "private to your family";
+      $("successText").textContent = first + "'s profile is created and " + visibility + ".";
+      $("success").classList.remove("hide");
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+
+    $("anotherBtn").addEventListener("click", (e) => { e.preventDefault(); window.location.reload(); });
+  </script>
+</body>
+</html>
