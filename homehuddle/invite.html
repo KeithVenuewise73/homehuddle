@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Invite family · HomeHuddle</title>
+<style>
+  :root{
+    --ink:#1a1a2e; --slate:#5b6b82; --mist:#8a97a8;
+    --line:#e4e9f0; --field:#f4f6fa; --paper:#ffffff;
+    --indigo:#3730a3; --indigo-soft:#eef0fb; --ok:#16794f; --warn:#b4423a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 50% -200px,#e9ecfb 0%,transparent 60%),
+      #f8fafc;
+    color:var(--ink); min-height:100dvh;
+    display:flex; align-items:flex-start; justify-content:center; padding:24px;
+  }
+  .card{
+    width:100%; max-width:440px; background:var(--paper);
+    border:1px solid var(--line); border-radius:20px;
+    box-shadow:0 20px 50px -28px rgba(26,26,46,.35);
+    padding:30px 26px 24px; overflow:hidden; margin-top:6vh;
+  }
+  .brand{display:flex; align-items:center; gap:9px; margin-bottom:20px}
+  .brand .dot{width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,#3730a3,#5b54d6);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+  .brand b{font-size:16px;letter-spacing:-.01em}
+  .brand span{font-size:11px;color:var(--mist);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  h1{font-size:20px;letter-spacing:-.02em;margin-bottom:5px}
+  .lede{font-size:13.5px;color:var(--slate);line-height:1.5;margin-bottom:20px}
+  label{display:block;font-size:12px;font-weight:700;color:var(--slate);margin:14px 0 7px;letter-spacing:.01em}
+  input,select{
+    width:100%;font-size:16px;padding:12px 13px;border:1.5px solid var(--line);
+    background:var(--field);border-radius:11px;color:var(--ink);outline:none;
+    transition:border-color .15s, background .15s; -webkit-appearance:none; appearance:none;
+  }
+  input:focus,select:focus{border-color:var(--indigo);background:#fff}
+  .row{display:flex;gap:10px}
+  .row>div{flex:1}
+  .check{display:flex;align-items:center;gap:9px;margin-top:14px;cursor:pointer}
+  .check input{width:18px;height:18px;flex:0 0 auto}
+  .check span{font-size:13px;color:var(--slate);font-weight:600}
+  button{
+    width:100%;margin-top:18px;font-size:15px;font-weight:700;color:#fff;
+    background:var(--indigo);border:none;border-radius:11px;padding:14px;cursor:pointer;
+    transition:transform .05s, opacity .15s;
+  }
+  button:hover{opacity:.93} button:active{transform:translateY(1px)}
+  button[disabled]{opacity:.5;cursor:not-allowed}
+  .msg{margin-top:14px;font-size:13px;line-height:1.45;padding:11px 13px;border-radius:10px;display:none}
+  .msg.show{display:block}
+  .msg.err{background:#fdeceb;color:var(--warn)}
+  .msg.ok{background:#eaf6f0;color:var(--ok)}
+  .share{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--indigo-soft);display:none}
+  .share.show{display:block}
+  .share h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--indigo);margin-bottom:8px}
+  .share textarea{width:100%;min-height:104px;font-size:13px;line-height:1.5;border:1px solid var(--line);
+    border-radius:9px;padding:10px;resize:vertical;font-family:inherit;color:var(--ink);background:#fff}
+  .share .copy{margin-top:10px;background:var(--ink)}
+  .added{margin-top:16px}
+  .added h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);margin-bottom:8px}
+  .chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);
+    padding:8px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#fff}
+  .chip .who{font-weight:700}
+  .chip .ph{color:var(--mist);margin-left:auto;font-variant-numeric:tabular-nums}
+  .meta{margin-top:18px;font-size:11.5px;color:var(--mist);text-align:center;line-height:1.5}
+  .meta a{color:var(--slate)}
+  .center{display:flex;align-items:center;justify-content:center;min-height:40vh;color:var(--slate);font-size:14px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="dot">H</div>
+      <div>
+        <b>HomeHuddle</b><br>
+        <span>Invite your family</span>
+      </div>
+    </div>
+
+    <!-- loading / not-authorized states -->
+    <div id="gate" class="center">Checking your account…</div>
+
+    <!-- main form -->
+    <div id="main" class="hide">
+      <h1>Add someone to your calendar</h1>
+      <p class="lede">They'll sign in with their own mobile number — no password, no payment. You stay in control of who has access.</p>
+
+      <div id="famWrap" class="hide">
+        <label for="family">Family calendar</label>
+        <select id="family"></select>
+      </div>
+
+      <label for="name">Their name</label>
+      <input id="name" type="text" placeholder="e.g. Michelle" autocomplete="off" />
+
+      <div class="row">
+        <div>
+          <label for="phone">Mobile number</label>
+          <input id="phone" type="tel" inputmode="tel" placeholder="(716) 555-0100" autocomplete="off" />
+        </div>
+        <div>
+          <label for="role">Their role</label>
+          <select id="role">
+            <option value="parent">Parent / Guardian</option>
+            <option value="grandparent">Grandparent</option>
+            <option value="viewer" selected>Family (view only)</option>
+            <option value="player">Player</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="check">
+        <input id="canEdit" type="checkbox" />
+        <span>Let this person add &amp; edit events</span>
+      </label>
+
+      <button id="inviteBtn">Add to calendar</button>
+
+      <div class="msg" id="msg"></div>
+
+      <!-- share message -->
+      <div class="share" id="share">
+        <h3>Text this to them 📲</h3>
+        <textarea id="shareText" readonly></textarea>
+        <button class="copy" id="copyBtn">Copy message</button>
+      </div>
+
+      <!-- session list -->
+      <div class="added hide" id="addedWrap">
+        <h3>Added in this session</h3>
+        <div id="addedList"></div>
+      </div>
+
+      <p class="meta">Added people get access the moment they sign in at
+        <a href="https://venuewise.net/homehuddle/login.html">login</a> with the number you entered.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://urwnbskrtoplgnkkxuvl.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT";
+    const LOGIN_URL    = "https://venuewise.net/homehuddle/login.html";
+
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+    const msg = $("msg");
+    let families = [];   // [{id, name}]
+
+    function show(text, kind){ msg.textContent = text; msg.className = "msg show " + kind; }
+    function clearMsg(){ msg.className = "msg"; }
+
+    function toE164(raw){
+      const d = (raw || "").replace(/\D/g, "");
+      if (d.length === 10) return "+1" + d;
+      if (d.length === 11 && d[0] === "1") return "+" + d;
+      if ((raw || "").trim().startsWith("+")) return raw.trim();
+      return null;
+    }
+    function prettyPhone(e164){
+      const d = (e164||"").replace(/\D/g,"").replace(/^1/,"");
+      if (d.length === 10) return "(" + d.slice(0,3) + ") " + d.slice(3,6) + "-" + d.slice(6);
+      return e164;
+    }
+
+    // ── Boot: must be signed in, and must own/manage at least one family ──
+    (async () => {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) { window.location.replace(LOGIN_URL); return; }
+
+      const { data: person } = await sb.from("people")
+        .select("id").eq("auth_user_id", session.user.id).limit(1).single();
+      if (!person) { $("gate").textContent = "We couldn't find your account. Try signing in again."; return; }
+
+      // Families this person can invite to (owner or editor).
+      const { data: access } = await sb.from("family_access")
+        .select("family_id, role, can_edit, status")
+        .eq("person_id", person.id).eq("status", "active");
+
+      const manageable = (access || []).filter(a => a.role === "owner" || a.can_edit);
+      if (!manageable.length) {
+        $("gate").textContent = "Only a family owner or manager can invite people.";
+        return;
+      }
+
+      const ids = manageable.map(a => a.family_id);
+      const { data: fams } = await sb.from("families")
+        .select("id, family_name").in("id", ids);
+      families = (fams || []).map(f => ({ id: f.id, name: f.family_name || "Your family" }));
+
+      const sel = $("family");
+      families.forEach(f => {
+        const o = document.createElement("option");
+        o.value = f.id; o.textContent = f.name; sel.appendChild(o);
+      });
+      if (families.length > 1) $("famWrap").classList.remove("hide");
+
+      $("gate").classList.add("hide");
+      $("main").classList.remove("hide");
+      $("name").focus();
+    })();
+
+    function selectedFamily(){
+      const id = families.length > 1 ? $("family").value : (families[0] && families[0].id);
+      const f = families.find(x => x.id === id);
+      return f || { id, name: "Your family" };
+    }
+
+    $("inviteBtn").addEventListener("click", async () => {
+      clearMsg();
+      $("share").classList.remove("show");
+      const name  = $("name").value.trim();
+      const phone = toE164($("phone").value);
+      const role  = $("role").value;
+      const canEdit = $("canEdit").checked;
+      const fam = selectedFamily();
+
+      if (!phone) { show("Enter a valid 10-digit US mobile number.", "err"); return; }
+      if (!fam.id){ show("Couldn't determine which family to add to. Refresh and try again.", "err"); return; }
+
+      $("inviteBtn").disabled = true; $("inviteBtn").textContent = "Adding…";
+      const { data, error } = await sb.rpc("invite_family_member", {
+        p_family_id: fam.id,
+        p_phone: phone,
+        p_name: name,
+        p_role: role,
+        p_can_edit: canEdit
+      });
+      $("inviteBtn").disabled = false; $("inviteBtn").textContent = "Add to calendar";
+
+      if (error) {
+        show(error.message || "Couldn't add that person. Try again.", "err");
+        return;
+      }
+
+      const who = name || "Your family member";
+      show(who + " is added. Send them the message below so they can sign in.", "ok");
+
+      // Build the share message.
+      const calName = fam.name;
+      $("shareText").value =
+        "Hi " + who + "! You've been added to the " + calName +
+        " calendar on HomeHuddle \uD83D\uDCC5\n\nSign in here with this number (" + prettyPhone(phone) +
+        ") and we'll text you a code:\n" + LOGIN_URL;
+      $("share").classList.add("show");
+
+      // Add to session list.
+      $("addedWrap").classList.remove("hide");
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = '<span class="who"></span><span class="ph"></span>';
+      chip.querySelector(".who").textContent = who;
+      chip.querySelector(".ph").textContent = prettyPhone(phone);
+      $("addedList").prepend(chip);
+
+      // Reset for the next person.
+      $("name").value = ""; $("phone").value = ""; $("canEdit").checked = false;
+      $("name").focus();
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      const ta = $("shareText");
+      ta.select(); ta.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(ta.value).then(() => {
+        $("copyBtn").textContent = "Copied ✓";
+        setTimeout(() => { $("copyBtn").textContent = "Copy message"; }, 2200);
+      });
+    });
+
+    $("phone").addEventListener("keydown", e => { if (e.key === "Enter") $("inviteBtn").click(); });
+    $("name").addEventListener("keydown",  e => { if (e.key === "Enter") $("phone").focus(); });
+  </script>
+</body>
+</html>
