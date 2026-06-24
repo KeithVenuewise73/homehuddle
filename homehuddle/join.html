@@ -633,13 +633,35 @@ async function finishSignup() {
   if (!code) { showErr(5, 'Enter the code we texted you.'); return; }
   const vbtn = document.getElementById('verifyBtn'); vbtn.disabled = true; vbtn.textContent = 'Verifying...';
   try {
+    // 1. Verify OTP
     const { error: vErr } = await sb.auth.verifyOtp({ phone: signupPayload.family.phone, token: code, type: 'sms' });
     if (vErr) throw vErr;
-    const { error: rErr } = await sb.rpc('create_family_onboarding', { p_payload: signupPayload });
+
+    // 2. Create family — capture family_id from return value
+    const { data: onboardData, error: rErr } = await sb.rpc('create_family_onboarding', { p_payload: signupPayload });
     if (rErr) throw rErr;
+    const familyId = onboardData?.family_id;
+
+    // 3. Fire-and-forget welcome + sync
     try { await fetch(SURL + '/functions/v1/send-welcome', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email, family_name: signupPayload.family.name, kid_names: signupPayload.players.map(function(p){ return p.name; }), pin: createdPin }) }); } catch(e) {}
     try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
-    showSignupSuccess();
+
+    // 4. Kick off Stripe checkout
+    vbtn.textContent = 'Starting your free trial…';
+    const { data: { session } } = await sb.auth.getSession();
+    const checkoutRes = await fetch(SURL + '/functions/v1/stripe-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ family_id: familyId })
+    });
+    const checkout = await checkoutRes.json();
+    if (checkout.url) {
+      window.location.href = checkout.url; // redirect to Stripe-hosted checkout
+    } else {
+      // Stripe unavailable — still let them in, subscription can be linked later
+      console.warn('Stripe checkout unavailable:', checkout);
+      showSignupSuccess();
+    }
   } catch(err) {
     showErr(5, 'Verification failed: ' + (err.message || err) + '. Double-check the code and try again.');
     vbtn.disabled = false; vbtn.textContent = 'Verify & Create Calendar';
