@@ -274,25 +274,6 @@
       <button class="add-dashed" id="add-member-btn" onclick="showAddMember()">+ Add family member</button>
     </div>
 
-    <!-- SECURITY -->
-    <div class="card">
-      <div class="card-title">🔐 Security</div>
-      <div class="field" style="max-width:320px">
-        <label>Change PIN</label>
-        <div style="display:flex;gap:10px;align-items:center">
-          <div class="pin-row" style="margin:0">
-            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp0" oninput="pinNav('cp',0)"/>
-            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp1" oninput="pinNav('cp',1)" onkeydown="pinBack('cp',1,event)"/>
-            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp2" oninput="pinNav('cp',2)" onkeydown="pinBack('cp',2,event)"/>
-            <input class="pin-digit pin-digit-sm" type="password" inputmode="numeric" maxlength="1" id="cp3" oninput="pinNav('cp',3)" onkeydown="pinBack('cp',3,event)"/>
-          </div>
-          <button class="btn btn-secondary btn-sm" onclick="saveChangedPin()">Save</button>
-        </div>
-        <div class="field-hint">Enter a new 4-digit PIN and tap Save</div>
-      </div>
-      <div class="alert alert-success" id="pin-success" style="margin-top:0.75rem;max-width:320px">PIN updated successfully!</div>
-      <div class="alert alert-error" id="pin-error-acct" style="margin-top:0.75rem;max-width:320px"></div>
-    </div>
 
     <!-- DANGER ZONE -->
     <div class="card">
@@ -375,18 +356,6 @@ async function loadFamilyId() {
   } catch(e) { console.error('Could not load family ID:', e); }
 }
 
-// ── PIN HELPERS ───────────────────────────────────────────
-function pinNav(prefix, i) {
-  const v = document.getElementById(prefix + i).value;
-  if (!/^\d$/.test(v)) { document.getElementById(prefix + i).value = ''; return; }
-  if (i < 3) document.getElementById(prefix + (i + 1)).focus();
-}
-function pinBack(prefix, i, e) {
-  if (e.key === 'Backspace' && !document.getElementById(prefix + i).value && i > 0)
-    document.getElementById(prefix + (i - 1)).focus();
-}
-function getPin(prefix) { return [0,1,2,3].map(function(i){ return document.getElementById(prefix + i).value; }).join(''); }
-function clearPin(prefix) { [0,1,2,3].forEach(function(i){ document.getElementById(prefix + i).value = ''; }); }
 
 // ── LOGIN FLOW ────────────────────────────────────────────
 function showStep(id) {
@@ -807,18 +776,6 @@ async function removeMember(id) {
     console.error('Remove member error:', e);
     showToast('Error: ' + (e.message || 'could not remove member'));
   }
-}
-
-// ── CHANGE PIN ────────────────────────────────────────────
-async function saveChangedPin() {
-  const pin = getPin('cp');
-  if (!/^\d{4}$/.test(pin)) return showErr('pin-error-acct', 'Please enter all 4 digits.');
-  hideErr('pin-error-acct');
-  await sbFetch('feeds?email=eq.' + encodeURIComponent(currentEmail), { method: 'PATCH', body: JSON.stringify({ pin }) });
-  currentFeeds = currentFeeds.map(function(f){ return Object.assign({}, f, { pin }); });
-  clearPin('cp');
-  showAlert('pin-success');
-  setTimeout(function(){ hideAlert('pin-success'); }, 3000);
 }
 
 // ── SAVE CHANGES ──────────────────────────────────────────
