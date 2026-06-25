@@ -99,6 +99,7 @@
     .tag-owner{background:rgba(192,57,43,0.15);color:var(--gold);border:1px solid rgba(192,57,43,0.3)}
     .tag-member{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
     .tag-sms{background:rgba(34,197,94,0.1);color:#86EFAC;border:1px solid rgba(34,197,94,0.25)}
+    .tag-pending{background:rgba(234,179,8,0.12);color:#FDE68A;border:1px solid rgba(234,179,8,0.3)}
 
     /* ADD MEMBER FORM */
     .add-member-form{border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;display:none;background:rgba(255,255,255,0.02)}
@@ -703,15 +704,24 @@ async function renderMembers() {
     familyMembersData.forEach(function(m) {
       const row = document.createElement('div');
       row.className = 'member-row';
-      const roleLabel = { parent: 'Parent', player: 'Player', grandparent: 'Grandparent', sibling: 'Sibling', other: 'Family' }[m.role] || m.role || '';
-      const smsActive = m.sms_opt_in !== false;
+      const roleLabel = { parent: 'Parent', player: 'Player', grandparent: 'Grandparent', sibling: 'Sibling', viewer: 'Viewer', other: 'Family' }[m.role] || m.role || '';
+      const st = m.sms_status || 'none';
+      const badgeMap = {
+        confirmed: ['tag-sms', 'Reminders on'],
+        pending:   ['tag-pending', 'Invite sent'],
+        declined:  ['tag-member', 'Opted out'],
+        none:      ['tag-member', 'Not invited']
+      };
+      const badge = badgeMap[st] || badgeMap.none;
+      const canInvite = m.phone && st === 'none';
       row.innerHTML =
         '<div class="member-avatar">' + esc(m.name[0].toUpperCase()) + '</div>' +
         '<div class="member-info">' +
           '<div class="member-name">' + esc(m.name) + '</div>' +
           '<div class="member-meta">' + (m.phone ? esc(m.phone) : 'No phone') + (roleLabel ? ' · ' + roleLabel : '') + '</div>' +
         '</div>' +
-        '<span class="tag ' + (m.role === 'player' ? 'tag-member' : 'tag-sms') + '">' + (m.role === 'player' ? 'Player' : (smsActive ? 'SMS on' : 'SMS off')) + '</span>' +
+        '<span class="tag ' + badge[0] + '">' + badge[1] + '</span>' +
+        (canInvite ? '<button class="btn btn-secondary btn-sm" onclick="sendMemberOptIn(\'' + m.id + '\')">Text opt-in</button>' : '') +
         '<button class="btn btn-danger btn-sm" onclick="removeMember(\'' + m.id + '\')">Remove</button>';
       list.appendChild(row);
     });
@@ -744,7 +754,7 @@ async function confirmAddMember() {
   if (!currentFamilyId) return showToast('Could not add member — family ID missing');
 
   try {
-    const { error } = await sb.rpc('invite_family_member', {
+    const { data, error } = await sb.rpc('invite_family_member', {
       p_family_id: currentFamilyId,
       p_phone: phone,
       p_name: name,
@@ -754,7 +764,10 @@ async function confirmAddMember() {
     if (error) throw error;
     cancelAddMember();
     await renderMembers();
-    showToast('✅ ' + name + ' added — they sign in with their number');
+    const st = data && data.sms_status;
+    if (st === 'pending') showToast('✅ ' + name + ' added — we texted them to confirm reminders');
+    else if (role === 'player') showToast('✅ ' + name + ' added — tap "Text opt-in" to send reminders');
+    else showToast('✅ ' + name + ' added');
   } catch(e) {
     console.error('Add member error:', e);
     showToast('Error: ' + (e.message || 'could not add member'));
@@ -775,6 +788,24 @@ async function removeMember(id) {
   } catch(e) {
     console.error('Remove member error:', e);
     showToast('Error: ' + (e.message || 'could not remove member'));
+  }
+}
+
+async function sendMemberOptIn(id) {
+  const m = (familyMembersData || []).find(function(x){ return x.id === id; });
+  const name = m ? m.name : 'this member';
+  if (!currentFamilyId) return showToast('Could not send — family ID missing');
+  try {
+    const { error } = await sb.rpc('request_player_sms', {
+      p_family_id: currentFamilyId,
+      p_member_id: id
+    });
+    if (error) throw error;
+    await renderMembers();
+    showToast('📩 Opt-in text sent to ' + name);
+  } catch(e) {
+    console.error('Opt-in error:', e);
+    showToast('Error: ' + (e.message || 'could not send opt-in'));
   }
 }
 
