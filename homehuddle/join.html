@@ -198,8 +198,8 @@
     <!-- STEP 2 -->
     <div class="card" id="card2">
       <div class="section-label">Step 2 of 4</div>
-      <div class="card-title">Family Members</div>
-      <div class="card-sub">Add the adults in your family. Each person can receive their own SMS alerts and notifications.</div>
+      <div class="card-title">Family Members <span style="font-size:12px;font-weight:400;color:var(--gray-400)">· optional</span></div>
+      <div class="card-sub">Add other adults who should get alerts — a co-parent, grandparent, whoever. Or skip this entirely and add them anytime from your account. You're already set as the account owner.</div>
       <div class="members-list" id="membersList"></div>
       <button class="btn-add-item" onclick="addMember(false)">+ Add another family member</button>
       <div class="error-msg" id="err2"></div>
@@ -213,7 +213,7 @@
     <div class="card" id="card3">
       <div class="section-label">Step 3 of 4</div>
       <div class="card-title">Players & Teams</div>
-      <div class="card-sub">Add each player in your family. Players receive schedule notifications but cannot make account changes.</div>
+      <div class="card-sub">Add at least one player so we know whose games to track. Just one is enough to get started — you can add more players, teams, and schedule links anytime later.</div>
       <div class="players-list" id="playersList"></div>
       <button class="btn-add-item" onclick="addPlayer()">+ Add another player</button>
       <div class="error-msg" id="err3"></div>
@@ -328,23 +328,18 @@ function validateStep(step) {
     return true;
   }
   if (step === 2) {
-    const members = document.querySelectorAll('.member-block');
-    if (!members.length) return showErr(2, 'Please add at least one family member.');
-    for (let m of members) {
-      const id = m.id.replace('member-','');
-      const name = document.getElementById('mname-' + id);
-      if (name && !name.value.trim()) return showErr(2, 'Please enter a name for each family member.');
-    }
+    // Adults are optional — they can be added now or anytime later from the account page.
     return true;
   }
   if (step === 3) {
     const players = document.querySelectorAll('.player-block');
-    if (!players.length) return showErr(3, 'Please add at least one player.');
+    let named = 0;
     for (let p of players) {
       const id = p.id.replace('player-','');
       const name = document.getElementById('pname-' + id);
-      if (name && !name.value.trim()) return showErr(3, 'Please enter a name for each player.');
+      if (name && name.value.trim()) named++;
     }
+    if (named < 1) return showErr(3, 'Add at least one player so we know whose games to track — you can add more anytime later.');
     return true;
   }
   return true;
@@ -433,9 +428,9 @@ function addTeam(pid) {
       (ti > 1 ? '<button class="btn-remove" style="width:24px;height:24px;font-size:13px" onclick="document.getElementById(\'team-' + pid + '-' + ti + '\').remove()">×</button>' : '') +
     '</div>' +
     '<div class="field" style="margin-bottom:10px">' +
-      '<label>Team name <span style="font-weight:400;color:var(--gray-400)">(required)</span></label>' +
+      '<label>Team name <span style="font-weight:400;color:var(--gray-400)">(optional)</span></label>' +
       '<input type="text" id="tname-' + pid + '-' + ti + '" placeholder="e.g. FCP Baseball, West Seneca Modified" />' +
-      '<div class="field-hint">Be specific — this is how it appears in the calendar</div>' +
+      '<div class="field-hint">Be specific — this is how it appears in the calendar. No team yet? You can add it later.</div>' +
     '</div>' +
     '<div style="font-size:12px;font-weight:500;color:var(--gray-700);margin-bottom:6px">Sport</div>' +
     '<div class="sport-chips">' + sportBtns + '</div>' +
@@ -484,14 +479,14 @@ function buildReview() {
   html += '<div class="review-item"><div class="review-dot"></div>' + fname + '</div>';
   html += '<div class="review-item"><div class="review-dot"></div>' + email + '</div>';
   html += '<div class="review-item"><div class="review-dot"></div>' + phone + '</div></div>';
-  html += '<div class="review-section"><div class="review-title">👥 Family Members (Adults)</div>';
+  let adults = '';
   document.querySelectorAll('.member-block').forEach(function(m) {
     const id = m.id.replace('member-','');
     const name = document.getElementById('mname-' + id);
     const role = document.getElementById('mrole-' + id);
-    if (name && name.value.trim()) html += '<div class="review-item"><div class="review-dot"></div>' + name.value.trim() + ' · ' + (role ? role.value : 'Parent') + ' · Full access</div>';
+    if (name && name.value.trim()) adults += '<div class="review-item"><div class="review-dot"></div>' + name.value.trim() + ' · ' + (role ? role.value : 'Parent') + ' · Full access</div>';
   });
-  html += '</div>';
+  if (adults) html += '<div class="review-section"><div class="review-title">👥 Family Members (Adults)</div>' + adults + '</div>';
   html += '<div class="review-section"><div class="review-title">🏒 Players (Read-only access)</div>';
   document.querySelectorAll('.player-block').forEach(function(p) {
     const id = p.id.replace('player-','');
