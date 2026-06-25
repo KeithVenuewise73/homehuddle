@@ -633,7 +633,7 @@ const DKEY = 'hh_dismissed_' + (familyEmail || 'x');
 let dismissedIds = new Set(JSON.parse(localStorage.getItem(DKEY) || '[]'));
 async function loadReminders() {
   if(!familyEmail)return;
-  try{const today=new Date().toISOString().slice(0,10);const{data}=await sb.from('reminders').select('id,kid,message,event_time,event_name,dismissed').eq('email',familyEmail).eq('event_date',today).eq('dismissed',false);if(!data)return;renderBanners(data.filter(function(r){return!dismissedIds.has(r.id);}));}catch(e){}
+  try{const _t=new Date();const today=_t.getFullYear()+'-'+String(_t.getMonth()+1).padStart(2,'0')+'-'+String(_t.getDate()).padStart(2,'0');const{data}=await sb.from('reminders').select('id,kid,message,event_time,event_name,dismissed').eq('email',familyEmail).eq('event_date',today).eq('dismissed',false);if(!data)return;renderBanners(data.filter(function(r){return!dismissedIds.has(r.id);}));}catch(e){}
 }
 function bannerIcon(msg){const m=msg.toLowerCase();if(m.includes('tournament'))return'&#x1F947;';if(m.includes('game'))return'&#x1F3C6;';if(m.includes('practice'))return'&#x26BD;';return'&#x1F4C5;';}
 function renderBanners(reminders){
@@ -1305,7 +1305,8 @@ function setAEMember(el, kid) {
 }
 async function openAE() {
   if (!canAddEvents) return;
-  const today = new Date().toISOString().split('T')[0];
+  const _t = new Date();
+  const today = _t.getFullYear()+'-'+String(_t.getMonth()+1).padStart(2,'0')+'-'+String(_t.getDate()).padStart(2,'0');
   await loadFamilyId();
   await loadMembersForAE();
   document.getElementById('aeDate').value = today;
