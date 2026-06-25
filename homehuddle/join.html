@@ -611,8 +611,7 @@ async function finishSignup() {
     if (rErr) throw rErr;
     const familyId = onboardData?.family_id;
 
-    // 3. Fire-and-forget welcome + sync
-    try { await fetch(SURL + '/functions/v1/send-welcome', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email, family_name: signupPayload.family.name, kid_names: signupPayload.players.map(function(p){ return p.name; }) }) }); } catch(e) {}
+    // 3. Kick off the schedule sync so games appear right away
     try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
 
     // 4. Kick off Stripe checkout
