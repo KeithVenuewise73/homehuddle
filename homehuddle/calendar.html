@@ -22,7 +22,7 @@
           description: "Your family schedule.",
           start_url: '/homehuddle/calendar.html?' + param,
           display: 'standalone',
-          background_color: '#1E2A38', theme_color: '#1E2A38',
+          background_color: '#0A1F5C', theme_color: '#0A1F5C',
           orientation: 'portrait',
           icons: [
             { src: '/homehuddle/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
@@ -39,10 +39,10 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --navy:#1E2A38;--navy-mid:#253347;--navy-light:#2E3F52;
-      --gold:#C0392B;--gold-dim:#962d22;
-      --white:#F7F8FA;--muted:#8A95A0;
-      --card-bg:#1A2535;--border:rgba(192,57,43,0.12);--radius:10px;
+      --navy:#0A1F5C;--navy-mid:#0D2878;--navy-light:#103293;
+      --gold:#FF3B47;--gold-dim:#BF2C35;
+      --white:#F2F6FF;--muted:#93A6D4;
+      --card-bg:#13297A;--border:rgba(255,59,71,0.12);--radius:10px;
     }
     html{scroll-behavior:smooth}
     body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
@@ -1422,10 +1422,10 @@ async function saveAE() {
 }
 
 // ── THEME ─────────────────────────────────────────────────
-const DEFAULT_THEME = { base:'#0A1628', mid:'#0F1F3D', light:'#162444', card:'#111D35', accent:'#F5C518', white:'#F0F4FF', muted:'#7A8FAD' };
+const DEFAULT_THEME = { base:'#0A1F5C', mid:'#0D2878', light:'#103293', card:'#13297A', accent:'#FF3B47', white:'#F2F6FF', muted:'#93A6D4' };
 let currentTheme = Object.assign({}, DEFAULT_THEME);
 const THEME_PRESETS = [
-  { name:'Midnight Gold', base:'#0A1628', card:'#111D35', accent:'#F5C518', white:'#F0F4FF', muted:'#7A8FAD' },
+  { name:'Sabres Gold',   base:'#0A1628', card:'#111D35', accent:'#F5C518', white:'#F0F4FF', muted:'#7A8FAD' },
   { name:'Hardwood',      base:'#15100A', card:'#241A10', accent:'#F97316', white:'#FBF3EA', muted:'#A8916F' },
   { name:'Turf',          base:'#0A1F14', card:'#112A1A', accent:'#22C55E', white:'#ECFDF3', muted:'#6FA585' },
   { name:'Ice',           base:'#0A1A28', card:'#0F2438', accent:'#38BDF8', white:'#EAF6FF', muted:'#6F90A8' },
@@ -1433,7 +1433,9 @@ const THEME_PRESETS = [
   { name:'Royal',         base:'#14101F', card:'#1E1733', accent:'#A855F7', white:'#F2ECFD', muted:'#8B7FA8' },
   { name:'Teal Slate',    base:'#0B1A1C', card:'#12282B', accent:'#14B8A6', white:'#E6FAF7', muted:'#6F9A95' },
   { name:'Carbon',        base:'#111113', card:'#1E1E22', accent:'#60A5FA', white:'#EDEFF5', muted:'#8A8F9A' },
-  { name:'Sunset',        base:'#1A1016', card:'#271520', accent:'#EC4899', white:'#FDEAF3', muted:'#A8869A' }
+  { name:'Sunset',        base:'#1A1016', card:'#271520', accent:'#EC4899', white:'#FDEAF3', muted:'#A8869A' },
+  { name:'Bills Mafia',   base:'#0A1F5C', card:'#13297A', accent:'#FF3B47', white:'#F2F6FF', muted:'#93A6D4' },
+  { name:'Sabres Alt',    base:'#0E0E11', card:'#1A1A1F', accent:'#F5333A', white:'#F4F4F6', muted:'#9E9EA6' }
 ];
 function buildPresets(){
   const el=document.getElementById('presetRow'); if(!el) return;
@@ -1468,7 +1470,7 @@ function hexToRgb(hex){return{r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice
 function hexToRgba(hex,alpha){const c=hexToRgb(hex);return'rgba('+c.r+','+c.g+','+c.b+','+alpha+')';}
 function adjustColor(hex,factor){const c=hexToRgb(hex);const adj=function(v){return Math.min(255,Math.max(0,Math.round(v*factor)));};return'#'+[adj(c.r),adj(c.g),adj(c.b)].map(function(v){return v.toString(16).padStart(2,'0');}).join('');}
 function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--navy',theme.base);root.style.setProperty('--navy-mid',theme.mid||adjustColor(theme.base,1.3));root.style.setProperty('--navy-light',theme.light||adjustColor(theme.base,1.6));root.style.setProperty('--card-bg',theme.card);root.style.setProperty('--gold',theme.accent);root.style.setProperty('--gold-dim',adjustColor(theme.accent,0.75));root.style.setProperty('--border',hexToRgba(theme.accent,0.12));root.style.setProperty('--white',theme.white||'#F0F4FF');root.style.setProperty('--muted',theme.muted||'#7A8FAD');currentTheme=Object.assign({},theme);}
-async function loadTheme(){if(!familyEmail)return;try{const{data}=await sb.from('feeds').select('theme').eq('email',familyEmail).limit(1).single();if(data&&data.theme)applyTheme(data.theme);}catch(e){}}
+async function loadTheme(){if(!familyEmail){applyTheme(DEFAULT_THEME);return;}try{const{data}=await sb.from('feeds').select('theme').eq('email',familyEmail).limit(1).single();if(data&&data.theme)applyTheme(data.theme);else applyTheme(DEFAULT_THEME);}catch(e){applyTheme(DEFAULT_THEME);}}
 async function saveTheme(){if(!familyEmail){showToast('Sign in to save your theme');return;}try{await sb.from('feeds').update({theme:currentTheme}).eq('email',familyEmail);showToast('Theme saved');closeTheme();}catch(e){showToast('Could not save theme');}}
 function openTheme(){const t=currentTheme;document.getElementById('themeContent').innerHTML='<div class="mhandle"></div><div class="theme-title">Customize Your Calendar</div><div class="theme-preview"><div class="preview-header"><div class="preview-logo">Home<span>Huddle</span></div><div class="preview-dot"></div></div><div class="preview-card"><div class="preview-stripe"></div><div><div class="preview-text">Sample Event &middot; 4:00PM</div><div class="preview-tag">Your Team</div></div></div></div><div class="theme-section"><div class="theme-section-label">Quick Themes</div><div class="preset-row" id="presetRow"></div></div><div class="theme-section"><div class="theme-section-label">Background Color</div><div class="palette-row" id="basePalette"></div><div class="color-row"><div class="color-label">Base</div><div class="color-input-wrap"><div class="color-swatch" id="baseSwatchDisplay" style="background:'+t.base+'"></div><input type="color" id="basePicker" value="'+t.base+'" oninput="onColorInput(\'base\',this.value)"/></div><input class="color-hex" id="baseHex" value="'+t.base+'" maxlength="7" oninput="onHexInput(\'base\',this.value)" onblur="onHexBlur(\'base\',this.value)"/></div></div><div class="theme-section"><div class="theme-section-label">Accent Color</div><div class="palette-row" id="accentPalette"></div><div class="color-row"><div class="color-label">Accent</div><div class="color-input-wrap"><div class="color-swatch" id="accentSwatchDisplay" style="background:'+t.accent+'"></div><input type="color" id="accentPicker" value="'+t.accent+'" oninput="onColorInput(\'accent\',this.value)"/></div><input class="color-hex" id="accentHex" value="'+t.accent+'" maxlength="7" oninput="onHexInput(\'accent\',this.value)" onblur="onHexBlur(\'accent\',this.value)"/></div></div><div class="theme-section"><div class="theme-section-label">Card Color</div><div class="palette-row" id="cardPalette"></div><div class="color-row"><div class="color-label">Cards</div><div class="color-input-wrap"><div class="color-swatch" id="cardSwatchDisplay" style="background:'+t.card+'"></div><input type="color" id="cardPicker" value="'+t.card+'" oninput="onColorInput(\'card\',this.value)"/></div><input class="color-hex" id="cardHex" value="'+t.card+'" maxlength="7" oninput="onHexInput(\'card\',this.value)" onblur="onHexBlur(\'card\',this.value)"/></div></div><button class="theme-save" onclick="saveTheme()">Save My Theme</button><button class="theme-reset" onclick="resetTheme()">Reset to Default</button><button class="theme-cls" onclick="closeTheme()">Cancel</button>';
 buildPalette('basePalette',ALL_COLORS,'base',currentTheme.base);buildPalette('accentPalette',ALL_COLORS,'accent',currentTheme.accent);buildPalette('cardPalette',ALL_COLORS,'card',currentTheme.card);buildPresets();document.getElementById('themeModal').classList.add('show');}
