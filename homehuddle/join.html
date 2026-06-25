@@ -95,6 +95,9 @@
     .instructions ol { padding-left: 1.25rem; }
     .instructions li { font-size: 12px; color: var(--blue-text); line-height: 1.6; }
     .ical-field { margin-top: 8px; display: none; }
+    .ical-feedback { font-size: 12px; margin-top: 6px; font-weight: 600; min-height: 14px; }
+    .ical-feedback.ok { color: var(--green); }
+    .ical-feedback.warn { color: #B45309; }
     .sport-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
     .sport-chip { padding: 4px 10px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 12px; color: var(--gray-700); cursor: pointer; background: none; font-family: 'DM Sans', sans-serif; transition: all .15s; }
     .sport-chip.active { background: var(--green-light); border-color: var(--green); color: var(--green-text); font-weight: 500; }
@@ -165,14 +168,12 @@
       <div class="step-line" id="line2"></div>
       <div class="step"><div class="step-circle" id="sc3">3</div><div class="step-label" id="sl3">Players</div></div>
       <div class="step-line" id="line3"></div>
-      <div class="step"><div class="step-circle" id="sc4">4</div><div class="step-label" id="sl4">PIN</div></div>
-      <div class="step-line" id="line4"></div>
-      <div class="step"><div class="step-circle" id="sc5">5</div><div class="step-label" id="sl5">Review</div></div>
+      <div class="step"><div class="step-circle" id="sc4">4</div><div class="step-label" id="sl4">Review</div></div>
     </div>
 
     <!-- STEP 1 -->
     <div class="card active" id="card1">
-      <div class="section-label">Step 1 of 5</div>
+      <div class="section-label">Step 1 of 4</div>
       <div class="card-title">Family Account</div>
       <div class="card-sub">This is your family's HomeHuddle account. One login for the whole family.</div>
       <div class="field"><label>Family name</label><input type="text" id="familyName" placeholder="e.g. D'Amico-Herman Family" /><div class="field-hint">This is how your family will appear in the app</div></div>
@@ -196,7 +197,7 @@
 
     <!-- STEP 2 -->
     <div class="card" id="card2">
-      <div class="section-label">Step 2 of 5</div>
+      <div class="section-label">Step 2 of 4</div>
       <div class="card-title">Family Members</div>
       <div class="card-sub">Add the adults in your family. Each person can receive their own SMS alerts and notifications.</div>
       <div class="members-list" id="membersList"></div>
@@ -210,7 +211,7 @@
 
     <!-- STEP 3 -->
     <div class="card" id="card3">
-      <div class="section-label">Step 3 of 5</div>
+      <div class="section-label">Step 3 of 4</div>
       <div class="card-title">Players & Teams</div>
       <div class="card-sub">Add each player in your family. Players receive schedule notifications but cannot make account changes.</div>
       <div class="players-list" id="playersList"></div>
@@ -218,46 +219,19 @@
       <div class="error-msg" id="err3"></div>
       <div class="btn-nav">
         <button class="btn-back" onclick="prevStep(3)">← Back</button>
-        <button class="btn-primary" onclick="nextStep(3)">Continue → Create PIN</button>
+        <button class="btn-primary" onclick="nextStep(3)">Continue → Review</button>
       </div>
     </div>
 
-    <!-- STEP 4 -->
+    <!-- STEP 4: REVIEW -->
     <div class="card" id="card4">
-      <div class="section-label">Step 4 of 5</div>
-      <div class="card-title">Create Your Family PIN</div>
-      <div class="card-sub">Your 4-digit PIN is how everyone in your family logs in to HomeHuddle — adults and players alike.</div>
-      <div class="pin-label">Enter a 4-digit PIN</div>
-      <div class="pin-wrap">
-        <input class="pin-digit" type="tel" maxlength="1" id="pin1" oninput="pinInput(this,1)" onkeydown="pinKey(event,1)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="pin2" oninput="pinInput(this,2)" onkeydown="pinKey(event,2)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="pin3" oninput="pinInput(this,3)" onkeydown="pinKey(event,3)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="pin4" oninput="pinInput(this,4)" onkeydown="pinKey(event,4)" />
-      </div>
-      <div class="pin-label" style="margin-top:1.5rem">Confirm your PIN</div>
-      <div class="pin-wrap">
-        <input class="pin-digit" type="tel" maxlength="1" id="conf1" oninput="confInput(this,1)" onkeydown="confKey(event,1)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="conf2" oninput="confInput(this,2)" onkeydown="confKey(event,2)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="conf3" oninput="confInput(this,3)" onkeydown="confKey(event,3)" />
-        <input class="pin-digit" type="tel" maxlength="1" id="conf4" oninput="confInput(this,4)" onkeydown="confKey(event,4)" />
-      </div>
-      <div class="field-hint" style="text-align:center;margin-top:.5rem">Share this PIN with all family members — adults and players use the same PIN</div>
-      <div class="error-msg" id="err4"></div>
-      <div class="btn-nav">
-        <button class="btn-back" onclick="prevStep(4)">← Back</button>
-        <button class="btn-primary" onclick="nextStep(4)">Continue → Review</button>
-      </div>
-    </div>
-
-    <!-- STEP 5 -->
-    <div class="card" id="card5">
-      <div class="section-label">Step 5 of 5</div>
+      <div class="section-label">Step 4 of 4</div>
       <div class="card-title">Review & Launch</div>
       <div class="card-sub">Everything look right? Hit launch to create your family calendar.</div>
       <div id="reviewContent"></div>
-      <div class="error-msg" id="err5"></div>
+      <div class="error-msg" id="err4"></div>
       <div class="btn-nav">
-        <button class="btn-back" onclick="prevStep(5)">← Back</button>
+        <button class="btn-back" onclick="prevStep(4)">← Back</button>
         <button class="btn-primary" id="submitBtn" onclick="submitForm()">
           <span id="btnText">🚀 Launch Family Calendar</span>
           <div class="spinner" id="spinner"></div>
@@ -278,12 +252,7 @@
   <div class="setup" id="setup">
     <div class="setup-icon">✅</div>
     <h2>You're in!</h2>
-    <p class="setup-sub">Your family calendar is live. Share the PIN with everyone in your family.</p>
-    <div class="setup-card">
-      <div class="setup-card-title">🔑 Your Family PIN</div>
-      <div class="pin-display" id="pinDisplay"></div>
-      <p style="font-size:12px;color:var(--gray-400);text-align:center;margin-top:.5rem">Share this with all family members — adults and players use the same PIN to log in</p>
-    </div>
+    <p class="setup-sub">Your family calendar is live. Everyone signs in with their mobile number — no password to remember.</p>
     <a id="viewCalBtn" href="#" class="setup-cta">Open Family Calendar →</a>
     <div class="setup-card">
       <div class="setup-card-title">📱 Share with family</div>
@@ -325,7 +294,6 @@ let memberCount = 0;
 let playerCount = 0;
 let teamCounters = {};
 let familyCalUrl = '';
-let createdPin = '';
 
 function nextStep(from) { if (!validateStep(from)) return; goStep(from + 1); }
 function prevStep(from) { goStep(from - 1); }
@@ -334,19 +302,19 @@ function goStep(n) {
   document.getElementById('card' + currentStep).classList.remove('active');
   currentStep = n;
   document.getElementById('card' + n).classList.add('active');
-  if (n === 5) buildReview();
+  if (n === 4) buildReview();
   updateStepBar();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateStepBar() {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 4; i++) {
     const c = document.getElementById('sc' + i);
     const l = document.getElementById('sl' + i);
     if (i < currentStep) { c.className = 'step-circle done'; c.textContent = '✓'; l.className = 'step-label'; }
     else if (i === currentStep) { c.className = 'step-circle active'; c.textContent = i; l.className = 'step-label active'; }
     else { c.className = 'step-circle'; c.textContent = i; l.className = 'step-label'; }
-    if (i < 5) document.getElementById('line' + i).className = 'step-line' + (i < currentStep ? ' done' : '');
+    if (i < 4) document.getElementById('line' + i).className = 'step-line' + (i < currentStep ? ' done' : '');
   }
 }
 
@@ -379,26 +347,13 @@ function validateStep(step) {
     }
     return true;
   }
-  if (step === 4) {
-    const pin = getPin();
-    const conf = getConf();
-    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) return showErr(4, 'Please enter a 4-digit PIN.');
-    if (pin !== conf) return showErr(4, 'PINs do not match. Please try again.');
-    createdPin = pin;
-    return true;
-  }
   return true;
 }
 
 function showErr(step, msg) { const el = document.getElementById('err' + step); el.textContent = msg; el.style.display = 'block'; return false; }
 function hideErr(step) { const el = document.getElementById('err' + step); if (el) el.style.display = 'none'; }
 
-function pinInput(el, n) { el.value = el.value.replace(/\D/g,''); if (el.value && n < 4) document.getElementById('pin' + (n+1)).focus(); }
-function pinKey(e, n) { if (e.key === 'Backspace' && !document.getElementById('pin'+n).value && n > 1) document.getElementById('pin'+(n-1)).focus(); }
-function confInput(el, n) { el.value = el.value.replace(/\D/g,''); if (el.value && n < 4) document.getElementById('conf' + (n+1)).focus(); }
-function confKey(e, n) { if (e.key === 'Backspace' && !document.getElementById('conf'+n).value && n > 1) document.getElementById('conf'+(n-1)).focus(); }
-function getPin() { return ['pin1','pin2','pin3','pin4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
-function getConf() { return ['conf1','conf2','conf3','conf4'].map(function(id){ return document.getElementById(id).value; }).join(''); }
+
 
 function addMember(isOwner) {
   memberCount++;
@@ -489,7 +444,9 @@ function addTeam(pid) {
     '<div class="instructions" id="tinstr-' + pid + '-' + ti + '" style="display:none"></div>' +
     '<div class="ical-field" id="tical-field-' + pid + '-' + ti + '">' +
       '<label>Paste calendar link</label>' +
-      '<input type="url" id="tical-' + pid + '-' + ti + '" placeholder="webcal:// or https://" />' +
+      '<input type="url" id="tical-' + pid + '-' + ti + '" placeholder="webcal:// or https://" oninput="validateIcal(this,\'' + pid + '-' + ti + '\')" />' +
+      '<div class="ical-feedback" id="tfb-' + pid + '-' + ti + '"></div>' +
+      '<div class="field-hint">Don\'t have it handy? Leave it blank — you can add the schedule anytime later from your account.</div>' +
     '</div>';
   list.appendChild(div);
 }
@@ -502,6 +459,20 @@ function selectPlat(pid, ti, platform, el) {
   instr.style.display = 'block';
   instr.innerHTML = '<div class="instructions-title">' + info.title + '</div><ol>' + info.steps.map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ol>';
   document.getElementById('tical-field-' + pid + '-' + ti).style.display = 'block';
+}
+
+function validateIcal(el, fid) {
+  const fb = document.getElementById('tfb-' + fid);
+  if (!fb) return;
+  const v = (el.value || '').trim();
+  if (!v) { fb.textContent = ''; fb.className = 'ical-feedback'; return; }
+  if (/^(webcal:\/\/|https?:\/\/)\S+/i.test(v)) {
+    fb.textContent = '✓ Looks like a valid schedule link';
+    fb.className = 'ical-feedback ok';
+  } else {
+    fb.textContent = 'Hmm — a calendar link should start with webcal:// or https://';
+    fb.className = 'ical-feedback warn';
+  }
 }
 
 function buildReview() {
@@ -537,8 +508,6 @@ function buildReview() {
     }
   });
   html += '</div>';
-  html += '<div class="review-section"><div class="review-title">🔑 PIN</div>';
-  html += '<div class="review-item"><div class="review-dot"></div>••••  (4-digit PIN — shared by all family members)</div></div>';
   document.getElementById('reviewContent').innerHTML = html;
 }
 
@@ -601,13 +570,13 @@ let signupPayload = null;
 
 // Phase 1: collect everything, then text the creator a verification code.
 async function submitForm() {
-  hideErr(5);
+  hideErr(4);
   const fname = document.getElementById('familyName').value.trim();
   const email = document.getElementById('familyEmail').value.trim();
   const phone = normalizePhone(document.getElementById('familyPhone').value.trim());
-  if (!fname || !email || !phone) { showErr(5, 'Please fill in family name, email, and mobile number.'); return; }
+  if (!fname || !email || !phone) { showErr(4, 'Please fill in family name, email, and mobile number.'); return; }
   signupPayload = {
-    family: { name: fname, email: email, phone: phone, pin: createdPin,
+    family: { name: fname, email: email, phone: phone, pin: null,
               sms_consent: document.getElementById('smsConsent') ? document.getElementById('smsConsent').checked : false },
     members: collectMembers(),
     players: collectPlayers()
@@ -621,16 +590,16 @@ async function submitForm() {
     document.getElementById('otpHint').textContent = 'We texted a 6-digit code to ' + phone + '. Enter it to finish.';
     document.getElementById('otpCode').focus();
   } catch(err) {
-    showErr(5, 'Could not send verification code: ' + (err.message || err) + '.');
+    showErr(4, 'Could not send verification code: ' + (err.message || err) + '.');
   } finally { setLoading(false); }
 }
 
 // Phase 2: verify the code (creator is now authenticated), then create the
 // whole family securely server-side via the create_family_onboarding RPC.
 async function finishSignup() {
-  hideErr(5);
+  hideErr(4);
   const code = document.getElementById('otpCode').value.trim();
-  if (!code) { showErr(5, 'Enter the code we texted you.'); return; }
+  if (!code) { showErr(4, 'Enter the code we texted you.'); return; }
   const vbtn = document.getElementById('verifyBtn'); vbtn.disabled = true; vbtn.textContent = 'Verifying...';
   try {
     // 1. Verify OTP
@@ -643,7 +612,7 @@ async function finishSignup() {
     const familyId = onboardData?.family_id;
 
     // 3. Fire-and-forget welcome + sync
-    try { await fetch(SURL + '/functions/v1/send-welcome', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email, family_name: signupPayload.family.name, kid_names: signupPayload.players.map(function(p){ return p.name; }), pin: createdPin }) }); } catch(e) {}
+    try { await fetch(SURL + '/functions/v1/send-welcome', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email, family_name: signupPayload.family.name, kid_names: signupPayload.players.map(function(p){ return p.name; }) }) }); } catch(e) {}
     try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
 
     // 4. Kick off Stripe checkout
@@ -663,7 +632,7 @@ async function finishSignup() {
       showSignupSuccess();
     }
   } catch(err) {
-    showErr(5, 'Verification failed: ' + (err.message || err) + '. Double-check the code and try again.');
+    showErr(4, 'Verification failed: ' + (err.message || err) + '. Double-check the code and try again.');
     vbtn.disabled = false; vbtn.textContent = 'Verify & Create Calendar';
   }
 }
@@ -674,7 +643,6 @@ function showSignupSuccess() {
   familyCalUrl = calUrl;
   document.getElementById('form-wrap').style.display = 'none';
   document.getElementById('viewCalBtn').href = calUrl;
-  document.getElementById('pinDisplay').innerHTML = createdPin.split('').map(function(d){ return '<div class="pin-box">' + d + '</div>'; }).join('');
   document.getElementById('shareMessage').textContent = 'Hey! I set up HomeHuddle for the ' + fname + '. See the family calendar here:\n\n' + calUrl + '\n\nJust sign in with your mobile number \u2014 we\'ll text you a code. \U0001F4C5';
   document.getElementById('setup').style.display = 'block';
 }
