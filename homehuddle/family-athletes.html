@@ -1,478 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Athletes — AthleteHuddle</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Athletes — AthleteHuddle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0a1628; --navy-2:#0f2044; --blue:#1e4fd8; --blue-lt:#3b6ff5;
+    --gold:#f5a623; --gold-lt:#fbbf24; --white:#fff; --off:#f0f4ff;
+    --gray:#64748b; --light:#e2e8f0; --green:#22c55e; --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  .head{font-family:'Barlow Condensed',sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:0 1.1rem}
 
-    :root {
-      --navy:    #0a1628;
-      --navy-2:  #0f2044;
-      --blue:    #1e4fd8;
-      --blue-lt: #3b6ff5;
-      --gold:    #f5a623;
-      --white:   #ffffff;
-      --gray:    #64748b;
-      --green:   #22c55e;
-      --surface: rgba(255,255,255,0.05);
-      --border:  rgba(255,255,255,0.1);
-      --radius:  14px;
-    }
+  nav{border-bottom:1px solid rgba(255,255,255,.08);padding:1rem 0;position:sticky;top:0;background:rgba(10,22,40,.92);backdrop-filter:blur(8px);z-index:20}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between}
+  .brand{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.5px}
+  .brand b{color:var(--gold)}
+  .nav-link{font-size:13px;color:var(--light);opacity:.8}
+  .nav-link:hover{opacity:1;color:var(--gold)}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--navy);
-      color: var(--white);
-      min-height: 100vh;
-    }
+  header.page{padding:2rem 0 1rem}
+  header.page .wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:40px;line-height:1.02}
+  .sub{color:var(--light);opacity:.75;font-size:14px;margin-top:2px}
+  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.3px;
+    border:none;border-radius:10px;padding:11px 18px;cursor:pointer;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px}
+  .btn-gold{background:var(--gold);color:var(--navy)}
+  .btn-blue{background:var(--blue);color:var(--white)}
+  .btn-ghost{background:transparent;color:var(--light);border:1px solid rgba(255,255,255,.18)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+  .btn:disabled{opacity:.55;cursor:default}
 
-    /* NAV */
-    nav {
-      background: rgba(10,22,40,0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 50;
-    }
-    .nav-brand {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800; font-size: 20px;
-    }
-    .nav-brand span { color: var(--gold); }
-    .nav-right { display: flex; align-items: center; gap: 16px; }
-    .nav-link {
-      color: rgba(255,255,255,0.6); font-size: 14px;
-      text-decoration: none; font-weight: 500;
-      transition: color 0.2s;
-    }
-    .nav-link:hover { color: var(--white); }
+  .explain{background:var(--navy-2);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:1rem 1.1rem;margin:.5rem 0 1.5rem;font-size:13.5px;color:var(--light);line-height:1.6}
+  .explain b{color:var(--white)}
+  .explain .pin{color:var(--gold);font-weight:700}
 
-    /* SIDEBAR + LAYOUT */
-    .app-layout {
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      min-height: calc(100vh - 60px);
-    }
-    @media (max-width: 720px) {
-      .app-layout { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-    }
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;padding-bottom:2rem}
+  .acard{background:var(--navy-2);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+  .acard .banner{height:74px;background:linear-gradient(120deg,var(--blue),var(--blue-lt));position:relative}
+  .acard .avatar{position:absolute;left:1rem;bottom:-26px;width:64px;height:64px;border-radius:50%;border:3px solid var(--navy-2);overflow:hidden;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:var(--gold)}
+  .acard .avatar img{width:100%;height:100%;object-fit:cover}
+  .acard .body{padding:34px 1rem 1rem}
+  .aname{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;line-height:1.05}
+  .ameta{font-size:12.5px;color:var(--light);opacity:.7;margin-top:1px}
+  .sports{display:flex;flex-wrap:wrap;gap:5px;margin:.6rem 0 .5rem}
+  .stag{font-size:11px;font-weight:600;background:rgba(59,111,245,.16);border:1px solid rgba(59,111,245,.3);color:#bcd0ff;border-radius:999px;padding:3px 9px}
 
-    .sidebar {
-      background: rgba(255,255,255,0.02);
-      border-right: 1px solid var(--border);
-      padding: 24px 0;
-    }
-    .sidebar-section {
-      padding: 0 16px 24px;
-    }
-    .sidebar-label {
-      font-size: 10px; font-weight: 700;
-      letter-spacing: 1.5px; color: rgba(255,255,255,0.3);
-      text-transform: uppercase; padding: 0 8px;
-      margin-bottom: 8px;
-    }
-    .sidebar-link {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px; border-radius: 8px;
-      color: rgba(255,255,255,0.6); font-size: 14px;
-      text-decoration: none; font-weight: 500;
-      transition: background 0.15s, color 0.15s;
-    }
-    .sidebar-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-    .sidebar-link.active { background: rgba(30,79,216,0.2); color: var(--white); }
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 10px;letter-spacing:.02em}
+  .pill .d{width:7px;height:7px;border-radius:50%}
+  .pill.pub{background:rgba(34,197,94,.14);color:#7ff0ad;border:1px solid rgba(34,197,94,.32)}
+  .pill.pub .d{background:var(--green)}
+  .pill.priv{background:rgba(255,255,255,.06);color:var(--light);border:1px solid rgba(255,255,255,.14)}
+  .pill.priv .d{background:var(--gray)}
 
-    /* MAIN */
-    .main { padding: 32px 28px; }
+  .actions{display:flex;flex-direction:column;gap:7px;margin-top:.9rem}
+  .actions .row{display:flex;gap:7px}
+  .abtn{flex:1;font-size:13px;font-weight:700;border-radius:9px;padding:9px;cursor:pointer;border:1px solid rgba(255,255,255,.16);background:transparent;color:var(--white);font-family:'DM Sans',sans-serif;text-align:center;transition:all .15s}
+  .abtn:hover{border-color:var(--gold)}
+  .abtn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+  .abtn.primary:hover{background:var(--gold-lt)}
+  .abtn.muted{color:var(--light);opacity:.85}
+  .abtn:disabled{opacity:.5;cursor:default}
 
-    .page-header {
-      display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 32px;
-      flex-wrap: wrap; gap: 14px;
-    }
-    .page-header h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 2rem; font-weight: 900;
-    }
+  .empty{text-align:center;padding:3.5rem 1rem;background:var(--navy-2);border:1px dashed rgba(255,255,255,.16);border-radius:var(--radius)}
+  .empty h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px}
+  .empty p{color:var(--light);opacity:.75;font-size:14px;margin-bottom:1.2rem}
+  .loading{text-align:center;color:var(--light);opacity:.6;padding:3rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:14px}
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--blue-lt));
-      color: var(--white); padding: 11px 22px; border-radius: 8px;
-      font-size: 14px; font-weight: 700; border: none; cursor: pointer;
-      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
-      box-shadow: 0 3px 16px rgba(30,79,216,0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 24px rgba(30,79,216,0.55); }
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(4,10,22,.72);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+  .scrim.open{display:flex}
+  .modal{background:var(--navy-2);border:1px solid rgba(255,255,255,.12);border-radius:16px;max-width:460px;width:100%;padding:1.4rem;max-height:90vh;overflow:auto}
+  .modal h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;margin-bottom:4px}
+  .modal .m-sub{font-size:13px;color:var(--light);opacity:.8;line-height:1.55;margin-bottom:1rem}
+  .modal label{display:block;font-size:12px;font-weight:600;color:var(--light);margin:.7rem 0 4px;text-transform:uppercase;letter-spacing:.04em}
+  .modal input,.modal textarea{width:100%;background:#0b1830;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:11px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px}
+  .modal textarea{min-height:84px;resize:vertical}
+  .consent{display:flex;gap:9px;align-items:flex-start;margin:1rem 0;font-size:13px;color:var(--light);line-height:1.5}
+  .consent input{width:17px;height:17px;margin-top:2px;flex-shrink:0;accent-color:var(--gold)}
+  .m-actions{display:flex;gap:9px;margin-top:1.1rem}
+  .m-actions .btn{flex:1;justify-content:center}
+  .m-note{font-size:11.5px;color:var(--gray);font-style:italic;margin-top:.8rem;line-height:1.5}
 
-    /* ATHLETES GRID */
-    #athletes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(140%);background:#0b1830;border:1px solid rgba(255,255,255,.18);color:var(--white);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;z-index:60;transition:transform .25s;max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:rgba(34,197,94,.5)}
+  .toast.err{border-color:rgba(239,68,68,.55)}
 
-    .athlete-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: transform 0.2s, border-color 0.2s;
-      cursor: pointer;
-    }
-    .athlete-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(59,111,245,0.4);
-    }
-
-    .athlete-card-banner {
-      height: 80px;
-      background: linear-gradient(135deg, var(--blue), #1a3a9e);
-      position: relative;
-    }
-    .athlete-card-banner.gold {
-      background: linear-gradient(135deg, #b45309, #d97706);
-    }
-    .athlete-card-banner.green {
-      background: linear-gradient(135deg, #065f46, #059669);
-    }
-    .athlete-card-banner.purple {
-      background: linear-gradient(135deg, #4c1d95, #7c3aed);
-    }
-
-    .athlete-avatar {
-      position: absolute; bottom: -24px; left: 20px;
-      width: 52px; height: 52px; border-radius: 50%;
-      border: 3px solid var(--navy);
-      background: var(--navy-2);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.3rem; font-weight: 900;
-      color: var(--gold);
-      overflow: hidden;
-    }
-    .athlete-avatar img {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-
-    .athlete-card-body {
-      padding: 32px 20px 20px;
-    }
-    .athlete-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.3rem; font-weight: 800; margin-bottom: 2px;
-    }
-    .athlete-meta {
-      font-size: 12px; color: rgba(255,255,255,0.5);
-      margin-bottom: 14px; line-height: 1.5;
-    }
-
-    .athlete-sports-list {
-      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
-    }
-    .sport-tag {
-      background: rgba(30,79,216,0.2);
-      border: 1px solid rgba(59,111,245,0.3);
-      color: #93b4ff; font-size: 11px; font-weight: 700;
-      padding: 3px 10px; border-radius: 100px;
-    }
-
-    .athlete-card-actions {
-      display: flex; gap: 8px;
-    }
-    .btn-card {
-      flex: 1; padding: 8px 0; border-radius: 7px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      text-align: center; text-decoration: none;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      border: none; transition: background 0.15s;
-    }
-    .btn-card-primary {
-      background: rgba(30,79,216,0.25);
-      color: #93b4ff;
-    }
-    .btn-card-primary:hover { background: rgba(30,79,216,0.4); }
-    .btn-card-outline {
-      background: transparent;
-      border: 1px solid var(--border) !important;
-      color: rgba(255,255,255,0.55);
-    }
-    .btn-card-outline:hover { background: rgba(255,255,255,0.05); color: var(--white); }
-
-    /* ADD ATHLETE CARD */
-    .add-athlete-card {
-      background: rgba(30,79,216,0.06);
-      border: 2px dashed rgba(59,111,245,0.3);
-      border-radius: var(--radius);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 20px; cursor: pointer;
-      text-decoration: none;
-      min-height: 220px;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .add-athlete-card:hover {
-      background: rgba(30,79,216,0.12);
-      border-color: rgba(59,111,245,0.55);
-    }
-    .add-icon { font-size: 2rem; margin-bottom: 12px; color: var(--blue-lt); }
-    .add-athlete-card span {
-      font-weight: 700; font-size: 15px; color: var(--blue-lt);
-    }
-    .add-athlete-card small {
-      font-size: 12px; color: rgba(255,255,255,0.35);
-      margin-top: 6px;
-    }
-
-    /* EMPTY STATE */
-    .empty-state {
-      text-align: center; padding: 80px 24px;
-      grid-column: 1 / -1;
-    }
-    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
-    .empty-state h2 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;
-    }
-    .empty-state p {
-      font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 24px;
-    }
-
-    /* LOADING */
-    .loading-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .skeleton {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      height: 220px;
-      animation: shimmer 1.5s infinite;
-    }
-    @keyframes shimmer {
-      0%,100% { opacity:0.5; } 50% { opacity:1; }
-    }
-  </style>
+  .eco{border-top:1px solid rgba(255,255,255,.08);padding:.9rem 0;margin-top:1rem}
+  .eco .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .eco span{font-size:.7rem;color:#5b6b85}
+  .eco a{font-size:.68rem;color:#7187ad;padding:.2rem .5rem}
+  .eco a:hover{color:var(--gold)}
+</style>
 </head>
 <body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="athletehuddle.html">Athlete<b>Huddle</b></a>
+      <a class="nav-link" href="https://venuewise.net/homehuddle/calendar.html">← Family Calendar</a>
+    </div>
+  </nav>
 
-<nav>
-  <div class="nav-brand">Athlete<span>Huddle</span></div>
-  <div class="nav-right">
-    <a href="athletehuddle.html" class="nav-link">Home</a>
-    <a href="javascript:goToCalendar()" class="nav-link">Family Calendar</a>
+  <header class="page">
+    <div class="wrap">
+      <div>
+        <h1>My Athletes</h1>
+        <div class="sub">Build a profile, then choose whether to share it.</div>
+      </div>
+      <a class="btn btn-gold" href="create-athlete.html">+ Add Athlete</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="explain">
+      <b>You're in control of what's public.</b> Every profile starts private to your family.
+      <span class="pin">Push to 5-Star</span> publishes a player card — name, sport, school, and stats —
+      on 5-Star Sports Media so coaches and fans can find them. It <b>never</b> includes your family
+      calendar or contact info, and you can make it private again anytime.
+    </div>
+    <div id="list"><div class="loading">Loading your athletes…</div></div>
   </div>
-</nav>
 
-<div class="app-layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Athletes</div>
-      <a href="family-athletes.html" class="sidebar-link active">🏅 My Athletes</a>
-      <a href="athlete-onboarding.html" class="sidebar-link">➕ Add Athlete</a>
-      <a href="athlete-calendar-link.html" class="sidebar-link">📅 Link Calendar</a>
+  <!-- Publish confirm modal -->
+  <div class="scrim" id="pubScrim">
+    <div class="modal">
+      <h3 id="pubTitle">Publish to 5-Star?</h3>
+      <div class="m-sub" id="pubBody"></div>
+      <div class="m-note">The public card shows name, sport, school, city/state, height/weight, and any stats you added — and nothing about your schedule or contact details.</div>
+      <div class="m-actions">
+        <button class="btn btn-ghost" onclick="closePub()">Cancel</button>
+        <button class="btn btn-gold" id="pubGo">Publish card</button>
+      </div>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Track</div>
-      <a href="athlete-dashboard.html" class="sidebar-link">📊 Dashboard</a>
-      <a href="#" class="sidebar-link">🎯 Goals</a>
-      <a href="#" class="sidebar-link">📈 Stats</a>
-      <a href="#" class="sidebar-link">🎥 Videos</a>
+  </div>
+
+  <!-- Spotlight modal -->
+  <div class="scrim" id="spotScrim">
+    <div class="modal">
+      <h3>Submit for a 5-Star Spotlight</h3>
+      <div class="m-sub" id="spotName">Ask the 5-Star editorial team to consider featuring this athlete in a story. This is a request — coverage is earned, not guaranteed.</div>
+      <label>Why should they be featured?</label>
+      <textarea id="spotWhy" placeholder="A standout season, a comeback, leadership, community impact…"></textarea>
+      <label>Parent / guardian name</label>
+      <input id="spotParent" type="text" placeholder="Your name" />
+      <label>Best contact email</label>
+      <input id="spotEmail" type="email" placeholder="you@email.com" />
+      <label>Contact phone <span style="text-transform:none;font-weight:400;opacity:.6">(optional)</span></label>
+      <input id="spotPhone" type="tel" placeholder="(716) 555-0100" />
+      <div class="consent">
+        <input type="checkbox" id="spotPerm" />
+        <span>I'm this athlete's parent or legal guardian, and I give 5-Star Sports Media permission to consider them for an editorial feature.</span>
+      </div>
+      <div class="m-actions">
+        <button class="btn btn-ghost" onclick="closeSpot()">Cancel</button>
+        <button class="btn btn-blue" id="spotGo">Submit for review</button>
+      </div>
+      <div class="m-note">Editorial coverage is reviewed by the 5-Star team. Submitting doesn't guarantee a story.</div>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Connect</div>
-      <a href="#" class="sidebar-link">🤝 Coach Connections</a>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="eco">
+    <div class="wrap">
+      <span>★ Venuewise Ecosystem</span>
+      <div>
+        <a href="https://venuewise.net/homehuddle/">HomeHuddle</a>
+        <a href="athletehuddle.html">AthleteHuddle</a>
+        <a href="https://5starsportsmedia.com">5-Star ↗</a>
+      </div>
     </div>
-  </aside>
+  </div>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="page-header">
-      <h1>My Athletes</h1>
-      <a href="athlete-onboarding.html" class="btn-primary">
-        ➕ Add Athlete
-      </a>
-    </div>
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const SUPABASE_URL = "https://urwnbskrtoplgnkkxuvl.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_NnATRFU2t1ATOHR07mFLoQ_ptkdjGDT";
+  const LOGIN_URL = "https://venuewise.net/homehuddle/login.html";
+  const CARD_BASE = "https://5starsportsmedia.com/player-card.html?id=";
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = (id) => document.getElementById(id);
 
-    <!-- SKELETON while loading -->
-    <div class="loading-grid" id="loading-state">
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-    </div>
+  const esc = (s) => String(s==null?"":s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
 
-    <!-- ATHLETES GRID -->
-    <div id="athletes-grid" style="display:none;"></div>
+  let toastT;
+  function toast(msg, kind){ const t=$("toast"); t.textContent=msg; t.className="toast show "+(kind||"");
+    clearTimeout(toastT); toastT=setTimeout(()=>{t.className="toast";},3200); }
 
-  </main>
-</div>
+  // require login
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session){ window.location.replace(LOGIN_URL); }
 
-<script src="athletehuddle.js?v=2"></script>
-<script>
-  const BANNER_COLORS = ['', 'gold', 'green', 'purple'];
+  let athletes = [];
 
-  function formatAge(birthdate) {
-    const age = calcAge(birthdate);
-    return age ? `Age ${age}` : '';
-  }
+  function initials(a){ return ((a.first_name||" ")[0] + (a.last_name||" ")[0]).toUpperCase(); }
 
-  function renderAthleteCard(athlete, index) {
-    const initials = getInitials(athlete.first_name, athlete.last_name);
-    const bannerClass = BANNER_COLORS[index % BANNER_COLORS.length];
-    const ageStr = formatAge(athlete.birthdate);
-    const gradStr = athlete.graduation_year ? `Class of ${athlete.graduation_year}` : '';
-    const metaParts = [ageStr, gradStr, athlete.school].filter(Boolean);
+  function card(a){
+    const name = `${a.first_name||""} ${a.last_name||""}`.trim();
+    const meta = [a.graduation_year?`Class of ${a.graduation_year}`:null, a.school].filter(Boolean).map(esc).join(" · ");
+    const sports = [a.primary_sport, ...(a.secondary_sports||[])].filter(Boolean)
+      .filter((s,i,arr)=>arr.findIndex(x=>x.toLowerCase()===s.toLowerCase())===i);
+    const sportsHtml = sports.length
+      ? `<div class="sports">${sports.map(s=>`<span class="stag">${esc(s)}</span>`).join("")}</div>` : "";
+    const avatar = a.profile_photo_url
+      ? `<img src="${esc(a.profile_photo_url)}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(initials(a))}'))">`
+      : esc(initials(a));
+    const pill = a.is_public
+      ? `<span class="pill pub"><span class="d"></span>Public on 5-Star</span>`
+      : `<span class="pill priv"><span class="d"></span>Private to family</span>`;
 
-    // Combine primary + secondary sports, then de-duplicate case-insensitively
-    // so a sport never shows twice even if the underlying data has repeats.
-    const allSports = [athlete.primary_sport, ...(athlete.secondary_sports || [])]
-      .filter(Boolean)
-      .map(s => String(s).trim());
-    const uniqueSports = allSports.filter(
-      (s, i) => allSports.findIndex(x => x.toLowerCase() === s.toLowerCase()) === i
-    );
-    const sportsHtml = uniqueSports.length
-      ? `<div class="athlete-sports-list">
-          ${uniqueSports.map(s => `<span class="sport-tag">${s}</span>`).join('')}
-         </div>`
-      : '<div class="athlete-sports-list"><span style="font-size:12px;color:rgba(255,255,255,0.3);">No sports added yet</span></div>';
+    const pushRow = a.is_public
+      ? `<button class="abtn muted" onclick="window.__toggle('${a.id}',false)">Make private</button>
+         <a class="abtn primary" href="${CARD_BASE}${a.id}" target="_blank" rel="noopener">View 5-Star card ↗</a>`
+      : `<button class="abtn primary" onclick="window.__askPublish('${a.id}')">Push to 5-Star</button>`;
 
-    const avatarContent = athlete.profile_photo_url
-      ? `<img src="${athlete.profile_photo_url}" alt="${athlete.first_name}" />`
-      : initials;
-
-    return `
-      <div class="athlete-card" onclick="goToDashboard('${athlete.id}')">
-        <div class="athlete-card-banner ${bannerClass}">
-          <div class="athlete-avatar">${avatarContent}</div>
-        </div>
-        <div class="athlete-card-body">
-          <div class="athlete-name">${athlete.first_name} ${athlete.last_name}</div>
-          <div class="athlete-meta">${metaParts.join(' · ')}</div>
-          ${sportsHtml}
-          <div class="athlete-card-actions" onclick="event.stopPropagation()">
-            <a href="athlete-dashboard.html" class="btn-card btn-card-primary"
-               onclick="setActiveAthlete('${athlete.id}')">
-              📊 Dashboard
-            </a>
-            <a href="athlete-onboarding.html?edit=${athlete.id}" class="btn-card btn-card-outline">
-              ✏️ Edit
-            </a>
-            <a href="athlete-calendar-link.html?athlete=${athlete.id}" class="btn-card btn-card-outline">
-              📅
-            </a>
-          </div>
+    return `<div class="acard" id="ac-${a.id}">
+      <div class="banner"><div class="avatar">${avatar}</div></div>
+      <div class="body">
+        <div class="aname">${esc(name)||"Athlete"}</div>
+        <div class="ameta">${meta}</div>
+        ${sportsHtml}
+        <div style="margin-top:.5rem">${pill}</div>
+        <div class="actions">
+          <div class="row">${pushRow}</div>
+          <div class="row"><button class="abtn" onclick="window.__askSpotlight('${a.id}')">★ Submit for Spotlight</button></div>
         </div>
       </div>
-    `;
+    </div>`;
   }
 
-  function goToDashboard(athleteId) {
-    setActiveAthlete(athleteId);
-    window.location.href = 'athlete-dashboard.html';
-  }
-
-  async function loadAthletes() {
-    const grid = document.getElementById('athletes-grid');
-    const loading = document.getElementById('loading-state');
-
-    // Try Supabase
-    let athletes = [];
-    try {
-      const familyId = await getFamilyId();
-      if (familyId) {
-        athletes = await getAthletes(familyId);
-      }
-    } catch(e) {
-      // fall through to demo data
-    }
-
-    // Demo data if no live data
-    if (athletes.length === 0) {
-      athletes = [
-        {
-          id: 'demo-1', first_name: 'Dominic', last_name: 'Johnson',
-          birthdate: '2012-05-14', graduation_year: 2030,
-          school: 'Lincoln Middle School',
-          primary_sport: 'Baseball', secondary_sports: ['Basketball'],
-          profile_photo_url: null
-        },
-        {
-          id: 'demo-2', first_name: 'Vincent', last_name: 'Johnson',
-          birthdate: '2015-09-03', graduation_year: 2033,
-          school: 'St. Mary\'s Elementary',
-          primary_sport: 'Hockey', secondary_sports: [],
-          profile_photo_url: null
-        }
-      ];
-    }
-
-    loading.style.display = 'none';
-    grid.style.display = 'grid';
-
-    if (athletes.length === 0) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">🏅</div>
-          <h2>No Athletes Yet</h2>
-          <p>Add your first athlete to start tracking their development.</p>
-          <a href="athlete-onboarding.html" class="btn-primary">➕ Add First Athlete</a>
-        </div>
-      `;
+  function renderList(){
+    if (!athletes.length){
+      $("list").innerHTML = `<div class="empty">
+        <h2>No athletes yet</h2>
+        <p>Create a profile for your player — it starts private, and you decide if it ever goes public.</p>
+        <a class="btn btn-gold" href="create-athlete.html">+ Add your first athlete</a>
+      </div>`;
       return;
     }
-
-    let html = athletes.map((a, i) => renderAthleteCard(a, i)).join('');
-
-    // Add athlete card
-    html += `
-      <a href="athlete-onboarding.html" class="add-athlete-card">
-        <div class="add-icon">➕</div>
-        <span>Add Athlete</span>
-        <small>Another child, another story</small>
-      </a>
-    `;
-
-    grid.innerHTML = html;
+    $("list").innerHTML = `<div class="grid">${athletes.map(card).join("")}</div>`;
   }
 
-  loadAthletes();
-
-  function goToCalendar() {
-    const family = localStorage.getItem('hh_family');
-    const email = localStorage.getItem('hh_email');
-    let url = 'https://venuewise.net/homehuddle/calendar.html';
-    if (email) url += '?email=' + encodeURIComponent(email);
-    else if (family) {
-      try {
-        const f = JSON.parse(family);
-        if (f.email) url += '?email=' + encodeURIComponent(f.email);
-      } catch(e) {}
+  async function load(){
+    try{
+      const { data, error } = await sb.rpc("my_athletes");
+      if (error) throw error;
+      athletes = data || [];
+      renderList();
+    }catch(e){
+      $("list").innerHTML = `<div class="empty"><h2>Couldn't load your athletes</h2>
+        <p>Please refresh the page. If it keeps happening, sign out and back in.</p></div>`;
     }
-    window.location.href = url;
   }
-</script>
 
-<!-- VENUEWISE ECOSYSTEM BAR -->
-<div style="background:#0A0A0A;border-top:1px solid #1a1a1a;padding:0.65rem 0;">
-  <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
-    <span style="font-size:0.7rem;color:#666;font-family:sans-serif;">★ <strong style="color:#D4AF37;">Venuewise Ecosystem</strong> — One connected platform for sports families</span>
-    <div style="display:flex;gap:0.25rem;flex-wrap:wrap;">
-      <a href="https://venuewise.net/homehuddle/" style="font-size:0.68rem;color:#666;text-decoration:none;padding:0.2rem 0.5rem;font-family:sans-serif;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#666'">HomeHuddle</a>
-      <a href="https://venuewise.net/homehuddle/family--athlete.html" style="font-size:0.68rem;color:#666;text-decoration:none;padding:0.2rem 0.5rem;font-family:sans-serif;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#666'">AthleteHuddle</a>
-      <a href="https://venuewise.net/homehuddle/coacheshuddle.html" style="font-size:0.68rem;color:#666;text-decoration:none;padding:0.2rem 0.5rem;font-family:sans-serif;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#666'">CoachesHuddle</a>
-      <a href="https://5starsportsmedia.com" style="font-size:0.68rem;color:#D4AF37;text-decoration:none;padding:0.2rem 0.5rem;font-weight:700;font-family:sans-serif;">5-Star Sports Media ↗</a>
-    </div>
-  </div>
-</div>
+  // ---- publish toggle ----
+  let pendingPublishId = null;
+  window.__askPublish = (id) => {
+    const a = athletes.find(x=>x.id===id); if(!a) return;
+    pendingPublishId = id;
+    $("pubBody").innerHTML = `You're about to make <b>${esc((a.first_name||"")+" "+(a.last_name||""))}</b>'s
+      player card public on 5-Star Sports Media. Anyone with the link will be able to see it.`;
+    $("pubScrim").classList.add("open");
+  };
+  window.closePub = () => { $("pubScrim").classList.remove("open"); pendingPublishId=null; };
+  $("pubGo").addEventListener("click", async () => {
+    if(!pendingPublishId) return;
+    $("pubGo").disabled = true;
+    await setPublic(pendingPublishId, true);
+    $("pubGo").disabled = false;
+    window.closePub();
+  });
+
+  window.__toggle = (id, makePublic) => setPublic(id, makePublic);
+
+  async function setPublic(id, makePublic){
+    try{
+      const { error } = await sb.rpc("set_athlete_public", { p_athlete_id:id, p_public:makePublic });
+      if (error) throw error;
+      const a = athletes.find(x=>x.id===id); if(a) a.is_public = makePublic;
+      renderList();
+      toast(makePublic ? "Card is now public on 5-Star" : "Card is private again", "ok");
+    }catch(e){
+      toast("Couldn't update visibility. Try again.", "err");
+    }
+  }
+
+  // ---- spotlight ----
+  let spotId = null;
+  window.__askSpotlight = (id) => {
+    const a = athletes.find(x=>x.id===id); if(!a) return;
+    spotId = id;
+    $("spotName").innerHTML = `Ask the 5-Star editorial team to consider featuring
+      <b>${esc((a.first_name||"")+" "+(a.last_name||""))}</b> in a story. This is a request — coverage is earned, not guaranteed.`;
+    $("spotWhy").value=""; $("spotParent").value=""; $("spotEmail").value=""; $("spotPhone").value=""; $("spotPerm").checked=false;
+    $("spotScrim").classList.add("open");
+  };
+  window.closeSpot = () => { $("spotScrim").classList.remove("open"); spotId=null; };
+  $("spotGo").addEventListener("click", async () => {
+    if(!spotId) return;
+    if(!$("spotPerm").checked){ toast("Please confirm you're the parent or guardian.", "err"); return; }
+    $("spotGo").disabled = true;
+    try{
+      const payload = {
+        athlete_id: spotId,
+        why_feature: $("spotWhy").value.trim(),
+        parent_name: $("spotParent").value.trim(),
+        parent_email: $("spotEmail").value.trim(),
+        parent_phone: $("spotPhone").value.trim(),
+        permission_confirmed: true
+      };
+      const { error } = await sb.rpc("submit_athlete_spotlight", { p_payload: payload });
+      if (error) throw error;
+      window.closeSpot();
+      toast("Submitted to the 5-Star editorial team ★", "ok");
+    }catch(e){
+      toast("Couldn't submit. Please try again.", "err");
+    }finally{
+      $("spotGo").disabled = false;
+    }
+  });
+
+  // close modals on scrim click
+  document.querySelectorAll(".scrim").forEach(s =>
+    s.addEventListener("click", e => { if(e.target===s) s.classList.remove("open"); }));
+
+  load();
+</script>
 </body>
 </html>
