@@ -644,7 +644,8 @@ async function loadFamilyEvents() {
         color: e.color || CAT_COLORS[e.category] || '#C0392B',
         pmLabel: CAT_LABELS[e.category] || '🏠 Family',
         pmKey: 'manual', conflict: false, isManual: true,
-        notes: e.notes || '', category: e.category || 'family'
+        notes: e.notes || '', category: e.category || 'family',
+        visibility: e.visibility || 'family'
       };
     });
     allEvents = allEvents.filter(function(e){ return !e.isManual; }).concat(manualEvents).sort(function(a,b){ return a.start - b.start; });
@@ -840,9 +841,9 @@ async function editManualEvent(evId) {
   document.getElementById('aeEnd').value = ev.end.toTimeString().slice(0,5);
   document.getElementById('aeLoc').value = ev.location || '';
   document.getElementById('aeNotes').value = ev.notes || '';
-aeCategory = ev.sport || 'family';
+  aeCategory = ev.category || ev.sport || 'family';
   document.querySelectorAll('.ae-cats .ae-cat').forEach(function(b){ b.classList.remove('active'); });
-  var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="' + aeCategory + '"]');
+  var catBtn = document.querySelector('.ae-cats .ae-cat[onclick*="setAECat(this,\'' + aeCategory + '\')"]');
   if (catBtn) catBtn.classList.add('active');
   aeVisibility = ev.visibility || 'family';
   document.querySelectorAll('#aeVisWrap .ae-cat').forEach(function(b){ b.classList.toggle('active', (b.getAttribute('onclick')||'').indexOf("'" + aeVisibility + "'") > -1); });
@@ -850,6 +851,12 @@ aeCategory = ev.sport || 'family';
   document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){
     b.classList.toggle('active', b.textContent.trim().includes(aeKid) || (aeKid === 'Family' && b.textContent.includes('Everyone')));
   });
+  // Reset Repeat to "Once" so editing a single event never spawns a recurring series
+  aeRepeat = 'none';
+  document.querySelectorAll('.ae-rep').forEach(function(b){ b.classList.remove('active'); });
+  var repOnce = document.querySelector('.ae-rep'); if (repOnce) repOnce.classList.add('active');
+  document.getElementById('aeRepEndWrap').style.display = 'none';
+  document.getElementById('aeRepEnd').value = '';
   document.querySelector('.ae-title').textContent = '✏️ Edit Event';
   var saveBtn = document.getElementById('aeSaveBtn');
   if (saveBtn) { saveBtn.innerHTML = '💾 Save Changes'; saveBtn.dataset.editId = evId; }
@@ -956,7 +963,11 @@ async function saveAE() {
   allEvents = allEvents.filter(function(e){ return !(e.isManual && e.name === title && String(e.id).startsWith('manual-temp')); });
   const editBtn = document.getElementById('aeSaveBtn');
   const editId = editBtn && editBtn.dataset.editId;
-  if (editId) { await sb.from('family_events').delete().eq('id', editId); allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); }); }
+  if (editId) {
+    const delRes = await sb.from('family_events').delete().eq('id', editId);
+    if (delRes && delRes.error) { showToast('Could not update event — please try again'); return; }
+    allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); });
+  }
   const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
   const saveBtn = document.querySelector('.ae-save');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
@@ -969,9 +980,9 @@ async function saveAE() {
     if (!res.ok) { const errData = await res.json().catch(function(){ return {}; }); throw new Error(errData.message || 'Save failed (' + res.status + ')'); }
     const saved = await res.json();
     const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
-    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#C0392B', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, conflicts: [] };
+    const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#C0392B', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, category: aeCategory, visibility: aeVisibility, conflicts: [] };
     allEvents.push(newEv);
-    if (aeRepeat !== 'none' && repEnd) {
+    if (!editId && aeRepeat !== 'none' && repEnd) {
       const endDate = new Date(repEnd);
       const duration = new Date(eventEnd) - new Date(eventStart);
       let cur = new Date(eventStart);
@@ -987,7 +998,7 @@ async function saveAE() {
     allEvents.sort(function(a,b){ return a.start - b.start; });
     detectConflicts(); buildPlatformStrip();
     closeAE(); render(); updateStats();
-    showToast('✅ "' + title + '" added to your calendar');
+    showToast(editId ? ('✅ "' + title + '" updated') : ('✅ "' + title + '" added to your calendar'));
   } catch(e) {
     console.error('Save error:', e);
     showToast('Could not save: ' + (e.message || 'try again'));
