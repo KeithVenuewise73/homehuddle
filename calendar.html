@@ -399,6 +399,7 @@ let familyLabel = 'Your';
 let isSyncing = false;
 let canAddEvents = false;
 let currentFamilyId = null;
+let editableFamilyIds = [];
 let aeCategory = 'family';
 let aeRepeat = 'none';
 let aeKid = 'Family';
@@ -429,23 +430,24 @@ sObs.observe(document.getElementById('notifBanner'));
 applySticky();
 window.addEventListener('orientationchange', function(){ setTimeout(applySticky, 100); });
 
-// ── PERMISSION CHECK ──────────────────────────────────────
-function checkAddEventPermission() {
-  if (familyPhone) { canAddEvents = false; return; }
-  if (memberRole === 'player') { canAddEvents = false; checkPlayerAddPermission(); }
-  else { canAddEvents = true; document.getElementById('addEventBtn').style.display = 'flex'; }
-}
-
-async function checkPlayerAddPermission() {
-  if (!familyEmail || !memberName) return;
+// ── PERMISSION CHECK (session-based, not URL-based) ───────
+// A person can add/edit/delete manual events when they are signed in AND the
+// database says they have edit rights to at least one family. This makes the
+// installed home-screen app and the browser behave identically, regardless of
+// which URL launched them.
+async function checkAddEventPermission() {
+  canAddEvents = false;
   try {
-    const res = await fetch(SURL + '/rest/v1/family_members?name=eq.' + encodeURIComponent(memberName) + '&select=can_add_events&limit=1', {
-      headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
-    const data = await res.json();
-    if (data && data.length && data[0].can_add_events) {
-      canAddEvents = true;
-      document.getElementById('addEventBtn').style.display = 'flex';
+    const { data: sessionData } = await sb.auth.getSession();
+    const session = sessionData && sessionData.session;
+    if (session && session.user) {
+      const { data: fids, error } = await sb.rpc('current_family_ids', { p_editable: true });
+      if (!error && Array.isArray(fids) && fids.length) {
+        editableFamilyIds = fids;
+        canAddEvents = true;
+        const btn = document.getElementById('addEventBtn');
+        if (btn) btn.style.display = 'flex';
+      }
     }
   } catch(e) {}
 }
@@ -611,29 +613,46 @@ function processSportsEvents(data, feeds) {
   applySticky(); updateStats(); render(); setSync('ok', 'Synced');
 }
 
-// ── LOAD FAMILY ID ────────────────────────────────────────
+// ── RESOLVE FAMILY ID (URL first, then signed-in session) ──
 async function loadFamilyId() {
-  if (currentFamilyId || !familyEmail) return;
+  if (currentFamilyId) return;
+  if (familyEmail) {
+    try {
+      const { data } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).maybeSingle();
+      if (data && data.id) { currentFamilyId = data.id; return; }
+    } catch(e) {}
+  }
+  if (familyId) { currentFamilyId = familyId; return; }
+  // Fallback: derive the family from the signed-in session (covers the
+  // installed app launched without an ?email= in its URL).
   try {
-    const { data } = await sb.from('families').select('id').eq('email', familyEmail).limit(1).maybeSingle();
-    if (data && data.id) currentFamilyId = data.id;
+    if (editableFamilyIds && editableFamilyIds.length) { currentFamilyId = editableFamilyIds[0]; return; }
+    const { data: fids } = await sb.rpc('current_family_ids', { p_editable: true });
+    if (Array.isArray(fids) && fids.length) { editableFamilyIds = fids; currentFamilyId = fids[0]; }
   } catch(e) {}
 }
 
 // ── LOAD FAMILY (MANUAL) EVENTS ───────────────────────────
+// Loads the family's manually-added events. Scoping is handled by the database:
+// when signed in, RLS returns only the families you belong to. We additionally
+// narrow to a single family when the URL names one (?email= / ?id=).
 async function loadFamilyEvents() {
-  if (!familyEmail) return;
   try {
     const now = new Date();
     const start = new Date(now.getTime() - 30 * 864e5).toISOString();
     const end = new Date(now.getTime() + 365 * 864e5).toISOString();
     if (!currentFamilyId) await loadFamilyId();
-    if (!currentFamilyId) return;
-    const { data: evData } = await sb.from('family_events')
-      .select('*').eq('family_id', currentFamilyId)
+    let q = sb.from('family_events').select('*')
       .gte('event_start', start).lte('event_start', end)
       .order('event_start', { ascending: true });
-    if (!evData || !evData.length) return;
+    // Narrow to one family only when the URL explicitly named it.
+    if (currentFamilyId && (familyEmail || familyId)) q = q.eq('family_id', currentFamilyId);
+    const { data: evData, error } = await q;
+    if (error || !evData || !evData.length) {
+      allEvents = allEvents.filter(function(e){ return !e.isManual; });
+      detectConflicts(); updateStats(); render();
+      return;
+    }
     const manualEvents = evData.map(function(e) {
       return {
         id: e.id, name: e.title,
@@ -865,9 +884,8 @@ async function editManualEvent(evId) {
 
 async function deleteManualEvent(evId) {
   try {
-    await fetch(SURL + '/rest/v1/family_events?id=eq.' + evId, {
-      method: 'DELETE', headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-    });
+    const { error } = await sb.from('family_events').delete().eq('id', evId);
+    if (error) { showToast('Could not delete event'); return; }
     allEvents = allEvents.filter(function(e){ return String(e.id) !== String(evId); });
     closeModal(); render(); updateStats();
     showToast('Event deleted');
@@ -904,7 +922,7 @@ async function loadMembersForAE() {
 }
 function setAEMember(el, kid) { document.querySelectorAll('#aeMemberWrap .ae-cat').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); aeKid = kid; checkAEConflict(); }
 async function openAE() {
-  if (!canAddEvents) return;
+  if (!canAddEvents) { showToast('Sign in to add events'); return; }
   const today = new Date().toISOString().split('T')[0];
   await loadFamilyId();
   await loadMembersForAE();
@@ -963,42 +981,47 @@ async function saveAE() {
   allEvents = allEvents.filter(function(e){ return !(e.isManual && e.name === title && String(e.id).startsWith('manual-temp')); });
   const editBtn = document.getElementById('aeSaveBtn');
   const editId = editBtn && editBtn.dataset.editId;
-  if (editId) {
-    const delRes = await sb.from('family_events').delete().eq('id', editId);
-    if (delRes && delRes.error) { showToast('Could not update event — please try again'); return; }
-    allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); });
-  }
-  const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
   const saveBtn = document.querySelector('.ae-save');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...'; }
   try {
-    const res = await fetch(SURL + '/rest/v1/family_events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) { const errData = await res.json().catch(function(){ return {}; }); throw new Error(errData.message || 'Save failed (' + res.status + ')'); }
-    const saved = await res.json();
-    const savedId = Array.isArray(saved) ? saved[0].id : saved.id;
+    if (editId) {
+      // EDIT — in-place update through the authenticated session (no delete/re-insert)
+      const upPayload = { title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, applies_to: aeKid === 'Family' ? [] : [aeKid] };
+      const { data: upRows, error: upErr } = await sb.from('family_events').update(upPayload).eq('id', editId).select();
+      if (upErr) throw new Error(upErr.message || 'Update failed');
+      if (!upRows || !upRows.length) throw new Error('Update did not save — you may not be signed in with edit access');
+      allEvents = allEvents.filter(function(e){ return String(e.id) !== String(editId); });
+      allEvents.push({ id: editId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#C0392B', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, category: aeCategory, visibility: aeVisibility, conflicts: [] });
+      allEvents.sort(function(a,b){ return a.start - b.start; });
+      detectConflicts(); buildPlatformStrip(); closeAE(); render(); updateStats();
+      showToast('✅ "' + title + '" updated');
+      return;
+    }
+    // ADD — make sure we have a family to attach to (URL or session), then insert
+    if (!currentFamilyId) await loadFamilyId();
+    if (!currentFamilyId) throw new Error('Could not find your family — please sign in again');
+    const payload = { family_id: currentFamilyId, title: title, event_start: eventStart, event_end: eventEnd, location: loc || null, category: aeCategory, visibility: aeVisibility, color: CAT_COLORS[aeCategory] || '#C0392B', notes: notes || null, repeat_type: aeRepeat, repeat_end_date: repEnd || null, applies_to: aeKid === 'Family' ? [] : [aeKid], created_by: null };
+    const { data: insRows, error: insErr } = await sb.from('family_events').insert(payload).select();
+    if (insErr) throw new Error(insErr.message || 'Save failed');
+    const savedId = insRows && insRows.length ? insRows[0].id : null;
     const newEv = { id: savedId, name: title, start: new Date(eventStart), end: new Date(eventEnd), location: loc, sport: aeCategory, kid: aeKid, platform: 'manual', team_name: '', color: CAT_COLORS[aeCategory] || '#C0392B', pmLabel: CAT_LABELS[aeCategory] || '🏠 Family', pmKey: 'manual', conflict: false, isManual: true, notes: notes, category: aeCategory, visibility: aeVisibility, conflicts: [] };
     allEvents.push(newEv);
-    if (!editId && aeRepeat !== 'none' && repEnd) {
+    if (aeRepeat !== 'none' && repEnd) {
       const endDate = new Date(repEnd);
       const duration = new Date(eventEnd) - new Date(eventStart);
       let cur = new Date(eventStart);
       if (aeRepeat === 'weekly') cur.setDate(cur.getDate() + 7); else cur.setMonth(cur.getMonth() + 1);
       while (cur <= endDate) {
         const rp = Object.assign({}, payload, { event_start: cur.toISOString(), event_end: new Date(cur.getTime() + duration).toISOString() });
-        const rRes = await fetch(SURL + '/rest/v1/family_events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Prefer': 'return=representation' }, body: JSON.stringify(rp) });
-        const rSaved = await rRes.json();
-        allEvents.push(Object.assign({}, newEv, { id: Array.isArray(rSaved) ? rSaved[0].id : rSaved.id, start: new Date(cur), end: new Date(cur.getTime() + duration), conflicts: [] }));
+        const { data: rRows } = await sb.from('family_events').insert(rp).select();
+        allEvents.push(Object.assign({}, newEv, { id: rRows && rRows.length ? rRows[0].id : null, start: new Date(cur), end: new Date(cur.getTime() + duration), conflicts: [] }));
         if (aeRepeat === 'weekly') cur.setDate(cur.getDate() + 7); else cur.setMonth(cur.getMonth() + 1);
       }
     }
     allEvents.sort(function(a,b){ return a.start - b.start; });
     detectConflicts(); buildPlatformStrip();
     closeAE(); render(); updateStats();
-    showToast(editId ? ('✅ "' + title + '" updated') : ('✅ "' + title + '" added to your calendar'));
+    showToast('✅ "' + title + '" added to your calendar');
   } catch(e) {
     console.error('Save error:', e);
     showToast('Could not save: ' + (e.message || 'try again'));
