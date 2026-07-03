@@ -1,0 +1,14 @@
+{
+  "name": "venuewise-core-tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read-only production smoke tests for Venuewise Core / HomeHuddle. The Wave 0 safety net.",
+  "scripts": {
+    "test:smoke": "playwright test",
+    "test:smoke:prod": "BASE_URL=https://venuewise.net playwright test",
+    "install:browsers": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}
