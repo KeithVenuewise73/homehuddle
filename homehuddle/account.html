@@ -344,31 +344,56 @@ try {
 } catch (e) { /* never affect the page */ }
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Venuewise Core: render the Season Setup checklist (READ-ONLY). Shows only the
-// current person's open workflow tasks in the HomeHuddle workspace. If there are
-// none (every existing user), the card stays hidden and the page is unchanged.
-// Fully guarded — any failure is swallowed and never affects the page.
+// Venuewise Core: render the Season Setup checklist (interactive for the assignee).
+// Shows the current person's season-setup instance in the HomeHuddle workspace, with
+// a "Mark done" button per open task. If there is no such instance (every existing
+// user), the card stays hidden and the page is unchanged. Fully guarded.
 async function vwRenderSeasonSetup() {
   try {
     if (!window.VW || !VW.workflow || !VW.workspace) return;
     var res = await VW.workspace.resolve(sb);
     var hh = res && res.get ? res.get('homehuddle') : null;
-    if (!hh) return;                                   // no HomeHuddle workspace → nothing to show
-    var mine = await VW.workflow.myTasks(sb, { status: ['pending','in_progress','blocked'] });
-    var tasks = (mine.tasks || []).filter(function (t) { return t.workspace_id === hh.id; });
-    if (!tasks.length) return;                         // no season-setup tasks → leave card hidden
+    if (!hh) return;
+    var q = await sb.from('workflow_instances')
+      .select('id,status,title,workflow_templates(key)')
+      .eq('workspace_id', hh.id);
+    var instances = (q && q.data) || [];
+    var inst = instances.find(function (i) {
+      return i.workflow_templates && i.workflow_templates.key === 'season_setup';
+    });
+    if (!inst) return;                                 // no season-setup instance → hidden
+    var full = await VW.workflow.instance(sb, inst.id);
+    if (!full || !full.tasks || !full.tasks.length) return;
+    var tasks = full.tasks.slice().sort(function (a, b) {
+      return String(a.created_at || '').localeCompare(String(b.created_at || ''));
+    });
     var list = document.getElementById('vw-season-setup-list');
     list.innerHTML = tasks.map(function (t) {
+      var done = (t.status === 'complete' || t.status === 'skipped');
+      var right = done
+        ? '<span class="tag tag-sms">Done</span>'
+        : '<button class="btn btn-secondary btn-sm" onclick="vwCompleteTask(\'' + t.id + '\')">Mark done</button>';
       return '<div class="member-row">' +
         '<div class="member-info">' +
-          '<div class="member-name">' + esc(t.name) + '</div>' +
+          '<div class="member-name">' + (done ? '✅ ' : '') + esc(t.name) + '</div>' +
           '<div class="member-meta">Season setup step</div>' +
-        '</div>' +
-        '<span class="tag tag-member">To do</span>' +
-      '</div>';
+        '</div>' + right + '</div>';
     }).join('');
+    if (full.status === 'completed') {
+      list.innerHTML += '<p style="font-size:0.82rem;color:#86EFAC;margin-top:0.75rem;font-weight:600">🎉 Season setup complete!</p>';
+    }
     document.getElementById('vw-season-setup-card').style.display = '';
   } catch (e) { /* never affect the page */ }
+}
+
+// Complete one checklist item, then re-render. Guarded — failures show a toast only.
+async function vwCompleteTask(taskId) {
+  try {
+    if (!window.VW || !VW.workflow) return;
+    var r = await VW.workflow.completeTask(sb, taskId);
+    if (r && r.ok) { showToast('✅ Marked done'); vwRenderSeasonSetup(); }
+    else { showToast('Could not update — please try again'); }
+  } catch (e) { showToast('Could not update — please try again'); }
 }
 
 let currentEmail = '';
