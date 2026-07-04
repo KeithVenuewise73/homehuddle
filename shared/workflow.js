@@ -73,6 +73,22 @@
     });
   }
 
-  VW.workflow = { myTasks: myTasks, instance: instance };
+  // Complete a task by calling the workflow-task-action Edge Function. The
+  // Supabase client attaches the signed-in user's session automatically, and the
+  // Edge Function enforces permission server-side (assignee / role / owner).
+  async function completeTask(client, taskId) {
+    var sb = getClient(client);
+    try {
+      var resp = await sb.functions.invoke('workflow-task-action', {
+        body: { taskId: taskId, action: 'complete' }
+      });
+      if (resp.error) return { ok: false, error: (resp.error && resp.error.message) || String(resp.error) };
+      return { ok: true, result: resp.data };
+    } catch (e) {
+      return { ok: false, error: String(e) };
+    }
+  }
+
+  VW.workflow = { myTasks: myTasks, instance: instance, completeTask: completeTask };
 
 })(typeof window !== 'undefined' ? window : this);
