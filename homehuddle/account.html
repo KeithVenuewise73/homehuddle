@@ -204,6 +204,14 @@
 
     <div class="alert alert-success" id="global-success"></div>
 
+    <!-- Venuewise Core: Season Setup checklist (read-only). Hidden unless the signed-in
+         person has season-setup tasks in the HomeHuddle workspace. No effect otherwise. -->
+    <div class="card" id="vw-season-setup-card" style="display:none">
+      <div class="card-title">🗓️ Season Setup</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.7">Your season setup checklist. Work through these to get set up for the season.</p>
+      <div id="vw-season-setup-list"></div>
+    </div>
+
     <!-- SHARE WITH FAMILY -->
     <div class="card">
       <div class="card-title">📤 Share with Family</div>
@@ -313,6 +321,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Venuewise Core: workspace resolver (read-only; console verification only, no UI change) -->
 <script src="/shared/workspace.js"></script>
+<!-- Venuewise Core: workflow client (read-only; powers the Season Setup card) -->
+<script src="/shared/workflow.js"></script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
@@ -329,9 +339,37 @@ try {
         .then(function (r) { console.log('[VW] workspace resolve:', r); })
         .catch(function (e) { console.warn('[VW] workspace resolve (non-fatal):', e); });
     }
+    if (session && window.VW && window.VW.workflow) { vwRenderSeasonSetup(); }
   });
 } catch (e) { /* never affect the page */ }
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Venuewise Core: render the Season Setup checklist (READ-ONLY). Shows only the
+// current person's open workflow tasks in the HomeHuddle workspace. If there are
+// none (every existing user), the card stays hidden and the page is unchanged.
+// Fully guarded — any failure is swallowed and never affects the page.
+async function vwRenderSeasonSetup() {
+  try {
+    if (!window.VW || !VW.workflow || !VW.workspace) return;
+    var res = await VW.workspace.resolve(sb);
+    var hh = res && res.get ? res.get('homehuddle') : null;
+    if (!hh) return;                                   // no HomeHuddle workspace → nothing to show
+    var mine = await VW.workflow.myTasks(sb, { status: ['pending','in_progress','blocked'] });
+    var tasks = (mine.tasks || []).filter(function (t) { return t.workspace_id === hh.id; });
+    if (!tasks.length) return;                         // no season-setup tasks → leave card hidden
+    var list = document.getElementById('vw-season-setup-list');
+    list.innerHTML = tasks.map(function (t) {
+      return '<div class="member-row">' +
+        '<div class="member-info">' +
+          '<div class="member-name">' + esc(t.name) + '</div>' +
+          '<div class="member-meta">Season setup step</div>' +
+        '</div>' +
+        '<span class="tag tag-member">To do</span>' +
+      '</div>';
+    }).join('');
+    document.getElementById('vw-season-setup-card').style.display = '';
+  } catch (e) { /* never affect the page */ }
+}
 
 let currentEmail = '';
 let currentFeeds = [];
