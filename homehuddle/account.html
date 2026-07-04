@@ -311,11 +311,27 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Venuewise Core: workspace resolver (read-only; console verification only, no UI change) -->
+<script src="/shared/workspace.js"></script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 
 const sb = window.supabase.createClient(SURL, SKEY);
+
+// ── Venuewise Core end-to-end verification (READ-ONLY, console only) ──────────
+// Once a session exists, resolve this person's workspaces and log the result.
+// Fully guarded: any failure is swallowed and can never affect the page or user.
+try {
+  sb.auth.onAuthStateChange(function (_evt, session) {
+    if (session && window.VW && window.VW.workspace) {
+      window.VW.workspace.resolve(sb)
+        .then(function (r) { console.log('[VW] workspace resolve:', r); })
+        .catch(function (e) { console.warn('[VW] workspace resolve (non-fatal):', e); });
+    }
+  });
+} catch (e) { /* never affect the page */ }
+// ─────────────────────────────────────────────────────────────────────────────
 
 let currentEmail = '';
 let currentFeeds = [];
