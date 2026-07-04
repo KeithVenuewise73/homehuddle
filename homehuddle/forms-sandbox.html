@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Venuewise — Forms Engine Sandbox</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0f1729;color:#e6edf7;margin:0;padding:2rem;line-height:1.5}
+    .wrap{max-width:640px;margin:0 auto}
+    h1{font-size:1.4rem;margin:0 0 .25rem}
+    .sub{color:#8a95a8;font-size:.85rem;margin-bottom:1.5rem}
+    .panel{background:#18233a;border:1px solid #26334d;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+    label.vw-form-field{display:block;margin:0 0 .9rem}
+    label.vw-form-field>span{display:block;font-size:.78rem;color:#9fb0c9;margin-bottom:.3rem}
+    input,select,textarea{width:100%;padding:.55rem .7rem;border:1px solid #2c3a57;border-radius:8px;background:#0f1729;color:#e6edf7;font-size:.9rem;outline:none}
+    input[type=checkbox]{width:auto}
+    fieldset.vw-form-section{border:1px solid #26334d;border-radius:10px;margin:0 0 1rem;padding:1rem}
+    legend{color:#c9d6ea;font-size:.8rem;font-weight:600;padding:0 .4rem}
+    button{font-family:inherit;font-size:.85rem;font-weight:600;border:none;border-radius:8px;padding:.55rem 1rem;cursor:pointer}
+    .btn-primary{background:#2f6df6;color:#fff}
+    .btn-ghost{background:#22304b;color:#cdd8ec;border:1px solid #2c3a57}
+    .vw-form-add,.vw-form-remove{background:#22304b;color:#cdd8ec;border:1px solid #2c3a57;margin-top:.4rem;font-size:.78rem;padding:.35rem .7rem}
+    .vw-form-submit{background:#2f9e5e;color:#fff;margin-top:.5rem}
+    .vw-form-errors{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fca5a5;border-radius:8px;padding:.6rem .8rem;margin:.75rem 0;font-size:.82rem}
+    .vw-form-info{color:#9fb0c9;font-size:.82rem}
+    .vw-form-placeholder{color:#7c8aa3;font-size:.8rem;font-style:italic}
+    #status{font-size:.82rem;color:#86efac;white-space:pre-wrap;margin-top:.5rem}
+    #err{font-size:.82rem;color:#fca5a5;white-space:pre-wrap;margin-top:.5rem}
+    .row{display:flex;gap:.5rem}
+    .tag{display:inline-block;font-size:.68rem;background:#22304b;border:1px solid #2c3a57;border-radius:20px;padding:2px 10px;color:#9fb0c9}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Forms Engine Sandbox <span class="tag">venuewise · test only</span></h1>
+  <div class="sub">A standalone page to prove the Dynamic Forms Engine end-to-end. Nothing here touches the HomeHuddle account page or any real family data.</div>
+
+  <!-- LOGIN -->
+  <div class="panel" id="login-panel">
+    <div id="login-phone-step">
+      <label class="vw-form-field"><span>Mobile number</span>
+        <input id="phone" type="tel" placeholder="(716) 555-0100" autocomplete="tel"/></label>
+      <button class="btn-primary" onclick="sendOtp()">Text me a code</button>
+    </div>
+    <div id="login-code-step" style="display:none">
+      <label class="vw-form-field"><span>6-digit code</span>
+        <input id="code" type="text" inputmode="numeric" maxlength="6" placeholder="••••••"/></label>
+      <div class="row">
+        <button class="btn-primary" onclick="verifyOtp()">Verify</button>
+        <button class="btn-ghost" onclick="backToPhone()">Back</button>
+      </div>
+    </div>
+    <div id="login-err" style="color:#fca5a5;font-size:.82rem;margin-top:.5rem"></div>
+  </div>
+
+  <!-- SANDBOX -->
+  <div class="panel" id="sandbox-panel" style="display:none">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:.75rem">
+      <div><span id="who" style="font-size:.82rem;color:#9fb0c9"></span></div>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+    <button class="btn-primary" id="run-btn" onclick="runTest()">Run form-task test</button>
+    <div id="status"></div>
+    <div id="err"></div>
+    <div id="form-container" style="margin-top:1rem"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/forms.js"></script>
+<script>
+const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
+const sb = window.supabase.createClient(SURL, SKEY);
+
+let loginPhone = null;
+function el(id){ return document.getElementById(id); }
+function setStatus(m){ el('status').textContent = m; }
+function setErr(m){ el('err').textContent = m || ''; }
+function loginErr(m){ el('login-err').textContent = m || ''; }
+
+function toE164(raw){ const d=(raw||'').replace(/\D/g,''); if(d.length===10)return '+1'+d; if(d.length===11&&d[0]==='1')return '+'+d; if((raw||'').trim().startsWith('+'))return raw.trim(); return null; }
+
+async function sendOtp(){
+  const phone = toE164(el('phone').value);
+  if(!phone) return loginErr('Enter a valid 10-digit US mobile number.');
+  loginErr(''); loginPhone = phone;
+  const { error } = await sb.auth.signInWithOtp({ phone });
+  if(error) return loginErr('Could not send code: '+error.message);
+  el('login-phone-step').style.display='none'; el('login-code-step').style.display='';
+}
+async function verifyOtp(){
+  const token = el('code').value.replace(/\D/g,'');
+  if(token.length!==6) return loginErr('Enter the 6-digit code.');
+  const { error } = await sb.auth.verifyOtp({ phone: loginPhone, token, type:'sms' });
+  if(error) return loginErr('That code did not match.');
+  showSandbox();
+}
+function backToPhone(){ el('login-code-step').style.display='none'; el('login-phone-step').style.display=''; }
+async function signOut(){ await sb.auth.signOut(); location.reload(); }
+
+async function showSandbox(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ el('login-panel').style.display=''; el('sandbox-panel').style.display='none'; return; }
+  el('login-panel').style.display='none'; el('sandbox-panel').style.display='';
+  el('who').textContent = 'Signed in';
+}
+
+let submissionId = null;
+async function runTest(){
+  setErr(''); setStatus('Starting workflow…'); el('form-container').innerHTML='';
+  el('run-btn').disabled = true;
+  try {
+    // 1. start a form-task workflow (venuewise test template)
+    const start = await sb.functions.invoke('workflow-start', { body: {
+      templateKey:'form_sandbox_test', workspaceSlug:'venuewise',
+      subjectType:'test', subjectId:'sandbox-'+Date.now()
+    }});
+    if(start.error) throw new Error('workflow-start: '+(start.error.message||start.error));
+    const instanceId = start.data.instance_id;
+    setStatus('Workflow started ('+instanceId+'). Loading the form task…');
+
+    // 2. find the pending form task
+    const { data:tasks } = await sb.from('workflow_tasks')
+      .select('id,key,task_type,config,instance_id').eq('instance_id',instanceId).eq('task_type','form').limit(1);
+    const task = tasks && tasks[0];
+    if(!task) throw new Error('no form task found on the workflow');
+    const formKey = (task.config && task.config.form_key) || 'demo_intake';
+
+    // 3. create a draft submission linked to the workflow task
+    const save = await VW.forms.saveDraft(sb, {
+      formKey, workspaceSlug:'venuewise',
+      workflowInstanceId:instanceId, workflowTaskId:task.id, data:{}
+    });
+    if(!save.ok) throw new Error('form-save: '+(save.error||'failed'));
+    submissionId = save.submissionId;
+
+    // 4. load + render the form
+    const loaded = await VW.forms.loadTemplate(sb, formKey, 'venuewise');
+    if(!loaded) throw new Error('form template not found');
+    setStatus('Fill the form and submit. (Try leaving a required field blank to see validation.)');
+    const controller = VW.forms.render(el('form-container'), loaded, {}, {
+      autosave:true,
+      onSaved: (d)=>{ VW.forms.saveDraft(sb, { submissionId, data:d }); },
+      onSubmit: async (d)=>{
+        setErr('');
+        const r = await VW.forms.submit(sb, submissionId, d);
+        if(r.ok){
+          const wf = r.result && r.result.workflow_status;
+          setStatus('✅ Form submitted. Workflow advanced → status: '+ (wf||'(n/a)'));
+          el('form-container').innerHTML = '<div class="vw-form-info">🎉 Done — the workflow task completed and the workflow '+(wf==='completed'?'completed':'advanced')+'.</div>';
+        } else {
+          controller.showErrors(r.errors || [{ message: r.error || 'submit failed' }]);
+        }
+      }
+    });
+  } catch(e){
+    setErr('Error: '+(e.message||e)+'\n(If it says you are not a member of the workspace, this sandbox only works for a venuewise member.)');
+  } finally {
+    el('run-btn').disabled = false;
+  }
+}
+
+// resume an existing session on load
+showSandbox();
+</script>
+</body>
+</html>
