@@ -81,9 +81,20 @@
     var sb = getClient(client);
     var resp = await sb.functions.invoke('form-submit', { body: { submissionId: submissionId, data: data } });
     if (resp.error) {
-      // 422 validation errors come back in resp.error.context or resp.data depending on SDK version
-      var payload = (resp.error && resp.error.context) || resp.data || {};
-      return { ok: false, errors: payload.errors || null, error: (resp.error && resp.error.message) || 'submit failed' };
+      // On a non-2xx (e.g. 422 validation), supabase-js puts the raw Response on
+      // error.context — read its JSON body to recover { errors } / { error }.
+      var body = null;
+      var ctx = resp.error && resp.error.context;
+      if (ctx) {
+        if (typeof ctx.json === 'function') {
+          try { body = await ctx.json(); } catch (e) { body = null; }
+        } else if (typeof ctx === 'object') {
+          body = ctx; // some SDK versions already provide a parsed object
+        }
+      }
+      if (body && body.errors) return { ok: false, errors: body.errors };
+      return { ok: false, errors: null,
+               error: (body && body.error) || (resp.error && resp.error.message) || 'submit failed' };
     }
     return { ok: true, result: resp.data && resp.data.result };
   }
