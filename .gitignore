@@ -1,0 +1,14 @@
+# Mobile build artifacts / secrets — never commit
+mobile/node_modules/
+mobile/www/
+mobile/ios/
+node_modules/
+tests/node_modules/
+
+# Generated at build time from native-config.example.js — contains publishable
+# keys only, but kept out of source control so real values live in CI/build env.
+shared/native-config.js
+
+# OS / editor
+.DS_Store
+*.log

@@ -799,7 +799,7 @@ function renderChurn(families) {
 function getNote(email) { return localStorage.getItem('churn_note_'+email)||''; }
 function followUp(email, name) {
   const subject = encodeURIComponent('We miss you, '+(name||'HomeHuddle family')+'!');
-  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback.\n\nHomeHuddle is just $4.95/month for your whole family.\n\nTo re-activate, visit venuewise.net/homehuddle/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
+  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback.\n\nHomeHuddle is just $9.99/month for your whole family (Founding Families lock in $4.99/month).\n\nTo re-activate, visit venuewise.net/homehuddle/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
   window.open('mailto:'+email+'?subject='+subject+'&body='+body);
 }
 

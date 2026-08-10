@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared/observability.js"></script>
+  <script src="/shared/native.js"></script>
   <link rel="manifest" id="pwa-manifest" href="/homehuddle/manifest.json" />
   <script>
     // Dynamically set manifest start_url to include the family email/phone
@@ -286,9 +288,9 @@
     <div style="font-size:2.5rem;margin-bottom:0.5rem;">🏆</div>
     <h2 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.6rem;margin-bottom:0.5rem;">Start Your Free Trial</h2>
     <p style="color:#9aa5b4;font-size:0.9rem;line-height:1.6;margin-bottom:0.25rem;">HomeHuddle + AthleteHuddle + 5-Star Sports Media</p>
-    <p style="color:#d4a32e;font-size:0.85rem;font-weight:600;margin-bottom:1.5rem;">14 days free · then $4.99/mo*</p>
+    <p style="color:#d4a32e;font-size:0.85rem;font-weight:600;margin-bottom:1.5rem;">14 days free · then $9.99/mo*</p>
     <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.75rem;">Start Free Trial →</button>
-    <p style="color:#6b7280;font-size:0.72rem;margin:0;">*First 150 families lock in $4.99 forever. No contracts. Cancel anytime.</p>
+    <p style="color:#6b7280;font-size:0.72rem;margin:0;">*First 100 Founding Families lock in $4.99/mo, guaranteed while active. No contracts. Cancel anytime.</p>
   </div>
 </div>
 
@@ -453,6 +455,7 @@ const CAT_COLORS = {family:'#F5C518',baseball:'#E85D04',football:'#6B7280',hocke
 const CAT_LABELS = {family:'🏠 Family',baseball:'⚾ Baseball',football:'🏈 Football',hockey:'🏒 Hockey',soccer:'⚽ Soccer',basketball:'🏀 Basketball',school:'🏫 School',dance:'💃 Dance',religion:'✝️ Religion',medical:'🏥 Medical',other:'📦 Other'};
 
 const sb = window.supabase.createClient(SURL, SKEY);
+window.VW = window.VW || {}; window.VW.config = window.VW.config || { supabaseUrl: SURL, supabaseAnonKey: SKEY };
 const params = new URLSearchParams(window.location.search);
 
 // ── IDENTITY: authenticated session (replaces ?email= URL trust) ──────
@@ -1538,6 +1541,15 @@ async function startTrial() {
   const btn = document.getElementById('paywallBtn');
   btn.textContent = 'Loading…'; btn.disabled = true;
   try {
+    // iOS → StoreKit via RevenueCat (never Stripe checkout on Apple).
+    if (window.VW && VW.native && VW.native.isNative()) {
+      if (familyId) await VW.native.identify(familyId);
+      const r = await VW.native.startSubscription({ packageId: null });
+      if (r && r.ok) { document.getElementById('paywall').style.display = 'none'; loadTheme(); location.reload(); return; }
+      btn.textContent = 'Start Free Trial →'; btn.disabled = false;
+      if (r && r.reason && r.reason !== 'cancelled' && window.VW.observe) VW.observe.captureBillingFailure('ios paywall: ' + r.reason);
+      return;
+    }
     const { data: { session } } = await sb.auth.getSession();
     const res = await fetch(SURL + '/functions/v1/stripe-checkout', {
       method: 'POST',
@@ -1546,8 +1558,8 @@ async function startTrial() {
     });
     const data = await res.json();
     if (data.url) { window.location.href = data.url; }
-    else { btn.textContent = 'Start Free Trial →'; btn.disabled = false; }
-  } catch(e) { btn.textContent = 'Start Free Trial →'; btn.disabled = false; }
+    else { btn.textContent = 'Start Free Trial →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureBillingFailure('stripe checkout unavailable'); }
+  } catch(e) { btn.textContent = 'Start Free Trial →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureError(e, 'startTrial'); }
 }
 
 resolveIdentity().then(function(ok) {

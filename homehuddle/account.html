@@ -319,6 +319,8 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/observability.js"></script>
+<script src="/shared/native.js"></script>
 <!-- Venuewise Core: workspace resolver (read-only; console verification only, no UI change) -->
 <script src="/shared/workspace.js"></script>
 <!-- Venuewise Core: workflow client (read-only; powers the Season Setup card) -->
@@ -328,6 +330,8 @@ const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 
 const sb = window.supabase.createClient(SURL, SKEY);
+// Expose config for shared modules (observability / native bridge).
+window.VW = window.VW || {}; window.VW.config = window.VW.config || { supabaseUrl: SURL, supabaseAnonKey: SKEY };
 
 // ── Venuewise Core end-to-end verification (READ-ONLY, console only) ──────────
 // Once a session exists, resolve this person's workspaces and log the result.
@@ -547,6 +551,35 @@ function enterAccount() {
   document.getElementById('nav-user-label').textContent = currentFeeds[0].family_name || currentEmail;
   document.getElementById('sign-out-btn').style.display = 'inline';
   loadAccount();
+  initNative();
+}
+
+// Native-only bootstrap (no-op on web). Ties this device/family to RevenueCat,
+// registers for APNs push, and routes OTP deep links back into the app.
+async function initNative() {
+  try {
+    if (!(window.VW && VW.native && VW.native.isNative())) return;
+    if (currentFamilyId) await VW.native.identify(currentFamilyId);
+    VW.native.initDeepLinks(function (url) {
+      // Supabase OTP/magic returns land here inside the app.
+      if (url && url.indexOf('login') === -1) window.location.href = '/homehuddle/calendar.html';
+    });
+    VW.native.initPush({
+      onToken: async function (token, platform) {
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          if (!session) return;
+          await fetch(SURL + '/rest/v1/device_tokens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': SKEY,
+              'Authorization': 'Bearer ' + session.access_token, 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({ family_id: currentFamilyId, platform: platform, token: token })
+          });
+        } catch (e) { if (window.VW && VW.observe) VW.observe.capturePushFailure(String(e)); }
+      },
+      onTap: function (url) { if (url) window.location.href = url; }
+    });
+  } catch (e) { if (window.VW && VW.observe) VW.observe.captureError(e, 'initNative'); }
 }
 
 async function manageSubscription() {
@@ -573,12 +606,13 @@ async function loadSubStatus() {
   if (!el || !currentFamilyId) return;
   try {
     const { data, error } = await sb.from('subscriptions')
-      .select('status, trial_end, current_period_end, stripe_price_id')
+      .select('status, trial_end, current_period_end, stripe_price_id, founder')
       .eq('family_id', currentFamilyId)
       .single();
     if (error || !data) { el.textContent = 'No active subscription.'; return; }
-    const PRICE_EARLY = 'price_1TliAoPqdDGv5YmHOF88NED9'; // live early adopter
-    const plan = data.stripe_price_id === PRICE_EARLY ? '$4.99/mo (Early Adopter)' : '$9.99/mo';
+    const PRICE_EARLY = 'price_1TliAoPqdDGv5YmHOF88NED9'; // live founding-family price
+    const isFounder = (data.founder === true) || data.stripe_price_id === PRICE_EARLY;
+    const plan = isFounder ? '$4.99/mo (Founding Family)' : '$9.99/mo (Standard)';
     const statusMap = { trialing:'Free trial active', active:'Active', past_due:'Payment past due', canceled:'Cancelled', incomplete:'Incomplete', paused:'Paused' };
     const label = statusMap[data.status] || data.status;
     const end = data.status === 'trialing' && data.trial_end
@@ -949,9 +983,45 @@ async function saveChanges() {
   buildShareMessage();
 }
 
-function confirmCancel() {
-  if (confirm('Are you sure you want to cancel your HomeHuddle account? This cannot be undone.'))
-    alert('Please email hello@venuewise.net to cancel your account and we\'ll take care of it right away.');
+// ── In-app account deletion (Apple 5.1.1(v)) ──────────────────────────────
+// Owner-only, deliberate, reversible during a 7-day grace window. Calls the
+// delete-account Edge Function with the signed-in user's token; the backend
+// enforces that only the family OWNER can delete shared family data.
+async function confirmCancel() {
+  if (!currentFamilyId) { alert('Please sign in first.'); return; }
+  const first = confirm(
+    'Delete your HomeHuddle account?\n\n' +
+    '• This removes your family, members, and calendar feeds.\n' +
+    '• Notifications stop immediately.\n' +
+    '• Deletion completes after a 7-day grace period — sign back in within 7 days to cancel it.\n' +
+    '• If you subscribe on iPhone, also cancel the subscription in iOS Settings → Apple ID → Subscriptions (Apple does not let apps cancel it for you).\n\n' +
+    'Continue?');
+  if (!first) return;
+  const typed = prompt('This is permanent after the grace period. Type DELETE to confirm.');
+  if (typed !== 'DELETE') { alert('Deletion cancelled.'); return; }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { alert('Your session expired. Please sign in again.'); return; }
+    const res = await fetch(SURL + '/functions/v1/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ family_id: currentFamilyId, reason: 'user_requested' })
+    });
+    const data = await res.json().catch(function(){ return {}; });
+    if (!res.ok) {
+      if (VW && VW.observe) VW.observe.captureError(new Error(data.error || 'delete failed'), 'delete-account');
+      alert(data.error === 'only the family owner may delete this account'
+        ? 'Only the family owner can delete this account. Please ask the account owner.'
+        : 'We could not process deletion right now. Please try again or email hello@venuewise.net.');
+      return;
+    }
+    alert(data.message || 'Your account is scheduled for deletion. Sign back in within 7 days to cancel.');
+    try { await sb.auth.signOut(); } catch(e) {}
+    window.location.href = '/homehuddle/login.html';
+  } catch (e) {
+    if (window.VW && VW.observe) VW.observe.captureError(e, 'delete-account');
+    alert('We could not process deletion right now. Please try again or email hello@venuewise.net.');
+  }
 }
 
 // ── UTILS ─────────────────────────────────────────────────
