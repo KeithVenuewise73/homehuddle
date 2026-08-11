@@ -33,44 +33,61 @@ end; $$;
 revoke all on function public.delete_my_membership() from public, anon;
 grant execute on function public.delete_my_membership() to authenticated;
 
--- ── Hard delete after grace (service_role job) ──────────────────────────────
--- Anonymizes the family PII and purges child data; keeps a minimal billing
--- ledger (subscriptions rows with provider ids/amounts) for legal/accounting,
--- with PII fields nulled. Auth-user deletion + Stripe/RevenueCat customer
--- deletion are performed by the delete-account Edge job around this call.
+-- ── Per-family PG purge (idempotent) — called by the hard-delete Edge worker ─
+-- AFTER it has completed the external-provider cleanups (Stripe/RevenueCat/auth).
+-- Anonymizes family PII and purges child/member data; keeps a minimal billing
+-- ledger (subscriptions rows hold provider ids/amounts, not names). Safe to run
+-- twice: an already-deleted family (deleted_at set) is a no-op.
+create or replace function public.hard_delete_family(p_family_id uuid)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare v_due boolean;
+begin
+  select (deletion_scheduled_for is not null and deletion_scheduled_for <= now() and deleted_at is null)
+    into v_due from public.families where id = p_family_id;
+  if v_due is null then return false; end if;   -- unknown family
+  if v_due is not true then return false; end if; -- not due, or already deleted (idempotent)
+
+  delete from public.family_members where family_id = p_family_id;
+  delete from public.feeds where email in (select email from public.families where id = p_family_id);
+  delete from public.device_tokens where family_id = p_family_id;
+  delete from public.push_subscriptions where family_id = p_family_id;
+
+  update public.family_product_entitlements set is_active = false, updated_at = now()
+    where family_id = p_family_id;
+
+  -- phone & pin are NOT NULL in the live schema → redact to non-null placeholders.
+  update public.families
+     set family_name = 'deleted', email = 'deleted+' || p_family_id || '@example.invalid',
+         phone = 'deleted', pin = 'deleted', deleted_at = now(), status = 'deleted'
+   where id = p_family_id;
+
+  update public.account_deletion_requests set status = 'completed'
+    where family_id = p_family_id and status = 'scheduled';
+  return true;
+end; $$;
+revoke all on function public.hard_delete_family(uuid) from public, anon, authenticated;
+grant execute on function public.hard_delete_family(uuid) to service_role;
+
+-- Convenience: list families whose grace has expired (worker reads this).
+create or replace function public.due_for_deletion()
+returns table(family_id uuid, scheduled_for timestamptz)
+language sql security definer set search_path = public as $$
+  select id, deletion_scheduled_for from public.families
+  where deletion_scheduled_for is not null and deletion_scheduled_for <= now() and deleted_at is null
+  order by deletion_scheduled_for asc;
+$$;
+revoke all on function public.due_for_deletion() from public, anon, authenticated;
+grant execute on function public.due_for_deletion() to service_role;
+
+-- Pure-DB fallback (no external coordination) — loops hard_delete_family.
 create or replace function public.hard_delete_due_accounts()
 returns integer
 language plpgsql security definer set search_path = public as $$
 declare r record; n int := 0;
 begin
-  for r in
-    select id from public.families
-    where deletion_scheduled_for is not null
-      and deletion_scheduled_for <= now()
-      and deleted_at is null
-  loop
-    -- Purge child/family detail
-    delete from public.family_members where family_id = r.id;
-    delete from public.feeds where email in (
-      select email from public.families where id = r.id
-    );
-    delete from public.device_tokens where family_id = r.id;
-    delete from public.push_subscriptions where family_id = r.id;
-
-    -- Retain subscriptions as a minimal ledger, strip nothing PII-bearing there
-    -- (they hold provider ids, not names). Detach the entitlement.
-    update public.family_product_entitlements set is_active = false, updated_at = now()
-      where family_id = r.id;
-
-    -- Anonymize the family record itself
-    update public.families
-       set family_name = 'deleted', email = 'deleted+' || r.id || '@example.invalid',
-           phone = null, pin = null, deleted_at = now(), status = 'deleted'
-     where id = r.id;
-
-    update public.account_deletion_requests set status = 'completed'
-      where family_id = r.id and status = 'scheduled';
-    n := n + 1;
+  for r in select family_id from public.due_for_deletion() loop
+    if public.hard_delete_family(r.family_id) then n := n + 1; end if;
   end loop;
   return n;
 end; $$;

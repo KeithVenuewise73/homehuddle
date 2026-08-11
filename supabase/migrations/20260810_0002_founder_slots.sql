@@ -4,17 +4,22 @@
 -- CEO-validation fix (V3/V4). Slot lifecycle, all server-side & race-safe:
 --   RESERVED  when a family STARTS a Founding subscription/trial (holds a slot)
 --   GRANTED   when that trial converts to the FIRST QUALIFYING PAID period
---   RELEASED  if the trial is cancelled/expires WITHOUT ever converting to paid
---             (or a granted founder fully lapses) → the slot returns to the pool
+--   RELEASED  ONLY when a RESERVATION never converts (trial cancel/expire)
 --
--- QUALIFYING EVENT (when a slot is truly consumed/finalized): the first paid
--- period — RevenueCat period_type = NORMAL (TRIAL_CONVERTED / non-trial initial),
--- or Stripe first paid invoice (trialing → active). A checkout that never becomes
--- a paying subscriber does NOT permanently burn a slot: its reservation is released.
+-- CEO-LOCKED (Sprint 02):
+--   • A RESERVED slot MAY be released if the trial never becomes paid.
+--   • A GRANTED (paid) Founder slot is PERMANENTLY consumed and is NEVER
+--     re-pooled — even if the family later cancels/lapses (they lose the $4.99
+--     grandfathered eligibility, but the historical Founder slot remains theirs).
+--   • Founder #101 must never exist.
 --
--- Cap availability counts ACTIVE HOLDS (reserved + granted). A 'released' family
--- is not auto-re-granted Founder (matches "no automatic $4.99 re-entry after
--- losing continuous status") but the freed slot is available to others.
+-- QUALIFYING EVENT (slot permanently consumed): the first paid period —
+-- RevenueCat period_type = NORMAL (TRIAL_CONVERTED / non-trial initial), or the
+-- Stripe first paid invoice (trialing → active).
+--
+-- Cap: granted (permanent) + currently-active reservations must never exceed
+-- max_slots. Since granted rows are never released, counting holds in state
+-- ('reserved','granted') gives exactly that sum.
 -- ⚠️ REVIEW ONLY — DO NOT APPLY TO PRODUCTION.
 -- ============================================================================
 
@@ -118,18 +123,34 @@ begin
   return true;
 end; $$;
 
--- ── RELEASE: free a slot when a non-converted trial ends (or founder lapses) ─
+-- ── RELEASE: free a slot ONLY for a non-converted RESERVATION ────────────────
+-- CEO-locked policy (Sprint 02): a RESERVED trial slot may be released if the
+-- trial never converts. A GRANTED (paid) Founder slot is PERMANENTLY consumed
+-- and is NEVER re-pooled — even if the family later cancels or fully lapses.
+-- Founder #101 must never exist, so release refuses to touch 'granted' rows.
 create or replace function public.release_founder_slot(
   p_family_id uuid, p_product text default 'homehuddle'
-) returns void
+) returns text
 language plpgsql security definer set search_path = public as $$
+declare v_state text;
 begin
   perform pg_advisory_xact_lock(hashtext('founder:' || p_product));
-  update public.founder_grants
-     set state = 'released', released_at = now()
-   where family_id = p_family_id and product = p_product and state in ('reserved','granted');
-  update public.subscriptions set founder = false, updated_at = now()
+  select state into v_state from public.founder_grants
    where family_id = p_family_id and product = p_product;
+
+  if v_state = 'granted' then
+    -- Permanent historical Founder: entitlement/eligibility handled elsewhere,
+    -- but the slot is NEVER returned to the pool.
+    return 'kept_granted';
+  elsif v_state = 'reserved' then
+    update public.founder_grants
+       set state = 'released', released_at = now()
+     where family_id = p_family_id and product = p_product and state = 'reserved';
+    update public.subscriptions set founder = false, updated_at = now()
+     where family_id = p_family_id and product = p_product;
+    return 'released_reservation';
+  end if;
+  return 'noop';
 end; $$;
 
 revoke all on function public.reserve_founder_slot(uuid,text,text,text) from public, anon, authenticated;
