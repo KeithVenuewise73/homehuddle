@@ -19,7 +19,7 @@ RUN() { if [ "$(id -u)" = "0" ]; then runuser -u postgres -- "$@"; else "$@"; fi
 
 rm -rf "$BASE"; mkdir -p "$BASE/pgdata" "$BASE/sock" "$BASE/sql"
 cp "$REPO"/supabase/migrations/20260810_000*_*.sql "$BASE/sql/"
-cp "$REPO"/tests/staging/00_base_stub.sql "$REPO"/tests/staging/10_test_matrix.sql "$BASE/sql/"
+cp "$REPO"/tests/staging/00_base_stub.sql "$REPO"/tests/staging/10_test_matrix.sql "$REPO"/tests/staging/20_rls_matrix.sql "$BASE/sql/"
 if [ "$(id -u)" = "0" ]; then chown -R postgres:postgres "$BASE"; chmod -R 755 "$BASE"; fi
 
 RUN initdb -D "$BASE/pgdata" -U postgres --auth=trust >/dev/null
@@ -33,8 +33,11 @@ for m in 0001 0002 0003 0004 0005 0006; do
   PSQL -q -f "$(ls "$BASE/sql/"*_${m}_*.sql)" >/dev/null && echo "  applied $m"
 done
 
-echo "== test matrix =="
+echo "== logic + deletion + admin matrix =="
 PSQL -f "$BASE/sql/10_test_matrix.sql" 2>&1 | grep -E "NOTICE|====" || true
+
+echo "== RLS role matrix (real anon/authenticated enforcement) =="
+PSQL -f "$BASE/sql/20_rls_matrix.sql" 2>&1 | grep -E "NOTICE|====|forge" || true
 
 echo "== founder concurrency race (8-way for the last slot) =="
 PSQL -q -c "truncate public.founder_grants;" >/dev/null

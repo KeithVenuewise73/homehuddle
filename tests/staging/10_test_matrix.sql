@@ -1,15 +1,18 @@
 \set ON_ERROR_STOP on
 \pset pager off
 
--- Helper: make a family with an owner person.
-create or replace function tst_make_family(p_id uuid, p_person uuid, p_email text) returns void
+-- Helper: make a family with an owner person. p_auth is the owner's auth.uid();
+-- we create the people row (auth_user_id=p_auth) and link the owner membership.
+create or replace function tst_make_family(p_id uuid, p_auth uuid, p_email text) returns void
 language plpgsql as $$
+declare v_person uuid;
 begin
   insert into public.families(id, family_name, email, phone, pin, status)
     values (p_id, 'Fam '||left(p_id::text,8), p_email, '+1555'||floor(random()*1e7)::text, '0000', 'active')
     on conflict (id) do nothing;
+  insert into public.people(auth_user_id) values (p_auth) returning id into v_person;
   insert into public.family_members(family_id, name, is_owner, person_id, role)
-    values (p_id, 'Owner', true, p_person, 'parent') on conflict do nothing;
+    values (p_id, 'Owner', true, v_person, 'parent');
 end $$;
 
 \echo '==================== PHASE 8: SOURCE COEXISTENCE ===================='
@@ -101,14 +104,19 @@ begin
 end $$;
 
 \echo '==================== PHASE 9: ACCOUNT DELETION ===================='
+-- Real identity: owner auth uid + child (non-owner) auth uid mapped via people.
 select tst_make_family('ffffffff-0000-4000-a000-000000000001','99999999-0000-4000-a000-000000000001','owner@demo.invalid');
-insert into public.family_members(family_id, name, is_owner, person_id, role)
-  values ('ffffffff-0000-4000-a000-000000000001','Kid', false, '99999999-0000-4000-a000-000000000002','child');
+do $$ declare v_child uuid;
+begin
+  insert into public.people(auth_user_id) values ('99999999-0000-4000-a000-000000000002') returning id into v_child;
+  insert into public.family_members(family_id, name, is_owner, person_id, role)
+    values ('ffffffff-0000-4000-a000-000000000001','Kid', false, v_child, 'child');
+end $$;
 insert into public.feeds(email, kid_name, platform, ical_url, is_active)
   values ('owner@demo.invalid','Kid','demo','http://x', true);
 
 -- Non-owner tries whole-family delete → blocked; can remove only own membership.
-select set_config('test.person_id','99999999-0000-4000-a000-000000000002', false);
+select tst_login('99999999-0000-4000-a000-000000000002');   -- child (non-owner)
 do $$ begin
   begin
     perform request_account_deletion('ffffffff-0000-4000-a000-000000000001', null, 7);
@@ -120,7 +128,8 @@ end $$;
 select delete_my_membership() as nonowner_self_remove;
 do $$ declare n int;
 begin
-  select count(*) into n from family_members where person_id='99999999-0000-4000-a000-000000000002';
+  select count(*) into n from family_members fm join people p on p.id=fm.person_id
+    where p.auth_user_id='99999999-0000-4000-a000-000000000002';
   if n <> 0 then raise exception 'FAIL: non-owner membership not removed'; end if;
   select count(*) into n from family_members where family_id='ffffffff-0000-4000-a000-000000000001';
   if n < 1 then raise exception 'FAIL: shared family data destroyed by non-owner!'; end if;
@@ -128,7 +137,7 @@ begin
 end $$;
 
 -- Owner requests deletion → pending + feeds disabled; then cancel restores.
-select set_config('test.person_id','99999999-0000-4000-a000-000000000001', false);
+select tst_login('99999999-0000-4000-a000-000000000001');   -- owner
 select scheduled_for is not null as scheduled from request_account_deletion('ffffffff-0000-4000-a000-000000000001','bye',7);
 do $$ declare st text; feed_active boolean;
 begin
@@ -165,7 +174,17 @@ begin
 end $$;
 
 \echo '==================== PHASE 10: ADMIN METRICS ===================='
-select set_config('test.is_admin','true', false);
-select json_pretty(admin_dashboard_metrics()) as admin_metrics;
+insert into public.admin_users(user_id) values ('aaaaaaaa-dead-4000-a000-000000000001');
+select tst_login('aaaaaaaa-dead-4000-a000-000000000001');   -- admin identity
+select jsonb_pretty(admin_dashboard_metrics()::jsonb) as admin_metrics;
+-- Non-admin must be denied.
+select tst_login('99999999-0000-4000-a000-000000000001');
+do $$ begin
+  begin perform admin_dashboard_metrics(); raise exception 'FAIL: non-admin got metrics';
+  exception when others then
+    if sqlerrm like '%authorized%' then raise notice 'OK  non-admin denied admin_dashboard_metrics'; else raise; end if;
+  end;
+end $$;
+select tst_logout();
 
 \echo '==================== ALL ASSERTIONS PASSED ===================='
