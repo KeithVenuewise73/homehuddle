@@ -605,6 +605,10 @@ const VAPID_PUBLIC = 'BEvGyUqC6ThmI_INY5jp_ZSeoYFDP1coIMetC5ewA_q4QUQweict9YHRds
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
+  // In the native iOS shell, DO NOT register the web service worker: WKWebView
+  // web-push does not work and a SW can serve stale app code across native
+  // updates. Native push is handled by VW.native.initPush() (APNs) instead.
+  if (window.VW && VW.native && VW.native.isNative()) return;
   if (!('serviceWorker' in navigator)) return;
   try {
     // Register service worker — handles push notifications and cache versioning.
@@ -1523,12 +1527,16 @@ function setSync(state,label){document.getElementById('stext').textContent=label
 applySticky();
 async function checkSubscription(fId) {
   try {
-    const { data, error } = await sb.from('subscriptions')
-      .select('status')
-      .eq('family_id', fId)
-      .in('status', ['active','trialing'])
-      .limit(1);
-    return !error && Array.isArray(data) && data.length > 0;
+    // Canonical entitlement answer (computed from all purchase sources; migration 0001).
+    const { data, error } = await sb.from('family_product_entitlements')
+      .select('is_active')
+      .eq('family_id', fId).eq('product', 'homehuddle')
+      .maybeSingle();
+    if (!error) return !!(data && data.is_active === true);
+    // Fallback (pre-migration): read raw purchase records.
+    const fb = await sb.from('subscriptions').select('status').eq('family_id', fId)
+      .in('status', ['active','trialing','past_due']).limit(1);
+    return !fb.error && Array.isArray(fb.data) && fb.data.length > 0;
   } catch(e) { return false; }
 }
 

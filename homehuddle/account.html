@@ -582,8 +582,20 @@ async function initNative() {
   } catch (e) { if (window.VW && VW.observe) VW.observe.captureError(e, 'initNative'); }
 }
 
+let currentEntitlementSource = null;
+
 async function manageSubscription() {
   const btn = document.getElementById('manage-sub-btn');
+  // iOS: never open Stripe. Apple-sourced subs → Apple's own subscription
+  // management; web-sourced subs → inform (no external purchase/redirect button).
+  if (window.VW && VW.native && VW.native.isNative()) {
+    if (currentEntitlementSource === 'apple' || !currentEntitlementSource) {
+      VW.native.openManageSubscriptions();
+    } else {
+      alert('This subscription is billed on the web. To change or cancel it, sign in at venuewise.net on a browser.');
+    }
+    return;
+  }
   btn.textContent = 'Loading…'; btn.disabled = true;
   try {
     const { data: { session } } = await sb.auth.getSession();
@@ -605,23 +617,23 @@ async function loadSubStatus() {
   const btn = document.getElementById('manage-sub-btn');
   if (!el || !currentFamilyId) return;
   try {
-    const { data, error } = await sb.from('subscriptions')
-      .select('status, trial_end, current_period_end, stripe_price_id, founder')
-      .eq('family_id', currentFamilyId)
-      .single();
-    if (error || !data) { el.textContent = 'No active subscription.'; return; }
-    const PRICE_EARLY = 'price_1TliAoPqdDGv5YmHOF88NED9'; // live founding-family price
-    const isFounder = (data.founder === true) || data.stripe_price_id === PRICE_EARLY;
-    const plan = isFounder ? '$4.99/mo (Founding Family)' : '$9.99/mo (Standard)';
-    const statusMap = { trialing:'Free trial active', active:'Active', past_due:'Payment past due', canceled:'Cancelled', incomplete:'Incomplete', paused:'Paused' };
-    const label = statusMap[data.status] || data.status;
-    const end = data.status === 'trialing' && data.trial_end
+    // Canonical entitlement (computed across Stripe + Apple; migration 0001).
+    const { data, error } = await sb.from('family_product_entitlements')
+      .select('is_active, active_source, founder, trial_end, current_period_end')
+      .eq('family_id', currentFamilyId).eq('product', 'homehuddle')
+      .maybeSingle();
+    if (error || !data || !data.is_active) { el.textContent = 'No active subscription.'; return; }
+    currentEntitlementSource = data.active_source || null;
+    const plan = data.founder ? '$4.99/mo (Founding Family)' : '$9.99/mo (Standard)';
+    const via = data.active_source === 'apple' ? ' · via App Store'
+              : data.active_source === 'stripe' ? ' · via web' : '';
+    const end = data.trial_end && new Date(data.trial_end) > new Date()
       ? ' — trial ends ' + new Date(data.trial_end).toLocaleDateString()
       : data.current_period_end
       ? ' — renews ' + new Date(data.current_period_end).toLocaleDateString()
       : '';
-    el.textContent = plan + ' · ' + label + end;
-    if (['trialing','active','past_due'].includes(data.status)) btn.style.display = 'inline-flex';
+    el.textContent = plan + via + end;
+    btn.style.display = 'inline-flex';
   } catch(e) { el.textContent = 'Unable to load subscription info.'; }
 }
 

@@ -168,6 +168,18 @@
     } catch (e) { report(e, 'initPush'); return { ok: false, reason: 'error' }; }
   }
 
+  // Open Apple's OWN subscription-management screen (allowed; not an external
+  // purchase link). Used instead of the Stripe billing portal on iOS.
+  async function openManageSubscriptions() {
+    if (!isNative()) return;
+    var url = 'itms-apps://apps.apple.com/account/subscriptions';
+    try {
+      var Browser = plugins().Browser;
+      if (Browser && Browser.open) { await Browser.open({ url: url }); return; }
+    } catch (e) { report(e, 'openManageSubscriptions'); }
+    try { window.open(url, '_system'); } catch (e) {}
+  }
+
   // Hide any element marked data-web-only (e.g. Stripe CTAs) when running on iOS.
   function applyPlatformVisibility() {
     if (!isNative()) return;
@@ -188,6 +200,7 @@
     hasEntitlement: hasEntitlement,
     startSubscription: startSubscription,
     restorePurchases: restorePurchases,
+    openManageSubscriptions: openManageSubscriptions,
     initDeepLinks: initDeepLinks,
     initPush: initPush,
     applyPlatformVisibility: applyPlatformVisibility,

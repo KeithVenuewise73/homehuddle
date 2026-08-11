@@ -27,8 +27,8 @@ Status legend per case:
 | iOS: no Stripe checkout reachable | CODE VERIFIED (join routes to RevenueCat on `isNative()`) |
 | iOS: purchase Standard / Founding | BLOCKED BY APPLE (needs sandbox + products) |
 | iOS: restore purchases | CODE VERIFIED (`VW.native.restorePurchases`) · SANDBOX pending |
-| Founder cap = first 100, race-safe | CODE VERIFIED (advisory-lock claim fn); LOCAL VERIFIED (SQL reviewed) |
-| No double-charge (web sub + app) | CODE VERIFIED (one row per family/product; app checks entitlement first) |
+| Founder cap = first 100, race-safe | CODE VERIFIED (reserve→grant→release, advisory-locked; slot consumed only on first paid period; released if trial never converts) |
+| No double-charge (web sub + app) | CODE VERIFIED (purchase records coexist per source; canonical entitlement checked before offering purchase) |
 | Trial 14-day both tiers | CODE VERIFIED (copy + product config) |
 
 ## Account

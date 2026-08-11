@@ -57,9 +57,20 @@ Deno.serve(async (req) => {
   });
 
   if (rpcErr) {
-    // The RPC raises "only the family owner may delete this account" for non-owners.
-    const status = /owner/.test(rpcErr.message) ? 403 : 400;
-    return new Response(JSON.stringify({ error: rpcErr.message }), { status, headers: { ...cors, "Content-Type": "application/json" } });
+    // Non-owner members cannot delete the whole family. Instead, honor Apple's
+    // "delete my account" for THIS user by removing only their own membership —
+    // shared family data is untouched.
+    if (/owner/.test(rpcErr.message)) {
+      const { error: memErr } = await asUser.rpc("delete_my_membership");
+      if (memErr) {
+        return new Response(JSON.stringify({ error: memErr.message }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+      return new Response(JSON.stringify({
+        ok: true, scope: "membership",
+        message: "Your access has been removed from this family. The family account itself is managed by its owner.",
+      }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify({ error: rpcErr.message }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
   }
 
   // 2. Flag billing to cancel at period end (service role). Actual provider

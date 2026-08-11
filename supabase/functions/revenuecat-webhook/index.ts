@@ -70,9 +70,13 @@ Deno.serve(async (req) => {
 
   const status = mapStatus(type, expirationMs);
   const isFounding = productId.endsWith(FOUNDING_PRODUCT_SUFFIX);
+  const periodType: string = ev.period_type ?? "";        // TRIAL | INTRO | NORMAL
+  const isPaidPeriod = periodType === "NORMAL";           // qualifying = first paid period
+  const originalTx = ev.original_transaction_id ?? null;
+  const ref = originalTx ?? familyId;
 
-  // 2. Upsert the canonical entitlement row (source='apple'). One row per
-  //    (family_id, product) thanks to the unique index in migration 0001.
+  // 2. Upsert the PURCHASE record for this SOURCE (source='apple'). One row per
+  //    (family_id, product, source) — Stripe & Apple coexist (migration 0001).
   const { error: upErr } = await supa
     .from("subscriptions")
     .upsert({
@@ -81,26 +85,40 @@ Deno.serve(async (req) => {
       source: "apple",
       status,
       current_period_end: expirationMs ? new Date(expirationMs).toISOString() : null,
-      trial_end: type.startsWith("TRIAL") && expirationMs ? new Date(expirationMs).toISOString() : null,
-      apple_original_transaction_id: ev.original_transaction_id ?? null,
+      trial_end: periodType === "TRIAL" && expirationMs ? new Date(expirationMs).toISOString() : null,
+      apple_original_transaction_id: originalTx,
       revenuecat_app_user_id: familyId,
       updated_at: new Date().toISOString(),
-    }, { onConflict: "family_id,product" });
+    }, { onConflict: "family_id,product,source" });
 
   if (upErr) {
-    console.error("subscriptions upsert failed", upErr);
+    console.error("subscriptions upsert failed", upErr);   // ids only, no PII
     return new Response("DB error", { status: 500 });
   }
 
-  // 3. Founder claim — server-side, race-safe (only on a real paid founding purchase).
-  if (isFounding && (type === "INITIAL_PURCHASE" || type === "TRIAL_CONVERTED" || type === "RENEWAL")) {
-    const { data: won, error: fErr } = await supa.rpc("claim_founder_slot", {
-      p_family_id: familyId, p_product: "homehuddle", p_source: "apple",
-      p_ref: ev.original_transaction_id ?? null,
-    });
-    if (fErr) console.error("claim_founder_slot failed", fErr);
-    else if (won === false) console.warn("founding slot unavailable for", familyId);
+  // 3. Founder slot lifecycle (server is the authority; a client claim is never
+  //    trusted — this only runs on an authenticated RevenueCat event).
+  if (isFounding) {
+    if (type === "INITIAL_PURCHASE" && !isPaidPeriod) {
+      // Founding trial started → RESERVE a slot (may fail if sold out).
+      const { data: ok } = await supa.rpc("reserve_founder_slot",
+        { p_family_id: familyId, p_product: "homehuddle", p_source: "apple", p_ref: ref });
+      if (ok === false) console.warn("founding sold out at reserve for", familyId);
+    } else if (isPaidPeriod && (type === "INITIAL_PURCHASE" || type === "TRIAL_CONVERTED" || type === "RENEWAL" || type === "UNCANCELLATION")) {
+      // First (or continuing) qualifying PAID period → GRANT/finalize the slot.
+      const { data: ok } = await supa.rpc("grant_founder_slot",
+        { p_family_id: familyId, p_product: "homehuddle", p_source: "apple", p_ref: ref });
+      if (ok === false) console.warn("founding grant failed (sold out) for", familyId);
+    } else if (type === "EXPIRATION") {
+      // Trial/subscription ended without an active paid period → RELEASE the slot.
+      await supa.rpc("release_founder_slot", { p_family_id: familyId, p_product: "homehuddle" });
+    }
   }
+
+  // 4. Recompute the CANONICAL entitlement from all purchase records.
+  const { error: recErr } = await supa.rpc("recompute_entitlement",
+    { p_family_id: familyId, p_product: "homehuddle" });
+  if (recErr) console.error("recompute_entitlement failed", recErr);
 
   return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
 });

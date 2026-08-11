@@ -28,14 +28,24 @@ echo "→ Copying shared modules (/shared) + native bridge"
 mkdir -p "$WWW/shared"
 cp -R "$REPO/shared/." "$WWW/shared/"
 
-echo "→ Copying root icons / manifest assets used by the app"
-for f in icon-192.png icon-512.png sw.js; do
+echo "→ Copying root icons used by the app"
+for f in icon-192.png icon-512.png; do
+  [ -f "$REPO/$f" ] && cp "$REPO/$f" "$WWW/$f" || true
+done
+# NOTE: sw.js is intentionally NOT bundled. The web service worker is skipped in
+# the native shell (WKWebView web-push doesn't work and a SW can serve stale app
+# code across native updates). Native push uses APNs via VW.native.initPush().
+
+echo "→ Copying legal pages so in-bundle Privacy/Terms links resolve"
+for f in privacy.html terms.html homehuddle-privacy.html homehuddle-terms.html support.html; do
   [ -f "$REPO/$f" ] && cp "$REPO/$f" "$WWW/$f" || true
 done
 
 echo "→ Rewriting absolute venuewise.net links to in-bundle relative paths"
-# Only touch bundled HTML. This keeps deep links inside the packaged app instead
+# Only touch bundled HTML. This keeps navigation inside the packaged app instead
 # of bouncing to the live website (which would expose the web Stripe flow on iOS).
+# Supabase endpoints (*.supabase.co) and mailto: links are untouched. Legal pages
+# are bundled above, so their relative links resolve inside the app.
 find "$WWW" -name '*.html' -print0 | xargs -0 sed -i \
   -e 's#https://venuewise\.net/#/#g'
 

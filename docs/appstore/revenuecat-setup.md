@@ -20,18 +20,34 @@ is already built against this contract.
 > by Apple. The RevenueCat offering shows the Founding package only while slots
 > remain; once sold out, only Standard is offered.
 
-## B. RevenueCat
-1. Create project **HomeHuddle** → add the **Apple App Store** app (paste the
-   App Store Connect **In-App Purchase Key** / shared secret).
-2. Create an **Entitlement** with identifier exactly **`homehuddle`**.
-3. Attach both products above to that entitlement.
-4. Create an **Offering** `homehuddle_default` with two packages:
+## B. RevenueCat  (StoreKit 2 — see credential note below)
+1. Create project **HomeHuddle** → add the **Apple App Store** app.
+2. Under the app's Apple config, provide the **In-App Purchase Key** (StoreKit 2
+   transaction verification). Do **not** rely on the legacy App-Specific Shared
+   Secret — that is only for StoreKit 1 receipt validation and is not required
+   here. Optionally add an **App Store Connect API Key** (recommended: lets
+   RevenueCat manage refunds/notifications, not strictly required for entitlements).
+3. Create an **Entitlement** with identifier exactly **`homehuddle`**.
+4. Attach both products above to that entitlement.
+5. Create an **Offering** `homehuddle_default` with two packages:
    `standard` → standard product, `founding` → founding product.
-5. Copy the **Apple public SDK key** (`appl_…`) into `shared/native-config.js`
+6. Copy the **Apple public SDK key** (`appl_…`) into `shared/native-config.js`
    at build time (publishable — safe in the binary).
-6. Configure the **webhook**: URL `https://urwnbskrtoplgnkkxuvl.supabase.co/functions/v1/revenuecat-webhook`,
+7. Configure the **webhook**: URL `https://urwnbskrtoplgnkkxuvl.supabase.co/functions/v1/revenuecat-webhook`,
    Authorization header value = the secret you also set as the Supabase edge
    secret `REVENUECAT_WEBHOOK_AUTH`.
+8. Point **Apple → App Store Server Notifications** at **RevenueCat** (RevenueCat
+   provides the URL). Do NOT also point them at our backend — RevenueCat is the
+   single Apple-notification processor; our `revenuecat-webhook` consumes
+   RevenueCat's webhook only. This avoids duplicate Apple notification handling.
+
+### Credential summary (StoreKit 2)
+| Credential | Needed? | Why |
+|---|---|---|
+| App-Specific Shared Secret | No (legacy) | StoreKit 1 receipt validation only |
+| **In-App Purchase Key** | **Yes** | StoreKit 2 transaction verification |
+| App Store Connect API Key | Optional (recommended) | Refund/management features |
+| Apple Server Notifications | → RevenueCat | Single processor; we consume RC's webhook |
 
 ## C. Supabase edge secrets (set, do not commit)
 ```

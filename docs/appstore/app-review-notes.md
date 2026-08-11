@@ -3,35 +3,43 @@
 HomeHuddle is a family sports-schedule organizer. Parents sign in with their
 mobile number and receive a one-time SMS code (no password).
 
-## Reviewer sign-in (deterministic — no need to contact us)
-We use phone OTP, so please use the seeded review account below. It bypasses SMS
-by accepting a fixed code in the review build (this path is enabled ONLY for the
-seeded review number and grants no elevated privileges).
+## Reviewer sign-in — scoped, no production auth weakening
+We do **NOT** add any code-level OTP bypass. Instead we use **Supabase Auth's
+built-in test phone numbers** (Auth → Providers → Phone → *Test OTP*), which lets
+us register ONE dedicated review number with a fixed code. This is config, not
+code: it applies only to that exact number, never sends real SMS for it, and
+does not affect the OTP path for any real customer number. It can be rotated or
+removed after review.
 
-- Phone: **+1 555 0100 (or the number we finalize)**
-- One-time code: **000000**
-- The account is pre-seeded with a family, two members, and a sample calendar.
+- **Review phone:** `+1 555 010 0100` (finalize the exact test number)
+- **Fixed code:** `424242` (set in the Supabase test-OTP config)
+- The number maps to a **dedicated demo family** seeded with synthetic data only
+  (see `supabase/seed/demo_review_family.sql`) — no real customer data.
 
-> Setup task for us before submission (see test-plan.md): seed this family in the
-> production/`sandbox` project and enable the fixed-code path for this one number.
+Why this is safe (Validation 9):
+- No general bypass exists; only the one configured test number accepts the
+  fixed code. Every other number still requires a real SMS OTP.
+- The demo identity owns only its own synthetic family — RLS prevents it from
+  reading any other family's data.
+- Removing the test number in the Supabase dashboard fully disables it post-review.
 
 ## Subscriptions
-- HomeHuddle offers an auto-renewable subscription via **In-App Purchase**:
-  Standard $9.99/month and a limited Founding Family $4.99/month, each with a
-  14-day free trial.
-- Purchases use StoreKit (via RevenueCat). "Restore Purchases" is on the Account
-  screen. There are **no external purchase links** in the iOS app.
-- The same account can also be managed on our website with a different payment
-  processor; the app never links to it for purchasing.
+- Auto-renewable IAP: Standard $9.99/mo and limited Founding Family $4.99/mo,
+  each with a 14-day free trial. Purchases use StoreKit 2 via RevenueCat.
+- "Restore Purchases" is on the Account screen. There are **no external purchase
+  links** in the iOS app.
+- The same account can also be managed on our website with a different processor;
+  the app never links out for purchasing.
 
 ## Notifications
-Optional. The app requests notification permission to remind families about
-games/practices; it functions if permission is denied.
+Optional. Requests notification permission to remind families about games/
+practices; the app works if permission is denied.
 
-## What HomeHuddle does NOT access
+## Not accessed
 No camera, microphone, contacts, photos, or location. Calendar data comes from
 schedule feeds the user subscribes to — not the device calendar.
 
 ## Account deletion
-Account → **Delete account** (in-app, per Guideline 5.1.1(v)). Deletion is
-owner-only and completes after a 7-day grace window.
+Account → **Delete account** (in-app, Guideline 5.1.1(v)). Owner deletion is
+scheduled with a 7-day grace (cancel by signing back in); a non-owner member's
+"Delete account" removes only their own membership.

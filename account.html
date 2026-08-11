@@ -680,8 +680,11 @@ async function saveChanges() {
 }
 
 function confirmCancel() {
-  if (confirm('Are you sure you want to cancel your HomeHuddle account? This cannot be undone.'))
-    alert("Please email hello@venuewise.net to cancel your account and we'll take care of it right away.");
+  // This legacy web page authenticates by email + feed PIN (no auth session), so
+  // it cannot run the owner-scoped deletion directly. Route users to the modern
+  // self-service deletion (same flow the iOS app uses) instead of email-only.
+  if (confirm('Delete your HomeHuddle account?\n\nYou can delete your account and all associated data from the account app. Continue there now?'))
+    window.location.href = '/homehuddle/account.html';
 }
 
 function showErr(id,msg){const el=document.getElementById(id);el.innerHTML=msg;el.classList.add('show');}
