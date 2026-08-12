@@ -4,10 +4,10 @@ Legend: ✅ ready in-repo · 🟡 draft/needs asset · ⛔ blocked on Apple org 
 
 | Item | State | Notes |
 |---|---|---|
-| App name | ✅ | HomeHuddle |
+| App name | ✅ | Listing: "HomeHuddle Family Calendar"; on-device: HomeHuddle |
 | Subtitle | 🟡 | Proposed: "Your family's schedule, finally organized." (from manifest) |
-| Bundle ID `net.venuewise.homehuddle` | ⛔ | Register once org approved |
-| SKU | 🟡 | Proposed `homehuddle-ios-001` |
+| Bundle ID `com.venuewise.homehuddle` | ✅ | Registered in App Store Connect (Team: Venuewise LLC) |
+| SKU | ✅ | `HOMEHUDDLE-IOS-001` (set in ASC) |
 | Primary category | 🟡 | Proposed: Productivity (secondary: Sports) |
 | Age rating | ✅ | **4+** — no objectionable content. Do NOT enroll in Kids Category |
 | Privacy Policy URL | ✅ | https://venuewise.net/homehuddle-privacy.html |

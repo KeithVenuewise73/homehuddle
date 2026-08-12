@@ -4,15 +4,15 @@ Everything below is **external account setup** the sprint cannot do in code. The
 app-side integration (`shared/native.js`, `supabase/functions/revenuecat-webhook`)
 is already built against this contract.
 
-## A. App Store Connect (blocked until Venuewise LLC org is approved)
-1. Register bundle id **`net.venuewise.homehuddle`**.
+## A. App Store Connect (Venuewise LLC org approved; bundle `com.venuewise.homehuddle` registered)
+1. Register bundle id **`com.venuewise.homehuddle`** (canonical, already created in App Store Connect).
 2. Create the app record: name **HomeHuddle**, primary language English (US).
 3. Create **auto-renewable subscription** products in one subscription group
    (`HomeHuddle`), each with a **14-day free trial** introductory offer:
    | Product ID (proposed) | Display | Price |
    |---|---|---|
-   | `net.venuewise.homehuddle.sub.standard`  | HomeHuddle Standard | $9.99/mo |
-   | `net.venuewise.homehuddle.sub.founding`  | HomeHuddle Founding Family | $4.99/mo |
+   | `com.venuewise.homehuddle.sub.standard`  | HomeHuddle Standard | $9.99/mo |
+   | `com.venuewise.homehuddle.sub.founding`  | HomeHuddle Founding Family | $4.99/mo |
 4. Fill subscription metadata (description, review screenshot) — required or the
    product stays "Missing Metadata" and IAP won't work in review.
 

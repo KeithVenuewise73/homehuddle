@@ -8,13 +8,13 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * venuewise.net — bundling the assets is what Apple expects and keeps the
  * iOS app on the StoreKit billing path (no live-web Stripe checkout leaks).
  *
- * appId is a PLACEHOLDER-VALID reverse-DNS identifier for Venuewise LLC.
- * It is technically valid. App Store *availability/registration* of this
- * identifier still requires Apple Developer / App Store Connect access
- * (organization enrollment is pending) — see docs/appstore/.
+ * appId is the CANONICAL Apple Bundle ID registered in App Store Connect for
+ * Venuewise LLC (Team: Venuewise LLC). App Store listing name is
+ * "HomeHuddle Family Calendar"; appName below is the shorter on-device (home
+ * screen) name — intentionally different from the store listing name.
  */
 const config: CapacitorConfig = {
-  appId: 'net.venuewise.homehuddle',
+  appId: 'com.venuewise.homehuddle',
   appName: 'HomeHuddle',
   webDir: 'www',
   // iosScheme 'capacitor' (default) serves bundled assets from capacitor://localhost

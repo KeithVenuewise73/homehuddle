@@ -22,7 +22,7 @@ const RC_AUTH = Deno.env.get("REVENUECAT_WEBHOOK_AUTH") ?? "";
 
 // StoreKit product ids configured in App Store Connect (placeholders; final ids
 // are set once the Apple org clears — see docs/appstore/app-store-connect-checklist.md).
-const FOUNDING_PRODUCT_SUFFIX = "founding"; // e.g. net.venuewise.homehuddle.sub.founding
+const FOUNDING_PRODUCT_SUFFIX = "founding"; // e.g. com.venuewise.homehuddle.sub.founding (logic keys off the ".founding" suffix, not the full id)
 
 function mapStatus(type: string, expirationMs?: number): string {
   const active = !expirationMs || expirationMs > Date.now();

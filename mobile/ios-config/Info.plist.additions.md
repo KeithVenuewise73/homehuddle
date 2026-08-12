@@ -37,8 +37,7 @@ Add a custom URL scheme so Supabase OTP/redirects re-enter the app:
   (and keep the existing web redirect for the web app).
 
 ## Bundle identifier
-`net.venuewise.homehuddle` — reverse-DNS valid. **Availability/registration is
-confirmed only in App Store Connect once the Venuewise LLC org is approved.**
+`com.venuewise.homehuddle` — canonical Apple Bundle ID, registered in App Store Connect (Team: Venuewise LLC). Must match `appId` in `mobile/capacitor.config.ts`.
 
 ## Version / build
 - Marketing version (`CFBundleShortVersionString`): `1.0.0`
