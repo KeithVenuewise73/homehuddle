@@ -72,6 +72,9 @@ alter table public.families        enable row level security;
 alter table public.family_members  enable row level security;
 alter table public.subscriptions   enable row level security;
 alter table public.feeds           enable row level security;
+alter table public.people           enable row level security;
+alter table public.admin_users      enable row level security;
+alter table public.push_subscriptions enable row level security;
 
 -- ── Production helper functions (SECURITY DEFINER, real bodies) ──────────────
 create or replace function public.current_person_id() returns uuid

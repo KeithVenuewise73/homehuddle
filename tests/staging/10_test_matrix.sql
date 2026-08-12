@@ -103,6 +103,35 @@ begin
   raise notice 'OK  granted founder lapsed → state still granted, slot NOT returned (remaining=0). #101 impossible';
 end $$;
 
+\echo '-- global cap across Stripe + Apple (one shared pool of 100) --'
+do $$
+declare i int; fid uuid;
+begin
+  delete from founder_grants;
+  for i in 1..37 loop
+    fid:=gen_random_uuid();
+    insert into families(id,family_name,email,phone,pin) values (fid,'s'||i,'s'||i||'@d.invalid','p','0');
+    perform grant_founder_slot(fid,'homehuddle','stripe','s'||i);
+  end loop;
+  for i in 1..28 loop
+    fid:=gen_random_uuid();
+    insert into families(id,family_name,email,phone,pin) values (fid,'a'||i,'a'||i||'@d.invalid','p','0');
+    perform grant_founder_slot(fid,'homehuddle','apple','a'||i);
+  end loop;
+  if founder_slots_remaining('homehuddle') <> 35 then raise exception 'FAIL global cap: expected 35, got %', founder_slots_remaining('homehuddle'); end if;
+  -- fill the last 35, then #101 must fail on BOTH channels
+  for i in 1..35 loop
+    fid:=gen_random_uuid();
+    insert into families(id,family_name,email,phone,pin) values (fid,'m'||i,'m'||i||'@d.invalid','p','0');
+    perform grant_founder_slot(fid,'homehuddle',case when i%2=0 then 'stripe' else 'apple' end,'m'||i);
+  end loop;
+  fid:=gen_random_uuid(); insert into families(id,family_name,email,phone,pin) values (fid,'z1','z1@d.invalid','p','0');
+  if grant_founder_slot(fid,'homehuddle','stripe','z1') then raise exception 'FAIL: Stripe #101 granted'; end if;
+  fid:=gen_random_uuid(); insert into families(id,family_name,email,phone,pin) values (fid,'z2','z2@d.invalid','p','0');
+  if grant_founder_slot(fid,'homehuddle','apple','z2') then raise exception 'FAIL: Apple #101 granted'; end if;
+  raise notice 'OK  37 Stripe + 28 Apple = 65 of ONE shared 100 cap; #101 refused on BOTH channels';
+end $$;
+
 \echo '==================== PHASE 9: ACCOUNT DELETION ===================='
 -- Real identity: owner auth uid + child (non-owner) auth uid mapped via people.
 select tst_make_family('ffffffff-0000-4000-a000-000000000001','99999999-0000-4000-a000-000000000001','owner@demo.invalid');

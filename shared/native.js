@@ -116,6 +116,40 @@
     return offering.availablePackages[0];
   }
 
+  function productIdOf(pkg) {
+    // RevenueCat Capacitor exposes the store product on pkg.product.identifier.
+    return (pkg && pkg.product && (pkg.product.identifier || pkg.product.productIdentifier)) || '';
+  }
+
+  // Resolve {standard, founding} packages from the current offering by matching
+  // the canonical Apple product ids in VW_NATIVE_CONFIG.products. Returns display
+  // metadata (localized price string, intro/trial) for the paywall.
+  async function getPlans() {
+    if (!isNative()) return null;
+    var offerings = await getOfferings();
+    var current = offerings && offerings.current;
+    if (!current || !current.availablePackages) return null;
+    var prods = CFG.products || {};
+    var out = { standard: null, founding: null };
+    for (var i=0;i<current.availablePackages.length;i++) {
+      var pkg = current.availablePackages[i];
+      var pid = productIdOf(pkg);
+      var p = pkg.product || {};
+      var meta = {
+        package: pkg,
+        packageId: pkg.identifier,
+        productId: pid,
+        priceString: p.priceString || p.price_string || '',
+        title: p.title || '',
+        // RevenueCat surfaces intro offer under introPrice / defaultOption.
+        hasTrial: !!(p.introPrice || (p.defaultOption && p.defaultOption.freePhase)),
+      };
+      if (pid === prods.standard) out.standard = meta;
+      else if (pid === prods.founding) out.founding = meta;
+    }
+    return out;
+  }
+
   async function restorePurchases() {
     if (!isNative()) return { ok: false, reason: 'web' };
     try {
@@ -197,6 +231,7 @@
     configure: rcConfigure,
     identify: identify,
     getOfferings: getOfferings,
+    getPlans: getPlans,
     hasEntitlement: hasEntitlement,
     startSubscription: startSubscription,
     restorePurchases: restorePurchases,
