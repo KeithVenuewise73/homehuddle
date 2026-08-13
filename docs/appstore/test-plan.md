@@ -29,7 +29,7 @@ Status legend per case:
 | iOS: restore purchases | CODE VERIFIED (`VW.native.restorePurchases`) · SANDBOX pending |
 | Founder cap = first 100, race-safe | CODE VERIFIED (reserve→grant→release, advisory-locked; slot consumed only on first paid period; released if trial never converts) |
 | No double-charge (web sub + app) | CODE VERIFIED (purchase records coexist per source; canonical entitlement checked before offering purchase) |
-| Trial 14-day both tiers | CODE VERIFIED (copy + product config) |
+| Trial: Standard 14-day; Founding NONE | CODE VERIFIED (checkout gates trial to !isFounding; paywall Founding card = "no trial, locked rate") |
 
 ## Account
 | Case | Status |

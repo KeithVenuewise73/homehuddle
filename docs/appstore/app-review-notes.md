@@ -24,8 +24,9 @@ Why this is safe (Validation 9):
 - Removing the test number in the Supabase dashboard fully disables it post-review.
 
 ## Subscriptions
-- Auto-renewable IAP: Standard $9.99/mo and limited Founding Family $4.99/mo,
-  each with a 14-day free trial. Purchases use StoreKit 2 via RevenueCat.
+- Auto-renewable IAP: Standard $9.99/mo **with a 14-day free trial**, and a
+  limited Founding Family $4.99/mo **with no trial** (a locked founder rate for
+  the first 100 members). Purchases use StoreKit 2 via RevenueCat.
 - "Restore Purchases" is on the Account screen. There are **no external purchase
   links** in the iOS app.
 - The same account can also be managed on our website with a different processor;

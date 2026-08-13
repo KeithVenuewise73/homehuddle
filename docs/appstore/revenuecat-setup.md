@@ -7,18 +7,33 @@ is already built against this contract.
 ## A. App Store Connect (Venuewise LLC org approved; bundle `com.venuewise.homehuddle` registered)
 1. Register bundle id **`com.venuewise.homehuddle`** (canonical, already created in App Store Connect).
 2. Create the app record: name **HomeHuddle**, primary language English (US).
-3. Create **auto-renewable subscription** products in one subscription group
-   (`HomeHuddle`), each with a **14-day free trial** introductory offer:
-   | Product ID (proposed) | Display | Price |
-   |---|---|---|
-   | `com.venuewise.homehuddle.sub.standard`  | HomeHuddle Standard | $9.99/mo |
-   | `com.venuewise.homehuddle.sub.founding`  | HomeHuddle Founding Family | $4.99/mo |
+3. Create **TWO auto-renewable subscription** products in one subscription group
+   (`HomeHuddle`). **Trial policy is per-product** (canonical, CEO-confirmed):
+   | Product ID (canonical) | Display | Price | Introductory offer |
+   |---|---|---|---|
+   | `com.venuewise.homehuddle.sub.standard`  | HomeHuddle Standard | $9.99/mo | **Free 2 weeks (14-day)** |
+   | `com.venuewise.homehuddle.sub.founding`  | HomeHuddle Founding Family | $4.99/mo | **NONE** (locked founder rate, no trial) |
 4. Fill subscription metadata (description, review screenshot) — required or the
    product stays "Missing Metadata" and IAP won't work in review.
 
-> Founder cap (first 100) is enforced **server-side** (`claim_founder_slot`), not
-> by Apple. The RevenueCat offering shows the Founding package only while slots
-> remain; once sold out, only Standard is offered.
+> **Two products are REQUIRED** — not optional. The Founding rate is a permanent
+> $4.99 grandfathered price, which Apple can only express as a **separate product**
+> (a StoreKit "introductory offer" is time-limited and cannot model a permanent
+> price). The first-100 cap is enforced **server-side** (`founder_slots_remaining`
+> / `reserve_founder_slot`), not by Apple. The RevenueCat offering shows the
+> Founding package only while slots remain; once sold out, only Standard is offered.
+> The `revenuecat-webhook` keys Founder detection off the **`.founding`** product-id
+> suffix, so the founding product id MUST end in `founding`.
+
+> ⚠️ **Reconcile with current App Store Connect state (HH-IOS-11).** The CEO's
+> existing single product **"HomeHuddle Monthly"** (1-month, "Free for the first 2
+> weeks", 175 regions) matches the **Standard** tier ONLY. Two CEO actions remain:
+> (a) confirm "HomeHuddle Monthly" is $9.99 with product id
+> `com.venuewise.homehuddle.sub.standard` (or tell us its real id so we align
+> `native-config.js`); (b) create the **second** product — Founding $4.99, id
+> `com.venuewise.homehuddle.sub.founding`, **no introductory offer**. Without the
+> Founding product, Apple users can never claim a founder slot and the "one shared
+> global-100 pool across Stripe + Apple" rule is broken on iOS.
 
 ## B. RevenueCat  (StoreKit 2 — see credential note below)
 1. Create project **HomeHuddle** → add the **Apple App Store** app.

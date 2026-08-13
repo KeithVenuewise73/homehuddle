@@ -19,8 +19,8 @@ Legend: ✅ ready in-repo · 🟡 draft/needs asset · ⛔ blocked on Apple org 
 | App Privacy questionnaire | ✅ | See `app-privacy.md` |
 | ATT / tracking | ✅ | "Data not used to track you." No IDFA / ad SDKs |
 | Sign in with Apple | ✅ | Not required — no third-party IdP (phone OTP only) |
-| Subscriptions (StoreKit) | ⛔ | Create products per `revenuecat-setup.md` |
-| Subscription terms in metadata | ✅ | $9.99/mo standard; $4.99/mo founding (first 100); 14-day free trial |
+| Subscriptions (StoreKit) | 🟡 | ONE product exists ("HomeHuddle Monthly", 2-wk free trial = Standard). **Second product (Founding $4.99, NO trial, id `…sub.founding`) still required** — see `revenuecat-setup.md` §A.3 reconciliation |
+| Subscription terms in metadata | ✅ | Standard $9.99/mo **with 14-day free trial**; Founding $4.99/mo (first 100) **with NO trial** |
 | App Review notes + demo access | ✅ | See `app-review-notes.md` |
 | Export compliance | 🟡 | Standard HTTPS only → "uses exempt encryption" = Yes/exempt |
 | Version / build | ✅ | 1.0.0 / build 1 |
