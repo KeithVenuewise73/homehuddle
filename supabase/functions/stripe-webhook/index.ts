@@ -19,11 +19,23 @@ const STRIPE_SECRET         = Deno.env.get('STRIPE_SECRET_KEY')!;
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 const SUPABASE_URL          = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE      = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-// Founding Stripe price (CEO-verified 2026-08). Overridable via env for staging.
-// Used only as a SECONDARY founder signal; the PRIMARY signal is the
-// subscription metadata `founding` flag that stripe-checkout stamps from the
-// shared founder pool — so a price-id change can never silently break detection.
-const FOUNDING_PRICE_ID     = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9';
+// Founding Stripe price. Used only as a SECONDARY founder signal; the PRIMARY
+// signal is the subscription metadata `founding` flag that stripe-checkout
+// stamps from the shared founder pool — so a price-id change can never silently
+// break detection.
+//
+// Price-id reconciliation (2026-08): the CEO-stated canonical id and the id
+// actually observed on the live founding subscription differ only in the
+// ambiguous glyphs (l/1, O/0). Both denote the same $4.99 founding product, so
+// we accept EITHER as founding for the price-id fallback — a transcription
+// glyph must never cause a founder misgrant. Env override wins when set.
+const FOUNDING_PRICE_ID = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9';
+const KNOWN_FOUNDING_PRICE_IDS = new Set([
+  FOUNDING_PRICE_ID,
+  'price_1T1iAoPqdDGv5YmH0F88NED9', // CEO-stated canonical (1/0)
+  'price_1TliAoPqdDGv5YmHOF88NED9', // observed on the live founding subscription (l/O)
+]);
+const isFoundingPrice = (id?: string | null): boolean => !!id && KNOWN_FOUNDING_PRICE_IDS.has(id);
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -80,8 +92,8 @@ Deno.serve(async (req: Request) => {
       const sub = await subRes.json();
       const priceId = sub.items?.data?.[0]?.price?.id;
       // PRIMARY: the pool-derived flag checkout stamped on the subscription.
-      // SECONDARY: price-id equality (kept as a defensive fallback).
-      const isFounding = sub.metadata?.founding === 'true' || priceId === FOUNDING_PRICE_ID;
+      // SECONDARY: known-founding price id (either glyph spelling).
+      const isFounding = sub.metadata?.founding === 'true' || isFoundingPrice(priceId);
 
       await sb.from('subscriptions').upsert({
         family_id: familyId, product: 'homehuddle', source: 'stripe',
@@ -139,7 +151,7 @@ Deno.serve(async (req: Request) => {
       const line = obj.lines?.data?.[0];
       const isFounding = obj.subscription_details?.metadata?.founding === 'true'
         || line?.metadata?.founding === 'true'
-        || line?.price?.id === FOUNDING_PRICE_ID;
+        || isFoundingPrice(line?.price?.id);
       const isPaid = (obj.amount_paid ?? 0) > 0;
       if (familyId && isFounding && isPaid) {
         await sb.rpc('grant_founder_slot',

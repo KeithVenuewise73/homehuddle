@@ -9,9 +9,35 @@ Stripe change is made by code — this documents what the CEO must set/verify.
 - **Founding Member:** $4.99/mo, lookup key **`founding_member_monthly`**, Price ID **`price_1T1iAoPqdDGv5YmH0F88NED9`**. Stripe product **default price = Yes**. First 100 globally. **No introductory trial.**
 - **Standard:** $9.99/mo, lookup key **`standard_monthly`**, Price ID **`price_1T1iApPqdDGv5YmHcxaaDG1J`**. **14-day free trial** (applied in code).
 
-The earlier `l/1` + `O/0` price-id transcription discrepancy is **resolved**: the
-dashboard values above are canonical, and code additionally resolves by lookup key
-so the exact glyphs no longer gate a charge.
+Code resolves by lookup key so the exact glyphs no longer gate a charge.
+
+## ⚠️ Founding price-id conflict — UNRESOLVED (needs CEO Stripe confirmation)
+Production evidence (HH-IOS-09) contradicts the CEO-stated founding price id:
+- **CEO-stated canonical:** `price_1T1iAoPqdDGv5YmH0F88NED9` (glyphs `1` / `0`).
+- **Observed live:** the single live founding subscription (status `trialing`, $4.99)
+  references **`price_1TliAoPqdDGv5YmHOF88NED9`** (glyphs `l` / `O`). Only this id is
+  *proven* to exist in live Stripe.
+
+These differ only in the ambiguous `l/1` and `O/0` glyphs and denote the same $4.99
+product. Until the CEO confirms the exact id by **copy-paste from the Stripe dashboard**,
+the code does not bet on either:
+- checkout resolves by **lookup key** `founding_member_monthly` (primary);
+- webhook founder detection uses the subscription **metadata `founding` flag** (primary)
+  and, as fallback, treats **both** id spellings as founding (`KNOWN_FOUNDING_PRICE_IDS`);
+- migration 0001 backfills founding on **either** id spelling.
+
+**CEO action:** open the $4.99 price in Stripe → copy the exact Price ID and the exact
+lookup key → paste them here so we can pin one id and delete the other.
+
+## ⚠️ Deploy-order dependency — schema BEFORE functions (HARD)
+The corrected `stripe-checkout` / `stripe-webhook` require schema that production
+does NOT yet have (verified HH-IOS-09): `subscriptions.{product,source,founder}`,
+the `unique(family_id,product,source)` index, the `family_product_entitlements` /
+`founder_grants` / `founder_config` tables, and the founder / `recompute_entitlement`
+RPCs. **Migrations 0001 + 0002 (minimum) must be applied first.** Deploying the
+functions onto the current schema would break billing (writes to non-existent
+columns, calls to non-existent RPCs). Applying migrations is a separate,
+CEO-authorized DB step — not covered by the HH-IOS-09 function-deploy authorization.
 
 ## Founder eligibility is NOT the Stripe default price
 Stripe marks the Founding $4.99 price as the product **default price**. This has

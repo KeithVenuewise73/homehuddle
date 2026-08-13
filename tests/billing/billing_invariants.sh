@@ -25,8 +25,12 @@ grep -q "standard_monthly" "$CO" && pass "checkout uses standard_monthly" || bad
 # 2. CEO-verified price ids (fallbacks) — exact.
 grep -q "price_1T1iAoPqdDGv5YmH0F88NED9" "$CO" && pass "founding price id CEO-verified (checkout)" || bad "founding price id wrong (checkout)"
 grep -q "price_1T1iApPqdDGv5YmHcxaaDG1J" "$CO" && pass "standard price id CEO-verified (checkout)" || bad "standard price id wrong (checkout)"
-grep -q "price_1T1iAoPqdDGv5YmH0F88NED9" "$WH" && pass "founding price id CEO-verified (webhook)" || bad "founding price id wrong (webhook)"
-! grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$CO" && ! grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$WH" && pass "no obsolete l/O price id in active functions" || bad "obsolete l/O price id still present"
+grep -q "price_1T1iAoPqdDGv5YmH0F88NED9" "$WH" && pass "founding price id CEO-stated present (webhook)" || bad "founding price id (1/0) missing (webhook)"
+# The webhook intentionally treats BOTH glyph spellings as founding (id observed
+# live is l/O; CEO-stated is 1/0). Assert the reconciliation set + primary signals.
+grep -q "KNOWN_FOUNDING_PRICE_IDS" "$WH" && grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$WH" && pass "webhook reconciles both founding id spellings" || bad "webhook founding-id reconciliation set missing"
+# The checkout OPERATIVE price must come from lookup keys, not a hardcoded l/O id.
+! grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$CO" && pass "checkout has no hardcoded obsolete l/O id" || bad "checkout still hardcodes obsolete l/O id"
 
 # 3. Trial policy: Standard 14-day, Founding none.
 grep -Eq "if \(!isFounding\) subData\['subscription_data\[trial_period_days\]'\] = TRIAL_DAYS;" "$CO" && pass "trial gated to !isFounding (Standard only)" || bad "trial not gated to Standard"
