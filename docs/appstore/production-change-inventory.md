@@ -22,8 +22,17 @@ All verified on real Postgres: apply in order, **idempotent/re-runnable**, RLS e
 | `delete-account` | **new** deploy | delete function |
 | `hard-delete-worker` | **new** deploy + daily schedule | unschedule + delete |
 | `stripe-webhook` | **REPLACE** deployed v6 with integrated version | redeploy retained v6 (source: `docs/appstore/stripe-webhook.v6.prod.ts`) |
+| `stripe-checkout` | **REPLACE** deployed v8 with canonical version | redeploy retained v8 (source: `docs/appstore/stripe-checkout.v8.prod.ts`) |
 
-The only change to an existing production function is `stripe-webhook`. Current prod is **version 6**; the integrated source is in `supabase/functions/stripe-webhook/`. Deploy it **last** and watch one live event.
+**TWO** existing production functions change: `stripe-webhook` (v6→integrated) and
+`stripe-checkout` (v8→canonical). The v8 checkout uses a stale Founder mechanism
+(150 cap, Stripe-only active/trialing count) that does NOT share the global
+Founder-100 pool; the corrected `supabase/functions/stripe-checkout/` decides the
+Founder price from `founder_slots_remaining('homehuddle')` (shared with Apple),
+is product/source-aware, and is multi-source safe. Deploy both **last**, together,
+and watch one live checkout + one webhook event. Rollback = redeploy the retained
+v6/v8 artifacts. **New env (optional):** `STRIPE_STANDARD_PRICE_ID`
+(defaults to the live `price_1TliApPqdDGv5YmHcxaaDG1J`).
 
 ## C. Web (HTML/JS) — promote via existing `main → live` Pages flow
 - `homehuddle/account.html` — in-app deletion, canonical entitlement read, platform-aware Manage Subscription
