@@ -43,7 +43,7 @@ create unique index if not exists subscriptions_family_product_source_uidx
 update public.subscriptions
    set founder = true
  where source = 'stripe'
-   and stripe_price_id = 'price_1TliAoPqdDGv5YmHOF88NED9'  -- live $4.99 Founding price
+   and stripe_price_id = 'price_1T1iAoPqdDGv5YmH0F88NED9'  -- live $4.99 Founding price (CEO-verified 2026-08)
    and founder = false;
 
 -- 2. Canonical entitlement table --------------------------------------------

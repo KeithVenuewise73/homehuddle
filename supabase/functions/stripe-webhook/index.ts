@@ -19,8 +19,11 @@ const STRIPE_SECRET         = Deno.env.get('STRIPE_SECRET_KEY')!;
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 const SUPABASE_URL          = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE      = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-// Founding Stripe price (live). Overridable via env for staging.
-const FOUNDING_PRICE_ID     = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9';
+// Founding Stripe price (CEO-verified 2026-08). Overridable via env for staging.
+// Used only as a SECONDARY founder signal; the PRIMARY signal is the
+// subscription metadata `founding` flag that stripe-checkout stamps from the
+// shared founder pool — so a price-id change can never silently break detection.
+const FOUNDING_PRICE_ID     = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9';
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -76,7 +79,9 @@ Deno.serve(async (req: Request) => {
         { headers: { 'Authorization': `Bearer ${STRIPE_SECRET}` } });
       const sub = await subRes.json();
       const priceId = sub.items?.data?.[0]?.price?.id;
-      const isFounding = priceId === FOUNDING_PRICE_ID;
+      // PRIMARY: the pool-derived flag checkout stamped on the subscription.
+      // SECONDARY: price-id equality (kept as a defensive fallback).
+      const isFounding = sub.metadata?.founding === 'true' || priceId === FOUNDING_PRICE_ID;
 
       await sb.from('subscriptions').upsert({
         family_id: familyId, product: 'homehuddle', source: 'stripe',
@@ -130,8 +135,11 @@ Deno.serve(async (req: Request) => {
       await sb.from('subscriptions').update({ status: 'active', updated_at: new Date().toISOString() })
         .eq('stripe_customer_id', obj.customer).eq('source', 'stripe');
       // First qualifying PAID period for a Founding sub → GRANT (idempotent, permanent).
+      // Prefer the subscription metadata flag (pool-derived) over price-id equality.
       const line = obj.lines?.data?.[0];
-      const isFounding = line?.price?.id === FOUNDING_PRICE_ID;
+      const isFounding = obj.subscription_details?.metadata?.founding === 'true'
+        || line?.metadata?.founding === 'true'
+        || line?.price?.id === FOUNDING_PRICE_ID;
       const isPaid = (obj.amount_paid ?? 0) > 0;
       if (familyId && isFounding && isPaid) {
         await sb.rpc('grant_founder_slot',

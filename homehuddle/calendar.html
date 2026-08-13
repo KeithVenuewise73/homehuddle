@@ -297,7 +297,7 @@
           <span style="color:#fff;font-weight:700;font-size:0.95rem;">Founding Member</span>
           <span id="foundingPrice" style="color:#d4a32e;font-weight:700;">$4.99/mo</span>
         </div>
-        <div style="color:#9aa5b4;font-size:0.72rem;margin-top:2px;">14 days free · limited — <span id="foundingLeft">first 100 families</span></div>
+        <div style="color:#9aa5b4;font-size:0.72rem;margin-top:2px;">Limited — <span id="foundingLeft">first 100 families</span> · no trial, locked rate</div>
       </div>
       <div id="planStandard" style="border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:12px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
@@ -308,7 +308,7 @@
       </div>
     </div>
 
-    <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.6rem;">Start 14-Day Free Trial →</button>
+    <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.6rem;">Continue →</button>
     <button onclick="restorePurchases()" id="restoreBtn" data-native-only style="display:none;width:100%;padding:10px;background:transparent;color:#9aa5b4;font-size:0.85rem;font-weight:600;border:1px solid rgba(255,255,255,0.14);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.75rem;">Restore Purchases</button>
     <p id="paywallNote" style="color:#6b7280;font-size:0.72rem;margin:0;line-height:1.5;">First 100 Founding Families lock in $4.99/mo, guaranteed while active. Cancel anytime. Payment is charged to your Apple ID; auto-renews unless cancelled at least 24h before the period ends — manage in Settings.</p>
   </div>
@@ -1573,22 +1573,37 @@ let selectedPackageId = null;
 // Founding plan + Restore button. On web this is a no-op (static copy stands).
 async function renderPaywall() {
   try {
-    if (!(window.VW && VW.native && VW.native.isNative())) return;
-    document.getElementById('restoreBtn').style.display = 'block';
-    if (familyId) await VW.native.identify(familyId);
+    const isNative = !!(window.VW && VW.native && VW.native.isNative());
     // Founding eligibility is server-authoritative (global cap across Stripe+Apple).
     let remaining = null;
     try {
       const { data } = await sb.rpc('founder_slots_remaining', { p_product: 'homehuddle' });
       remaining = (typeof data === 'number') ? data : (data && data[0] && data[0].founder_slots_remaining);
     } catch(e) {}
+    const foundingOpen = (typeof remaining === 'number') && remaining > 0;
+
+    if (!isNative) {
+      // WEB: static Stripe copy. Show the Founding card only while the shared
+      // pool has capacity — matches exactly what stripe-checkout will charge
+      // ($4.99, no trial). Otherwise the Standard card (with its 14-day trial)
+      // stands. The single CTA lets the server decide the price.
+      if (foundingOpen) {
+        document.getElementById('foundingLeft').textContent = remaining + ' of 100 left';
+        document.getElementById('planFounding').style.display = 'block';
+      }
+      return;
+    }
+
+    // NATIVE: real StoreKit prices/trial via RevenueCat + Restore button.
+    document.getElementById('restoreBtn').style.display = 'block';
+    if (familyId) await VW.native.identify(familyId);
     const plans = await VW.native.getPlans();
     window._plans = plans;
     if (plans && plans.standard) {
       document.getElementById('standardPrice').textContent = plans.standard.priceString || '$9.99/mo';
       selectedPackageId = plans.standard.packageId;
     }
-    if (plans && plans.founding && remaining && remaining > 0) {
+    if (plans && plans.founding && foundingOpen) {
       document.getElementById('foundingPrice').textContent = plans.founding.priceString || '$4.99/mo';
       document.getElementById('foundingLeft').textContent = remaining + ' of 100 left';
       document.getElementById('planFounding').style.display = 'block';
@@ -1632,7 +1647,7 @@ async function startTrial() {
       if (familyId) await VW.native.identify(familyId);
       const r = await VW.native.startSubscription({ packageId: selectedPackageId });
       if (r && r.ok) { document.getElementById('paywall').style.display = 'none'; loadTheme(); location.reload(); return; }
-      btn.textContent = 'Start Free Trial →'; btn.disabled = false;
+      btn.textContent = 'Continue →'; btn.disabled = false;
       if (r && r.reason && r.reason !== 'cancelled' && window.VW.observe) VW.observe.captureBillingFailure('ios paywall: ' + r.reason);
       return;
     }
@@ -1644,8 +1659,8 @@ async function startTrial() {
     });
     const data = await res.json();
     if (data.url) { window.location.href = data.url; }
-    else { btn.textContent = 'Start Free Trial →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureBillingFailure('stripe checkout unavailable'); }
-  } catch(e) { btn.textContent = 'Start Free Trial →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureError(e, 'startTrial'); }
+    else { btn.textContent = 'Continue →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureBillingFailure('stripe checkout unavailable'); }
+  } catch(e) { btn.textContent = 'Continue →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureError(e, 'startTrial'); }
 }
 
 resolveIdentity().then(function(ok) {

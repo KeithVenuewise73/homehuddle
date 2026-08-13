@@ -10,7 +10,8 @@
 //     source='stripe', upsert onConflict (family_id,product,source) — matches the
 //     webhook, so Stripe & Apple rows coexist and a family may have 2 rows.
 //   • Reads families.family_name (real column); multi-source-safe (no .single()).
-//   • 14-day trial on BOTH tiers (matches Stripe config today; see note).
+//   • 14-day trial applies to STANDARD ONLY. Founding ($4.99) receives NO
+//     introductory trial (canonical model, CEO-confirmed 2026-08).
 //
 // The Founder SLOT is reserved/granted by stripe-webhook (reserve on
 // checkout.session.completed, grant on first paid invoice) — this function only
@@ -29,20 +30,21 @@ const SUPABASE_URL     = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 // ── Price resolution — LOOKUP KEYS ARE AUTHORITATIVE ────────────────────────
-// Stripe price ids are visually ambiguous (l/1, O/0) and were the subject of a
-// transcription discrepancy between the dashboard and this code. To remove the
-// ambiguity permanently we resolve prices by Stripe **lookup key** (unambiguous
-// words), and fall back to a price-id env override only if the lookup fails.
+// Resolve prices by Stripe **lookup key** (unambiguous words) and fall back to
+// a pinned price id only if the lookup fails. This removes the visual-ambiguity
+// risk (l/1, O/0) that previously affected the hardcoded ids.
 //
-// ⚠️ The hardcoded price-id fallbacks below are machine-sourced from the
-// previously deployed function but are NOT independently verified against the
-// live dashboard (an l/1 + O/0 discrepancy was reported). Prefer lookup keys;
-// if you must pin ids, set STRIPE_*_PRICE_ID via COPY-PASTE, never by typing.
-const FOUNDING_LOOKUP_KEY = Deno.env.get('STRIPE_FOUNDING_LOOKUP_KEY') ?? 'early_adopter_monthly';
+// CEO-VERIFIED 2026-08 (canonical Stripe config):
+//   founding_member_monthly → price_1T1iAoPqdDGv5YmH0F88NED9  ($4.99/mo)
+//   standard_monthly        → price_1T1iApPqdDGv5YmHcxaaDG1J  ($9.99/mo)
+// The founding price is Stripe's product "default price"; that designation is
+// NOT used for eligibility here (see below) — Founder access is decided solely
+// by the shared founder_slots_remaining() pool.
+const FOUNDING_LOOKUP_KEY = Deno.env.get('STRIPE_FOUNDING_LOOKUP_KEY') ?? 'founding_member_monthly';
 const STANDARD_LOOKUP_KEY = Deno.env.get('STRIPE_STANDARD_LOOKUP_KEY') ?? 'standard_monthly';
-const PRICE_FOUNDING_FALLBACK = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9'; // $4.99 (UNVERIFIED)
-const PRICE_STANDARD_FALLBACK = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1TliApPqdDGv5YmHcxaaDG1J'; // $9.99 (UNVERIFIED)
-const TRIAL_DAYS = 14;
+const PRICE_FOUNDING_FALLBACK = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9'; // $4.99 (CEO-verified)
+const PRICE_STANDARD_FALLBACK = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1T1iApPqdDGv5YmHcxaaDG1J'; // $9.99 (CEO-verified)
+const TRIAL_DAYS = 14; // STANDARD only — Founding gets no introductory trial
 const SITE_URL = 'https://venuewise.net';
 
 const CORS = {
@@ -123,12 +125,17 @@ Deno.serve(async (req: Request) => {
     customerId = customer.id;
   }
 
+  // Trial: STANDARD gets the 14-day free trial; FOUNDING gets none.
+  const subData: Record<string, unknown> = {
+    'subscription_data[metadata][family_id]': family_id,
+    'subscription_data[metadata][founding]': isFounding ? 'true' : 'false',
+  };
+  if (!isFounding) subData['subscription_data[trial_period_days]'] = TRIAL_DAYS;
+
   const session = await stripePost('checkout/sessions', {
     customer: customerId, mode: 'subscription',
     'line_items[0][price]': priceId, 'line_items[0][quantity]': 1,
-    'subscription_data[trial_period_days]': TRIAL_DAYS,
-    'subscription_data[metadata][family_id]': family_id,
-    'subscription_data[metadata][founding]': isFounding ? 'true' : 'false',
+    ...subData,
     success_url: `${SITE_URL}/homehuddle/calendar.html?checkout=success`,
     cancel_url: `${SITE_URL}/homehuddle/join.html?checkout=cancelled`,
     'payment_method_types[0]': 'card',
@@ -142,5 +149,5 @@ Deno.serve(async (req: Request) => {
     status: 'incomplete', founder: isFounding, updated_at: new Date().toISOString(),
   }, { onConflict: 'family_id,product,source' });
 
-  return json({ url: session.url, price_tier: isFounding ? 'founding' : 'standard', trial_days: TRIAL_DAYS });
+  return json({ url: session.url, price_tier: isFounding ? 'founding' : 'standard', trial_days: isFounding ? 0 : TRIAL_DAYS });
 });
