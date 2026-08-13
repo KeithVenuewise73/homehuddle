@@ -24,18 +24,13 @@ const SUPABASE_SERVICE      = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 // stamps from the shared founder pool — so a price-id change can never silently
 // break detection.
 //
-// Price-id reconciliation (2026-08): the CEO-stated canonical id and the id
-// actually observed on the live founding subscription differ only in the
-// ambiguous glyphs (l/1, O/0). Both denote the same $4.99 founding product, so
-// we accept EITHER as founding for the price-id fallback — a transcription
-// glyph must never cause a founder misgrant. Env override wins when set.
-const FOUNDING_PRICE_ID = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9';
-const KNOWN_FOUNDING_PRICE_IDS = new Set([
-  FOUNDING_PRICE_ID,
-  'price_1T1iAoPqdDGv5YmH0F88NED9', // CEO-stated canonical (1/0)
-  'price_1TliAoPqdDGv5YmHOF88NED9', // observed on the live founding subscription (l/O)
-]);
-const isFoundingPrice = (id?: string | null): boolean => !!id && KNOWN_FOUNDING_PRICE_IDS.has(id);
+// Canonical founding price id, machine-copied from Stripe by the CEO (2026-08)
+// and matching the live founding subscription + the previously deployed value.
+// (An earlier 1/0 spelling was a visual transcription error and is not retained.)
+// Env override wins when set. This is a DEFENSIVE fallback only — the primary
+// founder signal is the subscription metadata `founding` flag.
+const FOUNDING_PRICE_ID = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9';
+const isFoundingPrice = (id?: string | null): boolean => !!id && id === FOUNDING_PRICE_ID;
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;

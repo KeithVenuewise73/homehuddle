@@ -34,8 +34,8 @@ by **lookup key** (`founding_member_monthly` / `standard_monthly`) and detect
 Founder via the pool + subscription metadata (not the Stripe default price).
 Deploy both **last**, together, and watch one live checkout + one webhook event.
 Rollback = redeploy the retained v6/v8 artifacts. **New env (optional):**
-`STRIPE_STANDARD_PRICE_ID` (CEO-verified `price_1T1iApPqdDGv5YmHcxaaDG1J`),
-`STRIPE_FOUNDING_PRICE_ID` (CEO-verified `price_1T1iAoPqdDGv5YmH0F88NED9`).
+`STRIPE_STANDARD_PRICE_ID` (canonical `price_1TliApPqdDGv5YmHcxaaDG1J`),
+`STRIPE_FOUNDING_PRICE_ID` (canonical `price_1TliAoPqdDGv5YmHOF88NED9`).
 
 ## C. Web (HTML/JS) — promote via existing `main → live` Pages flow
 - `homehuddle/account.html` — in-app deletion, canonical entitlement read, platform-aware Manage Subscription

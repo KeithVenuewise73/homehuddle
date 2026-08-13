@@ -11,6 +11,7 @@ cd "$(dirname "$0")/../.."
 CO=supabase/functions/stripe-checkout/index.ts
 WH=supabase/functions/stripe-webhook/index.ts
 CAL=homehuddle/calendar.html
+MIG=supabase/migrations/20260810_0001_product_aware_entitlements.sql
 fail=0
 pass(){ echo "  OK  $1"; }
 bad(){ echo "  FAIL $1"; fail=1; }
@@ -22,15 +23,13 @@ grep -q "founding_member_monthly" "$CO" && pass "checkout uses founding_member_m
 grep -q "standard_monthly" "$CO" && pass "checkout uses standard_monthly" || bad "standard lookup key missing"
 ! grep -q "early_adopter_monthly" "$CO" && pass "no early_adopter_monthly in checkout" || bad "obsolete early_adopter_monthly present"
 
-# 2. CEO-verified price ids (fallbacks) — exact.
-grep -q "price_1T1iAoPqdDGv5YmH0F88NED9" "$CO" && pass "founding price id CEO-verified (checkout)" || bad "founding price id wrong (checkout)"
-grep -q "price_1T1iApPqdDGv5YmHcxaaDG1J" "$CO" && pass "standard price id CEO-verified (checkout)" || bad "standard price id wrong (checkout)"
-grep -q "price_1T1iAoPqdDGv5YmH0F88NED9" "$WH" && pass "founding price id CEO-stated present (webhook)" || bad "founding price id (1/0) missing (webhook)"
-# The webhook intentionally treats BOTH glyph spellings as founding (id observed
-# live is l/O; CEO-stated is 1/0). Assert the reconciliation set + primary signals.
-grep -q "KNOWN_FOUNDING_PRICE_IDS" "$WH" && grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$WH" && pass "webhook reconciles both founding id spellings" || bad "webhook founding-id reconciliation set missing"
-# The checkout OPERATIVE price must come from lookup keys, not a hardcoded l/O id.
-! grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$CO" && pass "checkout has no hardcoded obsolete l/O id" || bad "checkout still hardcodes obsolete l/O id"
+# 2. Canonical CEO machine-copied price ids (l/O). The erroneous 1/0 spelling
+#    must be absent from ALL active billing code + the migration.
+grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$CO" && pass "founding price id canonical l/O (checkout)" || bad "founding price id not canonical (checkout)"
+grep -q "price_1TliApPqdDGv5YmHcxaaDG1J" "$CO" && pass "standard price id canonical l/O (checkout)" || bad "standard price id not canonical (checkout)"
+grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$WH" && pass "founding price id canonical l/O (webhook)" || bad "founding price id not canonical (webhook)"
+grep -q "price_1TliAoPqdDGv5YmHOF88NED9" "$MIG" && pass "founding backfill canonical l/O (migration)" || bad "founding backfill not canonical (migration)"
+! grep -rq "price_1T1iAoPqdDGv5YmH0F88NED9" "$CO" "$WH" "$MIG" && ! grep -rq "price_1T1iApPqdDGv5YmHcxaaDG1J" "$CO" "$WH" "$MIG" && pass "erroneous 1/0 ids absent from active code + migration" || bad "erroneous 1/0 id still present"
 
 # 3. Trial policy: Standard 14-day, Founding none.
 grep -Eq "if \(!isFounding\) subData\['subscription_data\[trial_period_days\]'\] = TRIAL_DAYS;" "$CO" && pass "trial gated to !isFounding (Standard only)" || bad "trial not gated to Standard"

@@ -34,16 +34,16 @@ const SUPABASE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 // a pinned price id only if the lookup fails. This removes the visual-ambiguity
 // risk (l/1, O/0) that previously affected the hardcoded ids.
 //
-// CEO-VERIFIED 2026-08 (canonical Stripe config):
-//   founding_member_monthly → price_1T1iAoPqdDGv5YmH0F88NED9  ($4.99/mo)
-//   standard_monthly        → price_1T1iApPqdDGv5YmHcxaaDG1J  ($9.99/mo)
+// CEO-VERIFIED 2026-08 (canonical Stripe config; ids machine-copied from Stripe):
+//   founding_member_monthly → price_1TliAoPqdDGv5YmHOF88NED9  ($4.99/mo)
+//   standard_monthly        → price_1TliApPqdDGv5YmHcxaaDG1J  ($9.99/mo)
 // The founding price is Stripe's product "default price"; that designation is
 // NOT used for eligibility here (see below) — Founder access is decided solely
 // by the shared founder_slots_remaining() pool.
 const FOUNDING_LOOKUP_KEY = Deno.env.get('STRIPE_FOUNDING_LOOKUP_KEY') ?? 'founding_member_monthly';
 const STANDARD_LOOKUP_KEY = Deno.env.get('STRIPE_STANDARD_LOOKUP_KEY') ?? 'standard_monthly';
-const PRICE_FOUNDING_FALLBACK = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1T1iAoPqdDGv5YmH0F88NED9'; // $4.99 (CEO-verified)
-const PRICE_STANDARD_FALLBACK = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1T1iApPqdDGv5YmHcxaaDG1J'; // $9.99 (CEO-verified)
+const PRICE_FOUNDING_FALLBACK = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9'; // $4.99 (CEO machine-copied)
+const PRICE_STANDARD_FALLBACK = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1TliApPqdDGv5YmHcxaaDG1J'; // $9.99 (CEO machine-copied)
 const TRIAL_DAYS = 14; // STANDARD only — Founding gets no introductory trial
 const SITE_URL = 'https://venuewise.net';
 
