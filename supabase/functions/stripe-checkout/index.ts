@@ -28,8 +28,20 @@ const STRIPE_SECRET    = Deno.env.get('STRIPE_SECRET_KEY')!;
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-const PRICE_FOUNDING = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9'; // $4.99
-const PRICE_STANDARD = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1TliApPqdDGv5YmHcxaaDG1J'; // $9.99
+// ── Price resolution — LOOKUP KEYS ARE AUTHORITATIVE ────────────────────────
+// Stripe price ids are visually ambiguous (l/1, O/0) and were the subject of a
+// transcription discrepancy between the dashboard and this code. To remove the
+// ambiguity permanently we resolve prices by Stripe **lookup key** (unambiguous
+// words), and fall back to a price-id env override only if the lookup fails.
+//
+// ⚠️ The hardcoded price-id fallbacks below are machine-sourced from the
+// previously deployed function but are NOT independently verified against the
+// live dashboard (an l/1 + O/0 discrepancy was reported). Prefer lookup keys;
+// if you must pin ids, set STRIPE_*_PRICE_ID via COPY-PASTE, never by typing.
+const FOUNDING_LOOKUP_KEY = Deno.env.get('STRIPE_FOUNDING_LOOKUP_KEY') ?? 'early_adopter_monthly';
+const STANDARD_LOOKUP_KEY = Deno.env.get('STRIPE_STANDARD_LOOKUP_KEY') ?? 'standard_monthly';
+const PRICE_FOUNDING_FALLBACK = Deno.env.get('STRIPE_FOUNDING_PRICE_ID') ?? 'price_1TliAoPqdDGv5YmHOF88NED9'; // $4.99 (UNVERIFIED)
+const PRICE_STANDARD_FALLBACK = Deno.env.get('STRIPE_STANDARD_PRICE_ID') ?? 'price_1TliApPqdDGv5YmHcxaaDG1J'; // $9.99 (UNVERIFIED)
 const TRIAL_DAYS = 14;
 const SITE_URL = 'https://venuewise.net';
 
@@ -54,6 +66,17 @@ async function stripePost(path: string, body: Record<string, unknown>) {
   flatten(body);
   const res = await fetch(`https://api.stripe.com/v1/${path}`, { method: 'POST', headers: { 'Authorization': `Bearer ${STRIPE_SECRET}`, 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
   return res.json();
+}
+
+// Resolve a price id from an unambiguous lookup key; fall back to a pinned id.
+async function resolvePrice(lookupKey: string, fallbackId: string): Promise<string> {
+  try {
+    const res = await fetch(`https://api.stripe.com/v1/prices?lookup_keys[]=${encodeURIComponent(lookupKey)}&active=true&limit=1`,
+      { headers: { 'Authorization': `Bearer ${STRIPE_SECRET}` } });
+    const data = await res.json();
+    if (data?.data?.[0]?.id) return data.data[0].id;
+  } catch (_e) { /* fall through */ }
+  return fallbackId;  // lookup unavailable → pinned id (env override or hardcoded)
 }
 
 Deno.serve(async (req: Request) => {
@@ -84,8 +107,11 @@ Deno.serve(async (req: Request) => {
   // Founder price ONLY while the GLOBAL pool (shared with Apple) has capacity.
   const { data: remaining } = await sb.rpc('founder_slots_remaining', { p_product: 'homehuddle' });
   const foundingAvailable = (typeof remaining === 'number' ? remaining : 0) > 0;
-  const priceId = foundingAvailable ? PRICE_FOUNDING : PRICE_STANDARD;
-  const isFounding = priceId === PRICE_FOUNDING;
+  const isFounding = foundingAvailable;
+  // Resolve by lookup key (authoritative, ambiguity-proof); fall back to pinned id.
+  const priceId = isFounding
+    ? await resolvePrice(FOUNDING_LOOKUP_KEY, PRICE_FOUNDING_FALLBACK)
+    : await resolvePrice(STANDARD_LOOKUP_KEY, PRICE_STANDARD_FALLBACK);
 
   let customerId = existingSub?.stripe_customer_id;
   if (!customerId) {
