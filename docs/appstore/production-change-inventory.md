@@ -1,7 +1,21 @@
-# Production Change Inventory (Phase 11) — NOT YET AUTHORIZED
+# Production Change Inventory
 
-Precise inventory of what a production rollout of this branch would change. **No
-execution** — for CEO authorization only.
+Precise inventory of what a production rollout of this branch changes.
+
+## ✅ DEPLOYED — HH-IOS-10 (2026-08, Venuewise Platform `urwnbskrtoplgnkkxuvl`)
+The billing foundation is LIVE (narrow CEO authorization). Applied/deployed and verified:
+| Item | Before | After | Verified |
+|---|---|---|---|
+| migration `0001_product_aware_entitlements` | absent | applied | product/source/founder cols + `unique(family_id,product,source)` + `family_product_entitlements` + `recompute_entitlement`; existing sub preserved & founder-backfilled |
+| migration `0002_founder_slots` | absent | applied | `founder_config`(max=100) + `founder_grants` + reserve/grant/release + `founder_slots_remaining`→100 |
+| `stripe-checkout` | v8 (150-cap, Stripe-only count) | **v9 ACTIVE** | lookup-key resolution, pool eligibility, Standard-only trial, no 150 |
+| `stripe-webhook` | v6 (no founder logic) | **v7 ACTIVE** | timing-safe sig, reserve/grant/release + recompute, metadata-primary founder |
+
+Canonical Stripe ids (CEO machine-copied): founding `price_1TliAoPqdDGv5YmHOF88NED9`, standard `price_1TliApPqdDGv5YmHcxaaDG1J`.
+Rollback: redeploy `docs/appstore/stripe-checkout.v8.prod.ts` / `stripe-webhook.v6.prod.ts`.
+
+**Still NOT deployed** (out of HH-IOS-10 scope): migrations 0003–0006; `revenuecat-webhook`,
+`delete-account`, `hard-delete-worker`; all web app code. See sections below.
 
 ## A. Database migrations (apply in order)
 | # | File | Effect | Destructive? |
