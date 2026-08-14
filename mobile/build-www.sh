@@ -49,6 +49,27 @@ echo "→ Rewriting absolute venuewise.net links to in-bundle relative paths"
 find "$WWW" -name '*.html' -print0 | xargs -0 sed -i \
   -e 's#https://venuewise\.net/#/#g'
 
+echo "→ Wiring RevenueCat native config into the bundle"
+# native.js reads window.VW_NATIVE_CONFIG, which lives in shared/native-config.js.
+# That file is .gitignored (holds the publishable RevenueCat SDK key) and is
+# created at build time. The SOURCE web HTML deliberately does NOT reference it
+# (so venuewise.net never 404s on it); we inject the include ONLY into the
+# bundled native HTML below.
+if [ -f "$REPO/shared/native-config.js" ]; then
+  echo "  ✓ using shared/native-config.js (real config present)"
+else
+  echo "  ⚠️  shared/native-config.js NOT found — using the PLACEHOLDER example."
+  echo "  ⚠️  Set shared/native-config.js with the real RevenueCat public 'appl_' key"
+  echo "  ⚠️  BEFORE a real build, or in-app purchases will not initialize."
+  cp "$REPO/shared/native-config.example.js" "$WWW/shared/native-config.js"
+fi
+
+echo "→ Injecting native-config + app version before native.js (bundled HTML only)"
+# Load order in the bundle becomes: native-config.js (sets VW_NATIVE_CONFIG) →
+# native.js (reads it). VW_APP_VERSION labels client_errors.app_version.
+find "$WWW" -name '*.html' -print0 | xargs -0 sed -i \
+  -e "s#<script src=\"/shared/native\.js\"></script>#<script>window.VW_APP_VERSION='1.0.0';</script>\n  <script src=\"/shared/native-config.js\"></script>\n  <script src=\"/shared/native.js\"></script>#g"
+
 echo "→ Writing native entry redirect (start at the calendar app)"
 cat > "$WWW/index.html" <<'HTML'
 <!doctype html><html><head><meta charset="utf-8">
