@@ -192,7 +192,7 @@
       </p>
       <div class="error-msg" id="err1"></div>
       <div class="btn-nav"><button class="btn-primary" onclick="nextStep(1)">Continue → Add Family Members</button></div>
-      <p class="legal">Free for 14 days, then $4.99/month. Cancel anytime. First 150 families lock in at $4.99 forever.</p>
+      <p class="legal">Free for 14 days, then $9.99/month. The first 100 Founding Families lock in $4.99/month, guaranteed while your subscription stays active. Cancel anytime.</p>
     </div>
 
     <!-- STEP 2 -->
@@ -243,7 +243,7 @@
           <button class="btn-primary" id="verifyBtn" onclick="finishSignup()" style="width:100%;">Verify &amp; Create Calendar</button>
         </div>
       </div>
-      <p class="legal">Free for 14 days, then $4.99/month. Cancel anytime. First 150 families lock in at $4.99 forever.<br>
+      <p class="legal">Free for 14 days, then $9.99/month. The first 100 Founding Families lock in $4.99/month, guaranteed while your subscription stays active. Cancel anytime.<br>
         <a href="https://venuewise.net">venuewise.net</a> · <a href="https://venuewise.net/homehuddle-privacy.html">Privacy</a> · <a href="https://venuewise.net/homehuddle-terms.html">Terms</a></p>
     </div>
   </div>
@@ -267,10 +267,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/observability.js"></script>
+<script src="/shared/native.js"></script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
 const sb = window.supabase.createClient(SURL, SKEY);
+window.VW = window.VW || {}; window.VW.config = window.VW.config || { supabaseUrl: SURL, supabaseAnonKey: SKEY };
 const SPORTS = ['Baseball','Hockey','Soccer','Basketball','Lacrosse','Football','Wrestling','Swimming','Volleyball','Softball','Dance','Other'];
 const PLATFORMS = {
   gamechanger: { name: 'GameChanger', desc: 'Baseball / Softball' },
@@ -609,8 +612,25 @@ async function finishSignup() {
     // 3. Kick off the schedule sync so games appear right away
     try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
 
-    // 4. Kick off Stripe checkout
+    // 4. Start the trial via the PLATFORM-CORRECT billing path.
+    //    iOS  → RevenueCat / StoreKit (Apple 3.1.1 — NEVER open Stripe on iOS).
+    //    Web  → existing Stripe-hosted checkout.
     vbtn.textContent = 'Starting your free trial…';
+
+    if (window.VW && VW.native && VW.native.isNative()) {
+      await VW.native.identify(familyId);
+      const purchase = await VW.native.startSubscription({ packageId: null });
+      if (purchase && purchase.ok) { showSignupSuccess(); }
+      else if (purchase && purchase.reason === 'cancelled') {
+        // User backed out of StoreKit — let them into the app; entitlement can be linked later.
+        showSignupSuccess();
+      } else {
+        if (window.VW && VW.observe) VW.observe.captureBillingFailure('ios purchase: ' + (purchase && purchase.reason));
+        showSignupSuccess();
+      }
+      return;
+    }
+
     const { data: { session } } = await sb.auth.getSession();
     const checkoutRes = await fetch(SURL + '/functions/v1/stripe-checkout', {
       method: 'POST',
@@ -619,10 +639,10 @@ async function finishSignup() {
     });
     const checkout = await checkoutRes.json();
     if (checkout.url) {
-      window.location.href = checkout.url; // redirect to Stripe-hosted checkout
+      window.location.href = checkout.url; // redirect to Stripe-hosted checkout (web only)
     } else {
       // Stripe unavailable — still let them in, subscription can be linked later
-      console.warn('Stripe checkout unavailable:', checkout);
+      if (window.VW && VW.observe) VW.observe.captureBillingFailure('stripe checkout unavailable');
       showSignupSuccess();
     }
   } catch(err) {

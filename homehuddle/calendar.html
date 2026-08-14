@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared/observability.js"></script>
+  <script src="/shared/native.js"></script>
   <link rel="manifest" id="pwa-manifest" href="/homehuddle/manifest.json" />
   <script>
     // Dynamically set manifest start_url to include the family email/phone
@@ -282,13 +284,35 @@
 <body>
 <!-- PAYWALL OVERLAY — shown when subscription is inactive -->
 <div id="paywall" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,15,28,0.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px;">
-  <div style="background:#1a2535;border:1px solid rgba(192,57,43,0.2);border-radius:16px;padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
-    <div style="font-size:2.5rem;margin-bottom:0.5rem;">🏆</div>
-    <h2 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.6rem;margin-bottom:0.5rem;">Start Your Free Trial</h2>
-    <p style="color:#9aa5b4;font-size:0.9rem;line-height:1.6;margin-bottom:0.25rem;">HomeHuddle + AthleteHuddle + 5-Star Sports Media</p>
-    <p style="color:#d4a32e;font-size:0.85rem;font-weight:600;margin-bottom:1.5rem;">14 days free · then $4.99/mo*</p>
-    <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.75rem;">Start Free Trial →</button>
-    <p style="color:#6b7280;font-size:0.72rem;margin:0;">*First 150 families lock in $4.99 forever. No contracts. Cancel anytime.</p>
+  <div style="background:#1a2535;border:1px solid rgba(192,57,43,0.2);border-radius:16px;padding:2.25rem 2rem;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+    <div style="font-size:2.4rem;margin-bottom:0.4rem;">🏆</div>
+    <h2 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.55rem;margin-bottom:0.35rem;">HomeHuddle Premium</h2>
+    <p style="color:#9aa5b4;font-size:0.88rem;line-height:1.55;margin-bottom:1rem;">Your whole family's schedule, together — every game, practice &amp; event in one place.</p>
+
+    <!-- Plan cards. On iOS these show real StoreKit prices/trial from RevenueCat;
+         on web they show the canonical copy and start the Stripe trial. -->
+    <div id="paywallPlans" style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;text-align:left;">
+      <div id="planFounding" style="display:none;border:1px solid rgba(212,163,46,0.5);background:rgba(212,163,46,0.08);border-radius:12px;padding:12px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="color:#fff;font-weight:700;font-size:0.95rem;">Founding Member</span>
+          <span id="foundingPrice" style="color:#d4a32e;font-weight:700;">$4.99/mo</span>
+        </div>
+        <div style="color:#9aa5b4;font-size:0.72rem;margin-top:2px;">Limited — <span id="foundingLeft">first 100 families</span> · no trial, locked rate</div>
+      </div>
+      <div id="planStandard" style="border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:12px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="color:#fff;font-weight:700;font-size:0.95rem;">Standard</span>
+          <span id="standardPrice" style="color:#fff;font-weight:700;">$9.99/mo</span>
+        </div>
+        <div style="color:#9aa5b4;font-size:0.72rem;margin-top:2px;">Free for 14 days, then $9.99/month until canceled.</div>
+      </div>
+    </div>
+
+    <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.6rem;">Continue →</button>
+    <button onclick="restorePurchases()" id="restoreBtn" data-native-only style="display:none;width:100%;padding:10px;background:transparent;color:#9aa5b4;font-size:0.85rem;font-weight:600;border:1px solid rgba(255,255,255,0.14);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.75rem;">Restore Purchases</button>
+    <p id="paywallNote" style="color:#6b7280;font-size:0.72rem;margin:0 0 0.6rem;line-height:1.5;">First 100 Founding Families lock in $4.99/mo, guaranteed while active. Cancel anytime. Payment is charged to your Apple ID; auto-renews unless cancelled at least 24h before the period ends — manage in Settings.</p>
+    <!-- Apple Guideline 3.1.2: functional Terms of Use (EULA) + Privacy Policy at point of purchase. Relative paths resolve both in the native bundle and on web. -->
+    <p style="color:#6b7280;font-size:0.72rem;margin:0;line-height:1.5;"><a href="/homehuddle-terms.html" style="color:#9aa5b4;text-decoration:underline;">Terms of Use</a> · <a href="/homehuddle-privacy.html" style="color:#9aa5b4;text-decoration:underline;">Privacy Policy</a></p>
   </div>
 </div>
 
@@ -453,6 +477,7 @@ const CAT_COLORS = {family:'#F5C518',baseball:'#E85D04',football:'#6B7280',hocke
 const CAT_LABELS = {family:'🏠 Family',baseball:'⚾ Baseball',football:'🏈 Football',hockey:'🏒 Hockey',soccer:'⚽ Soccer',basketball:'🏀 Basketball',school:'🏫 School',dance:'💃 Dance',religion:'✝️ Religion',medical:'🏥 Medical',other:'📦 Other'};
 
 const sb = window.supabase.createClient(SURL, SKEY);
+window.VW = window.VW || {}; window.VW.config = window.VW.config || { supabaseUrl: SURL, supabaseAnonKey: SKEY };
 const params = new URLSearchParams(window.location.search);
 
 // ── IDENTITY: authenticated session (replaces ?email= URL trust) ──────
@@ -602,6 +627,10 @@ const VAPID_PUBLIC = 'BEvGyUqC6ThmI_INY5jp_ZSeoYFDP1coIMetC5ewA_q4QUQweict9YHRds
 function urlBase64ToUint8Array(b) { const p='='.repeat((4-b.length%4)%4); const b64=(b+p).replace(/-/g,'+').replace(/_/g,'/'); const raw=atob(b64); return Uint8Array.from([...raw].map(function(c){return c.charCodeAt(0);})); }
 async function savePushSub(sub) { if(!familyEmail)return; try{const j=sub.toJSON();await sb.from('push_subscriptions').upsert({email:familyEmail,endpoint:j.endpoint,keys:j.keys},{onConflict:'email,endpoint'});showToast('Notifications enabled!');}catch(e){} }
 async function initPush() {
+  // In the native iOS shell, DO NOT register the web service worker: WKWebView
+  // web-push does not work and a SW can serve stale app code across native
+  // updates. Native push is handled by VW.native.initPush() (APNs) instead.
+  if (window.VW && VW.native && VW.native.isNative()) return;
   if (!('serviceWorker' in navigator)) return;
   try {
     // Register service worker — handles push notifications and cache versioning.
@@ -1520,24 +1549,110 @@ function setSync(state,label){document.getElementById('stext').textContent=label
 applySticky();
 async function checkSubscription(fId) {
   try {
-    const { data, error } = await sb.from('subscriptions')
-      .select('status')
-      .eq('family_id', fId)
-      .in('status', ['active','trialing'])
-      .limit(1);
-    return !error && Array.isArray(data) && data.length > 0;
+    // Canonical entitlement answer (computed from all purchase sources; migration 0001).
+    const { data, error } = await sb.from('family_product_entitlements')
+      .select('is_active')
+      .eq('family_id', fId).eq('product', 'homehuddle')
+      .maybeSingle();
+    if (!error) return !!(data && data.is_active === true);
+    // Fallback (pre-migration): read raw purchase records.
+    const fb = await sb.from('subscriptions').select('status').eq('family_id', fId)
+      .in('status', ['active','trialing','past_due']).limit(1);
+    return !fb.error && Array.isArray(fb.data) && fb.data.length > 0;
   } catch(e) { return false; }
 }
 
 function showPaywall() {
   const pw = document.getElementById('paywall');
   pw.style.display = 'flex';
+  renderPaywall();
+}
+
+// Selected package (iOS): defaults to Founding if eligible, else Standard.
+let selectedPackageId = null;
+
+// On iOS, populate real StoreKit prices/trial from RevenueCat and show the
+// Founding plan + Restore button. On web this is a no-op (static copy stands).
+async function renderPaywall() {
+  try {
+    const isNative = !!(window.VW && VW.native && VW.native.isNative());
+    // Founding eligibility is server-authoritative (global cap across Stripe+Apple).
+    let remaining = null;
+    try {
+      const { data } = await sb.rpc('founder_slots_remaining', { p_product: 'homehuddle' });
+      remaining = (typeof data === 'number') ? data : (data && data[0] && data[0].founder_slots_remaining);
+    } catch(e) {}
+    const foundingOpen = (typeof remaining === 'number') && remaining > 0;
+
+    if (!isNative) {
+      // WEB: static Stripe copy. Show the Founding card only while the shared
+      // pool has capacity — matches exactly what stripe-checkout will charge
+      // ($4.99, no trial). Otherwise the Standard card (with its 14-day trial)
+      // stands. The single CTA lets the server decide the price.
+      if (foundingOpen) {
+        document.getElementById('foundingLeft').textContent = remaining + ' of 100 left';
+        document.getElementById('planFounding').style.display = 'block';
+      }
+      return;
+    }
+
+    // NATIVE: real StoreKit prices/trial via RevenueCat + Restore button.
+    document.getElementById('restoreBtn').style.display = 'block';
+    if (familyId) await VW.native.identify(familyId);
+    const plans = await VW.native.getPlans();
+    window._plans = plans;
+    if (plans && plans.standard) {
+      document.getElementById('standardPrice').textContent = plans.standard.priceString || '$9.99/mo';
+      selectedPackageId = plans.standard.packageId;
+    }
+    if (plans && plans.founding && foundingOpen) {
+      document.getElementById('foundingPrice').textContent = plans.founding.priceString || '$4.99/mo';
+      document.getElementById('foundingLeft').textContent = remaining + ' of 100 left';
+      document.getElementById('planFounding').style.display = 'block';
+      selectedPackageId = plans.founding.packageId;  // prefer Founding while eligible
+      makePlanSelectable();
+    }
+  } catch(e) { if (window.VW && VW.observe) VW.observe.captureError(e, 'renderPaywall'); }
+}
+
+function makePlanSelectable() {
+  ['planFounding','planStandard'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.onclick = function(){
+      selectedPackageId = (id === 'planFounding')
+        ? (window._plans && window._plans.founding && window._plans.founding.packageId)
+        : (window._plans && window._plans.standard && window._plans.standard.packageId);
+      document.getElementById('planFounding').style.outline = id==='planFounding' ? '2px solid #d4a32e' : 'none';
+      document.getElementById('planStandard').style.outline = id==='planStandard' ? '2px solid #fff' : 'none';
+    };
+  });
+}
+
+async function restorePurchases() {
+  const btn = document.getElementById('restoreBtn');
+  if (!(window.VW && VW.native && VW.native.isNative())) return;
+  btn.textContent = 'Restoring…'; btn.disabled = true;
+  try {
+    const r = await VW.native.restorePurchases();
+    if (r && r.ok) { document.getElementById('paywall').style.display='none'; location.reload(); return; }
+    btn.textContent = 'Restore Purchases'; btn.disabled = false;
+    showToast(r && r.reason === 'error' ? 'Could not restore — try again' : 'No active purchase found to restore');
+  } catch(e) { btn.textContent = 'Restore Purchases'; btn.disabled = false; showToast('Could not restore'); }
 }
 
 async function startTrial() {
   const btn = document.getElementById('paywallBtn');
   btn.textContent = 'Loading…'; btn.disabled = true;
   try {
+    // iOS → StoreKit via RevenueCat (never Stripe checkout on Apple).
+    if (window.VW && VW.native && VW.native.isNative()) {
+      if (familyId) await VW.native.identify(familyId);
+      const r = await VW.native.startSubscription({ packageId: selectedPackageId });
+      if (r && r.ok) { document.getElementById('paywall').style.display = 'none'; loadTheme(); location.reload(); return; }
+      btn.textContent = 'Continue →'; btn.disabled = false;
+      if (r && r.reason && r.reason !== 'cancelled' && window.VW.observe) VW.observe.captureBillingFailure('ios paywall: ' + r.reason);
+      return;
+    }
     const { data: { session } } = await sb.auth.getSession();
     const res = await fetch(SURL + '/functions/v1/stripe-checkout', {
       method: 'POST',
@@ -1546,8 +1661,8 @@ async function startTrial() {
     });
     const data = await res.json();
     if (data.url) { window.location.href = data.url; }
-    else { btn.textContent = 'Start Free Trial →'; btn.disabled = false; }
-  } catch(e) { btn.textContent = 'Start Free Trial →'; btn.disabled = false; }
+    else { btn.textContent = 'Continue →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureBillingFailure('stripe checkout unavailable'); }
+  } catch(e) { btn.textContent = 'Continue →'; btn.disabled = false; if (window.VW && VW.observe) VW.observe.captureError(e, 'startTrial'); }
 }
 
 resolveIdentity().then(function(ok) {

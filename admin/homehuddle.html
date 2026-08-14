@@ -308,52 +308,85 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
-const ADMIN_PIN = '2426';
+// ── REAL ADMIN AUTH ───────────────────────────────────────
+// The client-side PIN was cosmetic (and anon reads are blocked by RLS anyway).
+// Admin access is now server-verified: a signed-in Supabase user for whom
+// public.is_admin() returns true. Session is shared with the rest of the site
+// (same origin), so an admin who signed in via /login.html is recognized here.
+const sb = window.supabase.createClient(SURL, SKEY);
+let ADMIN_TOKEN = null;
 
-// ── PIN LOGIN ─────────────────────────────────────────────
-function pinNav(i) {
-  const v = document.getElementById('p'+i).value;
-  if (!/^\d$/.test(v)) { document.getElementById('p'+i).value=''; return; }
-  if (i < 3) document.getElementById('p'+(i+1)).focus();
-  if (i === 3) checkPin();
-}
-function pinBack(i, e) {
-  if (e.key==='Backspace' && !document.getElementById('p'+i).value && i>0)
-    document.getElementById('p'+(i-1)).focus();
-}
-function checkPin() {
-  const pin = [0,1,2,3].map(function(i){ return document.getElementById('p'+i).value; }).join('');
-  if (pin === ADMIN_PIN) {
-    document.getElementById('login-screen').style.display = 'none';
+// PIN inputs are retained in the DOM but no longer gate anything.
+function pinNav(){} function pinBack(){} function checkPin(){}
+
+async function initAdmin() {
+  const loginEl = document.getElementById('login-screen');
+  const sub = document.querySelector('#login-screen .login-sub');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      if (sub) sub.innerHTML = 'Please <a href="/login.html" style="color:var(--red)">sign in</a> with an admin account, then return here.';
+      return;
+    }
+    const { data: isAdmin, error } = await sb.rpc('is_admin');
+    if (error || !isAdmin) {
+      if (sub) sub.textContent = 'This account is not authorized for admin access.';
+      return;
+    }
+    ADMIN_TOKEN = session.access_token;
+    loginEl.style.display = 'none';
     document.getElementById('admin-screen').style.display = 'block';
     document.getElementById('sign-out-btn').style.display = 'inline';
-    document.getElementById('pin-error').classList.remove('show');
     loadDashboard();
-  } else {
-    document.getElementById('pin-error').classList.add('show');
-    [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
-    document.getElementById('p0').focus();
+  } catch (e) {
+    if (sub) sub.textContent = 'Could not verify admin access. Try again.';
   }
 }
-function signOut() {
+
+async function signOut() {
+  try { await sb.auth.signOut(); } catch(e) {}
+  ADMIN_TOKEN = null;
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('admin-screen').style.display='none';
   document.getElementById('sign-out-btn').style.display='none';
-  document.getElementById('pin-error').classList.remove('show');
-  [0,1,2,3].forEach(function(i){ document.getElementById('p'+i).value=''; });
-  document.getElementById('p0').focus();
 }
 
-// ── SUPABASE ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', initAdmin);
+
+// ── SUPABASE (authenticated admin token, NOT anon) ────────
+function authHeaders(extra) {
+  return Object.assign({ 'apikey': SKEY, 'Authorization': 'Bearer ' + (ADMIN_TOKEN || SKEY) }, extra || {});
+}
 async function sbFetch(path) {
-  const res = await fetch(SURL + '/rest/v1/' + path, {
-    headers: { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY }
-  });
+  const res = await fetch(SURL + '/rest/v1/' + path, { headers: authHeaders() });
   if (!res.ok) throw new Error('Fetch failed: ' + path);
   return res.json();
+}
+// Verified aggregate metrics (subscriptions/founder/status/source/errors).
+async function loadMetrics() {
+  const { data, error } = await sb.rpc('admin_dashboard_metrics');
+  if (error) throw error;
+  return data;
+}
+// Append verified subscription/billing KPIs (source of truth = subscriptions table).
+function renderSubMetrics(m) {
+  if (!m) return;
+  const grid = document.getElementById('kpi-grid');
+  if (!grid) return;
+  const src = m.subs_by_source || {};
+  const srcStr = Object.keys(src).length ? Object.keys(src).map(function(k){return k+': '+src[k];}).join(' · ') : 'no data';
+  grid.insertAdjacentHTML('beforeend',
+    kpi('purple','Founding Families', m.subs_founder, (m.founder_slots_remaining!=null?m.founder_slots_remaining+' of 100 slots left':'')) +
+    kpi('blue','Standard Subs', m.subs_standard, 'paid at $9.99') +
+    kpi('amber','Trialing', m.subs_trialing, 'in 14-day trial') +
+    kpi('green','Active', m.subs_active, srcStr) +
+    kpi('red','Past Due / Canceled', (m.subs_past_due||0)+' / '+(m.subs_canceled||0), 'billing attention') +
+    kpi('muted','Errors (24h)', m.errors_24h, JSON.stringify(m.errors_by_kind_24h||{}))
+  );
 }
 
 // ── SYNC ──────────────────────────────────────────────────
@@ -363,7 +396,7 @@ async function triggerSync() {
   try {
     const res = await fetch(SURL + '/functions/v1/sync-schedules', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({})
     });
     const data = await res.json();
@@ -381,7 +414,7 @@ async function testPush(email, name) {
   try {
     await fetch(SURL + '/functions/v1/send-notifications', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ type: 'test', email: email })
     });
     showToast('Test push sent to ' + name);
@@ -402,6 +435,7 @@ async function loadDashboard() {
     ]);
 
     renderKPIs(feeds, pushSubs, families, members);
+    try { renderSubMetrics(await loadMetrics()); } catch(me) { console.warn('metrics unavailable', me); }
     renderGrowth(families);
     renderCharts(feeds);
     renderOrgs(feeds);
@@ -602,7 +636,7 @@ function getNote(email) { return localStorage.getItem('churn_note_'+email)||''; 
 
 function followUp(email, name) {
   const subject = encodeURIComponent('We miss you, '+(name||'HomeHuddle family')+'!');
-  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback.\n\nHomeHuddle is just $4.95/month for your whole family — all kids, all sports, all season.\n\nTo re-activate, visit venuewise.net/homehuddle/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
+  const body = encodeURIComponent('Hi '+(name||'there')+',\n\nWe noticed you recently cancelled your HomeHuddle subscription. We\'d love to hear your feedback.\n\nHomeHuddle is just $9.99/month for your whole family — all kids, all sports, all season (Founding Families lock in $4.99/month).\n\nTo re-activate, visit venuewise.net/homehuddle/join.html or reply to this email.\n\nThanks,\nKeith\nHomeHuddle · powered by Venuewise');
   window.open('mailto:'+email+'?subject='+subject+'&body='+body);
 }
 
