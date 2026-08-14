@@ -14,16 +14,11 @@ originals, but the app is **compatible without any RevenueCat change**, because:
 - **Packages:** `getPlans()` matches packages by their **Apple product id**
   (`…sub.standard` / `…sub.founding`), not by package identifier. So the live
   identifiers `$rc_monthly` / `founding_monthly` resolve correctly. **PASS.**
-- **Entitlement — the ONE hard dependency:** the app checks
-  `customerInfo.entitlements.active['homehuddle']`. RevenueCat's entitlement
-  **display name** ("HomeHuddle Family Calendar Pro") does **not** matter, but its
-  **identifier MUST be exactly `homehuddle`**. ⚠️ **CEO ACTION — verify the
-  entitlement _identifier_** (RevenueCat → Entitlements → the identifier column,
-  not the display name). If it is not `homehuddle`, either rename the identifier
-  to `homehuddle` OR set `entitlement: '<the real identifier>'` in
-  `shared/native-config.js` at build time (no code change needed — `native.js`
-  already honors `CFG.entitlement`). If this identifier is wrong, purchases will
-  succeed but the app will never unlock. This is the #1 verification item.
+- **Entitlement — RESOLVED (HH-IOS-14).** CEO decision: keep the RevenueCat
+  entitlement as-is; its identifier is **`HomeHuddle Family Calendar Pro`**. The
+  app now uses exactly that value via `CFG.entitlement` (set in
+  `shared/native-config.example.js`; `native.js` reads it). The Supabase product
+  key stays `homehuddle` (unrelated). No RevenueCat change required. **PASS.**
 
 ## A. App Store Connect (Venuewise LLC org approved; bundle `com.venuewise.homehuddle` registered)
 1. Register bundle id **`com.venuewise.homehuddle`** (canonical, already created in App Store Connect).

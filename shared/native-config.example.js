@@ -11,9 +11,10 @@ window.VW_NATIVE_CONFIG = {
   // RevenueCat public (SDK) key for the Apple app. Placeholder — replace at build.
   revenueCatApiKeyIos: 'appl_XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
 
-  // Canonical entitlement identifier configured in RevenueCat (unchanged across
-  // web/iOS/Android — this is the product entitlement, NOT the Apple bundle id).
-  entitlement: 'homehuddle',
+  // RevenueCat ENTITLEMENT IDENTIFIER — must match the identifier configured in
+  // the RevenueCat dashboard EXACTLY (CEO-verified 2026-08). This is the RevenueCat
+  // entitlement id, NOT the Supabase product key ('homehuddle') and NOT the bundle id.
+  entitlement: 'HomeHuddle Family Calendar Pro',
 
   // RevenueCat offering that contains the Standard + Founding packages.
   offering: 'homehuddle_default',

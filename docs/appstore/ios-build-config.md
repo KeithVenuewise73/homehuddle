@@ -14,7 +14,7 @@ cp shared/native-config.example.js shared/native-config.js
 | Key in `shared/native-config.js` | Value | Source | Status |
 |---|---|---|---|
 | `revenueCatApiKeyIos` | RevenueCat **public** SDK key (starts `appl_`) | RevenueCat → Project → API keys → Apple | **CEO ACTION REQUIRED** — real key not in repo |
-| `entitlement` | `homehuddle` | canonical (already in example) | ✅ repo |
+| `entitlement` | `HomeHuddle Family Calendar Pro` | RevenueCat identifier (CEO-verified; in example) | ✅ repo |
 | `offering` | `homehuddle_default` | canonical (already in example) | ✅ repo |
 | `products.standard` | `com.venuewise.homehuddle.sub.standard` | canonical | ✅ repo |
 | `products.founding` | `com.venuewise.homehuddle.sub.founding` | canonical | ✅ repo |

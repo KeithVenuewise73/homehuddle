@@ -17,8 +17,9 @@
  * Real key values come from window.VW_NATIVE_CONFIG (see native-config.example.js),
  * which is generated at build time and NOT committed.
  *
- * Canonical entitlement id: "homehuddle". Future products ("athletehuddle",
- * "highlightai") plug in via VW.native.hasEntitlement(product) with no rewrite.
+ * RevenueCat entitlement identifier comes from CFG.entitlement (native-config.js)
+ * — currently "HomeHuddle Family Calendar Pro". This is the RevenueCat entitlement
+ * id, distinct from the Supabase product key "homehuddle" used by the webhooks/DB.
  * ========================================================================== */
 ;(function (global) {
   'use strict';
@@ -33,7 +34,7 @@
   }
   function platform() { return (Cap && Cap.getPlatform && Cap.getPlatform()) || 'web'; }
 
-  var ENTITLEMENT = (CFG.entitlement || 'homehuddle');
+  var ENTITLEMENT = (CFG.entitlement || 'HomeHuddle Family Calendar Pro'); // RevenueCat entitlement identifier (config-driven; CEO-verified)
   var _rcReady = false;
 
   function log(){ try { (VW.observe && VW.observe.breadcrumb ? VW.observe.breadcrumb : console.log).apply(null, ['[native]'].concat([].slice.call(arguments))); } catch(e){} }
