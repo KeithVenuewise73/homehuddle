@@ -310,7 +310,9 @@
 
     <button onclick="startTrial()" id="paywallBtn" style="width:100%;padding:14px;background:#d4a32e;color:#0a0f1c;font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.6rem;">Continue →</button>
     <button onclick="restorePurchases()" id="restoreBtn" data-native-only style="display:none;width:100%;padding:10px;background:transparent;color:#9aa5b4;font-size:0.85rem;font-weight:600;border:1px solid rgba(255,255,255,0.14);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:0.75rem;">Restore Purchases</button>
-    <p id="paywallNote" style="color:#6b7280;font-size:0.72rem;margin:0;line-height:1.5;">First 100 Founding Families lock in $4.99/mo, guaranteed while active. Cancel anytime. Payment is charged to your Apple ID; auto-renews unless cancelled at least 24h before the period ends — manage in Settings.</p>
+    <p id="paywallNote" style="color:#6b7280;font-size:0.72rem;margin:0 0 0.6rem;line-height:1.5;">First 100 Founding Families lock in $4.99/mo, guaranteed while active. Cancel anytime. Payment is charged to your Apple ID; auto-renews unless cancelled at least 24h before the period ends — manage in Settings.</p>
+    <!-- Apple Guideline 3.1.2: functional Terms of Use (EULA) + Privacy Policy at point of purchase. Relative paths resolve both in the native bundle and on web. -->
+    <p style="color:#6b7280;font-size:0.72rem;margin:0;line-height:1.5;"><a href="/homehuddle-terms.html" style="color:#9aa5b4;text-decoration:underline;">Terms of Use</a> · <a href="/homehuddle-privacy.html" style="color:#9aa5b4;text-decoration:underline;">Privacy Policy</a></p>
   </div>
 </div>
 

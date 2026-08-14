@@ -4,6 +4,27 @@ Everything below is **external account setup** the sprint cannot do in code. The
 app-side integration (`shared/native.js`, `supabase/functions/revenuecat-webhook`)
 is already built against this contract.
 
+## ✅ HH-IOS-13 — reconciliation with the live RevenueCat state
+The live RevenueCat config (CEO-verified) uses different NAMES than this doc's
+originals, but the app is **compatible without any RevenueCat change**, because:
+- **Offering:** `native.js` reads `offerings.current` (the default offering) — it
+  never looks an offering up by name. So the offering id (`default` vs
+  `homehuddle_default`) is **irrelevant**; the config value `offering` is unused
+  at runtime. **PASS.**
+- **Packages:** `getPlans()` matches packages by their **Apple product id**
+  (`…sub.standard` / `…sub.founding`), not by package identifier. So the live
+  identifiers `$rc_monthly` / `founding_monthly` resolve correctly. **PASS.**
+- **Entitlement — the ONE hard dependency:** the app checks
+  `customerInfo.entitlements.active['homehuddle']`. RevenueCat's entitlement
+  **display name** ("HomeHuddle Family Calendar Pro") does **not** matter, but its
+  **identifier MUST be exactly `homehuddle`**. ⚠️ **CEO ACTION — verify the
+  entitlement _identifier_** (RevenueCat → Entitlements → the identifier column,
+  not the display name). If it is not `homehuddle`, either rename the identifier
+  to `homehuddle` OR set `entitlement: '<the real identifier>'` in
+  `shared/native-config.js` at build time (no code change needed — `native.js`
+  already honors `CFG.entitlement`). If this identifier is wrong, purchases will
+  succeed but the app will never unlock. This is the #1 verification item.
+
 ## A. App Store Connect (Venuewise LLC org approved; bundle `com.venuewise.homehuddle` registered)
 1. Register bundle id **`com.venuewise.homehuddle`** (canonical, already created in App Store Connect).
 2. Create the app record: name **HomeHuddle**, primary language English (US).
