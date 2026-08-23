@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>PlayingTime Football — track your athlete's playing time</title>
+  <meta name="description" content="Know exactly how much your athlete played — and what they did while they were on the field. Tap once per play. PlayingTime counts snaps, participation and statistics. Powered by Venuewise." />
+  <meta name="theme-color" content="#0B0E12" />
+  <meta name="color-scheme" content="dark" />
+
+  <!-- Installed to a home screen, this should behave like an app, not a tab. -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PlayingTime" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="../icon-192.png" />
+  <link rel="icon" href="../icon-192.png" />
+
+  <meta property="og:title" content="PlayingTime Football" />
+  <meta property="og:description" content="Know exactly how much your athlete played — and what they did while they were on the field." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Onboarding ------------------------------------------------------- -->
+    <section class="view" id="view-onboard"><div class="scroll"></div></section>
+
+    <!-- Athlete create / edit -------------------------------------------- -->
+    <section class="view" id="view-athlete-new"><div class="scroll"></div></section>
+
+    <!-- Home -------------------------------------------------------------- -->
+    <section class="view has-nav" id="view-home">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">PT</div>
+          <div>
+            <div class="brand-name">PlayingTime</div>
+            <div class="brand-by">Powered by Venuewise</div>
+          </div>
+        </div>
+      </header>
+      <div class="scroll"></div>
+    </section>
+
+    <!-- New game ---------------------------------------------------------- -->
+    <section class="view" id="view-game-setup"><div class="scroll"></div></section>
+
+    <!-- Live game (built entirely by app.js; no chrome around it) ---------- -->
+    <section class="view" id="view-game"></section>
+
+    <!-- Game report ------------------------------------------------------- -->
+    <section class="view" id="view-report"><div class="scroll"></div></section>
+
+    <!-- Athlete profile --------------------------------------------------- -->
+    <section class="view has-nav" id="view-athlete">
+      <header class="topbar"><h1>Athlete</h1></header>
+      <div class="scroll"></div>
+    </section>
+
+    <!-- History ----------------------------------------------------------- -->
+    <section class="view has-nav" id="view-history">
+      <header class="topbar"><h1>History</h1></header>
+      <div class="scroll"></div>
+    </section>
+
+    <!-- Settings ---------------------------------------------------------- -->
+    <section class="view has-nav" id="view-settings">
+      <header class="topbar"><h1>Settings</h1></header>
+      <div class="scroll"></div>
+    </section>
+
+    <!-- Bottom navigation (§23) — never more than five ---------------------- -->
+    <nav class="nav" id="nav" aria-label="Main">
+      <button data-nav="home"><span class="ico" aria-hidden="true">◆</span>HOME</button>
+      <button data-nav="game"><span class="ico" aria-hidden="true">▶</span>GAME</button>
+      <button data-nav="athlete"><span class="ico" aria-hidden="true">●</span>ATHLETE</button>
+      <button data-nav="history"><span class="ico" aria-hidden="true">▤</span>HISTORY</button>
+      <button data-nav="settings"><span class="ico" aria-hidden="true">⚙</span>SETTINGS</button>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="sheet-backdrop" id="sheet"></div>
+
+  <noscript>
+    <div style="padding:2rem;font-family:sans-serif;color:#F4F7FA;background:#0B0E12">
+      <h1>PlayingTime Football</h1>
+      <p>PlayingTime needs JavaScript to track a game. Please enable it and reload.</p>
+    </div>
+  </noscript>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>

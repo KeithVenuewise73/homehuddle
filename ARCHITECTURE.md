@@ -15,6 +15,7 @@ Existing product folders are **unchanged** (URL stability). Platform code is lay
 /homehuddle/           HomeHuddle app (+ mirrors) — UNCHANGED, path preserved
 /coacheshuddle/  /organizationhuddle/  /facilityhuddle/  /venuewise-admin/  /admin/   — UNCHANGED
 
+/playingtime/          NEW — PlayingTime Football (V1). Self-contained product; adopts nothing existing.
 /shared/               NEW — reusable engine client modules (config.js today). Opt-in; adopted per page.
 /platform/             NEW — Venuewise platform plane (cross-workspace admin + reporting). Empty scaffold.
 /workspaces/           NEW — per-workspace branded entry points (config-driven). Empty scaffold.
@@ -26,6 +27,15 @@ ARCHITECTURE.md        NEW — this file.
 - **Engines, not products.** Capabilities (Identity, Calendar, Payments, Messaging, Reviews, …) live once in `/shared` + Edge Functions; apps compose them. (VPS §3)
 - **One Core, many Workspaces.** Tenancy is logical — `workspace_id` + RLS — introduced additively in later waves. (VPS §2, §4)
 - **Configuration over custom code.** New brands/industries/businesses are data (workspaces, branding, industry packs), not forks. (VPS Principle 3, §5)
+
+## Products built on this repository
+- **HomeHuddle** — `/`, `/homehuddle/`. Production. Unchanged.
+- **CoachesHuddle / OrganizationHuddle / FacilityHuddle** — unchanged.
+- **PlayingTime Football** — `/playingtime/`. V1, self-contained and local-first: it
+  reads no existing page, imports no existing module, and its Supabase schema
+  (`playingtime/db/0001_playingtime.sql`) is written and verified but **unapplied**,
+  so it adds nothing to the live database. Zero effect on HomeHuddle. See
+  [`playingtime/README.md`](./playingtime/README.md).
 
 ## Current status — Wave 0 (Platform Foundation)
 - **M1 — Safety Baseline** ✅ smoke suite + RLS baseline + deploy/rollback runbook. No production change.
