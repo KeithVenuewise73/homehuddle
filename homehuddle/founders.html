@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeHuddle Founding Families — One text. Every practice, every game.</title>
+  <meta name="description" content="HomeHuddle pulls your kids' schedules from TeamSnap, GameChanger and LeagueApps and sends one text the night before. First 100 families lock in $4.99/mo for life." />
+  <meta property="og:title" content="One text. Every practice, every game." />
+  <meta property="og:description" content="Your kids' team schedules, pulled in automatically and collapsed into one text the night before. Founding families: $4.99/mo, locked." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE; --green-text: #085041;
+      --blue-light: #E6F1FB; --blue-text: #0C447C;
+      --gray-50: #F9F9F7; --gray-100: #F1EFE8; --gray-200: #D3D1C7; --gray-400: #888780;
+      --gray-700: #444441; --gray-900: #1a1a18; --red: #E24B4A;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); line-height: 1.5; }
+    .wrap { max-width: 620px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 2.5rem; }
+    .logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--green); display: flex; align-items: center; justify-content: center; }
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+    .logo-name { font-size: 16px; font-weight: 500; }
+    .logo-by { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-light); color: var(--green-text); font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 20px; margin-bottom: 1.25rem; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(30px,6.5vw,44px); line-height: 1.12; margin-bottom: .75rem; letter-spacing: -0.01em; }
+    h1 em { font-style: italic; color: var(--green); }
+    .lede { font-size: 17px; color: var(--gray-700); line-height: 1.6; margin-bottom: 2rem; }
+
+    /* --- the hero: the actual nightly text, not a calendar screenshot --- */
+    .phone { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: .6rem; box-shadow: 0 2px 16px rgba(0,0,0,.05); }
+    .phone-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-100); padding-bottom: .7rem; margin-bottom: 1rem; }
+    .phone-from { font-size: 12px; font-weight: 600; color: var(--gray-700); }
+    .phone-time { font-size: 11px; color: var(--gray-400); }
+    .bubble { background: var(--green-light); border-radius: 16px 16px 16px 4px; padding: .9rem 1rem; font-size: 14.5px; color: var(--green-text); white-space: pre-wrap; line-height: 1.65; font-variant-numeric: tabular-nums; }
+    .caption { font-size: 11.5px; color: var(--gray-400); text-align: center; margin-bottom: 2.25rem; }
+
+    .cta { display: block; width: 100%; text-align: center; background: var(--green); color: white; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; padding: 15px 20px; border: none; border-radius: var(--radius-md); text-decoration: none; cursor: pointer; transition: background .15s; }
+    .cta:hover { background: var(--green-dark); }
+    .cta-sub { text-align: center; font-size: 12.5px; color: var(--gray-400); margin-top: .65rem; margin-bottom: 2.75rem; }
+
+    h2 { font-family: 'DM Serif Display', serif; font-size: 25px; margin-bottom: 1.1rem; }
+    .section { margin-bottom: 2.75rem; }
+
+    .steps { display: flex; flex-direction: column; gap: .85rem; }
+    .stepx { display: flex; gap: .85rem; align-items: flex-start; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1rem; }
+    .stepx-n { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--green-light); color: var(--green-text); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .stepx-t { font-size: 14.5px; font-weight: 600; margin-bottom: 2px; }
+    .stepx-d { font-size: 13.5px; color: var(--gray-400); line-height: 1.55; }
+
+    .price-card { background: white; border: 2px solid var(--green); border-radius: var(--radius-lg); padding: 1.6rem; }
+    .price-row { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .3rem; }
+    .price-now { font-family: 'DM Serif Display', serif; font-size: 42px; color: var(--green); line-height: 1; }
+    .price-per { font-size: 14px; color: var(--gray-400); }
+    .price-was { font-size: 14px; color: var(--gray-400); text-decoration: line-through; }
+    .price-note { font-size: 13.5px; color: var(--gray-700); margin-bottom: 1.1rem; line-height: 1.55; }
+    .price-list { list-style: none; display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.4rem; }
+    .price-list li { font-size: 14px; color: var(--gray-700); display: flex; gap: .55rem; align-items: flex-start; }
+    .tick { color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+    .plain { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 1.15rem; font-size: 14px; color: var(--gray-700); line-height: 1.65; }
+    .plain strong { color: var(--gray-900); }
+
+    footer { border-top: 1px solid var(--gray-200); padding-top: 1.5rem; font-size: 12px; color: var(--gray-400); line-height: 1.7; }
+    footer a { color: var(--gray-400); }
+    .sms-legal { font-size: 11.5px; color: var(--gray-400); line-height: 1.6; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">HomeHuddle</div>
+        <div class="logo-by">powered by Venuewise</div>
+      </div>
+    </div>
+
+    <span class="badge">◆ Founding families — first 100</span>
+    <h1>One text. <em>Every practice, every game.</em></h1>
+    <p class="lede">
+      HomeHuddle reads your kids' team schedules straight from TeamSnap, GameChanger
+      and LeagueApps — and every evening it sends you one text with what's happening
+      tomorrow. No app to open. No calendar to keep up to date.
+    </p>
+
+    <div class="phone">
+      <div class="phone-head">
+        <span class="phone-from">HomeHuddle</span>
+        <span class="phone-time">yesterday 5:00 PM</span>
+      </div>
+      <div class="bubble">🏠 HomeHuddle — tomorrow (Sat 9/13):
+• Ava: Lancaster United U12 - game — 9:00 AM
+• Mason: Depew Saints Squirt A - practice — 11:30 AM
+• Ava: Lancaster United U12 - team photos — 1:00 PM
+
+Reply STOP to opt out.</div>
+    </div>
+    <p class="caption">An example message. This is the real format HomeHuddle sends — two kids, three events, one text.</p>
+
+    <a class="cta" id="ctaTop" href="/homehuddle/join.html">Claim a founding spot</a>
+    <p class="cta-sub">14 days free. No card for the trial.</p>
+
+    <div class="section">
+      <h2>How it actually works</h2>
+      <div class="steps">
+        <div class="stepx">
+          <div class="stepx-n">1</div>
+          <div>
+            <div class="stepx-t">Paste each team's calendar link</div>
+            <div class="stepx-d">TeamSnap, GameChanger and LeagueApps all publish one. We show you where to find it for each platform — it takes a couple of minutes, once.</div>
+          </div>
+        </div>
+        <div class="stepx">
+          <div class="stepx-n">2</div>
+          <div>
+            <div class="stepx-t">We watch the schedules for changes</div>
+            <div class="stepx-d">Coaches move practices. Fields change. We re-read every feed on a schedule, so you don't have to check three apps to find out.</div>
+          </div>
+        </div>
+        <div class="stepx">
+          <div class="stepx-n">3</div>
+          <div>
+            <div class="stepx-t">One text, every evening</div>
+            <div class="stepx-d">All your kids, all their teams, sorted by time. Grandparents and sitters can get the same text — adding them is free and unlimited.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Founding family pricing</h2>
+      <div class="price-card">
+        <div class="price-row">
+          <span class="price-now">$4.99</span>
+          <span class="price-per">/ month</span>
+          <span class="price-was">$9.99</span>
+        </div>
+        <p class="price-note">
+          The first 100 families keep $4.99/month for as long as they stay subscribed.
+          After the first 100, HomeHuddle is $9.99/month.
+        </p>
+        <ul class="price-list">
+          <li><span class="tick">✓</span><span>14-day free trial — no card required to start</span></li>
+          <li><span class="tick">✓</span><span>Every kid, every team, on one subscription</span></li>
+          <li><span class="tick">✓</span><span>Unlimited free seats — grandparents, aunts, sitters, co-parents</span></li>
+          <li><span class="tick">✓</span><span>Someone other than a parent can be the payer, and it can be a gift</span></li>
+          <li><span class="tick">✓</span><span>Cancel any time — reply STOP to stop the texts instantly</span></li>
+        </ul>
+        <a class="cta" id="ctaPrice" href="/homehuddle/join.html">Claim a founding spot</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Where we're up to</h2>
+      <div class="plain">
+        HomeHuddle is <strong>new</strong>. The nightly text runs every evening for the
+        family that's been using it, and the founding-family round is how we take it
+        wider. We're not going to show you invented testimonials or a customer count
+        we don't have — if you join now, you're early, and you'll be dealing with the
+        person who built it.
+      </div>
+    </div>
+
+    <footer>
+      <p>HomeHuddle is a Venuewise product.</p>
+      <p style="margin-top:.4rem">
+        <a href="/homehuddle-terms.html">Terms</a> ·
+        <a href="/homehuddle-privacy.html">Privacy</a> ·
+        <a href="/homehuddle/join.html">Sign up</a>
+      </p>
+      <p class="sms-legal">
+        By signing up you can choose to receive schedule texts from HomeHuddle. Message
+        frequency varies — typically one message per day, plus alerts when a schedule
+        changes. Message and data rates may apply. Reply STOP to opt out at any time,
+        or HELP for help. Consent to receive texts is not a condition of purchase.
+      </p>
+    </footer>
+
+  </div>
+
+  <script src="/shared/config.js"></script>
+  <script src="/shared/attribution.js"></script>
+  <script>
+    // Capture the first touch and record the view. Any UTMs on this URL are stored
+    // in localStorage, so attribution survives the click through to join.html even
+    // if the query string is dropped.
+    try { VW.attribution.init({ page: 'homehuddle-founders' }); } catch (e) { console.warn('[founders] attribution init failed', e); }
+
+    // Belt and braces: carry the query string across to join.html as well, so a
+    // visitor with localStorage blocked is still attributable for the session.
+    (function () {
+      var qs = window.location.search;
+      if (!qs || qs.length < 2) { return; }
+      ['ctaTop', 'ctaPrice'].forEach(function (id) {
+        var a = document.getElementById(id);
+        if (a) { a.href = a.getAttribute('href') + qs; }
+      });
+    })();
+  </script>
+</body>
+</html>

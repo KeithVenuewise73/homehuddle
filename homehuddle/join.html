@@ -267,6 +267,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
+<script src="/shared/attribution.js"></script>
+<script>
+  // Record the view and lock in the first touch. Wrapped because a tracking
+  // failure must never stop someone signing up.
+  try { VW.attribution.init({ page: 'homehuddle-join' }); }
+  catch (e) { console.warn('[join] attribution init failed', e); }
+</script>
 <script>
 const SURL = 'https://urwnbskrtoplgnkkxuvl.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd25ic2tydG9wbGdua2t4dXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDgyMjMsImV4cCI6MjA5NDYyNDIyM30._BpvQsf6Ub5nwxY8jD3aGDLvyk0-_vBA4s6LREZ9ShQ';
@@ -395,11 +403,11 @@ function addPlayer() {
     '<div class="readonly-note">ℹ️ Players receive schedule notifications but cannot make account changes or add events.</div>' +
     '<div class="field-row" style="margin-bottom:10px">' +
       '<div class="field"><label>Player name</label><input type="text" id="pname-' + id + '" placeholder="e.g. Dominic" /></div>' +
-      '<div class="field"><label>Birth year</label><input type="text" id="pbyear-' + id + '" placeholder="e.g. 2012" /></div>' +
+      '<div class="field"><label>Birth year</label><input type="text" id="pbyear-' + id + '" placeholder="e.g. 2012" oninput="applyMinorSmsDefault(' + id + ')" /></div>' +
     '</div>' +
     '<div class="field-row" style="margin-bottom:12px">' +
       '<div class="field"><label>Player phone <span style="font-weight:400;color:var(--gray-400)">(SMS alerts)</span></label><input type="tel" id="pphone-' + id + '" placeholder="+1 (716) 555-0100" /></div>' +
-      '<div class="field"><label>SMS notifications</label><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><label class="toggle"><input type="checkbox" id="psms-' + id + '" checked /><span class="toggle-slider"></span></label><span style="font-size:12px;color:var(--gray-400)">Notify on schedule changes</span></div></div>' +
+      '<div class="field"><label>SMS notifications</label><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><label class="toggle"><input type="checkbox" id="psms-' + id + '" checked onchange="this.dataset.touched=\'1\'" /><span class="toggle-slider"></span></label><span style="font-size:12px;color:var(--gray-400)">Notify on schedule changes</span></div><div id="pminor-' + id + '" style="display:none;font-size:11px;color:var(--blue-text);background:var(--blue-light);border-radius:6px;padding:6px 8px;margin-top:6px;line-height:1.5">Under 13 — off by default. If you turn this on, we\'ll text <strong>you</strong> to confirm before anything is sent to this number.</div></div>' +
     '</div>' +
     '<div style="font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px">Team calendars</div>' +
     '<div style="font-size:12px;color:var(--gray-400);margin-bottom:10px">Add each team separately — they\'ll appear as distinct entries in the calendar.</div>' +
@@ -407,6 +415,34 @@ function addPlayer() {
     '<button class="btn-add-item" onclick="addTeam(' + id + ')">+ Add another team</button>';
   list.appendChild(div);
   addTeam(id);
+}
+
+
+// --- Under-13 SMS default ----------------------------------------------------
+// The player SMS toggle used to be hard-coded `checked`, so a parent adding a
+// young child had to notice and switch it off. The server already routes a
+// minor's consent request to the PARENT's phone (queue_member_confirmation +
+// member_age), so nothing unsafe could reach the child either way — this is UX
+// hardening, so the safe choice is the one you get by doing nothing.
+//
+// Age logic deliberately mirrors member_age() in Postgres: year(now) minus
+// birth_year, and a birth_year that is not exactly four digits means "unknown",
+// in which case we leave the existing default alone rather than guess.
+function playerIsUnder13(id) {
+  var el = document.getElementById('pbyear-' + id);
+  var raw = el ? el.value.trim() : '';
+  if (!/^\d{4}$/.test(raw)) { return false; }
+  return (new Date().getFullYear() - parseInt(raw, 10)) < 13;
+}
+
+function applyMinorSmsDefault(id) {
+  var sms  = document.getElementById('psms-' + id);
+  var note = document.getElementById('pminor-' + id);
+  if (!sms) { return; }
+  var minor = playerIsUnder13(id);
+  // Once the parent has touched the toggle themselves, their choice stands.
+  if (!sms.dataset.touched) { sms.checked = !minor; }
+  if (note) { note.style.display = minor ? 'block' : 'none'; }
 }
 
 function addTeam(pid) {
@@ -605,6 +641,16 @@ async function finishSignup() {
     const { data: onboardData, error: rErr } = await sb.rpc('create_family_onboarding', { p_payload: signupPayload });
     if (rErr) throw rErr;
     const familyId = onboardData?.family_id;
+
+    // 2b. First-touch signup attribution.
+    // Awaited on purpose: the Stripe redirect further down navigates away, and
+    // an un-awaited fetch would be cancelled in flight — which is exactly how
+    // this would end up silently recording nothing. recordSignup never throws
+    // and never rejects, so this cannot block a signup that already succeeded.
+    try {
+      const attr = await VW.attribution.recordSignup(familyId);
+      if (!attr || attr.ok === false) { console.warn('[join] attribution not recorded:', attr); }
+    } catch (e) { console.warn('[join] attribution call threw:', e); }
 
     // 3. Kick off the schedule sync so games appear right away
     try { fetch(SURL + '/functions/v1/sync-schedules', { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SKEY }, body: JSON.stringify({ email: signupPayload.family.email }) }); } catch(e) {}
