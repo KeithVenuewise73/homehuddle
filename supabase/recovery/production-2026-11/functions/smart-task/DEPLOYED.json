@@ -1,0 +1,36 @@
+{
+ "slug": "smart-task",
+ "id": "dc719200-87fa-4fad-99c9-a803f9b05e5c",
+ "name": "send-pin-reset",
+ "status": "ACTIVE",
+ "version": 21,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_dc719200-87fa-4fad-99c9-a803f9b05e5c_2/source/index.ts",
+ "ezbr_sha256": "6b0d96000a65d3da0c1f7fd65e3702000fffc65759e71733214254626c616a20",
+ "created_at_ms": 1779558412996,
+ "created_at_iso": "2026-05-23T17:46:52.996Z",
+ "updated_at_ms": 1779558602575,
+ "updated_at_iso": "2026-05-23T17:50:02.575Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "RESEND_API_KEY",
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 21,
+  "jwt": false,
+  "created": "2026-05-23",
+  "updated": "2026-05-23",
+  "sha": "6b0d96000a65"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

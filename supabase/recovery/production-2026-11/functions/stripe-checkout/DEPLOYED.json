@@ -1,0 +1,40 @@
+{
+ "slug": "stripe-checkout",
+ "id": "23faa6cb-c7a4-4b53-b99c-b68686c2b61e",
+ "name": "stripe-checkout",
+ "status": "ACTIVE",
+ "version": 9,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_23faa6cb-c7a4-4b53-b99c-b68686c2b61e_9/source/index.ts",
+ "ezbr_sha256": "362896c3e4f2422efebd766aba04bf95b26468ec65632aaa899cba4a52f28db9",
+ "created_at_ms": 1782269486803,
+ "created_at_iso": "2026-06-24T02:51:26.803Z",
+ "updated_at_ms": 1786600845723,
+ "updated_at_iso": "2026-08-13T06:00:45.723Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "STRIPE_FOUNDING_LOOKUP_KEY",
+  "STRIPE_FOUNDING_PRICE_ID",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_STANDARD_LOOKUP_KEY",
+  "STRIPE_STANDARD_PRICE_ID",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 9,
+  "jwt": true,
+  "created": "2026-06-24",
+  "updated": "2026-08-13",
+  "sha": "362896c3e4f2"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

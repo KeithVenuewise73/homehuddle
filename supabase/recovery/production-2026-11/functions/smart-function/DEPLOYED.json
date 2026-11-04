@@ -1,0 +1,34 @@
+{
+ "slug": "smart-function",
+ "id": "f0805ffb-3f98-40b0-af19-6e53814ff3e7",
+ "name": "smart-function",
+ "status": "ACTIVE",
+ "version": 20,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_f0805ffb-3f98-40b0-af19-6e53814ff3e7_1/source/index.ts",
+ "ezbr_sha256": "3e3e1e6bc108f39a086733e18bf93df6b4ea58080d7eba729f8a1844b005dc00",
+ "created_at_ms": 1779565300417,
+ "created_at_iso": "2026-05-23T19:41:40.417Z",
+ "updated_at_ms": 1779565300417,
+ "updated_at_iso": "2026-05-23T19:41:40.417Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "RESEND_API_KEY"
+ ],
+ "phase3_meta": {
+  "v": 20,
+  "jwt": true,
+  "created": "2026-05-23",
+  "updated": "2026-05-23",
+  "sha": "3e3e1e6bc108"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

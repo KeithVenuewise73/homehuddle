@@ -1,0 +1,39 @@
+{
+ "slug": "sync-schedules",
+ "id": "64d18f2d-10d0-42b1-90f1-8e3a06aa1539",
+ "name": "sync-schedules",
+ "status": "ACTIVE",
+ "version": 56,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_64d18f2d-10d0-42b1-90f1-8e3a06aa1539_56/source/index.ts",
+ "ezbr_sha256": "eb5528e4939e09f1699d41f92b35255b513426fabc5a4fd9cc9b074b31553d13",
+ "created_at_ms": 1779064450583,
+ "created_at_iso": "2026-05-18T00:34:10.583Z",
+ "updated_at_ms": 1786978475217,
+ "updated_at_iso": "2026-08-17T14:54:35.217Z",
+ "files": [
+  "ical-time.ts",
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "ical-time.ts": "SAME",
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "SUPPRESS_CHANGE_ALERTS"
+ ],
+ "phase3_meta": {
+  "v": 56,
+  "jwt": false,
+  "created": "2026-05-18",
+  "updated": "2026-08-17",
+  "sha": "eb5528e4939e"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

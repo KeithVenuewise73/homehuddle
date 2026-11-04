@@ -1,0 +1,37 @@
+{
+ "slug": "workflow-task-action",
+ "id": "a47fdfac-32d5-47b8-8839-0ec5c4496159",
+ "name": "workflow-task-action",
+ "status": "ACTIVE",
+ "version": 1,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_a47fdfac-32d5-47b8-8839-0ec5c4496159_1/source/index.ts",
+ "ezbr_sha256": "a9d78daef753f47fb81bf88e8547223b160625a442cfb7e6b6d84c7a5fbabf0e",
+ "created_at_ms": 1783131774917,
+ "created_at_iso": "2026-07-04T02:22:54.917Z",
+ "updated_at_ms": 1783131774917,
+ "updated_at_iso": "2026-07-04T02:22:54.917Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 1,
+  "jwt": true,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "a9d78daef753"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

@@ -1,0 +1,37 @@
+{
+ "slug": "workflow-tick",
+ "id": "70844c79-44cf-4fe2-8723-36df0410d30e",
+ "name": "workflow-tick",
+ "status": "ACTIVE",
+ "version": 1,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_70844c79-44cf-4fe2-8723-36df0410d30e_1/source/index.ts",
+ "ezbr_sha256": "3e845232e3316a67dc7728efe7fb0418d61d73d4582811de600522409eabd5e2",
+ "created_at_ms": 1783132519530,
+ "created_at_iso": "2026-07-04T02:35:19.530Z",
+ "updated_at_ms": 1783132519530,
+ "updated_at_iso": "2026-07-04T02:35:19.530Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "WF_TICK_SECRET"
+ ],
+ "phase3_meta": {
+  "v": 1,
+  "jwt": false,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "3e845232e331"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

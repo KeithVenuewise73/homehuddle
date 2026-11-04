@@ -1,0 +1,37 @@
+{
+ "slug": "document-download",
+ "id": "b226a209-9c75-41a9-a89b-548d14ca95d4",
+ "name": "document-download",
+ "status": "ACTIVE",
+ "version": 1,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_b226a209-9c75-41a9-a89b-548d14ca95d4_1/source/index.ts",
+ "ezbr_sha256": "53df8a87599d26eb3f885f4962a6ce951b7fbbbf24d80d99b2aaded710e82772",
+ "created_at_ms": 1783202647436,
+ "created_at_iso": "2026-07-04T22:04:07.436Z",
+ "updated_at_ms": 1783202647436,
+ "updated_at_iso": "2026-07-04T22:04:07.436Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 1,
+  "jwt": true,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "53df8a87599d"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

@@ -1,0 +1,35 @@
+{
+ "slug": "sms-inbound",
+ "id": "741bc8d0-f4a2-42a9-bb53-8a9f82fc74df",
+ "name": "sms-inbound",
+ "status": "ACTIVE",
+ "version": 4,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_741bc8d0-f4a2-42a9-bb53-8a9f82fc74df_4/source/index.ts",
+ "ezbr_sha256": "d13b49fd973bce889d4ebdc8b4ca5ae89dd5718d61431e9c509d2ceab8e34a44",
+ "created_at_ms": 1782358435738,
+ "created_at_iso": "2026-06-25T03:33:55.738Z",
+ "updated_at_ms": 1787519188222,
+ "updated_at_iso": "2026-08-23T21:06:28.222Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 4,
+  "jwt": false,
+  "created": "2026-06-25",
+  "updated": "2026-08-23",
+  "sha": "d13b49fd973b"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

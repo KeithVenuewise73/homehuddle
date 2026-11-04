@@ -1,0 +1,37 @@
+{
+ "slug": "workflow-start",
+ "id": "8ddcb72d-e2ed-4a1e-a1b2-96cb6e188205",
+ "name": "workflow-start",
+ "status": "ACTIVE",
+ "version": 1,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_8ddcb72d-e2ed-4a1e-a1b2-96cb6e188205_1/source/index.ts",
+ "ezbr_sha256": "954078f62205092da4c9fb5a003f4bd83794ad0c9d7015b24a180dfb164e2eb5",
+ "created_at_ms": 1783131762765,
+ "created_at_iso": "2026-07-04T02:22:42.765Z",
+ "updated_at_ms": 1783131762765,
+ "updated_at_iso": "2026-07-04T02:22:42.765Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 1,
+  "jwt": true,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "954078f62205"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}
