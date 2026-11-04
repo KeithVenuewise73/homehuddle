@@ -19,4 +19,4 @@
 - 2026-08-13: Stripe v9/v7 from the iOS branch
 - 2026-08-17 / 08-23: last changes (`sync-schedules` v56, `sms-inbound` v4)
 
-Nothing has been deployed to this project since 2026-08-23.
+No edge function has been deployed to this project since 2026-08-23 (migrations were applied through 2026-09-28).
