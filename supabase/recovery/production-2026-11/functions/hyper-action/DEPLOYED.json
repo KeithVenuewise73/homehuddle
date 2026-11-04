@@ -1,0 +1,38 @@
+{
+ "slug": "hyper-action",
+ "id": "7de4e3ce-e4f8-4733-9160-edf5c0d6f479",
+ "name": "hyper-action",
+ "status": "ACTIVE",
+ "version": 21,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_7de4e3ce-e4f8-4733-9160-edf5c0d6f479_1/source/index.ts",
+ "ezbr_sha256": "fa09e07b71de3f8210af9f8fb0503f5b411e4c736899b47ec8ccf4536bf1ee6f",
+ "created_at_ms": 1779504951103,
+ "created_at_iso": "2026-05-23T02:55:51.103Z",
+ "updated_at_ms": 1779504951103,
+ "updated_at_iso": "2026-05-23T02:55:51.103Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "VAPID_PRIVATE_KEY",
+  "VAPID_PUBLIC_KEY"
+ ],
+ "phase3_meta": {
+  "v": 21,
+  "jwt": false,
+  "created": "2026-05-23",
+  "updated": "2026-05-23",
+  "sha": "fa09e07b71de"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

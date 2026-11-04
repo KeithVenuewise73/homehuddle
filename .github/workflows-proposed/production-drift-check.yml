@@ -1,0 +1,45 @@
+# PROPOSED — NOT ACTIVE.
+#
+# This file lives in .github/workflows-proposed/, which GitHub does not read.
+# Moving it to .github/workflows/ is a Level B change (it needs the repository
+# secret SUPABASE_ACCESS_TOKEN and the variable SUPABASE_PROJECT_REF=urwnbskrtoplgnkkxuvl).
+# It has NOT been executed anywhere; treat it as a draft until a run is shown green.
+#
+# Purpose: detect drift between the production migration ledger and the
+# repository, read-only, on demand. It never applies anything.
+name: Production drift check (proposed)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Compare production ledger with repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Link (read-only token use)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}"
+      - name: List remote migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase migration list --linked > remote.txt; cat remote.txt
+      - name: Compare with the recovered archive
+        run: |
+          python3 - <<'EOF'
+          import csv, re
+          archive = {r["version"] for r in csv.DictReader(open("supabase/recovery/production-2026-11/migrations/MANIFEST.csv"))}
+          remote = set(re.findall(r"\b(\d{14})\b", open("remote.txt").read()))
+          new = sorted(remote - archive); gone = sorted(archive - remote)
+          print("applied since archive:", new); print("missing from remote:", gone)
+          if new or gone:
+              print("::warning::production ledger differs from the 2026-11-04 archive — update the archive and REPO_DIFF.md")
+          EOF

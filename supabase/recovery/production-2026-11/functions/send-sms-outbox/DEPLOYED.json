@@ -1,0 +1,39 @@
+{
+ "slug": "send-sms-outbox",
+ "id": "3d244f9e-7ee8-491e-812a-5bc49267eb4d",
+ "name": "send-sms-outbox",
+ "status": "ACTIVE",
+ "version": 6,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_3d244f9e-7ee8-491e-812a-5bc49267eb4d_1/source/index.ts",
+ "ezbr_sha256": "4e63d67dc6343bd89d8a2ce2e762f74e0e26c8f0f6041ccbe04a41ff9834daa7",
+ "created_at_ms": 1782259502688,
+ "created_at_iso": "2026-06-24T00:05:02.688Z",
+ "updated_at_ms": 1782259502688,
+ "updated_at_iso": "2026-06-24T00:05:02.688Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "OUTBOX_SECRET",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_FROM_NUMBER"
+ ],
+ "phase3_meta": {
+  "v": 6,
+  "jwt": false,
+  "created": "2026-06-24",
+  "updated": "2026-06-24",
+  "sha": "4e63d67dc634"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

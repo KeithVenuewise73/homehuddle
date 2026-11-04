@@ -1,0 +1,37 @@
+{
+ "slug": "send-notifications",
+ "id": "58740e2b-cd1b-4c51-94ed-311e1f66a961",
+ "name": "send-notifications",
+ "status": "ACTIVE",
+ "version": 21,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_58740e2b-cd1b-4c51-94ed-311e1f66a961_10/source/index.ts",
+ "ezbr_sha256": "25c68cf0e8b18a35731278ad4f85bdb110f1a207a24c7cbf3ad7a427fa823d2a",
+ "created_at_ms": 1780095818898,
+ "created_at_iso": "2026-05-29T23:03:38.898Z",
+ "updated_at_ms": 1780100430667,
+ "updated_at_iso": "2026-05-30T00:20:30.667Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "VAPID_PRIVATE_KEY",
+  "VAPID_PUBLIC_KEY"
+ ],
+ "phase3_meta": {
+  "v": 21,
+  "jwt": true,
+  "created": "2026-05-29",
+  "updated": "2026-05-30",
+  "sha": "25c68cf0e8b1"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

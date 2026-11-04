@@ -1,0 +1,38 @@
+{
+ "slug": "stripe-webhook",
+ "id": "356782e3-8a85-4062-b366-1a25043652ef",
+ "name": "stripe-webhook",
+ "status": "ACTIVE",
+ "version": 7,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_356782e3-8a85-4062-b366-1a25043652ef_7/source/index.ts",
+ "ezbr_sha256": "1fd44d225937996f7c9fae60fe31474215b8b6cbe6a5412c793a7e5bdf4fcf26",
+ "created_at_ms": 1782269514256,
+ "created_at_iso": "2026-06-24T02:51:54.256Z",
+ "updated_at_ms": 1786600931753,
+ "updated_at_iso": "2026-08-13T06:02:11.753Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "STRIPE_FOUNDING_PRICE_ID",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 7,
+  "jwt": false,
+  "created": "2026-06-24",
+  "updated": "2026-08-13",
+  "sha": "1fd44d225937"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

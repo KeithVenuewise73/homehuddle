@@ -1,0 +1,38 @@
+{
+ "slug": "verify-phone",
+ "id": "6fccc96b-89d7-4a26-9d1f-ef7e872b8f89",
+ "name": "verify-phone",
+ "status": "ACTIVE",
+ "version": 6,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_6fccc96b-89d7-4a26-9d1f-ef7e872b8f89_1/source/index.ts",
+ "ezbr_sha256": "b9083f80a3fc6811317e8369319f4c0f5e75fc822c98026c6c0208975a884e2c",
+ "created_at_ms": 1782022865697,
+ "created_at_iso": "2026-06-21T06:21:05.697Z",
+ "updated_at_ms": 1782022865697,
+ "updated_at_iso": "2026-06-21T06:21:05.697Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_VERIFY_SID"
+ ],
+ "phase3_meta": {
+  "v": 6,
+  "jwt": true,
+  "created": "2026-06-21",
+  "updated": "2026-06-21",
+  "sha": "b9083f80a3fc"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

@@ -1,0 +1,36 @@
+{
+ "slug": "stripe-portal",
+ "id": "3a6a7060-bfc8-4a76-ba1e-246fc2576123",
+ "name": "stripe-portal",
+ "status": "ACTIVE",
+ "version": 4,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_3a6a7060-bfc8-4a76-ba1e-246fc2576123_1/source/index.ts",
+ "ezbr_sha256": "5a2464382c1b4764fd8c998da4d9e8fdfd2e0c047ad0ccd090965f2dfcfc26ce",
+ "created_at_ms": 1782271119133,
+ "created_at_iso": "2026-06-24T03:18:39.133Z",
+ "updated_at_ms": 1782271119133,
+ "updated_at_iso": "2026-06-24T03:18:39.133Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "STRIPE_SECRET_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 4,
+  "jwt": true,
+  "created": "2026-06-24",
+  "updated": "2026-06-24",
+  "sha": "5a2464382c1b"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

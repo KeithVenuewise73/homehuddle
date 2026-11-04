@@ -1,0 +1,34 @@
+{
+ "slug": "stripe-secret-check",
+ "id": "d2ecb911-d89d-48ed-80d3-dba8702d8f0b",
+ "name": "stripe-secret-check",
+ "status": "ACTIVE",
+ "version": 5,
+ "verify_jwt": false,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_d2ecb911-d89d-48ed-80d3-dba8702d8f0b_1/source/index.ts",
+ "ezbr_sha256": "9e6a67db051307d1efee417f1b7d762e12de026ce968187b946e1784cfbbb7f6",
+ "created_at_ms": 1782268286212,
+ "created_at_iso": "2026-06-24T02:31:26.212Z",
+ "updated_at_ms": 1782268286212,
+ "updated_at_iso": "2026-06-24T02:31:26.212Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "STRIPE_SECRET_KEY"
+ ],
+ "phase3_meta": {
+  "v": 5,
+  "jwt": false,
+  "created": "2026-06-24",
+  "updated": "2026-06-24",
+  "sha": "9e6a67db0513"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

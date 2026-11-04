@@ -1,0 +1,37 @@
+{
+ "slug": "workflow-advance",
+ "id": "76c6d8b6-fc35-4bd0-9c25-d7034d3aef66",
+ "name": "workflow-advance",
+ "status": "ACTIVE",
+ "version": 1,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_76c6d8b6-fc35-4bd0-9c25-d7034d3aef66_1/source/index.ts",
+ "ezbr_sha256": "615100aa325d703b5e787ae820ec0a2185a1e352090177ff6b7087bf2a6a7225",
+ "created_at_ms": 1783131787934,
+ "created_at_iso": "2026-07-04T02:23:07.934Z",
+ "updated_at_ms": 1783131787934,
+ "updated_at_iso": "2026-07-04T02:23:07.934Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 1,
+  "jwt": true,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "615100aa325d"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

@@ -1,0 +1,39 @@
+{
+ "slug": "super-processor",
+ "id": "3404e825-c1bc-4f9a-b465-3fb0eae2bdec",
+ "name": "super-processor",
+ "status": "ACTIVE",
+ "version": 23,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_3404e825-c1bc-4f9a-b465-3fb0eae2bdec_2/source/index.ts",
+ "ezbr_sha256": "66b1ec3f63fc66ef830bc4485f68e6d7309377624276b5cbdd3b5829f5feeeb7",
+ "created_at_ms": 1779500713242,
+ "created_at_iso": "2026-05-23T01:45:13.242Z",
+ "updated_at_ms": 1779501725986,
+ "updated_at_iso": "2026-05-23T02:02:05.986Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL",
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_FROM_NUMBER"
+ ],
+ "phase3_meta": {
+  "v": 23,
+  "jwt": true,
+  "created": "2026-05-23",
+  "updated": "2026-05-23",
+  "sha": "66b1ec3f63fc"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}

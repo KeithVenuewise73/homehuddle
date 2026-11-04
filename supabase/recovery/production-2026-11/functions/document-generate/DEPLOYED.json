@@ -1,0 +1,37 @@
+{
+ "slug": "document-generate",
+ "id": "2abf6ed4-93c9-427f-a9ab-4cf3f05a7021",
+ "name": "document-generate",
+ "status": "ACTIVE",
+ "version": 2,
+ "verify_jwt": true,
+ "import_map": false,
+ "entrypoint_path": "file:///tmp/user_fn_urwnbskrtoplgnkkxuvl_2abf6ed4-93c9-427f-a9ab-4cf3f05a7021_2/source/index.ts",
+ "ezbr_sha256": "4ee5b211e71893f16d6a56ec8c96ebcf22b869c51449cda9c19919170ec7ba58",
+ "created_at_ms": 1783201324106,
+ "created_at_iso": "2026-07-04T21:42:04.106Z",
+ "updated_at_ms": 1783202634732,
+ "updated_at_iso": "2026-07-04T22:03:54.732Z",
+ "files": [
+  "index.ts"
+ ],
+ "cmp_vs_phase3": {
+  "index.ts": "SAME"
+ },
+ "matches_phase3": true,
+ "env_var_names": [
+  "SERVICE_ROLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_URL"
+ ],
+ "phase3_meta": {
+  "v": 2,
+  "jwt": true,
+  "created": "2026-07-04",
+  "updated": "2026-07-04",
+  "sha": "4ee5b211e718"
+ },
+ "change_vs_phase3": "none",
+ "verified_at_utc": "2026-11-04T14:28:15Z"
+}
