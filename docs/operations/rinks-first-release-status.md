@@ -1,3 +1,5 @@
+> **Superseded in part (2026-11-06):** see [rinks-first-release-review.md](rinks-first-release-review.md) for Claude's review, the fixes made, and which items below are now verified. This file is ChatGPT's original status, kept unchanged below.
+
 # Rinks first release — review status
 
 Branch: feat/caz-riverside-booking-transformation, based on recovery/venuewise-production-2026-11. Intended stacked PR targets the recovery branch so the recovered ledger is not mixed into this feature diff. GitHub branch creation was attempted and rejected with HTTP 403 Resource not accessible by integration. No remote branch or PR was created; local changes are packaged for Claude.

@@ -1,6 +1,6 @@
 begin;
 create function rink_private.has_role(p_workspace uuid,p_roles text[]) returns boolean language sql stable security definer set search_path='' as $$
- select auth.uid() is not null and exists(select 1 from public.workspace_members m join public.workspace_roles r using(workspace_id,person_id) join public.people p on p.id=m.person_id where p.auth_user_id=auth.uid() and m.workspace_id=p_workspace and m.status='active' and r.role=any(p_roles));
+ select auth.uid() is not null and exists(select 1 from public.workspace_members m join public.workspace_roles r using(workspace_id,person_id) join public.people p on p.id=m.person_id join public.business_workspaces w on w.id=m.workspace_id and w.status='active' where p.auth_user_id=auth.uid() and m.workspace_id=p_workspace and m.status='active' and r.role=any(p_roles));
 $$;
 create function rink_private.scheduler(p_facility uuid) returns boolean language sql stable security definer set search_path='' as $$select rink_private.has_role((select workspace_id from public.facilities where id=p_facility),array['owner','admin','staff'])$$;
 create function rink_private.renter(p_org uuid) returns boolean language sql stable security definer set search_path='' as $$select rink_private.has_role((select workspace_id from public.organizations where id=p_org),array['owner','admin'])$$;
@@ -20,24 +20,22 @@ create function rink_private.workspace() returns jsonb language plpgsql stable s
 begin
  if auth.uid() is null then raise exception 'Sign in required'; end if;
  return jsonb_build_object(
- 'bookings',coalesce((select jsonb_agg(jsonb_build_object('id',b.id,'facility_id',b.facility_id,'area_id',b.area_id,'organization_id',b.organization_id,'team_id',b.team_id,'title',b.title,'start_time',b.start_time,'end_time',b.end_time,'amount',b.amount,'status',b.status) order by b.start_time) from public.bookings b where rink_private.scheduler(b.facility_id) or rink_private.renter(b.organization_id)),'[]'::jsonb),
+ 'bookings',coalesce((select jsonb_agg(jsonb_build_object('id',b.id,'facility_id',b.facility_id,'area_id',b.area_id,'organization_id',b.organization_id,'organization_name',(select o.name from public.organizations o where o.id=b.organization_id),'team_id',b.team_id,'title',b.title,'start_time',b.start_time,'end_time',b.end_time,'amount',b.amount,'status',b.status) order by b.start_time) from public.bookings b where rink_private.scheduler(b.facility_id) or rink_private.renter(b.organization_id)),'[]'::jsonb),
  'cancellations',coalesce((select jsonb_agg(to_jsonb(c)) from public.booking_cancellation_requests c join public.bookings b on b.id=c.booking_id where rink_private.scheduler(b.facility_id) or rink_private.renter(b.organization_id)),'[]'::jsonb),
- 'requests',coalesce((select jsonb_agg(to_jsonb(r)) from public.open_slot_requests r where rink_private.scheduler(r.facility_id) or rink_private.renter(r.organization_id)),'[]'::jsonb),
+ 'requests',coalesce((select jsonb_agg(to_jsonb(r)||jsonb_build_object('organization_name',(select o.name from public.organizations o where o.id=r.organization_id))) from public.open_slot_requests r where rink_private.scheduler(r.facility_id) or rink_private.renter(r.organization_id)),'[]'::jsonb),
  'offers',coalesce((select jsonb_agg(jsonb_build_object('id',o.id,'open_slot_id',o.open_slot_id,'channel',o.channel,'status',o.status,'created_at',o.created_at)) from public.open_slot_offers o join public.open_slots s on s.id=o.open_slot_id where rink_private.scheduler(s.facility_id) or o.person_id=public.current_person_id()),'[]'::jsonb),
  'financial',coalesce((select jsonb_agg(to_jsonb(d)) from public.booking_financial_dispositions d join public.bookings b on b.id=d.booking_id where rink_private.scheduler(b.facility_id)),'[]'::jsonb),
  'waitlist',coalesce((select jsonb_agg(to_jsonb(w)) from public.facility_waitlist w where w.contact_person_id=public.current_person_id()),'[]'::jsonb));
 end $$;
 -- Reuse the calendar table with an atomic source-key upsert. This internal writer
 -- does not alter other modules' existing publishing function or legacy calendars.
-create function rink_private.publish_booking(p_booking uuid) returns uuid language plpgsql security definer set search_path='' as $$
-declare v_event uuid;
-begin
- insert into public.calendar_events(source_module,source_table,source_id,title,start_time,end_time,event_type,location_name,location_address,organization_id,facility_id,is_public,status)
- select 'facilityhuddle','bookings',b.id::text,coalesce(b.title,'Ice reservation'),b.start_time,b.end_time,b.booking_type,f.name,f.address,b.organization_id,b.facility_id,false,case when b.status='cancelled' then 'cancelled' else 'active' end from public.bookings b join public.facilities f on f.id=b.facility_id where b.id=p_booking
- on conflict(source_module,source_table,source_id) do update set title=excluded.title,start_time=excluded.start_time,end_time=excluded.end_time,event_type=excluded.event_type,location_name=excluded.location_name,location_address=excluded.location_address,organization_id=excluded.organization_id,facility_id=excluded.facility_id,status=excluded.status,updated_at=now() returning id into v_event;
- -- Roster fan-out/family display is a later reviewed slice. No fictitious participants.
- return v_event;
-end $$;
+create function rink_private.publish_booking(p_booking uuid) returns uuid language sql security definer set search_path='' as $$
+ -- Single calendar writer: the existing hub function (repaired in 03_calendar_publisher.sql).
+ -- Source key ('facilityhuddle','bookings',booking id) marks FacilityHuddle as the owner of this row;
+ -- outside-facility or imported events must use their own source_module and are never written here.
+ select public.publish_to_calendar('facilityhuddle','bookings',b.id::text,coalesce(b.title,'Ice reservation'),b.start_time,b.end_time,b.booking_type,null,f.name,f.address,b.organization_id,null,b.facility_id,false,case when b.status='cancelled' then 'cancelled' else 'active' end)
+ from public.bookings b join public.facilities f on f.id=b.facility_id where b.id=p_booking
+$$;
 create function rink_private.request_ice(p_facility uuid,p_area uuid,p_org uuid,p_team uuid,p_start timestamptz,p_end timestamptz,p_note text,p_slot uuid default null) returns uuid language plpgsql security definer set search_path='' as $$
 declare v_id uuid; v_slot public.open_slots;
 begin
@@ -49,6 +47,7 @@ begin
  select * into v_slot from public.open_slots where id=p_slot for update;
  if not found or v_slot.status<>'open' or not v_slot.is_public or v_slot.facility_id<>p_facility or v_slot.area_id<>p_area or v_slot.start_time<>p_start or v_slot.end_time<>p_end then raise exception 'Opening is no longer available'; end if;
  end if;
+ perform 1 from public.facility_areas where id=p_area for update;
  if exists(select 1 from public.bookings where area_id=p_area and status in ('confirmed','maintenance') and start_time<p_end and end_time>p_start) then raise exception 'Ice is already reserved'; end if;
  if p_slot is null and exists(select 1 from public.open_slots where area_id=p_area and status='open' and start_time<p_end and end_time>p_start) then raise exception 'Request the published opening instead'; end if;
  insert into public.open_slot_requests(open_slot_id,facility_id,area_id,organization_id,team_id,start_time,end_time,requested_by_person_id,note) values(p_slot,p_facility,p_area,p_org,p_team,p_start,p_end,public.current_person_id(),nullif(trim(p_note),'')) returning id into v_id;
@@ -71,7 +70,7 @@ begin
  if r.open_slot_id is null and exists(select 1 from public.open_slots where area_id=r.area_id and status='open' and start_time<r.end_time and end_time>r.start_time) then raise exception 'Request the released opening instead'; end if;
  if p_amount is null or p_amount<0 then raise exception 'A nonnegative agreed price is required'; end if;
  if r.open_slot_id is not null and p_amount is distinct from s.price then raise exception 'Award price must match published opening'; end if;
- insert into public.bookings(facility_id,area_id,booking_type,title,organization_id,team_id,start_time,end_time,amount,status) values(r.facility_id,r.area_id,case when r.team_id is null then 'organization_rental' else 'team_rental' end,'Ice reservation',r.organization_id,r.team_id,r.start_time,r.end_time,p_amount,'confirmed') returning id into v_booking;
+ insert into public.bookings(facility_id,area_id,booking_type,title,customer_name,organization_id,team_id,start_time,end_time,amount,status) values(r.facility_id,r.area_id,case when r.team_id is null then 'organization_rental' else 'team_rental' end,'Ice reservation',(select o.name from public.organizations o where o.id=r.organization_id),r.organization_id,r.team_id,r.start_time,r.end_time,p_amount,'confirmed') returning id into v_booking;
  update public.open_slot_requests set status='awarded',awarded_booking_id=v_booking,decided_at=now() where id=r.id;
  -- Close every other pending request that competes for this ice (published opening or new time).
  update public.open_slot_requests set status='closed',decided_at=now() where area_id=r.area_id and id<>r.id and status='requested' and start_time<r.end_time and end_time>r.start_time;

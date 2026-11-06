@@ -18,7 +18,7 @@ The opening list records organization interest in every released slot at the sel
 
 Calendar records are prepared inside the existing calendar_events table; family/athlete screen adoption and roster participant fan-out are deferred. Existing HomeHuddle calendars are unchanged. External-facility events must remain supported in that later integration and must never be treated as FacilityHuddle-controlled reservations.
 
-The internal booking publisher fixes the facility path through a source-key ON CONFLICT upsert without changing the existing unattached publish_to_calendar function. A later calendar-engine consolidation should reconcile these implementations after its consumers are inventoried.
+Bookings are published through the existing calendar hub writer, public.publish_to_calendar, repaired in 03_calendar_publisher.sql (it had no callers; its default status violated the calendar status check and its update-then-insert could race). There is one calendar writer, keyed by (source_module, source_table, source_id). FacilityHuddle owns only ('facilityhuddle','bookings',…) rows; imported or manually entered outside-facility events must use their own source module and are never written or overwritten by FacilityHuddle. Matching an outside event to a FacilityHuddle booking (duplicate reconciliation) is a later slice.
 
 Pending cancellation policy display preserves a policy snapshot and asks for scheduler interpretation; it does not calculate an unverified business-day/calendar-day rule. Financial decisions are recorded as undetermined and handled outside this release; no payment actions exist. Recurring series creation, bulk rescheduling and automated refunds are deferred.
 

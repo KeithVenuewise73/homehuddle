@@ -1,6 +1,6 @@
 import {PGlite} from '@electric-sql/pglite';import fs from 'node:fs/promises';import assert from 'node:assert/strict';
 const db=new PGlite();const read=p=>fs.readFile(new URL(p,import.meta.url),'utf8');
-await db.exec(await read('./fixture.sql'));for(const file of ['01_schema.sql','02_functions.sql'])await db.exec(await read('../../supabase/proposals/rinks/'+file));
+await db.exec(await read('./fixture.sql'));await db.exec(await read('../../supabase/recovery/production-2026-11/migrations/20260827124557_calendar_hub_writer_unattached.sql'));for(const file of ['01_schema.sql','02_functions.sql','03_calendar_publisher.sql'])await db.exec(await read('../../supabase/proposals/rinks/'+file));
 const uuid=()=>crypto.randomUUID(),ids={};for(const k of ['scheduler','renter','other','wsRink','wsOrg','wsOther','rink','rink2','area','area2','org','otherOrg','team'])ids[k]=uuid();
 const q=(s,p=[])=>db.query(s,p);const scalar=async(s,p=[])=>Object.values((await q(s,p)).rows[0])[0];
 await q('insert into business_workspaces values ($1),($2),($3)',[ids.wsRink,ids.wsOrg,ids.wsOther]);for(const [person,ws,role] of [['scheduler','wsRink','staff'],['renter','wsOrg','admin'],['other','wsOther','admin']]){await q('insert into people(id,auth_user_id) values($1,$1)',[ids[person]]);await q("insert into workspace_members values($1,$2,'active')",[ids[ws],ids[person]]);await q('insert into workspace_roles values($1,$2,$3)',[ids[ws],ids[person],role]);}

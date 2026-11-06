@@ -3,7 +3,8 @@
 -- existing bookings_alert trigger. uuid_generate_v4 defaults swapped to gen_random_uuid.
 create role anon; create role authenticated; create role service_role;
 create schema auth;
-create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+-- auth.uid() body copied from the live project (reads PostgREST's request.jwt.claims).
+create function auth.uid() returns uuid language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''), (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
 grant usage on schema auth to anon,authenticated;
 grant execute on function auth.uid() to anon,authenticated;
 create table public.people (id uuid default gen_random_uuid() not null, phone text not null, phone_verified boolean default false not null, auth_user_id uuid, display_name text, created_at timestamp with time zone default now() not null, sms_opt_in boolean default true not null, constraint people_phone_e164_chk CHECK ((phone ~ '^\+[1-9]\d{6,14}$'::text)), constraint people_pkey PRIMARY KEY (id), constraint people_phone_key UNIQUE (phone), constraint people_auth_user_id_key UNIQUE (auth_user_id));

@@ -1,0 +1,50 @@
+name: Rinks contract tests
+
+# Test-only. Uses no secrets, connects to no hosted project, deploys nothing.
+# Runs the candidate rink SQL (supabase/proposals/rinks) against production-faithful
+# table structure on a throwaway PostgreSQL 17 (the production major version).
+
+on:
+  pull_request:
+    paths:
+      - "supabase/proposals/rinks/**"
+      - "tests/rinks/**"
+      - "facilityhuddle/rinks/**"
+      - ".github/workflows/rinks-contract-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      RINKS_PG_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
+    defaults:
+      run:
+        working-directory: tests/rinks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci --ignore-scripts
+      - name: In-process suites (simplified + production-structure fixtures)
+        run: npm test
+      - name: Multi-session suite (independent connections, simultaneous awards)
+        run: npm run test:sessions
+      - name: Browser workflow (real pages, real SQL; auth simulated)
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.63.0
+          npx playwright install --with-deps chromium
+          node browser.e2e.mjs

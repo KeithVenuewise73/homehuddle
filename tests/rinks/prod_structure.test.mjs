@@ -5,7 +5,7 @@ import {PGlite} from '@electric-sql/pglite';import fs from 'node:fs/promises';im
 const db=new PGlite();const read=p=>fs.readFile(new URL(p,import.meta.url),'utf8');
 const out=(tag,msg)=>console.log(`${tag}: ${msg}`);
 await db.exec(await read('./prod_fixture.sql'));
-for(const f of ['01_schema.sql','02_functions.sql'])await db.exec(await read('../../supabase/proposals/rinks/'+f));
+await db.exec(await read('../../supabase/recovery/production-2026-11/migrations/20260827124557_calendar_hub_writer_unattached.sql'));for(const f of ['01_schema.sql','02_functions.sql','03_calendar_publisher.sql'])await db.exec(await read('../../supabase/proposals/rinks/'+f));
 out('PASS','01_schema.sql + 02_functions.sql apply cleanly on production structure (incl. open_slots_status_check swap, RLS-on tables, existing trigger)');
 const q=(s,p=[])=>db.query(s,p);const one=async(s,p=[])=>Object.values((await q(s,p)).rows[0]??{x:null})[0];
 const id=()=>crypto.randomUUID();const ids={};for(const k of ['sched','rentA','rentB','rentC','wsRink','wsA','wsB','wsC','rink','area','orgA','orgB','orgC'])ids[k]=id();
