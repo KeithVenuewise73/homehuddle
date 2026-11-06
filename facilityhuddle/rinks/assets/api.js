@@ -1,5 +1,5 @@
 (function(g){
- const methods={calendar:['public_facility_calendar',false],slots:['public_open_slots',false],catalog:['rink_catalog',false],workspace:['rink_workspace',true],request:['request_rink_ice',true],award:['award_open_slot',true],cancel:['request_booking_cancellation',true],decide:['decide_cancellation',true],waitlist:['set_facility_waitlist',true]};
+ const methods={calendar:['public_facility_calendar',false],slots:['public_open_slots',false],catalog:['rink_catalog',false],workspace:['rink_workspace',true],request:['request_rink_ice',true],award:['award_open_slot',true],cancel:['request_booking_cancellation',true],decide:['decide_cancellation',true],waitlist:['set_facility_waitlist',true],decline:['decline_rink_request',true],withdraw:['withdraw_rink_request',true]};
  let sb;
  function client(){return sb||(sb=g.VW.createClient());}
  async function call(name,args={}){

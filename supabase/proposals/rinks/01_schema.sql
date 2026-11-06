@@ -14,6 +14,8 @@ alter table public.bookings add constraint rink_booking_amount_valid check(amoun
 -- avoids requiring an unapproved extension for the first release.
 create function rink_private.guard_booking() returns trigger language plpgsql security definer set search_path='' as $$
 begin
+ -- Releasing ice must always be possible, even on an area deactivated since booking.
+ if tg_op='UPDATE' and new.status='cancelled' then return new; end if;
  perform 1 from public.facility_areas a where a.id=new.area_id and a.facility_id=new.facility_id and a.is_active for update;
  if not found then raise exception 'Invalid or inactive ice area'; end if;
  if new.end_time<=new.start_time or new.amount<0 then raise exception 'Invalid booking time or amount'; end if;

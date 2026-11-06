@@ -73,6 +73,8 @@ begin
  if r.open_slot_id is not null and p_amount is distinct from s.price then raise exception 'Award price must match published opening'; end if;
  insert into public.bookings(facility_id,area_id,booking_type,title,organization_id,team_id,start_time,end_time,amount,status) values(r.facility_id,r.area_id,case when r.team_id is null then 'organization_rental' else 'team_rental' end,'Ice reservation',r.organization_id,r.team_id,r.start_time,r.end_time,p_amount,'confirmed') returning id into v_booking;
  update public.open_slot_requests set status='awarded',awarded_booking_id=v_booking,decided_at=now() where id=r.id;
+ -- Close every other pending request that competes for this ice (published opening or new time).
+ update public.open_slot_requests set status='closed',decided_at=now() where area_id=r.area_id and id<>r.id and status='requested' and start_time<r.end_time and end_time>r.start_time;
  if r.open_slot_id is not null then
  update public.open_slots set status='awarded',awarded_booking_id=v_booking where id=r.open_slot_id;
  update public.open_slot_requests set status='closed',decided_at=now() where open_slot_id=r.open_slot_id and id<>r.id and status='requested';
@@ -119,6 +121,24 @@ begin
  insert into public.facility_waitlist(facility_id,organization_id,contact_person_id,notify_opt_in) values(p_facility,p_org,public.current_person_id(),coalesce(p_opt_in,false)) on conflict(facility_id,organization_id,contact_person_id) do update set notify_opt_in=excluded.notify_opt_in returning id into v_id;
  return v_id;
 end $$;
+create function rink_private.decline_request(p_request uuid) returns uuid language plpgsql security definer set search_path='' as $$
+declare r public.open_slot_requests;
+begin
+ select * into r from public.open_slot_requests where id=p_request for update;
+ if not found or not rink_private.scheduler(r.facility_id) then raise exception 'Rink scheduling permission required'; end if;
+ if r.status<>'requested' then raise exception 'Request is no longer pending'; end if;
+ update public.open_slot_requests set status='closed',decided_at=now() where id=r.id;
+ return r.id;
+end $$;
+create function rink_private.withdraw_request(p_request uuid) returns uuid language plpgsql security definer set search_path='' as $$
+declare r public.open_slot_requests;
+begin
+ select * into r from public.open_slot_requests where id=p_request for update;
+ if not found or not rink_private.renter(r.organization_id) then raise exception 'Organization scheduling permission required'; end if;
+ if r.status<>'requested' then raise exception 'Request is no longer pending'; end if;
+ update public.open_slot_requests set status='withdrawn',decided_at=now() where id=r.id;
+ return r.id;
+end $$;
 -- Browser-facing wrappers are invokers. Privileged implementation lives in a
 -- non-REST schema, authenticates membership and returns only defined fields.
 create function public.public_facility_calendar(p_slug text,p_from timestamptz,p_to timestamptz) returns jsonb language sql security invoker set search_path='' as $$select rink_private.public_calendar(p_slug,p_from,p_to)$$;
@@ -129,11 +149,13 @@ create function public.request_rink_ice(p_facility uuid,p_area uuid,p_org uuid,p
 create function public.award_open_slot(p_request uuid,p_amount numeric) returns uuid language sql security invoker set search_path='' as $$select rink_private.award(p_request,p_amount)$$;
 create function public.request_booking_cancellation(p_booking uuid,p_reason text) returns uuid language sql security invoker set search_path='' as $$select rink_private.request_cancel(p_booking,p_reason)$$;
 create function public.decide_cancellation(p_request uuid,p_approve boolean,p_note text) returns uuid language sql security invoker set search_path='' as $$select rink_private.decide_cancel(p_request,p_approve,p_note)$$;
+create function public.decline_rink_request(p_request uuid) returns uuid language sql security invoker set search_path='' as $$select rink_private.decline_request(p_request)$$;
+create function public.withdraw_rink_request(p_request uuid) returns uuid language sql security invoker set search_path='' as $$select rink_private.withdraw_request(p_request)$$;
 create function public.set_facility_waitlist(p_facility uuid,p_org uuid,p_opt_in boolean) returns uuid language sql security invoker set search_path='' as $$select rink_private.waitlist(p_facility,p_org,p_opt_in)$$;
 revoke all on all functions in schema rink_private from public,anon,authenticated;
 grant execute on function rink_private.public_calendar(text,timestamptz,timestamptz),rink_private.public_slots(text),rink_private.catalog() to anon,authenticated;
-grant execute on function rink_private.workspace(),rink_private.request_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),rink_private.award(uuid,numeric),rink_private.request_cancel(uuid,text),rink_private.decide_cancel(uuid,boolean,text),rink_private.waitlist(uuid,uuid,boolean) to authenticated;
-revoke all on function public.public_facility_calendar(text,timestamptz,timestamptz),public.public_open_slots(text),public.rink_catalog(),public.rink_workspace(),public.request_rink_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),public.award_open_slot(uuid,numeric),public.request_booking_cancellation(uuid,text),public.decide_cancellation(uuid,boolean,text),public.set_facility_waitlist(uuid,uuid,boolean) from public,anon,authenticated;
+grant execute on function rink_private.workspace(),rink_private.request_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),rink_private.award(uuid,numeric),rink_private.request_cancel(uuid,text),rink_private.decide_cancel(uuid,boolean,text),rink_private.waitlist(uuid,uuid,boolean),rink_private.decline_request(uuid),rink_private.withdraw_request(uuid) to authenticated;
+revoke all on function public.public_facility_calendar(text,timestamptz,timestamptz),public.public_open_slots(text),public.rink_catalog(),public.rink_workspace(),public.request_rink_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),public.award_open_slot(uuid,numeric),public.request_booking_cancellation(uuid,text),public.decide_cancellation(uuid,boolean,text),public.set_facility_waitlist(uuid,uuid,boolean),public.decline_rink_request(uuid),public.withdraw_rink_request(uuid) from public,anon,authenticated;
 grant execute on function public.public_facility_calendar(text,timestamptz,timestamptz),public.public_open_slots(text),public.rink_catalog() to anon,authenticated;
-grant execute on function public.rink_workspace(),public.request_rink_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),public.award_open_slot(uuid,numeric),public.request_booking_cancellation(uuid,text),public.decide_cancellation(uuid,boolean,text),public.set_facility_waitlist(uuid,uuid,boolean) to authenticated;
+grant execute on function public.rink_workspace(),public.request_rink_ice(uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,uuid),public.award_open_slot(uuid,numeric),public.request_booking_cancellation(uuid,text),public.decide_cancellation(uuid,boolean,text),public.set_facility_waitlist(uuid,uuid,boolean),public.decline_rink_request(uuid),public.withdraw_rink_request(uuid) to authenticated;
 commit;
