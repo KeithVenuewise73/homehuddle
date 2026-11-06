@@ -1,0 +1,1 @@
+{"name":"venuewise-rink-contract-tests","private":true,"type":"module","scripts":{"test":"node database.test.mjs && node prod_structure.test.mjs","test:sessions":"node sessions.test.mjs"},"devDependencies":{"@electric-sql/pglite":"0.3.14","pg":"8.13.1"}}
