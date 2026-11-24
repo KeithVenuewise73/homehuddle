@@ -901,6 +901,15 @@ function discardChanges() {
 }
 
 async function saveChanges() {
+  try {
+    await saveChangesInner();
+  } catch(e) {
+    console.error('Save failed:', e);
+    alert('Your changes were NOT saved. ' + (/row-level security|42501/i.test(String(e.message)) ? 'Your account does not have permission to add a team yet.' : 'Please try again.'));
+  }
+}
+
+async function saveChangesInner() {
   const familyName = document.getElementById('f-family-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
 
